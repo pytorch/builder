@@ -1,6 +1,10 @@
 """
 Usage:
-  launch.py
+  launch.py [options]
+
+Options:
+  --type TYPE    type, eg ng0 for bfboost, or ngd3 for dual Titan X [default: ng0]
+  --image IMAGE   image [default: foo]
 """
 
 from __future__ import print_function
@@ -12,6 +16,8 @@ from docopt import docopt
 api_url = 'https://api.jarvice.com/jarvice'
 
 args = docopt(__doc__)
+instancetype = args['--type']
+image = args['--image']
 
 with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
@@ -23,7 +29,7 @@ apikey = config['apikey']
 launch_data = {
   "machine": {
     "nodes": "1",
-    "type": "ng0"
+    "type": instancetype
   },
   "vault": {
     "readonly": False,
@@ -36,7 +42,7 @@ launch_data = {
   },
   "nae": {
     "force": False,
-    "name": "foo",
+    "name": image,
     "geometry": "1904x881",
     "ephemeral": False,
     "staging": True,
