@@ -10,7 +10,7 @@ python launch.py --type dg0 --image foo
 ```
 ... for bitstream boost, and assuming you created an image called `foo`, or:
 ```
-python launch-standard.py --type ngd3 --image foo2
+python launch.py --type ngd3 --image foo2
 ```
 ... for dual Titan X instance, assuming you have an image called `foo2`
 
