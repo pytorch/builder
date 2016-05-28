@@ -6,15 +6,13 @@ Use to start/stop nimbix instances, and ssh to them
 
 ### start
 ```
-python launch.py
+python launch.py --type dg0 --image foo
 ```
-... for bitstream boost, or:
+... for bitstream boost, and assuming you created an image called `foo`, or:
 ```
-python launch-standard.py
+python launch-standard.py --type ngd3 --image foo2
 ```
-... for dual Titan X instance
-
-Note this assumes you have one image called `foo`, and another called `foo2`
+... for dual Titan X instance, assuming you have an image called `foo2`
 
 ### ssh
 
