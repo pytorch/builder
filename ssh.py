@@ -19,7 +19,7 @@ api_url = 'https://api.jarvice.com/jarvice'
 args = docopt(__doc__)
 image = args['--image']
 
-with open('nimbix/nimbix.yaml', 'r') as f:
+with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
 
 username = config['username']
