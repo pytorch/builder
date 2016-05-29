@@ -1,9 +1,8 @@
 """
-Spin up an instance, run a single command, spin it down :-)
+Spin up an instance, run a single script, spin it down :-)
 
 Usage:
-  run.py [options] -- <COMMAND> ...
-  run.py [options] <COMMAND> ...
+  run.py [options] <SCRIPTPATH>
 
 Options:
   --type TYPE    type, eg ng0 for bfboost, or ngd3 for dual Titan X [default: ng0]
@@ -15,22 +14,38 @@ import sys
 import yaml
 import json
 import requests
+import pysftp
 import time
 from docopt import docopt
 
 api_url = 'https://api.jarvice.com/jarvice'
+drop_host = 'drop.jarvice.com'
 
 args = docopt(__doc__)
 instancetype = args['--type']
 image = args['--image']
-command = args['<COMMAND>']
-print('command', command)
+scriptPath = args['<SCRIPTPATH>']
+print('scriptPath', scriptPath)
+#command = args['<COMMAND>']
+#print('command', command)
 
 with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
 
 username = config['username']
 apikey = config['apikey']
+
+scriptName = scriptPath.split('/')[-1]
+print('scriptName', scriptName)
+
+# need to sftp it up to data first...
+with pysftp.Connection(drop_host, username=username, password=apikey) as sftp:
+  try:
+    sftp.mkdir('temp')
+  except:
+    pass
+#  sftp.cd('temp'):
+  sftp.put(scriptPath, "temp/%s" % scriptName)
 
 launch_data = {
   "machine": {
@@ -53,7 +68,7 @@ launch_data = {
     "force": False,
     "name": image,
 #    "geometry": "1904x881",
-    "command": " ".join(command),
+    "command": "bash /data/temp/%s" % scriptName,
     "ephemeral": False,
     "staging": True,
     "interactive": False
@@ -91,4 +106,6 @@ res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, usern
 assert res.status_code == 200
 res = json.loads(res.content.decode('utf-8'))
 print('wall time %s' % res[str(jobnumber)]['job_walltime'])
+
+#sftp.close()
 
