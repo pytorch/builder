@@ -43,13 +43,7 @@ python run.py --type ng0 --image s1 hostname
 Output:
 ```
 command ['hostname']
-res.status_code 200
-jobnumber 66957
-   PROCESSING STARTING
-   PROCESSING STARTING
-   PROCESSING STARTING
-   PROCESSING STARTING
-   COMPLETED
+jobnumber 66999
 Opening Vault...
 Initializing NAE...
 CPU cores count:  2
@@ -58,13 +52,10 @@ passwd: password expiry information changed.
 passwd: password expiry information changed.
 Starting NAE...
 Initializing networking...
-NAE started in 2 second(s).
+NAE started in 1 second(s).
 
 JARVICE
-
-
-
-wall time 00:00:09
+wall time 00:00:08
 ```
 
 ### script.py - run a single batch script, then exit

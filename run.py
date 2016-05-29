@@ -17,6 +17,7 @@ import json
 import requests
 import time
 from docopt import docopt
+from util.logtailer import LogTailer
 
 api_url = 'https://api.jarvice.com/jarvice'
 
@@ -61,32 +62,24 @@ launch_data = {
 }
 
 res = requests.post('%s/submit' % api_url, json=launch_data)
-#print(res.status_code)
-print('res.status_code', res.status_code)
 assert res.status_code == 200
 res = json.loads(res.content.decode('utf-8'))
-#print(res)
 
 jobnumber = res['number']
 print('jobnumber %s' % jobnumber)
 
+logtailer = LogTailer(username=username, apikey=apikey, jobnumber=jobnumber)
 while True:
   res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
   assert res.status_code == 200
   res = json.loads(res.content.decode('utf-8'))
-#  print(res)
   status = res[str(jobnumber)]['job_status']
-  print('   %s' % status)
+  logtailer.updateFromTail()
   if 'COMPLETED' in status:
     break
   time.sleep(1)
 
-res = requests.get('%s/output?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
-assert res.status_code == 200
-#print(res.status_code)
-print(res.content.decode('utf-8'))
-#res = json.loads(res.content.decode('utf-8'))
-#print(res)
+logtailer.updateFromOutput()
 
 res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
 assert res.status_code == 200
