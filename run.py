@@ -62,6 +62,7 @@ launch_data = {
 
 res = requests.post('%s/submit' % api_url, json=launch_data)
 #print(res.status_code)
+print('res.status_code', res.status_code)
 assert res.status_code == 200
 res = json.loads(res.content.decode('utf-8'))
 #print(res)
