@@ -83,16 +83,10 @@ python script.py --type ng0 --image s1 /tmp/test.sh
 
 Output:
 ```
+tmp/test.sh
 scriptPath /tmp/test.sh
 scriptName test.sh
-jobnumber 66958
-   SUBMITTED
-   SUBMITTED
-   PROCESSING STARTING
-   PROCESSING STARTING
-   PROCESSING STARTING
-   PROCESSING STARTING
-   COMPLETED
+jobnumber 66988
 Opening Vault...
 Initializing NAE...
 CPU cores count:  2
@@ -101,7 +95,7 @@ passwd: password expiry information changed.
 passwd: password expiry information changed.
 Starting NAE...
 Initializing networking...
-NAE started in 1 second(s).
+NAE started in 2 second(s).
 
 JARVICE
 USER=nimbix
@@ -112,10 +106,7 @@ SHLVL=1
 HOME=/home/nimbix
 LOGNAME=nimbix
 _=/usr/bin/env
-
-
-
-wall time 00:00:09
+wall time 00:00:08
 ```
 
 ## prerequisites / setup
