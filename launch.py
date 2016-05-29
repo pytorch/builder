@@ -22,7 +22,6 @@ image = args['--image']
 with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
 
-print('config', config)
 username = config['username']
 apikey = config['apikey']
 
