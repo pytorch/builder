@@ -84,23 +84,49 @@ res = json.loads(res.content.decode('utf-8'))
 jobnumber = res['number']
 print('jobnumber %s' % jobnumber)
 
+def get_last_nonblank_index(target):
+  index = len(target) - 1
+  while index > 0 and target[index] == '':
+    index -= 1
+  return index
+
+lines_printed = 0
 while True:
   res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
   assert res.status_code == 200
   res = json.loads(res.content.decode('utf-8'))
-#  print(res)
   status = res[str(jobnumber)]['job_status']
-  print('   %s' % status)
+  if str(status) == str('SUBMITTED'):
+    time.sleep(1)
+    continue
+  res = requests.get('%s/tail?username=%s&apikey=%s&number=%s&lines=10000' % (api_url, username, apikey, jobnumber))
+  if res.content.decode('utf-8') != '{\n    "error": "Running job is not found"\n}\n':
+    full_log = res.content.decode('utf-8').split('\n')
+    last_nonblank_line = get_last_nonblank_index(full_log)
+    full_log = full_log[:last_nonblank_line + 1]
+    new_numlines = len(full_log)
+    if new_numlines != lines_printed:
+      print('\n'.join(full_log[lines_printed:]))
+      lines_printed = new_numlines
+  #  print('   %s' % status)
   if 'COMPLETED' in status:
     break
   time.sleep(1)
 
 res = requests.get('%s/output?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
-assert res.status_code == 200
-#print(res.status_code)
-print(res.content.decode('utf-8'))
-#res = json.loads(res.content.decode('utf-8'))
-#print(res)
+full_log = res.content.decode('utf-8').replace('\r', '').split('\n')
+last_nonblank_line = get_last_nonblank_index(full_log)
+full_log = full_log[:last_nonblank_line + 1]
+new_numlines = len(full_log)
+if new_numlines != lines_printed:
+  print('\n'.join(full_log[lines_printed:]))
+  lines_printed = new_numlines
+
+#assert res.status_code == 200
+##print(res.status_code)
+#print(res.content.decode('utf-8'))
+##res = json.loads(res.content.decode('utf-8'))
+##print(res)
 
 res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
 assert res.status_code == 200
