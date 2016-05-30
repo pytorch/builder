@@ -56,7 +56,7 @@ rm csr.pem
 git clone https://github.com/hughperkins/torchunit
 
 # start jenkins
-torchunit/runjenkin.sh
+torchunit/runjenkins.sh
 sleep 40
 
 # install git client
@@ -72,5 +72,5 @@ sleep 40
 java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-shutdown
 
 # this enables security:
-cp jenkins/config/config.xml ~/.jenkins
+cp ~/torchunit/jenkins/config/config.xml ~/.jenkins
 
