@@ -7,6 +7,8 @@ from __future__ import print_function
 import sys, os, subprocess
 import requests
 import json
+from os import path
+from os.path import join
 from docopt import docopt
 import yaml
 
@@ -14,7 +16,9 @@ api_url = 'https://api.jarvice.com/jarvice'
 
 args = docopt(__doc__)
 
-with open('nimbix.yaml', 'r') as f:
+script_dir = path.dirname(path.realpath(__file__))
+
+with open(join(script_dir, 'nimbix.yaml'), 'r') as f:
   config = yaml.load(f)
 
 username = config['username']
