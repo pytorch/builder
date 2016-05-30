@@ -7,7 +7,8 @@
 # we'll first update, then call this script again, with 'stage2' argument
 if [[ $1 == stage2 ]]; then {
   # start jenkins here
-  nohup java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem --httpPort=-1 >jenkinsout.txt 2>&1 &
+  # nohup java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem --httpPort=-1 >jenkinsout.txt 2>&1 &
+  nohup java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem >jenkinsout.txt 2>&1 &
 } else {
   # update git here
   pushd torchunit
