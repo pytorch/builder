@@ -12,7 +12,7 @@
 #
 # 1.
 # wget https://raw.githubusercontent.com/hughperkins/torchunit/master/bootstrap.sh
-# bash boostrap.sh
+# bash bootstrap.sh
 #
 # 2.
 # copy torchunit/config.yaml.templ to torchunit/config.yaml , and set a jenkins user password
@@ -59,23 +59,25 @@ openssl req -new -key key.pem -out csr.pem <infile
 openssl x509 -req -days 9999 -in csr.pem -signkey key.pem -out cert.pem
 rm csr.pem
 
-# pull down git repo, contains run scripts etc
-git clone https://github.com/hughperkins/torchunit
-
 # start jenkins
 torchunit/runjenkins.sh
 sleep 40
 
 # install git client
 # this bit is all a bit beta :-P
+echo installing git plugin
 curl -XPOST http://localhost:8080/pluginManager/installNecessaryPlugins -d '<install plugin="git@current" />'
+echo sleeping...
 sleep 40
 
+echo bouncing...
 JENKINSCLI=~/.jenkins/war/WEB-INF/jenkins-cli.jar
 java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-restart
+echo sleeping...
 sleep 40
 
 # terminate jenkins
+echo shutting jenkins down
 java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-shutdown
 
 # this enables security:
