@@ -5,5 +5,5 @@
 - top right, check says 'N Virginia'
   - ![select region](img/selectregion.png?raw=true)
 - click on 'EC2'
-  - !(img/clickec2.png?raw=true)
+  - ![](img/clickec2.png?raw=true)
   
