@@ -10,13 +10,20 @@
 # 
 # in the instance ssh, paste and run:
 #
-# wget https://raw.githubusercontent.com/hughperkins/torchunit/master/installjenkins.sh
-# bash installjenkins.sh
+# 1.
+# wget https://raw.githubusercontent.com/hughperkins/torchunit/master/bootstrap.sh
+# bash boostrap.sh
 #
-# then, copy torchunit/config.yaml.templ to torchunit/config.yaml , and set a jenkins user password
+# 2.
+# copy torchunit/config.yaml.templ to torchunit/config.yaml , and set a jenkins user password
 # in it
+#
+# 3.
+# bash torchunit/installjenkins.sh
 
-sudo apt-get -y update
+cd ~
+
+#sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get install -y git openjdk-7-jre-headless htop iotop tmux
 sudo apt-get install -y python3.4-dev python-virtualenv python-wheel
