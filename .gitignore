@@ -2,3 +2,5 @@ nimbix.yaml
 *.pyc
 pers/
 
+nimbixinstances.txt
+

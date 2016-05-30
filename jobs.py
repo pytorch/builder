@@ -20,13 +20,23 @@ with open('nimbix.yaml', 'r') as f:
 username = config['username']
 apikey = config['apikey']
 
-res = requests.get('%s/jobs?username=%s&apikey=%s' % (api_url, username, apikey))
-res = json.loads(res.content.decode('utf-8'))
+def get_jobs():
+  res = requests.get('%s/jobs?username=%s&apikey=%s' % (api_url, username, apikey))
+  res = json.loads(res.content.decode('utf-8'))
+  jobs = []
+  for jobnumber, info in res.items():
+#    print(json.dumps(info, indent=2))
+#    print(jobnumber, info['job_api_submission']['nae']['name'])
+    job = {}
+    job['number'] = jobnumber
+    job['image'] = info['job_api_submission']['nae']['name']
+    job['type'] = info['job_api_submission']['machine']['type']
+    job['count'] = int(info['job_api_submission']['machine']['nodes'])
+    jobs.append(job)
+  return jobs
 
-for jobnumber, info in res.items():
-  print(jobnumber, info['job_api_submission']['nae']['name'])
-#  print('jobnumber', jobnumber)
-#  if info['job_api_submission']['nae']['name'] == image:
-#    target_jobnumber = jobnumber
-#    break
+if __name__ == '__main__':
+  for job in get_jobs():
+    print(job['number'], job['type'], job['image'], job['count'])
+#  print(get_jobs())
 
