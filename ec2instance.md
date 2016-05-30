@@ -3,5 +3,6 @@
 - go to http://console.aws.amazon.com
   - sign in, or create account
 - top right, check says 'N Virginia'
-  - ![img/selectregion.png]
+  - ![select region](img/selectregion.png?raw=true)
   
+
