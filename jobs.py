@@ -32,7 +32,7 @@ def get_jobs():
 #    print(json.dumps(info, indent=2))
 #    print(jobnumber, info['job_api_submission']['nae']['name'])
     job = {}
-    job['number'] = jobnumber
+#    job['number'] = jobnumber
     job['image'] = info['job_api_submission']['nae']['name']
     job['type'] = info['job_api_submission']['machine']['type']
     job['count'] = int(info['job_api_submission']['machine']['nodes'])
@@ -41,6 +41,6 @@ def get_jobs():
 
 if __name__ == '__main__':
   for job in get_jobs():
-    print(job['number'], job['type'], job['image'], job['count'])
+    print(job['type'], job['image'], job['count'])
 #  print(get_jobs())
 
