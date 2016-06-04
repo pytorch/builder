@@ -6,11 +6,11 @@ Use to start/stop nimbix instances, ssh to them, or simply run a single command 
 
 ### start
 ```
-python launch.py --type dg0 --image foo
+./launch --type ng0 --image foo
 ```
 ... for bitstream boost, and assuming you created an image called `foo`, or:
 ```
-python launch.py --type ngd3 --image foo2
+./launch --type ngd3 --image foo2
 ```
 ... for dual Titan X instance, assuming you have an image called `foo2`
 
@@ -18,7 +18,7 @@ python launch.py --type ngd3 --image foo2
 
 eg if you want to connect to an instance created from an image called `foo`, do:
 ```
-./ssh.sh --image foo
+./ssh --image foo
 ```
 This assumes you have added your ssh publickey to your nimbix account
 
@@ -26,7 +26,7 @@ This assumes you have added your ssh publickey to your nimbix account
 
 eg if you want to shut down an instance running from an image called `foo`, do:
 ```
-python shutdown.py --image foo
+./shutdown --image foo
 ```
 
 ## Batch Usage
@@ -37,7 +37,7 @@ python shutdown.py --image foo
 
 eg, to run `hostname`, on instance type `ng0`, using an image called `s1`:
 ```
-python run.py --type ng0 --image s1 hostname
+./run --type ng0 --image s1 hostname
 ```
 
 Output:
@@ -69,7 +69,7 @@ cat >/tmp/test.sh<<EOF
 hostname
 env
 EOF
-python script.py --type ng0 --image s1 /tmp/test.sh
+./script --type ng0 --image s1 /tmp/test.sh
 ```
 
 Output:
