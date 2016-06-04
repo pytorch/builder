@@ -6,11 +6,11 @@ Use to start/stop nimbix instances, ssh to them, or simply run a single command 
 
 ### start
 ```
-./launch --type ng0 --image foo
+./nimbix-launch --type ng0 --image foo
 ```
 ... for bitstream boost, and assuming you created an image called `foo`, or:
 ```
-./launch --type ngd3 --image foo2
+./nimbix-launch --type ngd3 --image foo2
 ```
 ... for dual Titan X instance, assuming you have an image called `foo2`
 
@@ -18,7 +18,7 @@ Use to start/stop nimbix instances, ssh to them, or simply run a single command 
 
 eg if you want to connect to an instance created from an image called `foo`, do:
 ```
-./ssh --image foo
+./nimbix-ssh --image foo
 ```
 This assumes you have added your ssh publickey to your nimbix account
 
@@ -26,7 +26,7 @@ This assumes you have added your ssh publickey to your nimbix account
 
 eg if you want to shut down an instance running from an image called `foo`, do:
 ```
-./shutdown --image foo
+./nimbix-shutdown --image foo
 ```
 
 ## Batch Usage
@@ -37,7 +37,7 @@ eg if you want to shut down an instance running from an image called `foo`, do:
 
 eg, to run `hostname`, on instance type `ng0`, using an image called `s1`:
 ```
-./run --type ng0 --image s1 hostname
+./nimbix-run --type ng0 --image s1 hostname
 ```
 
 Output:
@@ -69,7 +69,7 @@ cat >/tmp/test.sh<<EOF
 hostname
 env
 EOF
-./script --type ng0 --image s1 /tmp/test.sh
+./nimbix-script --type ng0 --image s1 /tmp/test.sh
 ```
 
 Output:
