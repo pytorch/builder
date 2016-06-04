@@ -3,7 +3,7 @@ Usage:
   launch.py [options]
 
 Options:
-  --image IMAGE      image
+  --image IMAGE      image  [default: ng0]
 """
 
 from __future__ import print_function

@@ -4,7 +4,7 @@ Usage:
 
 Options:
   --type TYPE    type, eg ng0 for bfboost, or ngd3 for dual Titan X [default: ng0]
-  --image IMAGE   image [default: foo]
+  --image IMAGE   image [default: ng0]
 """
 
 from __future__ import print_function
