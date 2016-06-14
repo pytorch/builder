@@ -59,7 +59,7 @@ class IndicatorCPUSpeed:
         self.update_cpu_speeds()
         # then start updating every 2 seconds
         # http://developer.gnome.org/pygobject/stable/glib-functions.html#function-glib--timeout-add-seconds
-        GLib.timeout_add_seconds(3, self.handler_timeout)
+        GLib.timeout_add_seconds(180, self.handler_timeout)
 
 #    def get_cpu_speeds(self):
 #        """Use regular expression to parse speeds of all CPU cores from
