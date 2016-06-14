@@ -28,6 +28,8 @@ eg if you want to connect to an instance created from an image called `foo`, do:
 ```
 This assumes you have added your ssh publickey to your nimbix account
 
+Note that this turns off hostkey checking.  You may or may not want to do this (risk of man-in-middle attacks)
+
 ### shutdown
 
 eg if you want to shut down an instance running from an image called `foo`, do:

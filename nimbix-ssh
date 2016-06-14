@@ -4,5 +4,5 @@ scriptdir=$(dirname $0)
 cd ${scriptdir}
 source activate
 
-ssh nimbix@$(python ssh.py "$@")
+ssh -o StrictHostKeyChecking=no nimbix@$(python ssh.py "$@")
 
