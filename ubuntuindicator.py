@@ -92,12 +92,16 @@ class IndicatorCPUSpeed:
     def update_cpu_speeds(self):
 #        f = self.get_cpu_speeds()
 #        f = [1, 1]
-        jobslist = jobs.get_jobs()
-        label = ''
-        for job in jobslist:
-            if label != '':
-                 label += ' '
-            label += job['image']
+        label = 'failed'
+        try:
+            jobslist = jobs.get_jobs()
+            label = ''
+            for job in jobslist:
+                if label != '':
+                     label += ' '
+                label += job['image']
+        except Exception as e:
+            label = 'exception occurred'
         self.ind.set_label(label, "")
 
     def main(self):
