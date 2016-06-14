@@ -40,7 +40,7 @@ class IndicatorCPUSpeed:
 
         # you can use this menu item for experimenting
         item = Gtk.MenuItem()
-        item.set_label("Test")
+        item.set_label("Poll")
         item.connect("activate", self.handler_menu_test)
         item.show()
         self.menu.append(item)
@@ -78,7 +78,8 @@ class IndicatorCPUSpeed:
 
     def handler_menu_test(self, evt):
         # we can change the icon at any time
-        self.ind.set_icon("indicator-messages-new")
+#        self.ind.set_icon("indicator-messages-new")
+        self.update_cpu_speeds()
 
     def handler_timeout(self):
         """This will be called every few seconds by the GLib.timeout.
