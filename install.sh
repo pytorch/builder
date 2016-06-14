@@ -1,7 +1,7 @@
 #!/bin/bash
 # designed/tested on ubuntu 16.04
 
-sudo apt-get install -y python3 python3-dev python-virtualenv
+sudo apt-get install -y python3 python3-dev python-virtualenv libffi-dev libssl-dev
 virtualenv -p python3 env3
 source env3/bin/activate
 pip install -U pip
