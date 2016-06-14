@@ -2,7 +2,7 @@
 
 scriptdir=$(dirname $0)
 cd ${scriptdir}
-source activate
+source ./activate
 
 python shutdown.py "$@"
 
