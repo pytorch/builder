@@ -100,7 +100,7 @@ class IndicatorCPUSpeed:
             for job in jobslist:
                 if label != '':
                      label += ' '
-                label += job['image']
+                label += job['type']
         except Exception as e:
             label = 'exception occurred'
         self.ind.set_label(label, "")
