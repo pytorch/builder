@@ -2,6 +2,12 @@
 
 Use to start/stop nimbix instances, ssh to them, or simply run a single command on them, in batch mode
 
+## Contents
+
+* interactive usage
+* batch usage
+* systray icon
+
 ## Interactive Usage
 
 ### start
@@ -99,6 +105,16 @@ LOGNAME=nimbix
 _=/usr/bin/env
 wall time 00:00:08
 ```
+
+## systray icon
+
+If you are on ubuntu:
+
+* run `indicator`
+* an icon should appear in the notifications are
+* if you start instances, their type should appear as a label next to the icon
+
+Tested using xfce on ubuntu 16.04
 
 ## prerequisites / setup
 
