@@ -9,12 +9,12 @@ import requests
 import json
 from os import path
 from os.path import join
-from docopt import docopt
+#from docopt import docopt
 import yaml
 
 api_url = 'https://api.jarvice.com/jarvice'
 
-args = docopt(__doc__)
+#args = docopt(__doc__)
 
 script_dir = path.dirname(path.realpath(__file__))
 
