@@ -110,7 +110,7 @@ wall time 00:00:08
 
 If you are on ubuntu:
 
-* run `indicator`
+* run `nimbix-indicator`
 * an icon should appear in the notifications are
 * if you start instances, their type should appear as a label next to the icon
 
