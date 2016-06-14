@@ -1,0 +1,8 @@
+#!/bin/bash
+
+scriptdir=$(dirname $0)
+cd ${scriptdir}
+source activate
+
+python launch.py --image ngd3 --type ngd3
+
