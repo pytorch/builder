@@ -7,6 +7,9 @@
 # ln -s /usr/lib/python3/dist-packages/gi/ .
 # popd
 
+from os import path
+from os.path import join
+import os.path
 from gi.repository import Gtk, GLib
 
 try: 
@@ -16,6 +19,8 @@ except:
 
 import re
 import jobs
+
+script_dir = path.dirname(path.realpath(__file__))
 
 class IndicatorCPUSpeed:
     def __init__(self):
@@ -27,6 +32,8 @@ class IndicatorCPUSpeed:
                             "indicator-cpuspeed", 
                             "onboard-mono",
                             AppIndicator.IndicatorCategory.HARDWARE)
+#        self.ind.set_icon_theme_path(join(script_dir, 'img'))
+#        self.ind.set_icon('nimbix')
 
         # some more information about the AppIndicator:
         # http://developer.ubuntu.com/api/ubuntu-12.04/python/AppIndicator3-0.1.html
