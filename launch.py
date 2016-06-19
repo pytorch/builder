@@ -6,53 +6,58 @@ import requests
 
 api_url = 'https://api.jarvice.com/jarvice'
 
-instancetype = None
-if len(sys.argv) > 2:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--type', help='type, eg ng0 for bfboost, or ngd3 for dual Titan X')
-    parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
-    args = parser.parse_args()
-    instancetype = args.type
-    image = args.image
-else:
-    image = sys.argv[1]
-
 with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
-
-if instancetype is None:
-    instancetype = config['type_by_instance'].get(image, image)
-print('instancetype: %s' % instancetype)
 
 username = config['username']
 apikey = config['apikey']
 
-launch_data = {
-  "machine": {
-    "nodes": "1",
-    "type": instancetype
-  },
-  "vault": {
-    "readonly": False,
-    "force": False,
-    "name": "drop.jarvice.com"
-  },
-  "user": {
-    "username": username,
-    "apikey": apikey
-  },
-  "nae": {
-    "force": False,
-    "name": image,
-    "geometry": "1904x881",
-    "ephemeral": False,
-    "staging": True,
-    "interactive": True
-  }
-}
+def launch(image, instancetype):
+    launch_data = {
+      "machine": {
+        "nodes": "1",
+        "type": instancetype
+      },
+      "vault": {
+        "readonly": False,
+        "force": False,
+        "name": "drop.jarvice.com"
+      },
+      "user": {
+        "username": username,
+        "apikey": apikey
+      },
+      "nae": {
+        "force": False,
+        "name": image,
+        "geometry": "1904x881",
+        "ephemeral": False,
+        "staging": True,
+        "interactive": True
+      }
+    }
 
-res = requests.post('%s/submit' % api_url, json=launch_data)
-print(res.status_code)
-print(res.content)
-print(res.status_code)
+    res = requests.post('%s/submit' % api_url, json=launch_data)
+    return res.status_code, res.content
+
+if __name__ == '__main__':
+    instancetype = None
+    if len(sys.argv) > 2:
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--type', help='type, eg ng0 for bfboost, or ngd3 for dual Titan X')
+        parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
+        args = parser.parse_args()
+        instancetype = args.type
+        image = args.image
+    else:
+        image = sys.argv[1]
+
+    if instancetype is None:
+        instancetype = config['type_by_instance'].get(image, image)
+    print('instancetype: %s' % instancetype)
+
+    status_code, content = launch(image, instancetype)
+    print(status_code)
+    print(content)
+    print(status_code)
 

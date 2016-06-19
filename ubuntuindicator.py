@@ -25,6 +25,7 @@ except:
 
 import re
 import jobs
+import launch
 
 script_dir = path.dirname(path.realpath(__file__))
 api_url = 'https://api.jarvice.com/jarvice'
@@ -35,6 +36,7 @@ with open(join(script_dir, 'nimbix.yaml'), 'r') as f:
 username = config['username']
 apikey = config['apikey']
 ssh_command = config['ssh_command']
+type_by_instance = config.get('type_by_instance', {})
 
 class IndicatorCPUSpeed(object):
     def __init__(self):
@@ -73,6 +75,15 @@ class IndicatorCPUSpeed(object):
         item.show()
         self.menu.append(item)
 
+        for image, instancetype in type_by_instance.items():
+            item = Gtk.MenuItem()
+            item.set_label("Launch %s" % image)
+            item.target_image = image
+            item.target_type = instancetype
+            item.connect("activate", self.handler_instance_launch)
+            item.show()
+            self.menu.insert(item, 0)
+
         self.menu.show()
         self.ind.set_menu(self.menu)
 
@@ -103,11 +114,18 @@ class IndicatorCPUSpeed(object):
         # returning False will make the timeout stop
         return True
 
+    def handler_instance_launch(self, evt):
+        self.instance_launch(evt.target_image, evt.target_type)
+
     def handler_instance_ssh(self, evt):
         self.instance_ssh(evt.job_number, evt.target_image)
 
     def handler_instance_kill(self, evt):
         self.instance_kill(evt.job_number, evt.target_image)
+
+    def instance_launch(self, image, instancetype):
+        launch.launch(image, instancetype)
+        GLib.timeout_add_seconds(10, self.handler_poll_onetime)
 
     def instance_ssh(self, job_number, target_image):
         res = requests.get('%s/connect?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, job_number))
@@ -168,6 +186,4 @@ class IndicatorCPUSpeed(object):
 if __name__ == "__main__":
     ind = IndicatorCPUSpeed()
     ind.main()
-
-
 
