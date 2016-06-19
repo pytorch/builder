@@ -2,6 +2,8 @@
 
 Use to start/stop nimbix instances, ssh to them, or simply run a single command on them, in batch mode
 
+There's also a systray indicator, so you can see which instances are currently running.
+
 ## Contents
 
 * interactive usage
@@ -19,6 +21,10 @@ Use to start/stop nimbix instances, ssh to them, or simply run a single command 
 ./nimbix-launch --type ngd3 --image foo2
 ```
 ... for dual Titan X instance, assuming you have an image called `foo2`
+
+You can add image names and instance types to the config file (see below), if you want, so that you can
+give a default type for each image.  Then, you just need to specify the image name on the commandline, and
+it will choose the instance type from the config file for you.
 
 ### ssh
 
