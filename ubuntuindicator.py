@@ -7,9 +7,15 @@
 # ln -s /usr/lib/python3/dist-packages/gi/ .
 # popd
 
+from __future__ import print_function, division
 from os import path
 from os.path import join
 import os.path
+import traceback
+import yaml
+import requests
+import json
+import subprocess
 from gi.repository import Gtk, GLib
 
 try: 
@@ -21,8 +27,16 @@ import re
 import jobs
 
 script_dir = path.dirname(path.realpath(__file__))
+api_url = 'https://api.jarvice.com/jarvice'
 
-class IndicatorCPUSpeed:
+with open(join(script_dir, 'nimbix.yaml'), 'r') as f:
+  config = yaml.load(f)
+
+username = config['username']
+apikey = config['apikey']
+ssh_command = config['ssh_command']
+
+class IndicatorCPUSpeed(object):
     def __init__(self):
         # param1: identifier of this indicator
         # param2: name of icon. this will be searched for in the standard them
@@ -63,11 +77,12 @@ class IndicatorCPUSpeed:
         self.ind.set_menu(self.menu)
 
         # initialize cpu speed display
+        self.instance_items = []
         self.update_cpu_speeds()
         # then start updating every 2 seconds
         # http://developer.gnome.org/pygobject/stable/glib-functions.html#function-glib--timeout-add-seconds
         GLib.timeout_add_seconds(180, self.handler_timeout)
-
+        
 #    def get_cpu_speeds(self):
 #        """Use regular expression to parse speeds of all CPU cores from
 #        /proc/cpuinfo on Linux.
@@ -97,19 +112,51 @@ class IndicatorCPUSpeed:
         # returning False will make the timeout stop
         return True
 
+    def handler_instance_ssh(self, evt):
+        # print('evt', evt)
+        # print('target_image', evt.target_image)
+        self.instance_ssh(evt.job_number, evt.target_image)
+
+    def instance_ssh(self, job_number, target_image):
+        res = requests.get('%s/connect?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, job_number))
+        res = json.loads(res.content.decode('utf-8'))
+        ip_address = res['address']
+        subprocess.Popen(ssh_command.format(
+            ip_address=ip_address,
+            image=target_image
+        ).split())
+
     def update_cpu_speeds(self):
 #        f = self.get_cpu_speeds()
 #        f = [1, 1]
         label = 'failed'
+        print('instance_items', self.instance_items)
         try:
             jobslist = jobs.get_jobs()
             label = ''
+            for item in self.instance_items:
+                self.menu.remove(item)
+            self.instance_items.clear()
             for job in jobslist:
                 if label != '':
                      label += ' '
                 label += job['type']
+
+                item = Gtk.MenuItem()
+                item.set_label('ssh to %s' % job['image'])
+                item.connect("activate", self.handler_instance_ssh)
+                item.target_image = job['image']
+                item.job_number = job['number']
+                item.show()
+                self.menu.insert(item, 0)
+                self.instance_items.append(item)
+
         except Exception as e:
             label = 'exception occurred'
+            try:
+                print(traceback.format_exc())
+            except:
+                print('exception in exception :-P')
         self.ind.set_label(label, "")
 
     def main(self):
