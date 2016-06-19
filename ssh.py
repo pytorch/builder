@@ -1,26 +1,24 @@
-"""
-Usage:
-  launch.py [options]
-
-Options:
-  --image IMAGE      image [default: ng0]
-"""
-
 from __future__ import print_function
 import sys, os, subprocess
 import requests
 import json
-from docopt import docopt
+import argparse
 import yaml
 
 api_url = 'https://api.jarvice.com/jarvice'
 # ssh_path = '/usr/bin/ssh'
 
-args = docopt(__doc__)
-image = args['--image']
-
 with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
+
+instancetype = None
+if len(sys.argv) > 2:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
+    args = parser.parse_args()
+    image = args.image
+else:
+    image = sys.argv[1]
 
 username = config['username']
 apikey = config['apikey']

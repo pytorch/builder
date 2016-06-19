@@ -6,16 +6,20 @@ import requests
 
 api_url = 'https://api.jarvice.com/jarvice'
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--type', help='type, eg ng0 for bfboost, or ngd3 for dual Titan X')
-parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
-args = parser.parse_args()
+instancetype = None
+if len(sys.argv) > 2:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--type', help='type, eg ng0 for bfboost, or ngd3 for dual Titan X')
+    parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
+    args = parser.parse_args()
+    instancetype = args.type
+    image = args.image
+else:
+    image = sys.argv[1]
 
 with open('nimbix.yaml', 'r') as f:
   config = yaml.load(f)
 
-instancetype = args.type
-image = args.image
 if instancetype is None:
     instancetype = config['type_by_instance'].get(image, image)
 print('instancetype: %s' % instancetype)
