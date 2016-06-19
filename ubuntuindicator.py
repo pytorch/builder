@@ -83,17 +83,9 @@ class IndicatorCPUSpeed(object):
         # http://developer.gnome.org/pygobject/stable/glib-functions.html#function-glib--timeout-add-seconds
         GLib.timeout_add_seconds(180, self.handler_timeout)
         
-#    def get_cpu_speeds(self):
-#        """Use regular expression to parse speeds of all CPU cores from
-#        /proc/cpuinfo on Linux.
-#        """
-
-#        f = open('/proc/cpuinfo')
-#        # this gives us e.g. ['2300', '2300']
-#        s = re.findall('cpu MHz\s*:\s*(\d+)\.', f.read())
-#        # this will give us ['2.3', '2.3']
-#        f = ['%.1f' % (float(i) / 1000,) for i in s]
-#        return f
+    def handler_poll_onetime(self):
+       self.update_cpu_speeds()
+       return False
 
     def handler_menu_exit(self, evt):
         Gtk.main_quit()
@@ -106,16 +98,16 @@ class IndicatorCPUSpeed(object):
     def handler_timeout(self):
         """This will be called every few seconds by the GLib.timeout.
         """
-        # read, parse and put cpu speeds in the label
         self.update_cpu_speeds()
         # return True so that we get called again
         # returning False will make the timeout stop
         return True
 
     def handler_instance_ssh(self, evt):
-        # print('evt', evt)
-        # print('target_image', evt.target_image)
         self.instance_ssh(evt.job_number, evt.target_image)
+
+    def handler_instance_kill(self, evt):
+        self.instance_kill(evt.job_number, evt.target_image)
 
     def instance_ssh(self, job_number, target_image):
         res = requests.get('%s/connect?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, job_number))
@@ -126,11 +118,13 @@ class IndicatorCPUSpeed(object):
             image=target_image
         ).split())
 
+    def instance_kill(self, job_number, target_image):
+        res = requests.get('%s/shutdown?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, job_number))
+        res = json.loads(res.content.decode('utf-8'))
+        GLib.timeout_add_seconds(10, self.handler_poll_onetime)
+
     def update_cpu_speeds(self):
-#        f = self.get_cpu_speeds()
-#        f = [1, 1]
         label = 'failed'
-        print('instance_items', self.instance_items)
         try:
             jobslist = jobs.get_jobs()
             label = ''
@@ -145,6 +139,15 @@ class IndicatorCPUSpeed(object):
                 item = Gtk.MenuItem()
                 item.set_label('ssh to %s' % job['image'])
                 item.connect("activate", self.handler_instance_ssh)
+                item.target_image = job['image']
+                item.job_number = job['number']
+                item.show()
+                self.menu.insert(item, 0)
+                self.instance_items.append(item)
+
+                item = Gtk.MenuItem()
+                item.set_label('kill %s' % job['image'])
+                item.connect("activate", self.handler_instance_kill)
                 item.target_image = job['image']
                 item.job_number = job['number']
                 item.show()
