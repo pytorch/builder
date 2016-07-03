@@ -13,6 +13,8 @@ from os.path import join
 import os.path
 import traceback
 import yaml
+import sys
+import argparse
 import requests
 import json
 import subprocess
@@ -30,7 +32,11 @@ import launch
 script_dir = path.dirname(path.realpath(__file__))
 api_url = 'https://api.jarvice.com/jarvice'
 
-with open(join(script_dir, 'nimbix.yaml'), 'r') as f:
+parser = argparse.ArgumentParser()
+parser.add_argument('--configfile', default=join(script_dir, 'nimbix.yaml'))
+parser.add_argument('--iconfile')
+args = parser.parse_args()
+with open(args.configfile, 'r') as f:
   config = yaml.load(f)
 
 username = config['username']
@@ -48,6 +54,13 @@ class IndicatorCPUSpeed(object):
                             "indicator-cpuspeed", 
                             "onboard-mono",
                             AppIndicator.IndicatorCategory.HARDWARE)
+        if args.iconfile is not None:
+            theme_path = path.dirname(args.iconfile)
+            icon = path.basename(args.iconfile).split('.')[0]
+            print('theme_path', theme_path, 'icon', icon)
+            self.ind.set_icon_theme_path(theme_path)
+            self.ind.set_icon(icon)
+            
 #        self.ind.set_icon_theme_path(join(script_dir, 'img'))
 #        self.ind.set_icon('nimbix')
 

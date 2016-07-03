@@ -2,6 +2,7 @@ nimbix.yaml
 *.pyc
 pers/
 
+nimbix-myindicator
 nimbixinstances.txt
 setenv.sh
 env/
