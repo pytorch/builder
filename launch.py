@@ -3,16 +3,14 @@ import sys
 import yaml
 import argparse
 import requests
+import argparse
+
 
 api_url = 'https://api.jarvice.com/jarvice'
 
-with open('nimbix.yaml', 'r') as f:
-  config = yaml.load(f)
-
-username = config['username']
-apikey = config['apikey']
-
-def launch(image, instancetype):
+def launch(config, image, instancetype):
+    username = config['username']
+    apikey = config['apikey']
     launch_data = {
       "machine": {
         "nodes": "1",
@@ -46,17 +44,25 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser()
         parser.add_argument('--type', help='type, eg ng0 for bfboost, or ngd3 for dual Titan X')
         parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
+        parser.add_argument('--configfile', default=join(script_dir, 'nimbix.yaml'))
         args = parser.parse_args()
         instancetype = args.type
         image = args.image
     else:
         image = sys.argv[1]
 
+    config_path = args.configfile
+    if not config_path.startswith('/'):
+        config_path = join(script_dir, config_path)
+
+    with open(config_path, 'r') as f:
+      config = yaml.load(f)
+
     if instancetype is None:
         instancetype = config['type_by_instance'].get(image, image)
     print('instancetype: %s' % instancetype)
 
-    status_code, content = launch(image, instancetype)
+    status_code, content = launch(config, image, instancetype)
     print(status_code)
     print(content)
     print(status_code)

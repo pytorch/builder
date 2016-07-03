@@ -137,7 +137,7 @@ class IndicatorCPUSpeed(object):
         self.instance_kill(evt.job_number, evt.target_image)
 
     def instance_launch(self, image, instancetype):
-        launch.launch(image, instancetype)
+        launch.launch(config, image, instancetype)
         GLib.timeout_add_seconds(10, self.handler_poll_onetime)
 
     def instance_ssh(self, job_number, target_image):
@@ -157,7 +157,7 @@ class IndicatorCPUSpeed(object):
     def update_cpu_speeds(self):
         label = 'failed'
         try:
-            jobslist = jobs.get_jobs()
+            jobslist = jobs.get_jobs(config)
             label = ''
             for item in self.instance_items:
                 self.menu.remove(item)

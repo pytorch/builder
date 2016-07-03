@@ -4,5 +4,5 @@ scriptdir=$(dirname $0)
 cd ${scriptdir}
 source ./activate
 
-python jobs.py
+python jobs.py $1 $2
 

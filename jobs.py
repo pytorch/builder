@@ -7,6 +7,7 @@ from __future__ import print_function
 import sys, os, subprocess
 import requests
 import json
+import argparse
 from os import path
 from os.path import join
 #from docopt import docopt
@@ -18,13 +19,10 @@ api_url = 'https://api.jarvice.com/jarvice'
 
 script_dir = path.dirname(path.realpath(__file__))
 
-with open(join(script_dir, 'nimbix.yaml'), 'r') as f:
-  config = yaml.load(f)
+def get_jobs(config):
+  username = config['username']
+  apikey = config['apikey']
 
-username = config['username']
-apikey = config['apikey']
-
-def get_jobs():
   res = requests.get('%s/jobs?username=%s&apikey=%s' % (api_url, username, apikey))
   res = json.loads(res.content.decode('utf-8'))
   jobs = []
@@ -40,7 +38,18 @@ def get_jobs():
   return jobs
 
 if __name__ == '__main__':
-  for job in get_jobs():
+  parser = argparse.ArgumentParser()
+  parser.add_argument('--configfile', default=join(script_dir, 'nimbix.yaml'))
+  args = parser.parse_args()
+
+  config_path = args.configfile
+  if not config_path.startswith('/'):
+      config_path = join(script_dir, config_path)
+
+  with open(config_path, 'r') as f:
+    config = yaml.load(f)
+
+  for job in get_jobs(config):
     print(job['type'], job['image'], job['count'])
 #  print(get_jobs())
 
