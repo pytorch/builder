@@ -4,7 +4,6 @@ This is using manual configuration.  Ideally, we'd have 'configuration as code',
 
 ## DONE: Jenkins-side configuration 1: create build job
 
-So, what I did is, documenting as I go along:
 - ssh into hte instance
 - cat torchunit/config.yaml
 - this gives me hte jenkins password
