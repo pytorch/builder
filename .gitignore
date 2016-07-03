@@ -9,3 +9,5 @@ env/
 env2/
 env3/
 
+wrapper-service/config.yaml
+
