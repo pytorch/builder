@@ -124,6 +124,21 @@ If you are on ubuntu:
 
 Tested using xfce on ubuntu 16.04
 
+### Multiple accounts?
+
+If you have multiple accounts, the easiest thing might be to launch the indicator icon twice.  A couple of challenges:
+- how to specify the config for the second account?
+- how to differentiate the two indicator icons?
+
+What you can do is:
+- create a second config file for hte second account, and use `--configfile $PWD/mysecondconfigfile.yaml` to specify this
+- create an icon file (eg 72x72 png file), put it in an otherwise empty directory, and use eg `--iconfile $PWD/pers/icon/foo.png` to use this icon instead
+- copy `nimbix-indicator` to `nimbix-myindicator`, and run ubuntuindicator.py twice, once for each account, like eg:
+```
+python ubuntuindicator.py >/dev/null 2>&1 &
+python ubuntuindicator.py --configfile $scriptdir/pers/foo.yaml --iconfile $scriptdir/pers/icon/foo.png >/dev/null 2>&1 &
+```
+
 ## prerequisites / setup
 
 - have python 3 installed (probably runs on python 2, but not tested)
@@ -132,4 +147,5 @@ Tested using xfce on ubuntu 16.04
 pip install -r requirements.txt
 ```
 - copy `nimbix.yaml.templ` to `nimbix.yaml` and customize it with your username and nimbix apikey
+
 
