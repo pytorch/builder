@@ -3,7 +3,7 @@ Thin webservice, that wraps nimbix api, is responsible for knowing the apikey, b
 
 Jenkins then (for example), can then point at this service, not know the apikey itself.  jenkins security doesnt have to then be quite so fort-knox tight (although, if it has 'push' access to your repos, it should be fairly tight...), since jenkins doesnt then have the power to bankrupt your overnight :-P
 """
-from flask import Flask, request
+from flask import Flask, request, Response
 import os
 from os import path
 from os.path import join
@@ -12,8 +12,10 @@ import yaml
 import requests
 import json
 import argparse
+import time
 import logging
 import pysftp
+from util.logtailer import LogTailer
 
 
 logging.basicConfig()
@@ -117,7 +119,33 @@ def run():
         logger.debug('launch_data %s' % json.dumps(launch_data))
         res = requests.post('%s/submit' % api_url, json=launch_data)
         logger.info('%s %s' % (res.status_code, res.content))
-        return "OK"
+
+        res = json.loads(res.content.decode('utf-8'))
+        jobnumber = res['number']
+        logger.debug('jobnumber %s' % jobnumber)
+
+        def response_generator():
+            logtailer = LogTailer(username=username, apikey=apikey, jobnumber=jobnumber)
+            while True:
+              res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
+              assert res.status_code == 200
+              res = json.loads(res.content.decode('utf-8'))
+              status = res[str(jobnumber)]['job_status']
+              if str(status) == str('SUBMITTED'):
+                time.sleep(1)
+                continue
+              res = logtailer.updateFromTail()
+              if res is not None:
+                  yield res
+              if 'COMPLETED' in status:
+                break
+              time.sleep(1)
+
+            res = logtailer.updateFromOutput()
+            if res is not None:
+                yield res
+        return Response(response_generator())
+
     except Exception as e:
         logger.exception(e)
         return ""
