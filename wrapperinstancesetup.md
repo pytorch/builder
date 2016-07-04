@@ -193,4 +193,5 @@ curl -d 'h=123&s=changeme' 'http://52.1.2.3.4/run'
 - if the nimbix service is hacked, and returns malicious data, this has a relatively large attack surface
   - but if nimbix service is hacked, a lot of nimbix-related security aspects will become questionable at that point anyway
   - but might want to double-check the attack surface associated with data returned from a compromised nimbix service
+- disclaimer: this security analysis is best effort, and there are certainly attack vectors not listed here
 
