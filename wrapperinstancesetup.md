@@ -186,7 +186,7 @@ curl -d 'h=123&s=changeme' 'http://52.1.2.3.4/run'
   - defense in depth really
 - what if someone hacks into the wrapper instance itself?
   - yes, then the api key is exposed, this is not ideal...
-- update and so on, will zero-days be exposed?
+- update and so on: if system update are not run regularly, will zero-days be exposed?
   - the security perimeter is pretty small: just one single web-service, with one single end-point
   - there is not even any reliance on ssl working correctly
   - limited opportunity to interact with the service
