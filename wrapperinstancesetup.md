@@ -168,7 +168,7 @@ curl -d 'h=123&s=changeme' 'http://52.1.2.3.4/run'
 
 ## Security analysis
 
-- what if someone can push rogue instructions into `https://github.com/hughperkins/torchunit` or `https://github.com/torchunit`?
+- what if someone can push rogue instructions into `https://github.com/hughperkins/torchunit` or `https://github.com/torch/torchunit`?
   - this affects what is run on the nimbix instances themselves, but doesnt actually run anything on the wrapper instance, therefore no obvious way in which this would expose the apikey
   - of course, running arbitrary scripts on an internet-based server gives quite a lot of possibilities...
 - what if someone can push rogue instructions into `https://github.com/hughperkins/nimbix-admin`?
