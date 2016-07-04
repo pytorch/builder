@@ -150,3 +150,47 @@ curl -d 'h=123&s=changeme' 'http://52.1.2.3.4/run'
 - `h` value looks like a commit hash (<= 40 characters, only a-e, and 0-9 allowed)
 - `s` value is shared secret value
 
+## Analysis of possible future maintenance required
+
+- if jenkins instance ip changes:
+  - update the security group to have new jenkins ip
+  - update the `wrapper-service/config.yaml` with the new jenkins ip
+- if instance gets bounced (eg from some kind of aws maintenance, which is rare, ~once a year):
+  - follow instructions in section `start the wrapper`
+- if switch bootstrap script, eg from `https://github.com/hughperkins/torchunit` to eg `https://github.com/torch/torchunit`:
+  - modify the script in `wrapper-service/config.yaml`, to point to new repo
+  - kill tmux process
+  - follow the instructions in `start the wrapper`
+- if api key changes:
+  - modify config.yaml
+  - kill tmux process
+  - follow the instructions in `start the wrapper`
+
+## Security analysis
+
+- what if someone can push rogue instructions into `https://github.com/hughperkins/torchunit` or `https://github.com/torchunit`?
+  - only matters if they are there at the time the repo is cloned onto wrapper instance
+  - nothing in these instructions ever updates that repo (ie no `git pull`), so future changes wont affect anything
+- what if someone has `shared secret`?
+  - they still need to obtain access to jenkins box, in order to run anything
+  - they still cant obtain the nimbix api key
+  - they still cant modify which script is run
+  - all they can do is run torch unit tests over and over again :-)
+- what if someone sniffs the (non-ssl..) traffic?
+  - they obtain the shared key
+  - see section `what if someone has shared secret?` above
+- is the `shared secret` really necessary at all?
+  - defense in depth really
+- what if someone hacks into the wrapper instance itself?
+  - yes, then the api key is exposed, this is not ideal...
+- update and so on, will zero-days be exposed?
+  - the security perimeter is pretty small: just one single web-service, with one single end-point
+  - there is not even any reliance on ssl working correctly
+  - limited opportunity to interact with the service
+  - no obvious way to interact directly with the kernel
+  - since no obvious fixed-size buffers involved, limited opportunity to overflow some service buffer
+  - probalby the main way is...
+- if the nimbix service is hacked, and returns malicious data, this has a relatively large attack surface
+  - but if nimbix service is hacked, a lot of nimbix-related security aspects will become questionable at that point anyway
+  - but might want to double-check the attack surface associated with data returned from a compromised nimbix service
+
