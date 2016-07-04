@@ -169,6 +169,9 @@ curl -d 'h=123&s=changeme' 'http://52.1.2.3.4/run'
 ## Security analysis
 
 - what if someone can push rogue instructions into `https://github.com/hughperkins/torchunit` or `https://github.com/torchunit`?
+  - this affects what is run on the nimbix instances themselves, but doesnt actually run anything on the wrapper instance, therefore no obvious way in which this would expose the apikey
+  - of course, running arbitrary scripts on an internet-based server gives quite a lot of possibilities...
+- what if someone can push rogue instructions into `https://github.com/hughperkins/nimbix-admin`?
   - only matters if they are there at the time the repo is cloned onto wrapper instance
   - nothing in these instructions ever updates that repo (ie no `git pull`), so future changes wont affect anything
 - what if someone has `shared secret`?
@@ -193,5 +196,5 @@ curl -d 'h=123&s=changeme' 'http://52.1.2.3.4/run'
 - if the nimbix service is hacked, and returns malicious data, this has a relatively large attack surface
   - but if nimbix service is hacked, a lot of nimbix-related security aspects will become questionable at that point anyway
   - but might want to double-check the attack surface associated with data returned from a compromised nimbix service
-- disclaimer: this security analysis is best effort, and there are certainly attack vectors not listed here
+- disclaimer: this security analysis is best effort, and there are certainly attack vectors not listed here.  There may be things asserted here which are not correct.  You should make your own security analysis.  This analysis is indicative of certain things that might happen only.
 
