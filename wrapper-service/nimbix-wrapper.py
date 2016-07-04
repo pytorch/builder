@@ -40,7 +40,7 @@ app = Flask(__name__)
 @app.route('/run', methods=['POST'])
 def run():
     try:
-        commit_hash = request.get('h', None)
+        commit_hash = request.args.get('h', None)
 
         # validation
         client_ip = request.remote_user
