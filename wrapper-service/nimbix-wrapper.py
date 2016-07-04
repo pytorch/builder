@@ -9,19 +9,27 @@ from os import path
 from os.path import join
 import sys
 import yaml
+import requests
+import json
 import argparse
 import logging
+import pysftp
 
 
+logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# logger.setLevel(logging.INFO)
 
 script_dir = path.dirname(path.dirname(path.realpath(__file__)))
 api_url = 'https://api.jarvice.com/jarvice'
+drop_host = 'drop.jarvice.com'
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--configfile', default=join(script_dir, 'nimbix.yaml'))
+parser.add_argument('--loglevel', default='info')
 args = parser.parse_args()
+
+logger.setLevel(logging.__dict__[args.loglevel.upper()])
 
 
 with open(args.configfile, 'r') as f:
@@ -40,12 +48,16 @@ app = Flask(__name__)
 @app.route('/run', methods=['POST'])
 def run():
     try:
-        commit_hash = request.args.get('h', None)
+        commit_hash = request.values.get('h', None)
+        secret = request.values.get('s', None)
 
         # validation
-        client_ip = request.remote_user
+        client_ip = request.remote_addr
         if client_ip not in ['127.0.0.1', wrapper_config['allowed_client_ip']]:  # 127.0.0.1 should be ok...
+            logger.info('client ip %s config ip %s' % (client_ip, wrapper_config['allowed_client_ip']))
             raise Exception('client ip doesnt match that in config => ignoring')
+        if secret != wrapper_config['shared_secret']:
+            raise Exception('shared secret not correct, or absent => ignoring')
         if commit_hash is None:
             raise Exception('no commit_hash provided => ignoring')
         commit_hash = str(commit_hash)
@@ -59,19 +71,22 @@ def run():
         username = config['username']
         apikey = config['apikey']
         image = wrapper_config['image']
-        instancetype = wrapper_config['instancetype']
+        instancetype = wrapper_config['instance_type']
         
         # ftp the script to drop host
         scriptPath = '/tmp/~job.sh'
         with open(scriptPath, 'w') as f:
-            f.write(wrapper_config['script'])
+            f.write(wrapper_config['script'].format(commit_hash=commit_hash))
         scriptName = '~job.sh'
+        logger.debug('doing ftp...')
         with pysftp.Connection(drop_host, username=username, password=apikey) as sftp:
-            try:
-              sftp.mkdir('temp')
-            except:
-              pass
-            sftp.put(scriptPath, "temp/%s" % scriptName)
+            #try:
+            #  sftp.mkdir('temp')
+            #except Exception as e:
+            #  print('exception %s' % str(e))
+            #  pass
+            sftp.put(scriptPath, "%s" % scriptName)
+        logger.debug('... ftp done')
 
         # start the job...
         launch_data = {
@@ -91,7 +106,7 @@ def run():
           "nae": {
             "force": False,
             "name": image,
-            "command": "bash /data/temp/%s" % scriptName,
+            "command": "bash /data/%s" % scriptName,
             "ephemeral": False,   # this is important: means read/write, and can only launch this image once at a time
             "staging": True,
             "interactive": False,
@@ -99,8 +114,9 @@ def run():
           }
         }
 
+        logger.debug('launch_data %s' % json.dumps(launch_data))
         res = requests.post('%s/submit' % api_url, json=launch_data)
-        logger.info(res.status_code, res.content)
+        logger.info('%s %s' % (res.status_code, res.content))
         return "OK"
     except Exception as e:
         logger.exception(e)
