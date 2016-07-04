@@ -39,14 +39,13 @@ app = Flask(__name__)
 
 @app.route('/run', methods=['POST'])
 def run():
-    print(dir(request))
-    print(request.remote_user)
-    print('ok')
-    return 'ok'
     try:
         commit_hash = request.get('h', None)
 
         # validation
+        client_ip = request.remote_user
+        if client_ip not in ['127.0.0.1', wrapper_config['allowed_client_ip']]:  # 127.0.0.1 should be ok...
+            raise Exception('client ip doesnt match that in config => ignoring')
         if commit_hash is None:
             raise Exception('no commit_hash provided => ignoring')
         commit_hash = str(commit_hash)
