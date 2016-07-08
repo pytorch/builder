@@ -24,6 +24,8 @@
 
 - logout of github, log in with cutorch repo admin account
 - in https://github.com/torch/cutorch/settings , click on 'collaborators', put in your password, add `torchbot` as a collaborator
+- copy the invitation link that it proposes
+- logout, and login as `torchbot`, and navigate to the url you just copied, to activate the collaboration
 
 ### Configure webhook
 
