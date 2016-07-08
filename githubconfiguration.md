@@ -12,7 +12,7 @@
 ### Create new torchbot github user
 
 - in github, logout, then signup for a new account, eg `torchbot`
-- keep the password safe somewhere (I just reused the jenkins password actually...)
+- keep the password safe somewhere (maybe just reuse the jenkins password?)
 - go to https://github.com/settings/tokens
 - click on 'generate new token'
   - description: 'jenkins'
