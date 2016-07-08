@@ -167,6 +167,7 @@ class IndicatorCPUSpeed(object):
                      label += ' '
                 if job['status'] in ['SUBMITTED']:
                     label += '(' + job['type'] + ')'
+                    GLib.timeout_add_seconds(10, self.handler_poll_onetime)  # fast poll whilst wait for it to start
                 else:
                     label += job['type']
 
