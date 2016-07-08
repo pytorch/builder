@@ -165,7 +165,10 @@ class IndicatorCPUSpeed(object):
             for job in jobslist:
                 if label != '':
                      label += ' '
-                label += job['type']
+                if job['status'] in ['SUBMITTED']:
+                    label += '(' + job['type'] + ')'
+                else:
+                    label += job['type']
 
                 item = Gtk.MenuItem()
                 item.set_label('ssh to %s' % job['image'])

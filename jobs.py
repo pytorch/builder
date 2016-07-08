@@ -19,7 +19,7 @@ def get_jobs(config):
   res = json.loads(res.content.decode('utf-8'))
   jobs = []
   for jobnumber, info in res.items():
-    print(json.dumps(info, indent=2))
+    # print(json.dumps(info, indent=2))
 #    print(jobnumber, info['job_api_submission']['nae']['name'])
     # job_start_time": 1467578395
     job = {}
@@ -27,6 +27,7 @@ def get_jobs(config):
     job['image'] = info['job_api_submission']['nae']['name']
     job['type'] = info['job_api_submission']['machine']['type']
     job['count'] = int(info['job_api_submission']['machine']['nodes'])
+    job['status'] = info['job_status']
     jobs.append(job)
   return jobs
 
@@ -43,6 +44,6 @@ if __name__ == '__main__':
     config = yaml.load(f)
 
   for job in get_jobs(config):
-    print(job['type'], job['image'], job['count'])
+    print(job['type'], job['image'], job['count'], job['status'])
 #  print(get_jobs())
 

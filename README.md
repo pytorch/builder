@@ -121,6 +121,7 @@ If you are on ubuntu:
 * run `nimbix-indicator`
 * an icon should appear in the notifications are
 * if you start instances, their type should appear as a label next to the icon
+* if they are in submitted status, not yet running, they will be in parentheses, eg '(ngd3)'
 
 Tested using xfce on ubuntu 16.04
 
