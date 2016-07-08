@@ -1,12 +1,16 @@
 from __future__ import print_function
 import sys
 import yaml
+from os.path import join
+from os import path
 import argparse
 import requests
 import argparse
 
 
 api_url = 'https://api.jarvice.com/jarvice'
+script_dir = path.dirname(path.realpath(__file__))
+
 
 def launch(config, image, instancetype):
     username = config['username']
@@ -40,7 +44,8 @@ def launch(config, image, instancetype):
 
 if __name__ == '__main__':
     instancetype = None
-    if len(sys.argv) > 2:
+    config_path = 'nimbix.yaml'
+    if len(sys.argv) > 2 or (len(sys.argv) == 2 and sys.argv[1] in ['--help']):
         parser = argparse.ArgumentParser()
         parser.add_argument('--type', help='type, eg ng0 for bfboost, or ngd3 for dual Titan X')
         parser.add_argument('--image', default='ng0', help='image name (basically, container name, more or less)')
@@ -48,10 +53,10 @@ if __name__ == '__main__':
         args = parser.parse_args()
         instancetype = args.type
         image = args.image
+        config_path = args.configfile
     else:
         image = sys.argv[1]
 
-    config_path = args.configfile
     if not config_path.startswith('/'):
         config_path = join(script_dir, config_path)
 
