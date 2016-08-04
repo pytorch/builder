@@ -42,7 +42,8 @@ with open(args.configfile, 'r') as f:
 username = config['username']
 apikey = config['apikey']
 ssh_command = config['ssh_command']
-type_by_instance = config.get('type_by_instance', {})
+launch_profiles = config.get('launch_profiles', {})
+print('launch_profiles', launch_profiles)
 
 class IndicatorCPUSpeed(object):
     def __init__(self):
@@ -88,9 +89,12 @@ class IndicatorCPUSpeed(object):
         item.show()
         self.menu.append(item)
 
-        for image, instancetype in type_by_instance.items():
+        for launch_profile in launch_profiles:
+            image = launch_profile['image']
+            instancetype = launch_profile['type']
+            name = launch_profile['name']
             item = Gtk.MenuItem()
-            item.set_label("Launch %s" % image)
+            item.set_label("Launch %s" % name)
             item.target_image = image
             item.target_type = instancetype
             item.connect("activate", self.handler_instance_launch)
