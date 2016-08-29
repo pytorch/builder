@@ -111,7 +111,7 @@ wrapper-service/config.yaml should look something like:
 image: ngd3
 instance_type: ngd3
 max_time_minutes: 40
-allowed_client_ip: 52.0.1.2
+allowed_client_ip: $JENKINS_IP
 shared_secret: changeme
 script: |
   cd /tmp
@@ -132,6 +132,15 @@ cd nimbix-admin
 source env/bin/activate
 PYTHONPATH=. python wrapper-service/nimbix-wrapper.py --loglevel debug
 EOF
+```
+
+Configure the nimbix wrapper:
+```
+cd ~/nimbix-admin
+cp nimbix.yaml.templ nimbix.yaml
+vi nimbix.yaml
+# change username and apikey to values from nimbix.
+# you can get the apikey from Nimbix Dashboard -> [click on your username on top right] -> Account Settings -> General -> API Key
 ```
 
 ## start the wrapper
