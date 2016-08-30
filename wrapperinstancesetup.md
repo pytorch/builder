@@ -116,6 +116,7 @@ shared_secret: changeme
 script: |
   cd /tmp
   rm -Rf /tmp/torchunit
+  sudo apt-get install -y git
   git clone https://github.com/hughperkins/torchunit
   cd torchunit
   bash nimbix-bootstrap.sh {commit_hash}
