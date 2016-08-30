@@ -108,7 +108,7 @@ vim config.yaml
 ```
 wrapper-service/config.yaml should look something like:
 ```
-image: ngd3
+image: t1
 instance_type: ngd3
 max_time_minutes: 40
 allowed_client_ip: $JENKINS_IP
