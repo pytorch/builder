@@ -150,6 +150,8 @@ Need to do now, and after any instance restart:
 ```
 # ssh into wrapper instance, and then
 tmux
+ssh drop.jarvice.com
+# accept the host key, then ctrl-c out when it asks for password
 bash start.sh
 ```
 => the wrapper process should start.  You can try running from the jenkins instance:
