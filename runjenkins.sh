@@ -11,7 +11,7 @@ if [[ $1 == stage2 ]]; then {
   # security doc: https://wiki.jenkins-ci.org/display/JENKINS/Quick+and+Simple+Security
   source ~/env/bin/activate
   eval $(python torchunit/readconfig.py)
-  nohup env -i java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem --argumentsRealm.passwd.jenkins=${jenkinspassword} --argumentsRealm.roles.jenkins=admin >jenkinsout.txt 2>&1 &
+  nohup env -i WRAPPER_IP=$WRAPPER_IP shared_secret=$shared_secret java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem --argumentsRealm.passwd.jenkins=${jenkinspassword} --argumentsRealm.roles.jenkins=admin >jenkinsout.txt 2>&1 &
 } else {
   # update git here
   pushd torchunit

@@ -6,8 +6,11 @@
 
 # for now, this just says hello and stuff
 
-echo test
 env | grep GIT
-git log -n 3 --oneline
-git status
+env | grep ghprb
+echo "h=$ghprbActualCommit&p=cutorch&b=$GIT_BRANCH&"
+stdout_fname=$(mktemp)
+curl -vs -d "h=$ghprbActualCommit&p=cutorch&b=$GIT_BRANCH&s=$shared_secret" "http://$WRAPPER_IP:3237/run" | tee  $stdout_fname
+
+cat $stdout_fname | grep "ALL CHECKS PASSED"
 
