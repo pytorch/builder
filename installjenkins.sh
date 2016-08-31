@@ -36,7 +36,7 @@ pip install -U setuptools
 pip install pyyaml
 pip install requests
 
-wget http://mirrors.jenkins-ci.org/war-stable/1.651.2/jenkins.war
+wget http://mirrors.jenkins-ci.org/war-stable/2.7.2/jenkins.war
 
 
 # self-signed cert.  ok-ish to use self-signed for now
