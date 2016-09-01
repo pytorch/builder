@@ -1,9 +1,12 @@
-image: ngd3
+image: t1
 instance_type: ngd3
 max_time_minutes: 40
-allowed_client_ip: 54.1.2.3
-shared_secret: changeme
+allowed_client_ip: CHANGEME
+shared_secret: CHANGEME
 script: |
-  echo hello world
-  echo put your own script here
-
+  cd /tmp
+  rm -Rf /tmp/torchunit
+  sudo apt-get install -y git
+  git clone https://github.com/torch/torchunit
+  cd torchunit
+  bash nimbix-bootstrap.sh {project} {commit_hash} {branch}

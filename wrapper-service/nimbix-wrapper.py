@@ -52,6 +52,8 @@ def run():
     try:
         commit_hash = request.values.get('h', None)
         secret = request.values.get('s', None)
+        branch = request.values.get('b', None)
+        project = request.values.get('p', None)
 
         # validation
         client_ip = request.remote_addr
@@ -62,6 +64,10 @@ def run():
             raise Exception('shared secret not correct, or absent => ignoring')
         if commit_hash is None:
             raise Exception('no commit_hash provided => ignoring')
+        if branch is None:
+            raise Exception('no branch provided => ignoring')
+        if project is None:
+            raise Exception('no project provided => ignoring')
         commit_hash = str(commit_hash)
         if len(commit_hash) > 40:
             raise Exception('commit_hash exceeds length 40 => ignoring')
@@ -78,7 +84,7 @@ def run():
         # ftp the script to drop host
         scriptPath = '/tmp/~job.sh'
         with open(scriptPath, 'w') as f:
-            f.write(wrapper_config['script'].format(commit_hash=commit_hash))
+            f.write(wrapper_config['script'].format(commit_hash=commit_hash, project=project, branch=branch))
         scriptName = '~job.sh'
         logger.debug('doing ftp...')
         with pysftp.Connection(drop_host, username=username, password=apikey) as sftp:
