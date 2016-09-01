@@ -7,6 +7,6 @@ script: |
   cd /tmp
   rm -Rf /tmp/torchunit
   sudo apt-get install -y git
-  git clone https://github.com/torch/torchunit
+  git clone https://github.com/torch/torchunit --quiet
   cd torchunit
   bash nimbix-bootstrap.sh {project} {commit_hash} {branch}
