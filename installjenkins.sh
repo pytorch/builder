@@ -29,6 +29,7 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get install -y git openjdk-7-jre-headless htop iotop tmux
 sudo apt-get install -y python3.4-dev python-virtualenv python-wheel
+sudo apt-get install -y authbind
 
 rm -rf ~/env
 virtualenv -p python3 ~/env
