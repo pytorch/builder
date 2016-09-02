@@ -15,7 +15,7 @@ This is using manual configuration.  Ideally, we'd have 'configuration as code',
 ## DONE: jenkins configuration 0: obtain password
 
 - ssh into the instance
-- cat torchunit/config.yaml
+- cat builder/config.yaml
 - this gives me the jenkins password
 
 
@@ -81,9 +81,9 @@ Build: 'add build step', 'execute shell'
       env | grep GIT
       git log -n 3 --oneline
       git status
-      if [ -d torchunit ]; then { rm -Rf torchunit; } fi
+      if [ -d builder ]; then { rm -Rf builder; } fi
       git clone git@github.com:pytorch/builder.git
-      cd torchunit
+      cd builder
       bash jenkins/cutorch/build.sh
 click 'save'
 ```
@@ -116,7 +116,7 @@ Following tasks might be in various states, but we dont need them:
 ### ~~DONE: Jenkins-side configuration 1: create build job~~
 
 - ssh into hte instance
-- cat torchunit/config.yaml
+- cat builder/config.yaml
 - this gives me hte jenkins password
 - open my web browser, connect using https, to the jenkins instance url, with port 8443
 - log in with user jenkins, and password from above
@@ -138,9 +138,9 @@ Build: 'add build step', 'execute shell'
       env | grep GIT
       git log -n 3 --oneline
       git status
-      if [ -d torchunit ]; then { rm -Rf torchunit; } fi
+      if [ -d builder ]; then { rm -Rf builder; } fi
       git clone git@github.com:pytorch/builder.git
-      cd torchunit
+      cd builder
       bash jenkins/cutorch/build.sh
 click 'save'
 click 'build now' to test

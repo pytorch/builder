@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# run this script from ~/torchunit directory, ie to run it do:
+# run this script from ~/builder directory, ie to run it do:
 #
-# torchunit/runjenkins.sh
+# builder/runjenkins.sh
 
 # we'll first update, then call this script again, with 'stage2' argument
 if [[ $1 == stage2 ]]; then {
@@ -10,13 +10,14 @@ if [[ $1 == stage2 ]]; then {
   # nohup java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem --httpPort=-1 >jenkinsout.txt 2>&1 &
   # security doc: https://wiki.jenkins-ci.org/display/JENKINS/Quick+and+Simple+Security
   source ~/env/bin/activate
-  eval $(python torchunit/readconfig.py)
-  nohup env -i WRAPPER_IP=$WRAPPER_IP shared_secret=$shared_secret java -jar jenkins.war --httpsPort=8443 --httpsCertificate=cert.pem --httpsPrivateKey=key.pem --argumentsRealm.passwd.jenkins=${jenkinspassword} --argumentsRealm.roles.jenkins=admin >jenkinsout.txt 2>&1 &
+  eval $(python builder/readconfig.py)
+  HTTPS_CERT_DIR="/etc/letsencrypt/live/build.pytorch.org"
+  nohup env -i shared_secret=$shared_secret java -jar jenkins.war --httpsPort=8443 --httpsCertificate=$HTTPS_CERT_DIR/cert.pem --httpsPrivateKey=HTTPS_CERT_DIR/privkey.pem --argumentsRealm.passwd.jenkins=${jenkinspassword} --argumentsRealm.roles.jenkins=admin >jenkinsout.txt 2>&1 &
 } else {
   # update git here
-  pushd torchunit
+  pushd builder
   git pull
   popd
-  torchunit/runjenkins.sh stage2
+  builder/runjenkins.sh stage2
 } fi
 

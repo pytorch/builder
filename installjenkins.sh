@@ -21,6 +21,8 @@
 # 3.
 # bash builder/installjenkins.sh
 
+set -e
+
 cd ~
 
 sudo apt-get -y update
@@ -39,8 +41,16 @@ pip install requests
 wget http://mirrors.jenkins-ci.org/war-stable/2.7.2/jenkins.war
 
 
-echo "FIX THIS NOW, make it use letsencrypt client"
-exit 1
+if ! ls /etc/letsencrypt/live/build.pytorch.org >/dev/null 2>&1;
+then
+    wget -c https://dl.eff.org/certbot-auto
+    chmod a+x certbot-auto
+    ./certbot-auto
+    ./certbot-auto certonly
+    sudo chmod 711 "/etc/letsencrypt"
+    sudo chmod 711 "/etc/letsencrypt/live"
+    sudo chmod 711 "/etc/letsencrypt/archive"
+fi
 
 # start jenkins
 builder/runjenkins.sh
