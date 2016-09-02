@@ -18,7 +18,7 @@ git clone git@github.com:pytorch/builder.git
 cp builder/config.yaml.templ builder/config.yaml
 ```
 
-1. Change the jenkins password in builder/config.yaml
+1. Change the jenkinspassword and shared_secret in builder/config.yaml
 1. Then run:
 
 ```bash

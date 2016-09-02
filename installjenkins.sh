@@ -30,6 +30,7 @@ sudo apt-get -y upgrade
 sudo apt-get install -y git openjdk-7-jre-headless htop iotop tmux
 sudo apt-get install -y python3.4-dev python-virtualenv python-wheel
 
+rm -rf ~/env
 virtualenv -p python3 ~/env
 source ~/env/bin/activate
 pip install -U pip
@@ -38,7 +39,13 @@ pip install -U setuptools
 pip install pyyaml
 pip install requests
 
-wget http://mirrors.jenkins-ci.org/war-stable/2.7.2/jenkins.war
+if ls ~/.jenkins >/dev/null 2>&1;
+    echo "WARNING WARNING: removing existing jenkins and it's configuration files"
+    sleep 10;
+    rm jenkins.war
+    rm -rf ~/.jenkins
+fi
+wget -c http://mirrors.jenkins-ci.org/war-stable/2.7.2/jenkins.war
 
 
 if ! ls /etc/letsencrypt/live/build.pytorch.org >/dev/null 2>&1;
