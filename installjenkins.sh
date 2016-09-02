@@ -40,6 +40,7 @@ pip install pyyaml
 pip install requests
 
 if ls ~/.jenkins >/dev/null 2>&1;
+then
     echo "WARNING WARNING: removing existing jenkins and it's configuration files"
     sleep 10;
     rm jenkins.war
