@@ -32,7 +32,7 @@
 - log into github with cutorch admin account
 - go to https://github.com/torch/cutorch/settings/hooks
 - click on 'Add webhook'
-   - payload url should be: `https://jenkins:$JENKINSPASS@$JENKINSIP:8443/ghprbhook/`  (replace `$JENKINSPASS` and `$JENKINSIP` with the actual concrete values for these)
+   - payload url should be: `https://jenkins:$JENKINSPASS@$JENKINSIP/ghprbhook/`  (replace `$JENKINSPASS` and `$JENKINSIP` with the actual concrete values for these)
    - secret: put the jenkins/github shared secret.  I think we can just reuse the jenkins password here?
    - click on 'disable ssl verification', and accept the popup warning
    - click on 'let me select individual events'

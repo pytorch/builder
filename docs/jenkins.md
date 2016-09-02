@@ -59,7 +59,7 @@ This is using manual configuration.  Ideally, we'd have 'configuration as code',
 
 ## TODO: jenkins configuration 3: create job for pull request builder plugin
 
-- open my web browser, connect using https, to the jenkins instance url, with port 8443
+- open my web browser, connect using https, to the jenkins instance url
 - log in with user jenkins, and password from above
 - click on 'new item' to create a new job
 - job details:
@@ -108,49 +108,3 @@ This section is *in progress*, dont try doing for now, it probably wont work...
     - pull request
     - issue comment
   - click 'add webhook'
-
-## Old, dont do
-
-Following tasks might be in various states, but we dont need them:
-
-### ~~DONE: Jenkins-side configuration 1: create build job~~
-
-- ssh into hte instance
-- cat builder/config.yaml
-- this gives me hte jenkins password
-- open my web browser, connect using https, to the jenkins instance url, with port 8443
-- log in with user jenkins, and password from above
-- click on 'new item' to create a new job
-- job details:
-```
-Project name: cutorch
-Discard old builds: yes
-    Days to keep builds: 3
-    Max # builds to keep: 10
-Source code management: Git
-    Repository url: https://github.com/torch/cutorch
-Branches to build: change to being empty
-    Build periodically: yes
-        Schedule: 0 */3 * * *
-Build: 'add build step', 'execute shell'
-    Command:
-      echo test
-      env | grep GIT
-      git log -n 3 --oneline
-      git status
-      if [ -d builder ]; then { rm -Rf builder; } fi
-      git clone git@github.com:pytorch/builder.git
-      cd builder
-      bash jenkins/cutorch/build.sh
-click 'save'
-click 'build now' to test
-```
-
-### ~~TODO: github configuration 1: set up autobuild for commits to torch/cutorch repo~~
-
-- open browser, navigate to https://github.com/torch/cutorch/settings
-- click on 'webhooks & services'
-- 'add service', 'jenkins (git plugin)'
-- jenkins url will looks something like: 'https://54.1.2.3.4:8443/'
-
-
