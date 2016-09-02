@@ -77,7 +77,9 @@ sleep 40
 # install git client
 # this bit is all a bit beta :-P
 echo installing git plugin
-curl -XPOST http://localhost:8080/pluginManager/installNecessaryPlugins -d '<install plugin="git@current" />'
+CRUMB=$(curl -s 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)')
+echo $CRUMB
+curl -H $CRUMB -XPOST http://localhost:8080/pluginManager/installNecessaryPlugins -d '<install plugin="git@current" />'
 echo sleeping...
 sleep 40
 
