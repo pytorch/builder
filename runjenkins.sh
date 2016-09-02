@@ -3,6 +3,7 @@
 # run this script from ~/builder directory, ie to run it do:
 #
 # builder/runjenkins.sh
+set -e
 
 # we'll first update, then call this script again, with 'stage2' argument
 if [[ $1 == stage2 ]]; then {
