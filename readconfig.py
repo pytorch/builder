@@ -11,7 +11,6 @@ script_dir = path.dirname(path.realpath(__file__))
 
 with open(join(script_dir, 'config.yaml'), 'r') as f:
   config = yaml.load(f)
-#print('config', config)
 
 for k, v in config.items():
   print('%s=%s' % (k,v))

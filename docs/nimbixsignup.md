@@ -2,17 +2,17 @@
 
 - go to http://nimbix.net
 - click 'login'
-  - ![click login](img/nimbixlogin.png?raw=true)
+  - ![click login](docs/img/nimbixlogin.png?raw=true)
 - click 'signup'
-  - ![click signup](img/nimbixsignup.png?raw=true)
+  - ![click signup](docs/img/nimbixsignup.png?raw=true)
 - do the whole sign up thing, and login
 - click 'Images'
-  - ![click images](img/nimbiximages.png?raw=true)
+  - ![click images](docs/img/nimbiximages.png?raw=true)
 - click 'Create'
 - put:
   - name: t1
   - template: Ubuntu-14.04
-  - ![create image](img/nimbixcreateimage.png?raw=true)
+  - ![create image](docs/img/nimbixcreateimage.png?raw=true)
   - click 'Dismiss'
 - quick background: the 'image' is basically an instance, in ec2 parlance.  It's a persistent operating system
 installation, that you can install things into.

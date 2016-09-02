@@ -11,19 +11,19 @@
 # in the instance ssh, paste and run:
 #
 # 1.
-# wget https://raw.githubusercontent.com/hughperkins/torchunit/master/bootstrap.sh
+# wget https://raw.githubusercontent.com/pytorch/builder/master/bootstrap.sh
 # bash bootstrap.sh
 #
 # 2.
-# copy torchunit/config.yaml.templ to torchunit/config.yaml , and set a jenkins user password
+# copy builder/config.yaml.templ to builder/config.yaml , and set a jenkins user password
 # in it
 #
 # 3.
-# bash torchunit/installjenkins.sh
+# bash builder/installjenkins.sh
 
 cd ~
 
-#sudo apt-get -y update
+sudo apt-get -y update
 sudo apt-get -y upgrade
 sudo apt-get install -y git openjdk-7-jre-headless htop iotop tmux
 sudo apt-get install -y python3.4-dev python-virtualenv python-wheel
@@ -39,28 +39,11 @@ pip install requests
 wget http://mirrors.jenkins-ci.org/war-stable/2.7.2/jenkins.war
 
 
-# self-signed cert.  ok-ish to use self-signed for now
-# from https://github.com/hughperkins/howto-jenkins-ssl
-
-openssl genrsa -out key.pem
-# create answer file:
-cat <<EOF>infile
-US
-
-
-
-
-jenkins.torch.ch
-
-
-
-EOF
-openssl req -new -key key.pem -out csr.pem <infile
-openssl x509 -req -days 9999 -in csr.pem -signkey key.pem -out cert.pem
-rm csr.pem
+echo "FIX THIS NOW, make it use letsencrypt client"
+exit 1
 
 # start jenkins
-torchunit/runjenkins.sh
+builder/runjenkins.sh
 sleep 40
 
 # install git client
@@ -81,5 +64,5 @@ echo shutting jenkins down
 java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-shutdown
 
 # this enables security:
-cp ~/torchunit/jenkins/config/config.xml ~/.jenkins
+cp ~/builder/jenkins/config/config.xml ~/.jenkins
 

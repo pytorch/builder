@@ -3,26 +3,26 @@
 - go to http://console.aws.amazon.com
   - sign in, or create account
 - top right, check says 'N Virginia'
-  - ![select region](img/selectregion.png?raw=true)
+  - ![select region](docs/img/selectregion.png?raw=true)
 - click on 'EC2'
-  - ![clickec2](img/clickec2.png?raw=true)
+  - ![clickec2](docs/img/clickec2.png?raw=true)
 - click 'instances'
-  - ![click instances](img/clickinstances.png?raw=true)
+  - ![click instances](docs/img/clickinstances.png?raw=true)
 - click 'launch instnace'
-  - ![click launch instance](img/clicklaunchinstance.png?raw=true)
+  - ![click launch instance](docs/img/clicklaunchinstance.png?raw=true)
 - select ubuntu 14.04
-  - ![select ubuntu 14.04](img/selectubuntu1404.png?raw=true)
+  - ![select ubuntu 14.04](docs/img/selectubuntu1404.png?raw=true)
 - choose t2.micro
-  - ![choose t2.micro](img/chooset2micro.png?raw=true)
+  - ![choose t2.micro](docs/img/chooset2micro.png?raw=true)
 - click configure instance details
-  - ![click configure instance details](img/clickconfigureinstancedetails.png?raw=true)
+  - ![click configure instance details](docs/img/clickconfigureinstancedetails.png?raw=true)
 - tick 'protect against accidental termination'
-  - ![tick protect](img/tickprotect.png?raw=true)
+  - ![tick protect](docs/img/tickprotect.png?raw=true)
 - instance details should look *approximately* like:
-  - ![approximate instance details](img/approximateinstancedetails.png?raw=true)
+  - ![approximate instance details](docs/img/approximateinstancedetails.png?raw=true)
 - click 'Add Storage'
 - change storage size to 30GB:
-  - ![change storage 30GB](img/changesize30.png?raw=true)
+  - ![change storage 30GB](docs/img/changesize30.png?raw=true)
 - click 'Tag Instance'
 - click 'Configure Security Group'
 - fill in:
@@ -41,30 +41,30 @@
   - port: 443
   - source: Anywhere
 - should look like:
-  - ![security group](img/securitygroup.png?raw=true)
+  - ![security group](docs/img/securitygroup.png?raw=true)
 - click 'review and launch'
 - click 'launch'
 - select 'create a new key pair'
   - name: torchjenkins
   - click 'download key pair', and save it somewhere
-  - ![keypair](img/keypair.png?raw=true)
+  - ![keypair](docs/img/keypair.png?raw=true)
 - click 'launch instances'
 - click 'view instances'
 - (you'll see the instance in 'pending' for now)
 
 Assign a static ip address:
 - click 'elastic ips'
-  - ![click elastic ips](img/clickelasticips.png?raw=true)
+  - ![click elastic ips](docs/img/clickelasticips.png?raw=true)
 - click 'allocate new address'
 - change to 'VPC':
-  - ![changetovpc](img/changetovpc.png?raw=true)
+  - ![changetovpc](docs/img/changetovpc.png?raw=true)
 - click 'yes, allocate'
 - click 'close'
 - in 'actions' select 'associate address'
 - click in the 'instance' box (spinny will appear)
   - select your instance (i-something, like i-123456, or something)
 - click 'associate'
-  - ![associate](img/associate.png?raw=true)
+  - ![associate](docs/img/associate.png?raw=true)
 - _note down the ip address_, the one labelled 'elastic ip', probably starts with `52.` or `54.`
   - in doc below, this ip will be denoted as `$JENKINS_IP`
 
