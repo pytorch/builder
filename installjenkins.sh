@@ -63,6 +63,11 @@ then
     sudo chmod 711 "/etc/letsencrypt"
     sudo chmod 711 "/etc/letsencrypt/live"
     sudo chmod 711 "/etc/letsencrypt/archive"
+    rm -f keys.pkcs12
+    rm -f jenkins.jks
+    openssl pkcs12 -inkey /etc/letsencrypt/live/build.pytorch.org/privkey.pem -in /etc/letsencrypt/live/build.pytorch.org/cert.pem  -export -out keys.pkcs12 -passout "pass:jenkinspassword"
+    keytool -importkeystore -srckeystore keys.pkcs12 -srcstoretype pkcs12 -destkeystore jenkins.jks -srcstorepass jenkinspassword -deststorepass jenkinspassword
+    rm -f keys.pkcs12
 fi
 
 # start jenkins

@@ -12,8 +12,7 @@ if [[ $1 == stage2 ]]; then {
   # security doc: https://wiki.jenkins-ci.org/display/JENKINS/Quick+and+Simple+Security
   source ~/env/bin/activate
   eval $(python builder/readconfig.py)
-  HTTPS_CERT_DIR="/etc/letsencrypt/live/build.pytorch.org"
-  nohup env -i shared_secret=$shared_secret authbind --deep java -jar jenkins.war --httpsPort=443 --httpsCertificate=$HTTPS_CERT_DIR/cert.pem --httpsPrivateKey=HTTPS_CERT_DIR/privkey.pem --argumentsRealm.passwd.jenkins=${jenkinspassword} --argumentsRealm.roles.jenkins=admin >jenkinsout.txt 2>&1 &
+  nohup env -i shared_secret=$shared_secret authbind --deep java -jar jenkins.war --httpsPort=443 --httpsKeyStore=jenkins.jks --httpsKeyStorePassword=jenkinspassword --argumentsRealm.passwd.jenkins=${jenkinspassword} --argumentsRealm.roles.jenkins=admin >jenkinsout.txt 2>&1 &
 } else {
   # update git here
   pushd builder
