@@ -5,8 +5,8 @@ allowed_client_ip: CHANGEME
 shared_secret: CHANGEME
 script: |
   cd /tmp
-  rm -Rf /tmp/torchunit
+  rm -Rf /tmp/pytorch-builder
   sudo apt-get install -y git
-  git clone https://github.com/torch/torchunit --quiet
-  cd torchunit
+  git clone git@github.com:pytorch/builder.git pytorch-builder --quiet
+  cd pytorch-builder
   bash nimbix-bootstrap.sh {project} {commit_hash} {branch}
