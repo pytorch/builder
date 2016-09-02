@@ -31,6 +31,10 @@ sudo apt-get install -y git openjdk-7-jre-headless htop iotop tmux
 sudo apt-get install -y python3.4-dev python-virtualenv python-wheel
 sudo apt-get install -y authbind
 
+sudo touch /etc/authbind/byport/443
+sudo chown $USER /etc/authbind/byport/443
+sudo chmod 755 /etc/authbind/byport/443
+
 rm -rf ~/env
 virtualenv -p python3 ~/env
 source ~/env/bin/activate
