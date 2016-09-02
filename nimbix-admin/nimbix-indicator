@@ -1,0 +1,13 @@
+#!/bin/bash
+
+scriptdir=$(dirname $0)
+cd ${scriptdir}
+source ./activate
+
+psids=$(ps -ef | grep ubuntuindicator | grep -v grep | awk '{print $2;}')
+if [[ x${psids} != x ]]; then {
+    kill ${psids}
+} fi
+
+python ubuntuindicator.py >/dev/null 2>&1 &
+

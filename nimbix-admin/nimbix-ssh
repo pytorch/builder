@@ -1,0 +1,8 @@
+#!/bin/bash
+
+scriptdir=$(dirname $0)
+cd ${scriptdir}
+source ./activate
+
+ssh -o StrictHostKeyChecking=no nimbix@$(python ssh.py "$@")
+
