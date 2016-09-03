@@ -60,6 +60,11 @@ fi
 
 export PATH="$HOME/miniconda/bin:$PATH"
 
+if ! which cmake
+then
+    conda install -y cmake
+fi
+
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
 git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet 
