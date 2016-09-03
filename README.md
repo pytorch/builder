@@ -17,10 +17,14 @@ sudo apt-get install -y git
 git clone git@github.com:pytorch/builder.git
 cp builder/config.yaml.templ builder/config.yaml
 ```
-
 1. Change the jenkinspassword and shared_secret in builder/config.yaml
-1. Then run:
-
+1. Then run this and follow instructions:
 ```bash
 bash builder/installjenkins.sh
 ```
+1. Then start jenkins
+```bash
+bash builder/runjenkins.sh
+```
+1. Follow the instructions in docs/jenkins.md
+1. Follow the instructions in docs/wrapperinstancesetup.md
