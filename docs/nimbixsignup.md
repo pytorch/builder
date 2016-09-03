@@ -10,7 +10,7 @@
   - ![click images](docs/img/nimbiximages.png?raw=true)
 - click 'Create'
 - put:
-  - name: t1
+  - name: t2
   - template: Ubuntu-14.04
   - ![create image](docs/img/nimbixcreateimage.png?raw=true)
   - click 'Dismiss'
