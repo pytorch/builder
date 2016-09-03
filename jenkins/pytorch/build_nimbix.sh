@@ -32,57 +32,48 @@ export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 if ! which nvcc
 then
-    echo "Downloading CUDA"
+    echo "Downloading CUDA 7.5"
     wget -c http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run -O ~/cuda_7.5.18_linux.run
 
-    echo "Installing CUDA"
+    echo "Installing CUDA 7.5"
     chmod +x ~/cuda_7.5.18_linux.run
     sudo bash ~/cuda_7.5.18_linux.run --silent --toolkit --no-opengl-libs
 
-    echo "\nDone installing CUDA"
+    echo "\nDone installing CUDA 7.5"
 else
-    echo "CUDA already installed"
+    echo "CUDA 7.5 already installed"
 fi
 
 echo "nvcc: $(which nvcc)"
 
-echo "Checking Torch"
+echo "Checking Miniconda"
 
-distro_remote_hash=$(git ls-remote https://github.com/torch/distro HEAD|cut -f1)
-pushd ~/torch >/dev/null
-distro_local_hash=$(git rev-parse HEAD)
-popd >/dev/null
-
-if [ "$distro_remote_hash" != "$distro_local_hash" ]
+if ! ls ~/miniconda
 then
-    echo "Torch needs to be reinstalled. Local commit is $distro_local_hash but remote HEAD is $distro_remote_hash"
-    rm -rf ~/torch
-    git clone https://github.com/torch/distro.git ~/torch --quiet --recursive 
-
-    pushd ~/torch
-    bash install-deps 2>&1 >/dev/null
-    ./install.sh -s
-    popd
-
+    echo "Miniconda needs to be installed"
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+    bash ~/miniconda.sh -b -p $HOME/miniconda
 else
-    echo "Torch is already updated to the latest at hash $distro_local_hash"
+    echo "Miniconda is already installed"
 fi
 
-source ~/torch/install/bin/torch-activate
-echo "PATH=$PATH"
-
-echo "Done installing Torch"
+export PATH="$HOME/miniconda/bin:$PATH"
 
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
-rm -rf cutorch
-git clone https://github.com/torch/cutorch --quiet 
-cd cutorch
-git -c core.askpass=true fetch --tags https://github.com/torch/cutorch +refs/pull/*:refs/remotes/origin/pr/* --quiet
+rm -rf $PROJECT
+git clone https://github.com/pytorch/$PROJECT --quiet 
+cd $PROJECT
+git -c core.askpass=true fetch --tags https://github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
 git checkout $GIT_BRANCH
-time luarocks make rocks/cutorch-scm-1.rockspec 2>&1
+pip install -r requirements.txt
+time python setup.py install
 
-echo "Testing cutorch"
-time luajit -lcutorch -e "cutorch.test()" 2>&1
+echo "Testing pytorch"
+time python test/test_torch.py
+time python test/test_legacy_nn.py
+time python test/test_nn.py
+time python test/test_autograd.py
+time python test/test_cuda.py
 
 echo "ALL CHECKS PASSED"
 
