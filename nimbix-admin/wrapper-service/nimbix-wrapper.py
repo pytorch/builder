@@ -57,8 +57,8 @@ def run():
 
         # validation
         client_ip = request.remote_addr
-        if client_ip not in ['127.0.0.1', wrapper_config['allowed_client_ip']]:  # 127.0.0.1 should be ok...
-            logger.info('client ip %s config ip %s' % (client_ip, wrapper_config['allowed_client_ip']))
+        if client_ip not in ['127.0.0.1']:  # 127.0.0.1 should be ok...
+            logger.info('client ip %s config ip %s' % (client_ip, '127.0.0.1'))
             raise Exception('client ip doesnt match that in config => ignoring')
         if secret != wrapper_config['shared_secret']:
             raise Exception('shared secret not correct, or absent => ignoring')
