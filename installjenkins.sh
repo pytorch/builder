@@ -78,6 +78,7 @@ eval $(python builder/readconfig.py)
 echo "Go to https://build.pytorch.org and setup the initial admin user to \n Username: jenkins \nPassword: $jenkinspassword \nThe initial temporary credentials are: \nUsername: admin \nPassword:"
 cat $HOME/.jenkins/secrets/initialAdminPassword
 echo 'Remember to do this step: Go to Manage Jenkins -> Configure Global Security -> "TCP port for JNLP agents": choose random'
+echo 'Remeber to do this step: "Manage Jenkins" > "Configure Global Security" -> "Prevent Cross Site Request Forgery exploits" -> Uncheck / Disable'
 read -p "Press enter when finished setting up " -n 1 -r
 
 # terminate jenkins
