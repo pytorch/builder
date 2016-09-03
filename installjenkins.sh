@@ -31,6 +31,7 @@ sudo apt-get install -y git openjdk-7-jre-headless htop iotop tmux
 sudo apt-get install -y python3.4-dev python-virtualenv python-wheel
 sudo apt-get install -y authbind
 
+# setup authbind
 sudo touch /etc/authbind/byport/443
 sudo chown $USER /etc/authbind/byport/443
 sudo chmod 755 /etc/authbind/byport/443
@@ -47,11 +48,11 @@ pip install requests
 if ls ~/.jenkins >/dev/null 2>&1;
 then
     echo "WARNING WARNING: removing existing jenkins and it's configuration files"
-    sleep 10;
+    read -p "Press enter for ok, Ctrl+C to exit " -n 1 -r
     rm jenkins.war
     rm -rf ~/.jenkins
 fi
-wget -c http://mirrors.jenkins-ci.org/war-stable/2.7.2/jenkins.war
+wget -c http://mirrors.jenkins-ci.org/war-stable/2.7.3/jenkins.war
 
 
 if ! ls /etc/letsencrypt/live/build.pytorch.org >/dev/null 2>&1;
@@ -72,26 +73,14 @@ fi
 
 # start jenkins
 builder/runjenkins.sh
-sleep 40
-
-# install git client
-# this bit is all a bit beta :-P
-echo installing git plugin
-CRUMB=$(curl -s 'http://localhost:8080/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,":",//crumb)' --user "admin:$(cat $HOME/.jenkins/secrets/initialAdminPassword)")
-curl --header $CRUMB -XPOST "http://localhost:8080/pluginManager/installNecessaryPlugins" -d '<install plugin="git@current" />' --user  "admin:$(cat $HOME/.jenkins/secrets/initialAdminPassword)"
-echo sleeping...
-sleep 40
-
-echo bouncing...
-JENKINSCLI=~/.jenkins/war/WEB-INF/jenkins-cli.jar
-java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-restart
-echo sleeping...
-sleep 40
+sleep 15
+eval $(python builder/readconfig.py)
+echo "Go to https://build.pytorch.org and setup the initial admin user to \n Username: jenkins \nPassword: $jenkinspassword \nThe initial temporary credentials are: \nUsername: admin \nPassword:"
+cat $HOME/.jenkins/secrets/initialAdminPassword
+echo 'Remember to do this step: Go to Manage Jenkins -> Configure Global Security -> "TCP port for JNLP agents": choose random'
+read -p "Press enter when finished setting up " -n 1 -r
 
 # terminate jenkins
-echo shutting jenkins down
-java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-shutdown
-
-# this enables security:
-cp ~/builder/jenkins/config/config.xml ~/.jenkins
-
+echo Finished setup. Shutting jenkins down
+JENKINSCLI=~/.jenkins/war/WEB-INF/jenkins-cli.jar
+java -jar ${JENKINSCLI} -s http://127.0.0.1:8080/ safe-shutdown --username jenkins --password $jenkinspassword
