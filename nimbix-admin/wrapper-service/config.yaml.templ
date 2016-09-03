@@ -5,7 +5,10 @@ shared_secret: CHANGETHIS
 script: |
   cd /tmp
   rm -rf /tmp/builder
-  sudo apt-get install -y git
+  if ! which git
+  then
+    sudo apt-get install -y git
+  fi
   git clone https://pytorchbot:{ghtoken1}@github.com/pytorch/builder --quiet
   cd builder
   bash nimbix-bootstrap.sh {project} {commit_hash} {branch} {ghtoken2}
