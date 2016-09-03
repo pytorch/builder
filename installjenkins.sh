@@ -1,26 +1,4 @@
 #!/bin/bash
-
-# this will install jenkins, onto a new t2.micro ec2 ubuntu 14.04 instance
-#
-# thats the goal
-#
-# so far, it's just this declaration of a goal, and no actual script :-D
-#
-# current idea for how to run this in the instance:
-# 
-# in the instance ssh, paste and run:
-#
-# 1.
-# wget https://raw.githubusercontent.com/pytorch/builder/master/bootstrap.sh
-# bash bootstrap.sh
-#
-# 2.
-# copy builder/config.yaml.templ to builder/config.yaml , and set a jenkins user password
-# in it
-#
-# 3.
-# bash builder/installjenkins.sh
-
 set -e
 
 cd ~
