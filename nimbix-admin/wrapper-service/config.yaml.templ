@@ -4,8 +4,8 @@ max_time_minutes: 40
 shared_secret: CHANGETHIS
 script: |
   cd /tmp
-  rm -Rf /tmp/pytorch-builder
+  rm -rf /tmp/builder
   sudo apt-get install -y git
-  git clone https://pytorchbot:{ghtoken}@github.com/pytorch/builder pytorch-builder --quiet
-  cd pytorch-builder
-  bash nimbix-bootstrap.sh {project} {commit_hash} {branch} {ghtoken}
+  git clone https://pytorchbot:{ghtoken1}@github.com/pytorch/builder --quiet
+  cd builder
+  bash nimbix-bootstrap.sh {project} {commit_hash} {branch} {ghtoken2}

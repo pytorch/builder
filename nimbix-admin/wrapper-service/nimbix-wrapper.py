@@ -85,7 +85,7 @@ def run():
         # ftp the script to drop host
         scriptPath = '/tmp/~job.sh'
         with open(scriptPath, 'w') as f:
-            f.write(wrapper_config['script'].format(commit_hash=commit_hash, project=project, branch=branch, ghtoken=ghtoken))
+            f.write(wrapper_config['script'].format(commit_hash=commit_hash, project=project, branch=branch, ghtoken1=ghtoken, ghtoken2=ghtoken))
         scriptName = '~job.sh'
         logger.debug('doing ftp...')
         with pysftp.Connection(drop_host, username=username, password=apikey) as sftp:
