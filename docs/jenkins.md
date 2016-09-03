@@ -1,25 +1,6 @@
 # jenkins configuration
 
-This is using manual configuration.  Ideally, we'd have 'configuration as code', and use eg JenkinsJobBuilder, but jenkins job builder has a certain management overhead, whereas using jenkins interface directly is relativley quick, so since I have access ot the interface, going the interface route for now.  We probably should ocnisder going jjb route sooner or later though.  Maybe.
-
-## TODO: github configuration 1: create account for pull request builder plugin
-
-- create a new user, eg `torchbot` (this needs an appropriate email account I think? though could create a new gmail account too perhaps?)
-- grant the user push/pull access to the torch/cutorch repo
-- go to https://github.com/settings/tokens
-- click on 'generate new token'
-- click on 'repo', and create the token
-- => this token grants access to modify the code on torch/cutorch' repo, so keep it safe... <=
-- note it down somewhere, for the 'jenkins configuratoin 3' sectipn
-
-## DONE: jenkins configuration 0: obtain password
-
-- ssh into the instance
-- cat builder/config.yaml
-- this gives me the jenkins password
-
-
-## DONE: jenkins configuration 1: install github pull request builder plugin
+## jenkins configuration 1: install github pull request builder plugin
 
 - go to jenkins home page
 - click on 'manage jenkins', 'manage plugins'
@@ -28,15 +9,15 @@ This is using manual configuration.  Ideally, we'd have 'configuration as code',
 - next to 'github pull request builder', tick the box
 - click 'install without restart'
 
-## TODO: jenkins configuration 2: configure github pull request builder plugin
+## jenkins configuration 2: configure github pull request builder plugin
 
 - go to jenkins home page
 - go to 'manage jenkins', 'congigure system'
-- scroll down to setion 'github pull request builder'
+- scroll down to entry 'github pull request builder'
 - in shared secret, put some shared secret and note it down (might as well be same as one used for comms with nimbix wrapper, I think?)
 - next to 'credentials' click 'add', then 'jenkins'
    - kind: 'secret text'
-   - secret: the api token from 'github configuration 2' section above
+   - secret: [pytorchbot github api token]
    - id: jenkins-bot-github-token
    - description: jenkins-bot-github-token
    - click on 'add'
@@ -46,30 +27,33 @@ This is using manual configuration.  Ideally, we'd have 'configuration as code',
    - click on 'connect to api'
    - verify passes ok
 - click 'test permissions to a repository'
-   - put 'repository owner/name': 'torch/cutorch'
-   - click 'check repo permissoins'
+   - put 'repository owner/name': 'pytorch/pytorch'
+   - click 'check repo permissions'
    - check passes ok
-- unclikc 'automanage githooks'
+- unclick 'automanage webhooks'
 - in 'admin list', put:
     soumith
-    szagoruyko
-    hughperkins
+	colesbury
+	apaszke
+	szagoruyko
 (and anyone else who should be admin)
 - right at the bottom of the page, click on 'save'
 
-## TODO: jenkins configuration 3: create job for pull request builder plugin
+## jenkins configuration 3: create job for pull request builder plugin
 
-- open my web browser, connect using https, to the jenkins instance url
-- log in with user jenkins, and password from above
 - click on 'new item' to create a new job
 - job details:
 ```
-Project name: cutorch
+Project name: pytorch
+Project type: freestyle project
 Discard old builds: yes
-    Days to keep builds: 3
-    Max # builds to keep: 10
+    Days to keep builds: 10
+    Max # builds to keep: 20
+Github Project:
+   Project URL: https://github.com/pytorch/pytorch
 Source code management: Git
-    Repository url: https://github.com/torch/cutorch
+    Repository url: https://github.com/pytorch/pytorch
+	Credentials: add pytorchbot and it's github token as username/pass
     click 'advanced'
         refspec: +refs/pull/*:refs/remotes/origin/pr/*
 Branches to build: ${sha1}
@@ -84,27 +68,7 @@ Build: 'add build step', 'execute shell'
       if [ -d builder ]; then { rm -Rf builder; } fi
       git clone git@github.com:pytorch/builder.git
       cd builder
-      bash jenkins/cutorch/build.sh
+      bash jenkins/pytorch/build.sh
 click 'save'
 ```
 
-gotchas:
-- remove '/jenkins' from webhook url
-- add username and api key to webhook url
-- add github url to 'github project' field, at top of job (as well as in git scm url)
-
-## TODO: github configuration 2: create webhook to trigger pull request polling
-
-This section is *in progress*, dont try doing for now, it probably wont work...
-
-- login to github, with an account with admin access to the cutorch repo (ie, not the torchbot account, but probably your own)
-- go to https://github.com/torch/cutorch/settings
-- click on 'webhooks and services'
-- click on 'add webhook'
-  - payload url: https://$JENKINS_IP:8888/jenkins/cutorch   (replace $JENKINS_IP with the actual ip address, ie 5x.x.x.x)
-  - fill in some secret (note it down, might as well be the same as the one the connects to nimbix wrapper instance)
-  - click on 'disable ssl verification', and acknowledge the popup
-  - 'which events': 'let me select individual events':
-    - pull request
-    - issue comment
-  - click 'add webhook'
