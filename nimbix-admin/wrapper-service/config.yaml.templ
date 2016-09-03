@@ -6,6 +6,6 @@ script: |
   cd /tmp
   rm -Rf /tmp/pytorch-builder
   sudo apt-get install -y git
-  git clone git@github.com:pytorch/builder.git pytorch-builder --quiet
+  git clone https://pytorchbot:{ghtoken}@github.com/pytorch/builder pytorch-builder --quiet
   cd pytorch-builder
-  bash nimbix-bootstrap.sh {project} {commit_hash} {branch}
+  bash nimbix-bootstrap.sh {project} {commit_hash} {branch} {ghtoken}

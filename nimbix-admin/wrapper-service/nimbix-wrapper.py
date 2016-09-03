@@ -54,6 +54,7 @@ def run():
         secret = request.values.get('s', None)
         branch = request.values.get('b', None)
         project = request.values.get('p', None)
+        ghtoken = request.values.get('g', None)
 
         # validation
         client_ip = request.remote_addr
@@ -84,7 +85,7 @@ def run():
         # ftp the script to drop host
         scriptPath = '/tmp/~job.sh'
         with open(scriptPath, 'w') as f:
-            f.write(wrapper_config['script'].format(commit_hash=commit_hash, project=project, branch=branch))
+            f.write(wrapper_config['script'].format(commit_hash=commit_hash, project=project, branch=branch, ghtoken=ghtoken))
         scriptName = '~job.sh'
         logger.debug('doing ftp...')
         with pysftp.Connection(drop_host, username=username, password=apikey) as sftp:

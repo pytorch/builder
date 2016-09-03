@@ -6,6 +6,7 @@ set -e
 PROJECT=$1
 GIT_COMMIT=$2
 GIT_BRANCH=$3
+GITHUB_TOKEN=$4
 
 echo "Username: $USER"
 echo "Homedir: $HOME"
@@ -61,9 +62,9 @@ export PATH="$HOME/miniconda/bin:$PATH"
 
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
-git clone https://github.com/pytorch/$PROJECT --quiet 
+git clone https://pytorchbot:{ghtoken}@github.com/pytorch/$PROJECT --quiet 
 cd $PROJECT
-git -c core.askpass=true fetch --tags https://github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
+git -c core.askpass=true fetch --tags https://pytorchbot:{ghtoken}@github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
 git checkout $GIT_BRANCH
 pip install -r requirements.txt
 time python setup.py install
