@@ -7,6 +7,7 @@ PROJECT=$1
 GIT_COMMIT=$2
 GIT_BRANCH=$3
 GITHUB_TOKEN=$4
+PYTHON_VERSION=$5
 
 echo "Username: $USER"
 echo "Homedir: $HOME"
@@ -59,6 +60,17 @@ else
 fi
 
 export PATH="$HOME/miniconda/bin:$PATH"
+
+# by default we install py3. If requested py2, create env and activate
+if [ $PYTHON_VERSION -eq "2" ]
+then
+    if ! conda info --envs | grep py2k
+    then
+	# create virtual env and activate it
+	conda create -n py2k python=2 -y
+    fi
+    source activate py2k
+fi
 
 if ! which cmake
 then

@@ -8,6 +8,7 @@
 
 env | grep GIT
 env | grep ghprb
+env | grep jenkins_python_version
 
 COMMIT_TO_TEST=""
 if [ -z "$ghprbActualCommit" ]; then
@@ -18,9 +19,16 @@ else
     COMMIT_TO_TEST=$ghprbActualCommit
 fi
 
+python_version=""
+if [ -z "$jenkins_python_version" ]; then
+    python_version=3
+else
+    python_version=2
+fi
+
 echo "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&"
 stdout_fname=$(mktemp)
-curl -vs -d "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&s=$shared_secret&g=$github_token" "http://localhost:3237/run" | tee  $stdout_fname
+curl -vs -d "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&s=$shared_secret&g=$github_token&py=$python_version" "http://localhost:3237/run" | tee  $stdout_fname
 
 cat $stdout_fname | grep "ALL CHECKS PASSED"
 
