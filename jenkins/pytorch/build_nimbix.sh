@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 echo "here in build_nimbix"
 
@@ -8,6 +9,12 @@ GIT_COMMIT=$2
 GIT_BRANCH=$3
 GITHUB_TOKEN=$4
 PYTHON_VERSION=$5
+
+if [ "$#" -ne 5 ]
+then
+  echo "Did not find 5 arguments" >&2
+  exit 1
+fi
 
 echo "Username: $USER"
 echo "Homedir: $HOME"
@@ -62,8 +69,9 @@ fi
 export PATH="$HOME/miniconda/bin:$PATH"
 
 # by default we install py3. If requested py2, create env and activate
-if [ $PYTHON_VERSION -eq "2" ]
+if [ $PYTHON_VERSION -eq 2 ]
 then
+    echo "Requested python version 2. Activating conda environment"
     if ! conda info --envs | grep py2k
     then
 	# create virtual env and activate it
