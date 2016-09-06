@@ -65,6 +65,9 @@ then
     conda install -y cmake
 fi
 
+echo "Python Version:"
+python --version
+
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
 git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet 
