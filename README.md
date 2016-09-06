@@ -33,3 +33,18 @@ bash builder/runjenkins.sh
 
 * Follow the instructions in docs/jenkins.md
 * Follow the instructions in docs/wrapperinstancesetup.md
+
+* Finally, run these commands so that http://build.pytorch.org gets forwarded to https:// automatically
+```bash
+sudo apt-get install -y nginx
+sudo service nginx stop
+sudo rm /etc/nginx/sites-enabled/default
+cat <<EOF | sudo tee /etc/nginx/sites-available/redirect-https
+server {
+    listen         80;
+	return 302 https://\$host\$request_uri;
+}
+EOF
+sudo ln -sf /etc/nginx/sites-available/redirect-https /etc/nginx/sites-enabled/redirect-https
+sudo service nginx start
+```
