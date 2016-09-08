@@ -3,8 +3,7 @@ package:
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
-  git_rev: v{{ environ.get('PYTORCH_BUILD_VERSION') }}
-  git_url: git@github.com:pytorch/pytorch.git
+   path: ../pytorch-src
 
 requirements:
   build:
@@ -35,6 +34,7 @@ test:
     - test/test_nn.py
     - test/test_legacy_nn.py
     - test/test_cuda.py
+    - test/test_multiprocessing.py
     - test/run_test.sh
   commands:
     - ./test/run_test.sh

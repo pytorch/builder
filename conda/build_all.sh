@@ -9,6 +9,13 @@ fi
 BUILD_VERSION="0.1.3"
 BUILD_NUMBER=3
 
+
+rm -rf pytorch-src
+git clone https://github.com/pytorch/pytorch pytorch-src
+pushd pytorch-src
+git checkout v$BUILD_VERSION
+popd
+
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
 
