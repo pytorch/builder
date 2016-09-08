@@ -12,17 +12,19 @@ requirements:
     - numpy
     - setuptools
     - pyyaml
+    - mkl-rt
   run:
     - python
     - numpy
+    - mkl-rt
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
   detect_binary_files_with_prefix: False
   binary_relocation: False
   ignore_prefix_files: True
-  script: python setup.py install # [linux]
-  script: MACOSX_DEPLOYMENT_TARGET=10.9 python setup.py install # [osx]
+  script: bash build.sh # [linux]
+  script: MACOSX_DEPLOYMENT_TARGET=10.9 bash build.sh # [osx]
 
 test:
   source_files:
