@@ -20,8 +20,8 @@ requirements:
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
-  # detect_binary_files_with_prefix: False
-  # binary_relocation: False
+  detect_binary_files_with_prefix: True
+  binary_relocation: False
   # ignore_prefix_files: True
 
 test:
