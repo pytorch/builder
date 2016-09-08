@@ -21,8 +21,10 @@ requirements:
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
   detect_binary_files_with_prefix: True
-  binary_relocation: False
-  # ignore_prefix_files: True
+  binary_relocation: True
+  rpaths:
+    - lib/
+    - {{ environ.get('SP_DIR') }}/torch/lib/
 
 test:
   source_files:
