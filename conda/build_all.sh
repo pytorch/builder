@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-if [ -z "$ANACONDA_TOKEN" ]; then 
-    echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script"; 
+if [ -z "$ANACONDA_TOKEN" ]; then
+    echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
     exit 1
 fi
 
 BUILD_VERSION="0.1.3"
-BUILD_NUMBER=2
+BUILD_NUMBER=3
 
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
