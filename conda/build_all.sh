@@ -21,9 +21,9 @@ export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
 
 conda config --set anaconda_upload no
 
-conda build --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
-conda build --no-anaconda-upload --python 3.4 pytorch-$BUILD_VERSION
-conda build --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+time conda build --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
+time conda build --no-anaconda-upload --python 3.4 pytorch-$BUILD_VERSION
+time conda build --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
 
 echo "All builds succeeded, uploading binaries"
 
