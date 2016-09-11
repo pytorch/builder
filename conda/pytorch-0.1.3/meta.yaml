@@ -35,6 +35,7 @@ test:
     - test/test_legacy_nn.py
     - test/test_cuda.py
     - test/test_multiprocessing.py
+    - test/test_utils.py
     - test/run_test.sh
   commands:
     - ./test/run_test.sh
