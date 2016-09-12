@@ -1,7 +1,12 @@
 """
-Thin webservice, that wraps nimbix api, is responsible for knowing the apikey, but can only run very specific scripts in very specific ways.  Its use-case is to reduce the risk that someone spawns a zillion read-only images, running arbitrary scripts.
+Thin webservice, that wraps nimbix api, is responsible for knowing the apikey, 
+but can only run very specific scripts in very specific ways.  
+Its use-case is to reduce the risk that someone spawns a zillion read-only images, running arbitrary scripts.
 
-Jenkins then (for example), can then point at this service, not know the apikey itself.  jenkins security doesnt have to then be quite so fort-knox tight (although, if it has 'push' access to your repos, it should be fairly tight...), since jenkins doesnt then have the power to bankrupt your overnight :-P
+Jenkins then (for example), can then point at this service, not know the apikey itself.  
+Jenkins security doesnt have to then be quite so fort-knox tight 
+(although, if it has 'push' access to your repos, it should be fairly tight...), 
+since jenkins doesnt then have the power to bankrupt your overnight :-P
 """
 from flask import Flask, request, Response
 import os
@@ -20,7 +25,6 @@ from util.logtailer import LogTailer
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.INFO)
 
 script_dir = path.dirname(path.dirname(path.realpath(__file__)))
 api_url = 'https://api.jarvice.com/jarvice'
