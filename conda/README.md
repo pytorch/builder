@@ -8,11 +8,10 @@
 
 
 ### TODO
+- [ ] Make sure you build against magma
 - [ ] Build and test on Linux + CUDA
 - [ ] Build and test on OSX + CUDA
 - [ ] Check what happens when you build on Linux + CUDA on one machine and run the binary on another machine
   - without cuda
   - with a different GPU driver than the original
   - with an insufficient driver version corresponding to the CUDA version
-
-
