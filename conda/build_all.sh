@@ -7,7 +7,7 @@ if [ -z "$ANACONDA_TOKEN" ]; then
 fi
 
 BUILD_VERSION="0.1.3"
-BUILD_NUMBER=9
+BUILD_NUMBER=10
 
 
 rm -rf pytorch-src

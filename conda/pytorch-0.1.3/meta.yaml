@@ -12,6 +12,8 @@ requirements:
     - setuptools
     - pyyaml
     - mkl-rt
+    - magma-cuda75
+    - gcc 4.8.5
   run:
     - python
     - numpy
