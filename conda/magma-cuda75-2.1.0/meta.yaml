@@ -1,0 +1,27 @@
+package:
+  name: magma-cuda75
+  version: 2.1.0
+
+source:
+   url: http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.1.0.tar.gz
+   patches:
+     - cmakelists.patch
+
+requirements:
+  build:
+    - gcc 4.8.5
+    - mkl-rt
+  run:
+    - mkl-rt
+
+build:
+  number: 0
+
+test:
+  source_files:
+    - build/testing
+
+about:
+  home: http://icl.cs.utk.edu/magma/software/index.html
+  license: BSD
+  license_file: COPYRIGHT
