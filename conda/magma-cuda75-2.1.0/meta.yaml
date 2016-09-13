@@ -9,17 +9,12 @@ source:
 
 requirements:
   build:
-    - gcc 4.8.5
     - mkl-rt
   run:
     - mkl-rt
 
 build:
-  number: 1
-
-test:
-  source_files:
-    - build/testing
+  number: 2
 
 about:
   home: http://icl.cs.utk.edu/magma/software/index.html
