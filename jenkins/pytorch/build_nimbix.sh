@@ -94,7 +94,7 @@ git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet
 cd $PROJECT
 git -c core.askpass=true fetch --tags https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
 git checkout $GIT_BRANCH
-pip install -r requirements.txt
+pip install -r requirements.txt || true
 time python setup.py install
 
 echo "Testing pytorch"
