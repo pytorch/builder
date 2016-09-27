@@ -63,7 +63,8 @@ then
     rm -rf cuda
     wget https://s3.amazonaws.com/pytorch/cudnn-7.5-linux-x64-v5.1.tgz
     tar -xvf cudnn-7.5-linux-x64-v5.1.tgz
-    sudo cp cuda/* /usr/local/cuda/
+    sudo cp cuda/include/* /usr/local/cuda/include/
+    sudo cp cuda/lib64/* /usr/local/cuda/lib64/
     popd
     echo "Downloaded and installed CuDNN 5.1.3"
 fi
