@@ -19,16 +19,14 @@ else
     COMMIT_TO_TEST=$ghprbActualCommit
 fi
 
-python_version=""
 if [ -z "$jenkins_python_version" ]; then
-    python_version=3
-else
-    python_version=2
+    echo "jenkins_python_version is not defined. define it to 2 or 3"
+    exit 1
 fi
 
 echo "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&"
 stdout_fname=$(mktemp)
-curl -vs -d "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&s=$shared_secret&g=$github_token&py=$python_version" "http://localhost:3237/run" | tee  $stdout_fname
+curl -vs -d "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&s=$shared_secret&g=$github_token&py=$jenkins_python_version" "http://localhost:3237/run" | tee  $stdout_fname
 
 cat $stdout_fname | grep "ALL CHECKS PASSED"
 
