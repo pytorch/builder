@@ -12,3 +12,4 @@ script: |
   git clone https://pytorchbot:{ghtoken1}@github.com/pytorch/builder --quiet
   cd builder
   bash nimbix-bootstrap.sh {project} {commit_hash} {branch} {ghtoken2} {pyversion}
+  sleep 10 # so that errors are logged properly
