@@ -55,6 +55,19 @@ fi
 
 echo "nvcc: $(which nvcc)"
 
+if ! ls /usr/local/cuda/lib64/libcudnn.so.5.1.3
+then
+    echo "CuDNN 5.1.3 not found. Downloading and copying to /usr/local/cuda"
+    mkdir -p /tmp/cudnn-download
+    pushd /tmp/cudnn-download
+    rm -rf cuda
+    wget https://s3.amazonaws.com/pytorch/cudnn-7.5-linux-x64-v5.1.tgz
+    tar -xvf cudnn-7.5-linux-x64-v5.1.tgz
+    sudo cp cuda/* /usr/local/cuda/
+    popd
+    echo "Downloaded and installed CuDNN 5.1.3"
+fi
+
 echo "Checking Miniconda"
 
 if ! ls ~/miniconda
