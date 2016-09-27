@@ -8,7 +8,7 @@
 
 
 ### TODO
-- [ ] Make sure you build against magma
+- [x] Make sure you build against magma
 - [x] Build and test on Linux + CUDA
 - [ ] Build and test on OSX + CUDA
 - [x] Check what happens when you build on Linux + CUDA on one machine and run the binary on another machine
