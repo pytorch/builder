@@ -140,7 +140,8 @@ def run():
             logtailer = LogTailer(username=username, apikey=apikey, jobnumber=jobnumber)
             while True:
               res = requests.get('%s/status?username=%s&apikey=%s&number=%s' % (api_url, username, apikey, jobnumber))
-              assert res.status_code == 200
+              if res.status_code != 200:
+                continue
               res = json.loads(res.content.decode('utf-8'))
               status = res[str(jobnumber)]['job_status']
               if str(status) == str('SUBMITTED'):
