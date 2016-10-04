@@ -1,0 +1,33 @@
+package:
+  name: pytorch
+  version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+source:
+   path: ../pytorch-src
+
+requirements:
+  build:
+    - python
+    - numpy
+    - setuptools
+    - pyyaml
+    - mkl-rt
+    - cffi
+  run:
+    - python
+    - numpy
+    - mkl-rt
+    - cffi
+build:
+  number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
+  detect_binary_files_with_prefix: True
+  binary_relocation: True
+  rpaths:
+    - lib/
+    - {{ environ.get('SP_DIR') }}/torch/lib/
+
+
+about:
+  home: https://github.com/pytorch/pytorch
+  license: BSD
+  license_file: LICENSE
