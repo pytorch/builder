@@ -12,6 +12,11 @@ env | grep GIT
 env | grep ghprb
 env | grep jenkins_python_version
 
+if [ -z "$github_token" ]; then
+    echo "could not find env variable github_token, exiting"
+    exit 1
+fi
+
 COMMIT_TO_TEST=""
 if [ -z "$ghprbActualCommit" ]; then
     # not building in the ghprb regime, probably building master
