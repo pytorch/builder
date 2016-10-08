@@ -19,9 +19,7 @@ fi
 echo "Username: $USER"
 echo "Homedir: $HOME"
 echo "Home ls:"
-ls -alh ~/
-echo "Home permissions:"
-ls -alh ~/../
+ls -alh ~/ || true
 echo "Current directory: $(pwd)"
 echo "Project: $PROJECT"
 echo "Branch: $GIT_BRANCH"
@@ -30,7 +28,7 @@ echo "Commit: $GIT_COMMIT"
 echo "Installing dependencies"
 
 echo "Disks:"
-df -h
+df -h || true
 
 echo "running nvidia-smi"
 

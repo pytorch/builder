@@ -40,14 +40,6 @@ if [ "$BUILDER" == "NIMBIX" ]; then
 
     cat $stdout_fname | grep "ALL CHECKS PASSED"
 elif [ "$BUILDER" == "LOCAL" ]; then
-    cd /tmp
-    rm -rf /tmp/builder
-    if ! which git
-    then
-	sudo apt-get install -y git
-    fi
-    git clone https://pytorchbot:$github_token@github.com/pytorch/builder --quiet
-    cd builder
     stdout_fname=$(mktemp)
     bash nimbix-bootstrap.sh pytorch $COMMIT_TO_TEST $GIT_BRANCH \
 	$github_token $jenkins_python_version | tee  $stdout_fname
