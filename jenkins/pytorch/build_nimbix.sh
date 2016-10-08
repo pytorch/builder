@@ -37,18 +37,18 @@ nvidia-smi
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
-if ! which nvcc
+if ! ls /usr/local/cuda-8.0
 then
-    echo "Downloading CUDA 7.5"
-    wget -c http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run -O ~/cuda_7.5.18_linux.run
+    echo "Downloading CUDA 8.0"
+    wget -c https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run -O ~/cuda_8.0.44_linux-run
 
-    echo "Installing CUDA 7.5"
-    chmod +x ~/cuda_7.5.18_linux.run
-    sudo bash ~/cuda_7.5.18_linux.run --silent --toolkit --no-opengl-libs
+    echo "Installing CUDA 8.0"
+    chmod +x ~/cuda_8.0.44_linux-run
+    sudo bash ~/cuda_8.0.44_linux-run --silent --toolkit --no-opengl-libs
 
-    echo "\nDone installing CUDA 7.5"
+    echo "\nDone installing CUDA 8.0"
 else
-    echo "CUDA 7.5 already installed"
+    echo "CUDA 8.0 already installed"
 fi
 
 echo "nvcc: $(which nvcc)"
@@ -59,8 +59,8 @@ then
     mkdir -p /tmp/cudnn-download
     pushd /tmp/cudnn-download
     rm -rf cuda
-    wget https://s3.amazonaws.com/pytorch/cudnn-7.5-linux-x64-v5.1.tgz
-    tar -xvf cudnn-7.5-linux-x64-v5.1.tgz
+    wget https://s3.amazonaws.com/pytorch/cudnn-8.0-linux-x64-v5.1.tgz
+    tar -xvf cudnn-8.0-linux-x64-v5.1.tgz
     sudo cp cuda/include/* /usr/local/cuda/include/
     sudo cp cuda/lib64/* /usr/local/cuda/lib64/
     popd
