@@ -33,13 +33,13 @@ fi
 
 BUILDER=${BUILDER_TYPE:-LOCAL}
 
-if [ "$BUILDER" == "NIMBIX"]; then
+if [ "$BUILDER" == "NIMBIX" ]; then
     echo "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&"
     stdout_fname=$(mktemp)
     curl -vs -d "h=$COMMIT_TO_TEST&p=pytorch&b=$GIT_BRANCH&s=$shared_secret&g=$github_token&py=$jenkins_python_version" "http://localhost:3237/run" | tee  $stdout_fname
 
     cat $stdout_fname | grep "ALL CHECKS PASSED"
-elif [ "$BUILDER" == "LOCAL"]; then
+elif [ "$BUILDER" == "LOCAL" ]; then
     cd /tmp
     rm -rf /tmp/builder
     if ! which git
