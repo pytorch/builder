@@ -34,6 +34,14 @@ echo "running nvidia-smi"
 
 nvidia-smi
 
+# install and export ccache
+if ! which ccache
+then
+    sudo apt-get install -y ccache
+fi
+export PATH=/usr/lib/ccache:$PATH
+
+# add cuda to PATH and LD_LIBRARY_PATH
 export PATH=/usr/local/cuda/bin:$PATH
 export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
@@ -80,6 +88,9 @@ fi
 
 export PATH="$HOME/miniconda/bin:$PATH"
 
+
+CONDA_ROOT_PREFIX=$(conda info --root)
+
 # by default we install py3. If requested py2, create env and activate
 if [ $PYTHON_VERSION -eq 2 ]
 then
@@ -90,12 +101,20 @@ then
 	conda create -n py2k python=2 -y
     fi
     source activate py2k
+    CONDA_ROOT_PREFIX=$(conda info --envs|grep py2k|tr -s " " | cut -f2 -d" ")
 fi
 
 if ! which cmake
 then
     conda install -y cmake
 fi
+
+# install mkl
+conda install -y mkl
+
+# add mkl to CMAKE_PREFIX_PATH
+export CMAKE_LIBRARY_PATH=$CONDA_ROOT_PREFIX/lib:$CONDA_ROOT_PREFIX/include:$CMAKE_LIBRARY_PATH 
+export CMAKE_PREFIX_PATH=$CONDA_ROOT_PREFIX
 
 echo "Python Version:"
 python --version
