@@ -89,7 +89,7 @@ fi
 export PATH="$HOME/miniconda/bin:$PATH"
 
 
-CONDA_ROOT_PREFIX=$(conda info --root)
+export CONDA_ROOT_PREFIX=$(conda info --root)
 
 # by default we install py3. If requested py2, create env and activate
 if [ $PYTHON_VERSION -eq 2 ]
@@ -101,8 +101,10 @@ then
 	conda create -n py2k python=2 -y
     fi
     source activate py2k
-    CONDA_ROOT_PREFIX=$(conda info --envs|grep py2k|tr -s " " | cut -f2 -d" ")
+    export CONDA_ROOT_PREFIX=$(conda info --envs|grep py2k|tr -s " " | cut -f2 -d" ")
 fi
+
+echo "Conda root: $CONDA_ROOT_PREFIX"
 
 if ! which cmake
 then
