@@ -113,7 +113,7 @@ fi
 
 # install mkl
 conda install -y mkl
-conda install -y magma_cuda80 -c https://conda.anaconda.org/t/6N-MsQ4WZ7jo/soumith
+conda install -y magma-cuda80 -c https://conda.anaconda.org/t/6N-MsQ4WZ7jo/soumith
 
 # add mkl to CMAKE_PREFIX_PATH
 export CMAKE_LIBRARY_PATH=$CONDA_ROOT_PREFIX/lib:$CONDA_ROOT_PREFIX/include:$CMAKE_LIBRARY_PATH 
