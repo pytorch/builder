@@ -101,7 +101,7 @@ then
 	conda create -n py2k python=2 -y
     fi
     source activate py2k
-    export CONDA_ROOT_PREFIX=$(conda info --envs|grep py2k|tr -s " " | cut -f2 -d" ")
+    export CONDA_ROOT_PREFIX="$HOME/envs/py2k"
 fi
 
 echo "Conda root: $CONDA_ROOT_PREFIX"
