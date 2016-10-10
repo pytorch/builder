@@ -1,0 +1,22 @@
+package:
+  name: magma-cuda80
+  version: 2.1.0
+
+source:
+   url: http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.1.0.tar.gz
+   patches:
+     - cmakelists.patch
+
+requirements:
+  build:
+    - mkl-rt
+  run:
+    - mkl-rt
+
+build:
+  number: 2
+
+about:
+  home: http://icl.cs.utk.edu/magma/software/index.html
+  license: BSD
+  license_file: COPYRIGHT
