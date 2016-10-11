@@ -8,8 +8,8 @@ export CC=$GCCROOT/gcc
 export CXX=$GCCROOT/g++
 
 CUDA__VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
-if [ "$CUDA__VERSION" != "8.0" ]; then
-    echo "CUDA Version is not 8.0. CUDA Version found: $CUDA__VERSION"
+if [ "$CUDA__VERSION" != "7.5" ]; then
+    echo "CUDA Version is not 7.5. CUDA Version found: $CUDA__VERSION"
     exit 1
 fi
 
