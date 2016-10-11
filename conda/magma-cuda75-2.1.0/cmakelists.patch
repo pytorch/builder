@@ -1,12 +1,44 @@
---- /home/soumith/code/magma/magma-2.1.0/CMakeLists.txt	2016-08-30 06:37:45.000000000 -0700
-+++ CMakeLists.txt	2016-09-12 20:37:22.437918000 -0700
+--- magma-2.1.0/CMakeLists.txt	2016-08-30 06:37:45.000000000 -0700
++++ magma-2.1.0_patched/CMakeLists.txt	2016-10-10 19:25:01.059324822 -0700
+@@ -60,7 +60,7 @@
+ 	message( WARNING "The compiler ${CMAKE_C_COMPILER} doesn't support the -std=c99 flag. Some code may not compile.")
+ endif()
+ 
+-
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -fno-exceptions")
+ # ----------------------------------------
+ # check Fortran name mangling
+ if ( USE_FORTRAN )
+@@ -79,14 +79,14 @@
+ 
+ # ----------------------------------------
+ # locate OpenMP
+-find_package( OpenMP )
+-if ( OPENMP_FOUND )
+-	message( STATUS "Found OpenMP" )
+-	message( STATUS "    OpenMP_C_FLAGS   ${OpenMP_C_FLAGS}" )
+-	message( STATUS "    OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS}" )
+-	set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}" )
+-	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+-endif()
++#find_package( OpenMP )
++#if ( OPENMP_FOUND )
++#	message( STATUS "Found OpenMP" )
++#	message( STATUS "    OpenMP_C_FLAGS   ${OpenMP_C_FLAGS}" )
++#	message( STATUS "    OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS}" )
++#	set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}" )
++#	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
++#endif()
+ 
+ 
+ # ----------------------------------------
 @@ -166,11 +166,18 @@
  		message( STATUS "    compile for CUDA arch 5.0 (Maxwell)" )
  	endif()
  	
 +        if ( ${GPU_TARGET} MATCHES "All")
 +          set( MIN_ARCH 200)
-+          SET( NV_SM "-gencode arch=compute_20,code=sm_20 -gencode arch=compute_20,code=sm_21 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_53,code=sm_53")
++          SET( NV_SM "-gencode arch=compute_20,code=sm_20 -gencode arch=compute_20,code=sm_21 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_53,code=sm_53 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61")
 +          SET( NV_COMP "")
 +        endif()
 +

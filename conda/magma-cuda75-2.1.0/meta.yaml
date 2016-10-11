@@ -6,15 +6,10 @@ source:
    url: http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.1.0.tar.gz
    patches:
      - cmakelists.patch
-
-requirements:
-  build:
-    - mkl-rt
-  run:
-    - mkl-rt
+     - thread_queue.patch
 
 build:
-  number: 2
+  number: 5
 
 about:
   home: http://icl.cs.utk.edu/magma/software/index.html
