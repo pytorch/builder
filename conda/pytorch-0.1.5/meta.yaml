@@ -11,12 +11,14 @@ requirements:
     - numpy
     - setuptools
     - pyyaml
-    - mkl-rt
+    - mkl
     - cffi
+    - magma-cuda75
+
   run:
     - python
     - numpy
-    - mkl-rt
+    - mkl
     - cffi
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
@@ -25,6 +27,12 @@ build:
   rpaths:
     - lib/
     - {{ environ.get('SP_DIR') }}/torch/lib/
+
+#test:
+#  source_files:
+#    - test
+#  commands:
+#    - ./test/run_test.sh
 
 
 about:
