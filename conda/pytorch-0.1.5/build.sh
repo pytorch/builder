@@ -20,5 +20,7 @@ else
     cp -P /usr/local/cuda/lib64/libcusparse.so* $SP_DIR/torch/lib
     cp -P /usr/local/cuda/lib64/libcublas.so* $SP_DIR/torch/lib
     cp -P /usr/local/cuda/lib64/libcudart.so* $SP_DIR/torch/lib
+    cp -P /usr/local/cuda/lib64/libcurand.so* $SP_DIR/torch/lib
+    cp -P /home/soumith/gcc-4.9.3/lib64/libgomp.so* $SP_DIR/torch/lib
     cp -P /home/soumith/Downloads/cuda/lib64/libcudnn.so.5.1.3 $SP_DIR/torch/lib
 fi
