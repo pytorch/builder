@@ -132,11 +132,7 @@ pip install -r requirements.txt || true
 time python setup.py install
 
 echo "Testing pytorch"
-time python test/test_torch.py
-time python test/test_legacy_nn.py
-time python test/test_nn.py
-time python test/test_autograd.py
-time python test/test_cuda.py
+time test/run_test.sh
 
 echo "ALL CHECKS PASSED"
 
