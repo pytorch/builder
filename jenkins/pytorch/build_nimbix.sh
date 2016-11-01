@@ -35,7 +35,7 @@ echo "running nvidia-smi"
 nvidia-smi
 
 # install and export ccache
-if ! ~/ccache
+if ! ls ~/ccache/bin/ccache
 then
     sudo apt-get install -y asciidoc
     mkdir -p ~/ccache
