@@ -35,11 +35,31 @@ echo "running nvidia-smi"
 nvidia-smi
 
 # install and export ccache
-if ! which ccache
+if ! ~/ccache
 then
-    sudo apt-get install -y ccache
+    sudo apt-get install -y asciidoc
+    mkdir -p ~/ccache
+    pushd /tmp
+    rm -rf ccache
+    git clone https://github.com/colesbury/ccache -b ccbin
+    pushd ccache
+    ./autogen.sh
+    ./configure
+    make install prefix=~/ccache
+    popd
+    popd
+
+    mkdir -p ~/ccache/lib
+    mkdir -p ~/ccache/cuda
+    ln -s ~/ccache/bin/ccache ~/ccache/lib/cc
+    ln -s ~/ccache/bin/ccache ~/ccache/lib/c++
+    ln -s ~/ccache/bin/ccache ~/ccache/lib/gcc
+    ln -s ~/ccache/bin/ccache ~/ccache/lib/g++
+    ln -s ~/ccache/bin/ccache ~/ccache/cuda/nvcc
 fi
-export PATH=/usr/lib/ccache:$PATH
+
+export PATH=~/ccache/lib:$PATH
+export CUDA_NVCC_EXECUTABLE=~/ccache/cuda/nvcc
 
 # add cuda to PATH and LD_LIBRARY_PATH
 export PATH=/usr/local/cuda/bin:$PATH
