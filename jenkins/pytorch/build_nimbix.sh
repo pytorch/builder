@@ -56,6 +56,8 @@ then
     ln -s ~/ccache/bin/ccache ~/ccache/lib/gcc
     ln -s ~/ccache/bin/ccache ~/ccache/lib/g++
     ln -s ~/ccache/bin/ccache ~/ccache/cuda/nvcc
+
+    ~/ccache/bin/ccache -M 25Gi
 fi
 
 export PATH=~/ccache/lib:$PATH
@@ -136,7 +138,7 @@ conda install -y mkl
 conda install -y magma-cuda80 -c https://conda.anaconda.org/t/6N-MsQ4WZ7jo/soumith
 
 # add mkl to CMAKE_PREFIX_PATH
-export CMAKE_LIBRARY_PATH=$CONDA_ROOT_PREFIX/lib:$CONDA_ROOT_PREFIX/include:$CMAKE_LIBRARY_PATH 
+export CMAKE_LIBRARY_PATH=$CONDA_ROOT_PREFIX/lib:$CONDA_ROOT_PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$CONDA_ROOT_PREFIX
 
 echo "Python Version:"
@@ -144,7 +146,7 @@ python --version
 
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
-git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet 
+git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet
 cd $PROJECT
 git -c core.askpass=true fetch --tags https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
 git checkout $GIT_BRANCH
