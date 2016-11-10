@@ -16,6 +16,12 @@ pushd pytorch-src
 git checkout v$BUILD_VERSION
 popd
 
+rm -rf torchvision-src
+git clone https://github.com/pytorch/vision torchvision-src
+pushd torchvision-src
+git checkout v$BUILD_VERSION
+popd
+
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
 
@@ -25,6 +31,10 @@ time conda build --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
 time conda build --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
 time conda build --no-anaconda-upload --python 3.4 pytorch-$BUILD_VERSION
 
+time conda build --no-anaconda-upload --python 2.7 torchvision-$BUILD_VERSION
+time conda build --no-anaconda-upload --python 3.5 torchvision-$BUILD_VERSION
+time conda build --no-anaconda-upload --python 3.4 torchvision-$BUILD_VERSION
+
 echo "All builds succeeded, uploading binaries"
 
 set +e
@@ -32,6 +42,10 @@ set +e
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 2.7 pytorch-$BUILD_VERSION --output)
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.5 pytorch-$BUILD_VERSION --output)
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.4 pytorch-$BUILD_VERSION --output)
+
+anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 2.7 torchvision-$BUILD_VERSION --output)
+anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.5 torchvision-$BUILD_VERSION --output)
+anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.4 torchvision-$BUILD_VERSION --output)
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER
