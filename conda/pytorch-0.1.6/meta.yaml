@@ -13,7 +13,7 @@ requirements:
     - pyyaml
     - mkl
     - cffi
-    - magma-cuda75
+    - magma-cuda75 # [not osx]
 
   run:
     - python
