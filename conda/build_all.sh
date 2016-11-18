@@ -6,8 +6,8 @@ if [ -z "$ANACONDA_TOKEN" ]; then
     exit 1
 fi
 
-BUILD_VERSION="0.1.5"
-BUILD_NUMBER=12
+BUILD_VERSION="0.1.6"
+BUILD_NUMBER=1
 
 
 rm -rf pytorch-src
