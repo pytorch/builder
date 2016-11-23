@@ -1,6 +1,8 @@
-export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH 
+export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$PREFIX
-export TORCH_CUDA_ARCH_LIST="All"
+# compile for Kepler, Kepler+Tesla, Maxwell
+# 3.0, 3.5, 3.7, 5.0, 5.2+PTX
+export TORCH_CUDA_ARCH_LIST="3.0;3.5;3.7;5.0;5.2+PTX"
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 
