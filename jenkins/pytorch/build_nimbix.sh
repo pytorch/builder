@@ -38,6 +38,7 @@ nvidia-smi
 if ! ls ~/ccache/bin/ccache
 then
     sudo apt-get update
+    sudo apt-get install -y automake autoconf
     sudo apt-get install -y asciidoc
     mkdir -p ~/ccache
     pushd /tmp
