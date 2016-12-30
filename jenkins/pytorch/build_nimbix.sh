@@ -162,22 +162,25 @@ echo "ALL CHECKS PASSED"
 
 if [ "$GIT_BRANCH" -eq "master" ]
 then
-    echo "Rebuilding and publishing sphinx docs"
-    pushd docs
-    pip install -r requirements.txt || true
-    make html
+    if [ $PYTHON_VERSION -eq 3 ]
+    then
+        echo "Rebuilding and publishing sphinx docs"
+        pushd docs
+        pip install -r requirements.txt || true
+        make html
 
-    rm -rf tmp
-    git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT -b gh-pages tmp --quiet
-    cd tmp
-    git rm -rf docs
-    mv ../build/html docs
-    git add docs
-    git commit -m "auto-generating sphinx docs"
-    git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
-    cd ..
-    rm -rf tmp
-    echo "Done rebuilding and publishing sphinx docs"
+        rm -rf tmp
+        git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT -b gh-pages tmp --quiet
+        cd tmp
+        git rm -rf docs
+        mv ../build/html docs
+        git add docs
+        git commit -m "auto-generating sphinx docs"
+        git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
+        cd ..
+        rm -rf tmp
+        echo "Done rebuilding and publishing sphinx docs"
+    fi
 fi
 
 # this is needed, i think because of a bug in nimbix-wrapper.py
