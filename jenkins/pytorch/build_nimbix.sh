@@ -172,9 +172,9 @@ then
         rm -rf tmp
         git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT -b gh-pages tmp --quiet
         cd tmp
-        git rm -rf docs
+        git rm -rf docs || true
         mv ../build/html docs
-        git add docs
+        git add docs || true
         git commit -m "auto-generating sphinx docs"
         git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
         cd ..
