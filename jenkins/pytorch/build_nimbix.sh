@@ -175,6 +175,8 @@ then
         git rm -rf docs || true
         mv ../build/html docs
         git add docs || true
+        git config user.email "soumith+bot@pytorch.org"
+        git config user.name "pytorchbot"
         git commit -m "auto-generating sphinx docs"
         git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
         cd ..
