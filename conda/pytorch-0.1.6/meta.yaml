@@ -13,7 +13,7 @@ requirements:
     - pyyaml
     - mkl
     - cffi
-    - gcc
+    - gcc # [not osx]
     - magma-cuda75 # [not osx]
 
   run:
@@ -21,7 +21,7 @@ requirements:
     - numpy
     - mkl
     - cffi
-    - libgcc
+    - libgcc # [not osx]
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
   detect_binary_files_with_prefix: True
