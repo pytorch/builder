@@ -160,21 +160,25 @@ time test/run_test.sh
 
 echo "ALL CHECKS PASSED"
 
-# Now rebuild and publish docs
-pushd docs
-pip install -r requirements.txt || true
-make html
+if [ "$GIT_BRANCH" -eq "master" ]
+then
+    echo "Rebuilding and publishing sphinx docs"
+    pushd docs
+    pip install -r requirements.txt || true
+    make html
 
-rm -rf tmp
-git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT -b gh-pages tmp --quiet
-rm -rf tmp/docs
-mv build/html tmp/docs
-cd tmp
-git add docs
-git commit -m "auto-generating sphinx docs"
-git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
-cd ..
-rm -rf tmp
+    rm -rf tmp
+    git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT -b gh-pages tmp --quiet
+    cd tmp
+    git rm -rf docs
+    mv ../build/html docs
+    git add docs
+    git commit -m "auto-generating sphinx docs"
+    git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
+    cd ..
+    rm -rf tmp
+    echo "Done rebuilding and publishing sphinx docs"
+fi
 
 # this is needed, i think because of a bug in nimbix-wrapper.py
 # otherwise, ALL CHECKS PASSED is not getting printed out sometimes
