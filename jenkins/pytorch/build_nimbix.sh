@@ -160,7 +160,7 @@ time test/run_test.sh
 
 echo "ALL CHECKS PASSED"
 
-if [ "$GIT_BRANCH" -eq "master" ]
+if [ "$GIT_BRANCH" == "origin/master" ]
 then
     if [ $PYTHON_VERSION -eq 3 ]
     then
