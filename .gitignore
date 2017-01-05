@@ -64,3 +64,4 @@ target/
 config.yaml
 
 conda/pytorch-src
+conda/torchvision-src
