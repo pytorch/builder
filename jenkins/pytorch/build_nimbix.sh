@@ -158,6 +158,15 @@ time python setup.py install
 echo "Testing pytorch"
 time test/run_test.sh
 
+cd ..
+echo "Installing torchvision at branch master"
+rm -rf vision
+git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/vision --quiet
+cd vision
+pip install -r requirements.txt || true
+time python setup.py install
+cd ..
+
 echo "ALL CHECKS PASSED"
 
 if [ "$GIT_BRANCH" == "origin/master" ]
