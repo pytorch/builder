@@ -136,7 +136,7 @@ then
 fi
 
 # install mkl
-conda install -y mkl
+conda install -y mkl numpy
 conda install -y magma-cuda80 -c https://conda.anaconda.org/t/6N-MsQ4WZ7jo/soumith
 
 # add mkl to CMAKE_PREFIX_PATH
