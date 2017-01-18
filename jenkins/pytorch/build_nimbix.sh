@@ -136,7 +136,7 @@ then
 fi
 
 # install mkl
-conda install -y mkl
+conda install -y mkl numpy
 conda install -y magma-cuda80 -c https://conda.anaconda.org/t/6N-MsQ4WZ7jo/soumith
 
 # add mkl to CMAKE_PREFIX_PATH
@@ -157,6 +157,14 @@ time python setup.py install
 
 echo "Testing pytorch"
 time test/run_test.sh
+
+echo "Installing torchvision at branch master"
+rm -rf vision
+git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/vision --quiet
+pushd vision
+pip install -r requirements.txt || true
+time python setup.py install
+popd
 
 echo "ALL CHECKS PASSED"
 
