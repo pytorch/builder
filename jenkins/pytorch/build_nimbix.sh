@@ -2,6 +2,8 @@
 
 echo "here in build_nimbix"
 
+pip install --upgrade pip
+
 set -e
 
 PROJECT=$1
