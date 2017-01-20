@@ -12,7 +12,7 @@ requirements:
     - python
     - pillow
     - numpy
-    - torch
+    - pytorch
     - six
     - pyyaml
 
@@ -21,7 +21,7 @@ requirements:
     - python
     - pillow
     - numpy
-    - torch
+    - pytorch
     - six
 
 build:
