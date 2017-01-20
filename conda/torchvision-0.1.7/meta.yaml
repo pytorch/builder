@@ -1,0 +1,40 @@
+package:
+  name: torchvision
+  version: "{{ environ.get('PYTORCH_VISION_BUILD_VERSION') }}"
+
+source:
+   path: ../torchvision-src
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - python
+    - pillow
+    - numpy
+    - torch
+    - six
+    - pyyaml
+
+
+  run:
+    - python
+    - pillow
+    - numpy
+    - torch
+    - six
+
+build:
+  number: {{ environ.get('PYTORCH_VISION_BUILD_NUMBER') }}
+  script: python setup.py install
+
+test:
+   imports:
+      - torchvision
+      - torchvision.datasets
+      - torchvision.transforms
+
+about:
+  home: https://github.com/pytorch/vision
+  license: BSD
+  license_file: LICENSE
