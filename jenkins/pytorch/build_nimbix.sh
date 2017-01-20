@@ -174,6 +174,9 @@ then
     then
         echo "Rebuilding and publishing sphinx docs"
         pushd docs
+        # Make sure it is uninstalled!
+        pip uninstall -y sphinx_rtd_theme || true
+        pip uninstall -y sphinx_rtd_theme || true
         pip install -r requirements.txt || true
         make html
 
