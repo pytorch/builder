@@ -2,8 +2,6 @@
 
 echo "here in build_nimbix"
 
-pip install --upgrade pip
-
 set -e
 
 PROJECT=$1
@@ -175,6 +173,7 @@ then
     if [ $PYTHON_VERSION -eq 3 ]
     then
         echo "Rebuilding and publishing sphinx docs"
+	pip install --upgrade pip
         pushd docs
         # Make sure it is uninstalled!
         pip uninstall -y sphinx_rtd_theme || true
