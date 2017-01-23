@@ -43,6 +43,15 @@ elif [[ $CUDA_VERSION == "8.0" ]]; then
         echo "Unhandled python version: $PYTHON_VERSION"
         exit 1
     fi
+elif [[ $CUDA_VERSION == "-1" ]]; then # OSX build
+    if [ $PYTHON_VERSION -eq 2 ]; then
+        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27m-macosx_10_7_x86_64.whl"
+    elif [ $PYTHON_VERSION -eq 3 ]; then
+        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
+    else
+        echo "Unhandled python version: $PYTHON_VERSION"
+        exit 1
+    fi    
 else
     echo "Unhandled CUDA version $CUDA_VERSION"
     exit 1
@@ -74,8 +83,13 @@ else
     source activate py3k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py3k"
 fi
-conda install -n $CONDA_ENVNAME -y numpy setuptools pyyaml mkl cffi gcc
-conda install -n $CONDA_ENVNAME -y $MAGMA_PACKAGE -c soumith
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    conda install -n $CONDA_ENVNAME -y numpy setuptools pyyaml mkl cffi gcc
+    conda install -n $CONDA_ENVNAME -y $MAGMA_PACKAGE -c soumith
+else
+    conda install -n $CONDA_ENVNAME -y numpy setuptools pyyaml cffi
+fi
 
 # now $PREFIX should point to your conda env
 ##########################
@@ -84,8 +98,10 @@ conda install -n $CONDA_ENVNAME -y $MAGMA_PACKAGE -c soumith
 echo "Conda root: $CONDA_ROOT_PREFIX"
 echo "Env root: $PREFIX"
 
-export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
-export CMAKE_PREFIX_PATH=$PREFIX
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
+    export CMAKE_PREFIX_PATH=$PREFIX
+fi
 
 # compile for Kepler, Kepler+Tesla, Maxwell
 # 3.0, 3.5, 3.7, 5.0, 5.2+PTX
@@ -96,7 +112,10 @@ fi
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
-export PYTORCH_SO_DEPS="\
+
+# OSX has no cuda or mkl
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then 
+    export PYTORCH_SO_DEPS="\
 /usr/local/cuda/lib64/libcusparse.so.$CUDA_VERSION \
 /usr/local/cuda/lib64/libcublas.so.$CUDA_VERSION \
 /usr/local/cuda/lib64/libcudart.so.$CUDA_VERSION \
@@ -112,10 +131,12 @@ $PREFIX/lib/libmkl_def.so \
 $PREFIX/lib/libmkl_intel_thread.so \
 $PREFIX/lib/libgomp.so.1 \
 "
+fi
 
 echo "Python Version:"
 python --version
 
+export MACOSX_DEPLOYMENT_TARGET=10.10
 
 rm -rf pytorch-src
 git clone https://github.com/pytorch/pytorch pytorch-src
@@ -138,6 +159,8 @@ if [[ $CUDA_VERSION == "7.5" ]]; then
     cp dist/$WHEEL_FILENAME ../whl/cu75/
 elif [[ $CUDA_VERSION == "8.0" ]]; then
     cp dist/$WHEEL_FILENAME ../whl/cu80/
+elif [[ $CUDA_VERSION == "-1" ]]; then # OSX build
+    cp dist/$WHEEL_FILENAME ../whl/
 fi
 
 popd
