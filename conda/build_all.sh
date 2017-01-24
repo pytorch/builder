@@ -33,8 +33,22 @@ export PYTORCH_VISION_BUILD_NUMBER=$VISION_BUILD_NUMBER
 
 conda config --set anaconda_upload no
 
-time conda build --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
-time conda build --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+if [[ "$OSTYPE" == "darwin"* ]]; then
+
+    time conda build --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
+    time conda build --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+else
+    ./switch_cuda_version.sh 7.5
+    time conda build --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
+    time conda build --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+
+    ./switch_cuda_version.sh 8.0
+
+    time conda build --no-anaconda-upload --python 2.7 pytorch-cuda80-$BUILD_VERSION
+    time conda build --no-anaconda-upload --python 3.5 pytorch-cuda80-$BUILD_VERSION
+
+    ./switch_cuda_version.sh 7.5 # restore
+fi
 
 time conda build --no-anaconda-upload --python 2.7 torchvision-$VISION_BUILD_VERSION
 time conda build --no-anaconda-upload --python 3.5 torchvision-$VISION_BUILD_VERSION
@@ -45,6 +59,10 @@ set +e
 
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 2.7 pytorch-$BUILD_VERSION --output)
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.5 pytorch-$BUILD_VERSION --output)
+if [[ "$OSTYPE" == "linux"* ]]; then
+    anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 2.7 pytorch-cuda80-$BUILD_VERSION --output)
+    anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.5 pytorch-cuda80-$BUILD_VERSION --output)
+fi
 
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 2.7 torchvision-$VISION_BUILD_VERSION --output)
 anaconda -t $ANACONDA_TOKEN upload --user soumith $(conda build --python 3.5 torchvision-$VISION_BUILD_VERSION --output)
