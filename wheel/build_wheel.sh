@@ -59,6 +59,7 @@ elif [[ $CUDA_VERSION == "8.0" ]]; then
     MAGMA_PACKAGE="magma-cuda80"
 
 elif [[ $CUDA_VERSION == "-1" ]]; then # OSX build
+    echo "OSX. No CUDA/CUDNN"
 else
     echo "Unhandled CUDA version $CUDA_VERSION"
     exit 1
@@ -79,7 +80,7 @@ then
     export CONDA_ENVNAME="py2k"
     source activate py2k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py2k"
-elif [ $PYTHON_VERSION == "3.5" ]
+elif [ $PYTHON_VERSION == "3.5" ]; then
     echo "Requested python version 3.5. Activating conda environment"
     if ! conda info --envs | grep py35k
     then
@@ -89,7 +90,7 @@ elif [ $PYTHON_VERSION == "3.5" ]
     export CONDA_ENVNAME="py35k"
     source activate py35k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py35k"
-elif [ $PYTHON_VERSION == "3.6" ]
+elif [ $PYTHON_VERSION == "3.6" ]; then
     echo "Requested python version 3.6. Activating conda environment"
     if ! conda info --envs | grep py36k
     then
