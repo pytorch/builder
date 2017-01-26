@@ -22,9 +22,12 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     if [ $PYTHON_VERSION -eq 2 ]; then
         WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27mu-linux_x86_64.whl"
         WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-none-linux_x86_64.whl"
-    elif [ $PYTHON_VERSION -eq 3 ]; then
+    elif [ $PYTHON_VERSION == "3.5" ]; then
         WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-linux_x86_64.whl"
         WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-linux_x86_64.whl"
+    elif [ $PYTHON_VERSION == "3.6" ]; then
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp36-cp36m-linux_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp36-cp36m-linux_x86_64.whl"
     else
         echo "Unhandled python version: $PYTHON_VERSION"
         exit 1
@@ -33,9 +36,12 @@ else # OSX
     if [ $PYTHON_VERSION -eq 2 ]; then
         WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27m-macosx_10_7_x86_64.whl"
         WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-none-macosx_10_7_x86_64.whl"
-    elif [ $PYTHON_VERSION -eq 3 ]; then
+    elif [ $PYTHON_VERSION == "3.5" ]; then
         WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
         WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
+    elif [ $PYTHON_VERSION == "3.6" ]; then
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp36-cp36m-macosx_10_6_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp36-cp36m-macosx_10_6_x86_64.whl"
     else
         echo "Unhandled python version: $PYTHON_VERSION"
         exit 1
@@ -73,16 +79,26 @@ then
     export CONDA_ENVNAME="py2k"
     source activate py2k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py2k"
-else
-    echo "Requested python version 3. Activating conda environment"
-    if ! conda info --envs | grep py3k
+elif [ $PYTHON_VERSION == "3.5" ]
+    echo "Requested python version 3.5. Activating conda environment"
+    if ! conda info --envs | grep py35k
     then
         # create virtual env and activate it
-        conda create -n py3k python=3.5 -y
+        conda create -n py35k python=3.5 -y
     fi
-    export CONDA_ENVNAME="py3k"
-    source activate py3k
-    export PREFIX="$CONDA_ROOT_PREFIX/envs/py3k"
+    export CONDA_ENVNAME="py35k"
+    source activate py35k
+    export PREFIX="$CONDA_ROOT_PREFIX/envs/py35k"
+elif [ $PYTHON_VERSION == "3.6" ]
+    echo "Requested python version 3.6. Activating conda environment"
+    if ! conda info --envs | grep py36k
+    then
+        # create virtual env and activate it
+        conda create -n py36k python=3.6 -y
+    fi
+    export CONDA_ENVNAME="py36k"
+    source activate py3k6
+    export PREFIX="$CONDA_ROOT_PREFIX/envs/py36k"
 fi
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
