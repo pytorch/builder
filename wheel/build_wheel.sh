@@ -17,41 +17,42 @@ echo "Building for Python: $PYTHON_VERSION CUDA: $CUDA_VERSION Version: $BUILD_V
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
 
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if [ $PYTHON_VERSION -eq 2 ]; then
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27mu-linux_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-none-linux_x86_64.whl"
+    elif [ $PYTHON_VERSION -eq 3 ]; then
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-linux_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-linux_x86_64.whl"
+    else
+        echo "Unhandled python version: $PYTHON_VERSION"
+        exit 1
+    fi
+else # OSX
+    if [ $PYTHON_VERSION -eq 2 ]; then
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27m-macosx_10_7_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-none-macosx_10_7_x86_64.whl"
+    elif [ $PYTHON_VERSION -eq 3 ]; then
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
+    else
+        echo "Unhandled python version: $PYTHON_VERSION"
+        exit 1
+    fi
+fi
+
 if [[ $CUDA_VERSION == "7.5" ]]; then
 
     CUDNN_VERSION="5.1.3"
     MAGMA_PACKAGE="magma-cuda75"
 
-    if [ $PYTHON_VERSION -eq 2 ]; then
-        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27mu-linux_x86_64.whl"
-    elif [ $PYTHON_VERSION -eq 3 ]; then
-        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-linux_x86_64.whl"
-    else
-        echo "Unhandled python version: $PYTHON_VERSION"
-        exit 1
-    fi
 elif [[ $CUDA_VERSION == "8.0" ]]; then
 
     CUDNN_VERSION="5.1.5"
     MAGMA_PACKAGE="magma-cuda80"
 
-    if [ $PYTHON_VERSION -eq 2 ]; then
-        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27mu-linux_x86_64.whl"
-    elif [ $PYTHON_VERSION -eq 3 ]; then
-        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-linux_x86_64.whl"
-    else
-        echo "Unhandled python version: $PYTHON_VERSION"
-        exit 1
-    fi
 elif [[ $CUDA_VERSION == "-1" ]]; then # OSX build
-    if [ $PYTHON_VERSION -eq 2 ]; then
-        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27m-macosx_10_7_x86_64.whl"
-    elif [ $PYTHON_VERSION -eq 3 ]; then
-        WHEEL_FILENAME="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
-    else
-        echo "Unhandled python version: $PYTHON_VERSION"
-        exit 1
-    fi    
 else
     echo "Unhandled CUDA version $CUDA_VERSION"
     exit 1
@@ -114,7 +115,7 @@ export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 
 # OSX has no cuda or mkl
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then 
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     export PYTORCH_SO_DEPS="\
 /usr/local/cuda/lib64/libcusparse.so.$CUDA_VERSION \
 /usr/local/cuda/lib64/libcublas.so.$CUDA_VERSION \
@@ -149,18 +150,18 @@ python setup.py bdist_wheel
 pip uninstall -y torch || true
 pip uninstall -y torch || true
 
-pip install dist/$WHEEL_FILENAME
+pip install dist/$WHEEL_FILENAME_GEN
 cd test
 ./run_test.sh
 cd ..
 
-echo "Wheel file: $WHEEL_FILENAME"
+echo "Wheel file: $WHEEL_FILENAME_GEN $WHEEL_FILENAME_NEW"
 if [[ $CUDA_VERSION == "7.5" ]]; then
-    cp dist/$WHEEL_FILENAME ../whl/cu75/
+    cp dist/$WHEEL_FILENAME_GEN ../whl/cu75/$WHEEL_FILENAME_NEW
 elif [[ $CUDA_VERSION == "8.0" ]]; then
-    cp dist/$WHEEL_FILENAME ../whl/cu80/
+    cp dist/$WHEEL_FILENAME_GEN ../whl/cu80/$WHEEL_FILENAME_NEW
 elif [[ $CUDA_VERSION == "-1" ]]; then # OSX build
-    cp dist/$WHEEL_FILENAME ../whl/
+    cp dist/$WHEEL_FILENAME_GEN ../whl/$WHEEL_FILENAME_NEW
 fi
 
 popd
