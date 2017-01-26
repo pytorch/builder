@@ -98,7 +98,7 @@ elif [ $PYTHON_VERSION == "3.6" ]; then
         conda create -n py36k python=3.6 -y
     fi
     export CONDA_ENVNAME="py36k"
-    source activate py3k6
+    source activate py36k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py36k"
 fi
 
