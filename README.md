@@ -48,3 +48,9 @@ EOF
 sudo ln -sf /etc/nginx/sites-available/redirect-https /etc/nginx/sites-enabled/redirect-https
 sudo service nginx start
 ```
+
+
+#### Renew certificates for letsencrypt
+- kill jenkins
+- ./certbot-auto renew
+- bash builder/runjenkins.sh
