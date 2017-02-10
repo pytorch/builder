@@ -53,4 +53,5 @@ sudo service nginx start
 #### Renew certificates for letsencrypt
 - kill jenkins
 - ./certbot-auto renew
+- regenerate key with: https://github.com/pytorch/builder/blob/master/installjenkins.sh#L45-L49
 - bash builder/runjenkins.sh
