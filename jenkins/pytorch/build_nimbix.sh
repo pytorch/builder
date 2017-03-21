@@ -182,7 +182,7 @@ then
         make html
 
         rm -rf tmp
-        git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT -b gh-pages tmp --quiet
+        git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet
         cd tmp
         git rm -rf docs || true
         mv ../build/html docs
@@ -190,7 +190,7 @@ then
         git config user.email "soumith+bot@pytorch.org"
         git config user.name "pytorchbot"
         git commit -m "auto-generating sphinx docs"
-        git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT gh-pages:gh-pages
+        git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master
         cd ..
         rm -rf tmp
         echo "Done rebuilding and publishing sphinx docs"
