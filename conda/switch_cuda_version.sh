@@ -4,8 +4,8 @@ then
 fi
 
 echo "Switching symlink to /usr/local/cuda-$1"
-sudo rm /usr/local/cuda
-sudo ln -s /usr/local/cuda-$1 /usr/local/cuda
+rm /usr/local/cuda
+ln -s /usr/local/cuda-$1 /usr/local/cuda
 
 ls -alh /usr/local/cuda
 
