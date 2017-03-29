@@ -30,11 +30,11 @@ build:
     - lib/
     - {{ environ.get('SP_DIR') }}/torch/lib/
 
-test:
- source_files:
-   - test
- commands:
-   - ./test/run_test.sh
+# test:
+#  source_files:
+#    - test
+#  commands:
+#    - ./test/run_test.sh
 
 
 about:
