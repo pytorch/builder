@@ -50,12 +50,12 @@ fi
 
 if [[ $CUDA_VERSION == "7.5" ]]; then
 
-    CUDNN_VERSION="5.1.3"
+    CUDNN_VERSION="6.0.20"
     MAGMA_PACKAGE="magma-cuda75"
 
 elif [[ $CUDA_VERSION == "8.0" ]]; then
 
-    CUDNN_VERSION="5.1.5"
+    CUDNN_VERSION="6.0.20"
     MAGMA_PACKAGE="magma-cuda80"
 
 elif [[ $CUDA_VERSION == "-1" ]]; then # OSX build
@@ -137,14 +137,12 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 /usr/local/cuda/lib64/libcusparse.so.$CUDA_VERSION \
 /usr/local/cuda/lib64/libcublas.so.$CUDA_VERSION \
 /usr/local/cuda/lib64/libcudart.so.$CUDA_VERSION \
-/usr/local/cuda/lib64/libcudart.so \
 /usr/local/cuda/lib64/libcurand.so.$CUDA_VERSION \
-/usr/local/cuda/lib64/libcudnn.so.$CUDNN_VERSION \
-/usr/local/cuda/lib64/libcudnn.so.5 \
+/usr/local/cuda/lib64/libcudnn.so.6 \
 $PREFIX/lib/libmkl_intel_lp64.so \
 $PREFIX/lib/libmkl_sequential.so \
 $PREFIX/lib/libmkl_core.so \
-$PREFIX/lib/libmkl_avx2.so \
+$PREFIX/lib/libmkl_avx.so \
 $PREFIX/lib/libmkl_def.so \
 $PREFIX/lib/libmkl_intel_thread.so \
 $PREFIX/lib/libgomp.so.1 \
