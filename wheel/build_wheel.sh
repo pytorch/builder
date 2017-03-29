@@ -37,8 +37,8 @@ else # OSX
         WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-cp27m-macosx_10_7_x86_64.whl"
         WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp27-none-macosx_10_7_x86_64.whl"
     elif [ $PYTHON_VERSION == "3.5" ]; then
-        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
-        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_6_x86_64.whl"
+        WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_7_x86_64.whl"
+        WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp35-cp35m-macosx_10_7_x86_64.whl"
     elif [ $PYTHON_VERSION == "3.6" ]; then
         WHEEL_FILENAME_GEN="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp36-cp36m-macosx_10_7_x86_64.whl"
         WHEEL_FILENAME_NEW="torch-$BUILD_VERSION.post$BUILD_NUMBER-cp36-cp36m-macosx_10_7_x86_64.whl"
