@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-BUILD_VERSION=0.1.10
+BUILD_VERSION=0.1.11
 BUILD_NUMBER=1
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
