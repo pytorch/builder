@@ -121,6 +121,12 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     export CMAKE_PREFIX_PATH=$PREFIX
 fi
 
+if [ $PYTHON_VERSION == "3.6" ]; then
+    export CCFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CXXFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CFLAGS="-DPy_LIMITED_API=0x03060000"
+fi
+
 # compile for Kepler, Kepler+Tesla, Maxwell
 # 3.0, 3.5, 3.7, 5.0, 5.2+PTX
 export TORCH_CUDA_ARCH_LIST="3.0;3.5;5.0;5.2+PTX"
@@ -146,6 +152,7 @@ $PREFIX/lib/libmkl_avx.so \
 $PREFIX/lib/libmkl_def.so \
 $PREFIX/lib/libmkl_intel_thread.so \
 $PREFIX/lib/libgomp.so.1 \
+$PREFIX/lib/libiomp5.so \
 "
 fi
 

@@ -37,18 +37,36 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
     time conda build -c soumith --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
     time conda build -c soumith --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+    export CCFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CXXFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CFLAGS="-DPy_LIMITED_API=0x03060000"
     time conda build -c soumith --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
+    unset CCFLAGS
+    unset CXXFLAGS
+    unset CFLAGS
 else
     ./switch_cuda_version.sh 7.5
     time conda build -c soumith --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
     time conda build -c soumith --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+    export CCFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CXXFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CFLAGS="-DPy_LIMITED_API=0x03060000"
     time conda build -c soumith --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
+    unset CCFLAGS
+    unset CXXFLAGS
+    unset CFLAGS
 
     ./switch_cuda_version.sh 8.0
 
     time conda build -c soumith --no-anaconda-upload --python 2.7 pytorch-cuda80-$BUILD_VERSION
     time conda build -c soumith --no-anaconda-upload --python 3.5 pytorch-cuda80-$BUILD_VERSION
+    export CCFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CXXFLAGS="-DPy_LIMITED_API=0x03060000"
+    export CFLAGS="-DPy_LIMITED_API=0x03060000"
     time conda build -c soumith --no-anaconda-upload --python 3.6 pytorch-cuda80-$BUILD_VERSION
+    unset CCFLAGS
+    unset CXXFLAGS
+    unset CFLAGS
 
     ./switch_cuda_version.sh 7.5 # restore
 fi
