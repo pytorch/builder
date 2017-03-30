@@ -95,7 +95,7 @@ elif [ $PYTHON_VERSION == "3.6" ]; then
     if ! conda info --envs | grep py36k
     then
         # create virtual env and activate it
-        conda create -n py36k python=3.6 -y
+        conda create -n py36k python=3.6.0 -y
     fi
     export CONDA_ENVNAME="py36k"
     source activate py36k
@@ -119,12 +119,6 @@ echo "Env root: $PREFIX"
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
     export CMAKE_PREFIX_PATH=$PREFIX
-fi
-
-if [ $PYTHON_VERSION == "3.6" ]; then
-    export CCFLAGS="-DPy_LIMITED_API=0x03060000"
-    export CXXFLAGS="-DPy_LIMITED_API=0x03060000"
-    export CFLAGS="-DPy_LIMITED_API=0x03060000"
 fi
 
 # compile for Kepler, Kepler+Tesla, Maxwell
