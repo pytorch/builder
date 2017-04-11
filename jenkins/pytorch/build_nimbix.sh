@@ -43,8 +43,7 @@ cat /proc/cpuinfo|grep "model name" | wc -l
 cat /proc/cpuinfo|grep "model name" | sort | uniq
 cat /proc/cpuinfo|grep "flags" | sort | uniq
 
-# install and 
-ccache
+# install and export ccache
 if ! ls ~/ccache/bin/ccache
 then
     sudo apt-get update
