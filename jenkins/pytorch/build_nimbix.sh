@@ -30,6 +30,10 @@ echo "Installing dependencies"
 echo "Disks:"
 df -h || true
 
+echo "Linux release:"
+lsb_release -a || true
+uname -a
+
 echo "running nvidia-smi"
 
 nvidia-smi
