@@ -165,8 +165,8 @@ pip install -r requirements.txt || true
 time python setup.py install
 
 echo "Testing pytorch"
-export OMP_NUM_THREADS=4
-export MKL_NUM_THREADS=4
+export OMP_NUM_THREADS=1
+export MKL_NUM_THREADS=1
 time test/run_test.sh
 
 echo "Installing torchvision at branch master"
