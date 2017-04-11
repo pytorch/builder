@@ -34,6 +34,11 @@ echo "running nvidia-smi"
 
 nvidia-smi
 
+echo "Processor info"
+cat /proc/cpuinfo|grep "model name" | wc -l
+cat /proc/cpuinfo|grep "model name" | sort | uniq
+cat /proc/cpuinfo|grep "flags" | sort | uniq
+
 # install and export ccache
 if ! ls ~/ccache/bin/ccache
 then
