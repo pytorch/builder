@@ -30,9 +30,18 @@ echo "Installing dependencies"
 echo "Disks:"
 df -h || true
 
+echo "Linux release:"
+lsb_release -a || true
+uname -a
+
 echo "running nvidia-smi"
 
 nvidia-smi
+
+echo "Processor info"
+cat /proc/cpuinfo|grep "model name" | wc -l
+cat /proc/cpuinfo|grep "model name" | sort | uniq
+cat /proc/cpuinfo|grep "flags" | sort | uniq
 
 # install and export ccache
 if ! ls ~/ccache/bin/ccache
@@ -156,6 +165,8 @@ pip install -r requirements.txt || true
 time python setup.py install
 
 echo "Testing pytorch"
+export OMP_NUM_THREADS=4
+export MKL_NUM_THREADS=4
 time test/run_test.sh
 
 echo "Installing torchvision at branch master"
