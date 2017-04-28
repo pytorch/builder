@@ -102,8 +102,8 @@ then
     rm -rf cuda
     wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-8.0-linux-x64-v6.0.tgz
     tar -xvf cudnn-8.0-linux-x64-v6.0.tgz
-    sudo cp cuda/include/* /usr/local/cuda/include/
-    sudo cp cuda/lib64/* /usr/local/cuda/lib64/
+    sudo cp -P cuda/include/* /usr/local/cuda/include/
+    sudo cp -P cuda/lib64/* /usr/local/cuda/lib64/
     popd
     echo "Downloaded and installed CuDNN 6.0.21"
 fi
