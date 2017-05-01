@@ -106,7 +106,7 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     conda install -n $CONDA_ENVNAME -y numpy setuptools pyyaml mkl cffi gcc
     conda install -n $CONDA_ENVNAME -y $MAGMA_PACKAGE -c soumith
 else
-    conda install -n $CONDA_ENVNAME -y numpy setuptools pyyaml cffi
+    conda install -n $CONDA_ENVNAME -y numpy nomkl setuptools pyyaml cffi
 fi
 
 # now $PREFIX should point to your conda env
