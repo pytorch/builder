@@ -13,6 +13,8 @@ In docker image
 cd /b
 . /py/bin/activate
 . /remote/atoken
+cd /b/wheel/
+./build_all.sh
 ```
 
 
