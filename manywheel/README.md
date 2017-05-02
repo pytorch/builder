@@ -1,3 +1,5 @@
+- bump version in setup.py
+- cut branch
 
 Run this command:
 
