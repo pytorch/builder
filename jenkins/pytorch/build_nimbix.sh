@@ -202,6 +202,7 @@ echo "Installing torchvision at branch master"
 rm -rf vision
 git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/vision --quiet
 pushd vision
+conda install -y pillow
 pip install -r requirements.txt || true
 time python setup.py install
 popd
