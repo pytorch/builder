@@ -44,8 +44,6 @@ fi
 BUILDER=${BUILDER_TYPE:-LOCAL}
 BUILDER_OS=${BUILDER_OS:-LINUX}
 
-echo "BUILDER_OS = $BUILDER_OS"
-
 if [ "$BUILDER" == "NIMBIX" ]; then
     echo "h=$COMMIT_TO_TEST&p=pytorch&b=$BRANCH_TO_TEST&"
     stdout_fname=$(mktemp)
