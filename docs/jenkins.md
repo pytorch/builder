@@ -61,12 +61,16 @@ In 'build triggers', tick 'github pull request builder'
    - fill in admin list
 Build: 'add build step', 'execute shell'
     Command:
-      echo test
+      #!/bin/bash
+      
+      . ~/github_token || true # loads in github_token if needed
+
       env | grep GIT
-      git log -n 3 --oneline
-      git status
+      export jenkins_python_version=2
+      
       if [ -d builder ]; then { rm -Rf builder; } fi
-      git clone git@github.com:pytorch/builder.git
+      
+      git clone https://pytorchbot:$github_token@github.com/pytorch/builder
       cd builder
       bash jenkins/pytorch/build.sh
 click 'save'
