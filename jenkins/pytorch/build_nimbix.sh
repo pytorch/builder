@@ -132,7 +132,8 @@ fi
 if ! ls ~/miniconda
 then
     echo "Miniconda needs to be installed"
-    wget $miniconda_url -O ~/miniconda.sh
+    # wget $miniconda_url -O ~/miniconda.sh
+    curl $miniconda_url -o ~/miniconda.sh
     bash ~/miniconda.sh -b -p $HOME/miniconda
 else
     echo "Miniconda is already installed"
