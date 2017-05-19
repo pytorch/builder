@@ -25,6 +25,7 @@ echo "Current directory: $(pwd)"
 echo "Project: $PROJECT"
 echo "Branch: $GIT_BRANCH"
 echo "Commit: $GIT_COMMIT"
+echo "OS: $OS"
 
 echo "Installing dependencies"
 
