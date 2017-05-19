@@ -11,9 +11,9 @@ GITHUB_TOKEN=$4
 PYTHON_VERSION=$5
 OS=$6
 
-if [ "$#" -ne 5 ]
+if [ "$#" -ne 6 ]
 then
-  echo "Did not find 5 arguments" >&2
+  echo "Did not find 6 arguments" >&2
   exit 1
 fi
 
