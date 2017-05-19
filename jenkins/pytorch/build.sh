@@ -11,6 +11,7 @@
 env | grep GIT
 env | grep ghprb
 env | grep jenkins_python_version
+env | grep BUILDER
 
 if [ -z "$github_token" ]; then
     echo "could not find env variable github_token, exiting"
@@ -41,6 +42,7 @@ if [ -z "$jenkins_python_version" ]; then
 fi
 
 BUILDER=${BUILDER_TYPE:-LOCAL}
+OS=${BUILDER_OS:-LINUX}
 
 if [ "$BUILDER" == "NIMBIX" ]; then
     echo "h=$COMMIT_TO_TEST&p=pytorch&b=$BRANCH_TO_TEST&"
@@ -51,7 +53,7 @@ if [ "$BUILDER" == "NIMBIX" ]; then
 elif [ "$BUILDER" == "LOCAL" ]; then
     stdout_fname=$(mktemp)
     bash nimbix-bootstrap.sh pytorch $COMMIT_TO_TEST $BRANCH_TO_TEST \
-	$github_token $jenkins_python_version | tee  $stdout_fname
+	$github_token $jenkins_python_version $OS | tee  $stdout_fname
     cat $stdout_fname | grep "ALL CHECKS PASSED"
 else
     echo "unknown BUILDER = $BUILDER , exiting"
