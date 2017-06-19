@@ -190,6 +190,7 @@ if [ "$OS" == "OSX" ]; then
     export CC=clang
     export CXX=clang++
 fi
+pip install -r requirements.txt || true
 time python setup.py install
 
 echo "Testing pytorch"
@@ -202,7 +203,6 @@ rm -rf vision
 git clone https://github.com/pytorch/vision --quiet
 pushd vision
 conda install -y pillow
-pip install -r requirements.txt || true
 time python setup.py install
 popd
 
