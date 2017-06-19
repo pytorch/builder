@@ -180,9 +180,9 @@ python --version
 
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
-git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet
+git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet  2>&1 | grep -v $GITHUB_TOKEN
 cd $PROJECT
-git -c core.askpass=true fetch --tags https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
+git -c core.askpass=true fetch --tags https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet  2>&1 | grep -v $GITHUB_TOKEN
 git checkout $GIT_BRANCH
 pip install -r requirements.txt || true
 
@@ -200,7 +200,7 @@ time test/run_test.sh
 
 echo "Installing torchvision at branch master"
 rm -rf vision
-git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/vision --quiet
+git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/vision --quiet  2>&1 | grep -v $GITHUB_TOKEN
 pushd vision
 conda install -y pillow
 pip install -r requirements.txt || true
@@ -224,7 +224,7 @@ if [ "$OS" == "LINUX" ]; then
             make html
 
             rm -rf tmp
-            git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet
+            git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 | grep -v $GITHUB_TOKEN
             cd tmp
             git rm -rf docs || true
             mv ../build/html docs
@@ -232,7 +232,7 @@ if [ "$OS" == "LINUX" ]; then
             git config user.email "soumith+bot@pytorch.org"
             git config user.name "pytorchbot"
             git commit -m "auto-generating sphinx docs"
-            git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master
+            git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master 2>&1 | grep -v $GITHUB_TOKEN
             cd ..
             rm -rf tmp
             echo "Done rebuilding and publishing sphinx docs"
