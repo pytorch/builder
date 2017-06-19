@@ -184,7 +184,6 @@ git clone https://github.com/pytorch/$PROJECT --quiet
 cd $PROJECT
 git fetch --tags https://github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
 git checkout $GIT_BRANCH
-pip install -r requirements.txt || true
 
 if [ "$OS" == "OSX" ]; then
     export MACOSX_DEPLOYMENT_TARGET=10.9
