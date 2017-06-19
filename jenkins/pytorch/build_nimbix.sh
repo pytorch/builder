@@ -180,9 +180,9 @@ python --version
 
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
-git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT --quiet  2>&1 | grep -v $GITHUB_TOKEN
+git clone https://github.com/pytorch/$PROJECT --quiet
 cd $PROJECT
-git -c core.askpass=true fetch --tags https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet  2>&1 | grep -v $GITHUB_TOKEN
+git fetch --tags https://github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/origin/pr/* --quiet
 git checkout $GIT_BRANCH
 pip install -r requirements.txt || true
 
@@ -200,7 +200,7 @@ time test/run_test.sh
 
 echo "Installing torchvision at branch master"
 rm -rf vision
-git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/vision --quiet  2>&1 | grep -v $GITHUB_TOKEN
+git clone https://github.com/pytorch/vision --quiet
 pushd vision
 conda install -y pillow
 pip install -r requirements.txt || true
