@@ -49,6 +49,12 @@ sudo ln -sf /etc/nginx/sites-available/redirect-https /etc/nginx/sites-enabled/r
 sudo service nginx start
 ```
 
+ * email notifications
+ ```
+ sudo apt-get install mailutils
+ # then enable email notifications in jenkins
+ ```
+
 
 #### Renew certificates for letsencrypt
 - kill jenkins
