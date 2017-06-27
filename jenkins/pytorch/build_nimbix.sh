@@ -196,7 +196,7 @@ time python setup.py install
 echo "Testing pytorch"
 export OMP_NUM_THREADS=4
 export MKL_NUM_THREADS=4
-time test/run_test.sh
+# time test/run_test.sh
 
 echo "Installing torchvision at branch master"
 rm -rf vision
