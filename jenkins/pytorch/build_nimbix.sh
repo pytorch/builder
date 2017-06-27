@@ -223,7 +223,8 @@ if [ "$OS" == "LINUX" ]; then
             make html
 
             rm -rf tmp
-            git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 | grep -v $GITHUB_TOKEN
+            echo $GITHUB_TOKEN >/tmp/token
+            git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 >/tmp/t2 # | grep -v $GITHUB_TOKEN
             cd tmp
             git rm -rf docs || true
             mv ../build/html docs
@@ -233,7 +234,7 @@ if [ "$OS" == "LINUX" ]; then
             git config user.name "pytorchbot"
             git commit -m "auto-generating sphinx docs"
             git status
-            git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master 2>&1 | grep -v $GITHUB_TOKEN
+            git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master 2>&1 >/tmp/t3 # | grep -v $GITHUB_TOKEN
             git status
             cd ..
             rm -rf tmp
