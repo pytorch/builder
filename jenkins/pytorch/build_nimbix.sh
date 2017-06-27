@@ -228,7 +228,7 @@ if [ "$OS" == "LINUX" ]; then
             cd tmp
             git rm -rf docs/master || true
             mv ../build/html docs/master
-            find master -name "*.html" -print0 | xargs -0 sed -i -E 's/master[[:blank:]]\([[:digit:]]\.[[:digit:]]\.[[:digit:]]+\+[[:xdigit:]]+[[:blank:]]\)/<a href="http:\/\/pytorch.org\/docs\/versions.html">& \&#x25BC<\/a>/g'
+            find docs/master -name "*.html" -print0 | xargs -0 sed -i -E 's/master[[:blank:]]\([[:digit:]]\.[[:digit:]]\.[[:digit:]]+\+[[:xdigit:]]+[[:blank:]]\)/<a href="http:\/\/pytorch.org\/docs\/versions.html">& \&#x25BC<\/a>/g'
             git add docs/master || true
             git status
             git config user.email "soumith+bot@pytorch.org"
