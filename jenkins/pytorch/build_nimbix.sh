@@ -196,7 +196,7 @@ time python setup.py install
 echo "Testing pytorch"
 export OMP_NUM_THREADS=4
 export MKL_NUM_THREADS=4
-# time test/run_test.sh
+time test/run_test.sh
 
 echo "Installing torchvision at branch master"
 rm -rf vision
@@ -224,7 +224,7 @@ if [ "$OS" == "LINUX" ]; then
 
             rm -rf tmp
             echo $GITHUB_TOKEN >/tmp/token
-            git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 >/tmp/t2 # | grep -v $GITHUB_TOKEN
+            git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 | grep -v $GITHUB_TOKEN || true
             cd tmp
             git rm -rf docs || true
             mv ../build/html docs
@@ -234,7 +234,7 @@ if [ "$OS" == "LINUX" ]; then
             git config user.name "pytorchbot"
             git commit -m "auto-generating sphinx docs"
             git status
-            git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master 2>&1 >/tmp/t3 # | grep -v $GITHUB_TOKEN
+            git push https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io master:master 2>&1 | grep -v $GITHUB_TOKEN || true
             git status
             cd ..
             rm -rf tmp
