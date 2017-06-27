@@ -226,9 +226,9 @@ if [ "$OS" == "LINUX" ]; then
             echo $GITHUB_TOKEN >/tmp/token
             git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 | grep -v $GITHUB_TOKEN || true
             cd tmp
-            git rm -rf docs || true
-            mv ../build/html docs
-            git add docs || true
+            git rm -rf docs/master || true
+            mv ../build/html docs/master
+            git add docs/master || true
             git status
             git config user.email "soumith+bot@pytorch.org"
             git config user.name "pytorchbot"
