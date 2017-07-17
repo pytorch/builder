@@ -1,5 +1,5 @@
 package:
-  name: magma-cuda80
+  name: magma-cuda75
   version: 2.2.0
 
 source:
