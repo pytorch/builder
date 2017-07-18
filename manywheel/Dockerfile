@@ -15,6 +15,12 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
+# MKL
+RUN mkdir -p /opt/intel/lib
+COPY mkl_libs/libmkl_core.a /opt/intel/lib/libmkl_core.a
+COPY mkl_libs/libmkl_gnu_thread.a /opt/intel/lib/libmkl_gnu_thread.a
+COPY mkl_libs/libmkl_intel_lp64.a /opt/intel/lib/libmkl_intel_lp64.a
+
 # get devtoolset-3
 RUN yum install -y yum-utils
 RUN yum install -y centos-release-scl
@@ -39,24 +45,17 @@ RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
 RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
 RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 
-# COPY l_mkl_2017.2.174.tgz /
-
-# RUN tar -xvf l_mkl_2017.2.174.tgz && \
-#     pushd l_mkl_2017.2.174 && \
-#     sed -i 's/ACCEPT_EULA=decline/ACCEPT_EULA=accept/g' silent.cfg && \
-#     ./install.sh --silent silent.cfg && \
-#     popd && \
-#     rm -rf l_mkl_2017.2.174* 
-
-RUN wget http://registrationcenter-download.intel.com/akdlm/irc_nas/tec/11306/l_mkl_2017.2.174.tgz && \
-    tar -xvf l_mkl_2017.2.174.tgz && \
-    pushd l_mkl_2017.2.174 && \
-    sed -i 's/ACCEPT_EULA=decline/ACCEPT_EULA=accept/g' silent.cfg && \
-    ./install.sh --silent silent.cfg && \
-    popd && \
-    rm -rf l_mkl_2017.2.174* && \
-    find /opt/intel -type f | grep -v "/opt/intel/compilers_and_libraries_2017.2.174/linux/mkl/lib/intel64_lin" | xargs rm -f && \
-    find /opt/intel -type f -name "*.a" | xargs rm -f
-
-ENV CMAKE_LIBRARY_PATH="/opt/intel/compilers_and_libraries_2017.2.174/linux/mkl/lib/intel64_lin"
-
+# magma
+RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.2.0.tar.gz && \
+    tar -xvf magma-2.2.0.tar.gz && \
+    cd magma-2.2.0 && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.2.0/cmakelists.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.2.0/thread_queue.patch && \
+    patch <cmakelists.patch && \
+    patch -p1 <thread_queue.patch && \
+    mkdir build && \
+    cd build && \
+    cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX && \
+    make -j$(getconf _NPROCESSORS_CONF) && \
+    make install && \
+    cd ..
