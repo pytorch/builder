@@ -36,7 +36,19 @@ cd /b/wheel/
 
 
 
+# new wheels
 
+Run this command:
+
+```
+nvidia-docker run -it --rm -v $(pwd):/remote soumith/manylinux-cuda:latest bash
+```
+
+Then run:
+
+```
+./remote/build.sh
+```
 
 
 

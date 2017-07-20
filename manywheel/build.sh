@@ -3,7 +3,7 @@ export PYTORCH_BUILD_NUMBER=1
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 
-CUDA__VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
 
 export TORCH_CUDA_ARCH_LIST="3.0;3.5;5.0;5.2+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
@@ -11,11 +11,11 @@ if [[ $CUDA_VERSION == "8.0" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
 fi
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
-
+echo $TORCH_CUDA_ARCH_LIST
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 
 # clone pytorch source code
-git clone https://github.com/pytorch/pytorch -b binaryfix
+git clone https://github.com/pytorch/pytorch -b v${PYTORCH_BUILD_VERSION}
 cd pytorch
 
 OLD_PATH=$PATH
@@ -25,7 +25,8 @@ for PYDIR in /opt/python/*; do
     python setup.py clean
     pip install -r requirements.txt
     pip install numpy
-    time pip wheel . -w wheelhouse
+    time python setup.py bdist_wheel -d wheelhouse
+    # time pip wheel . -w wheelhouse
 done
 
 pip install auditwheel
