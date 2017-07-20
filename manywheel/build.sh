@@ -58,7 +58,7 @@ for whl in /wheelhouse/torch*manylinux*.whl; do
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHC.so.1
     patchelf --replace-needed libgomp.so.1       libgomp-ae56ecdc.so.1.0.0      torch/lib/libTHC.so.1
     patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHC.so.1
-    patchelf --replace-needed libcublas.so.8.0   libcublas-66855eba.so.8.0.61   torch/lib/libTHC.so.1
+    patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHC.so.1
     patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHC.so.1
     patchelf --replace-needed libcurand.so.8.0   libcurand-3d68c345.so.8.0.61   torch/lib/libTHC.so.1
 
@@ -73,7 +73,7 @@ for whl in /wheelhouse/torch*manylinux*.whl; do
     # libTHCS
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHCS.so.1
     patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHCS.so.1
-    patchelf --replace-needed libcublas.so.8.0   libcublas-66855eba.so.8.0.61   torch/lib/libTHCS.so.1
+    patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHCS.so.1
     patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCS.so.1
 
     # libTHPP

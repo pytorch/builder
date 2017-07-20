@@ -1,21 +1,15 @@
-FROM nvidia/cuda:8.0-devel-centos6
+FROM nvidia/cuda:7.5-devel-centos6
 
 RUN yum install -y git wget curl
 
 ENV CUDNN_VERSION 6.0.21
 
-RUN CUDNN_DOWNLOAD_SUM=9b09110af48c9a4d7b6344eb4b3e344daa84987ed6177d5c44319732f3bb7f9c && \
-    curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-8.0-linux-x64-v6.0.tgz -O && \
-    echo "$CUDNN_DOWNLOAD_SUM  cudnn-8.0-linux-x64-v6.0.tgz" | sha256sum -c - && \
-    tar -xzf cudnn-8.0-linux-x64-v6.0.tgz -C /usr/local && \
-    rm cudnn-8.0-linux-x64-v6.0.tgz && \
+RUN CUDNN_DOWNLOAD_SUM=568d4b070c5f91ab8a15b287b73dd072b99c7267a43edad13f70337cd186c82c && \
+    curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-7.5-linux-x64-v6.0.tgz -O && \
+    echo "$CUDNN_DOWNLOAD_SUM  cudnn-7.5-linux-x64-v6.0.tgz" | sha256sum -c - && \
+    tar -xzf cudnn-7.5-linux-x64-v6.0.tgz -C /usr/local && \
+    rm cudnn-7.5-linux-x64-v6.0.tgz && \
     ldconfig
-
-RUN wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run && \
-    chmod +x cuda_8.0.61.2_linux-run && \
-    cp /usr/local/cuda/version.txt /tmp/ && \
-    ./cuda_8.0.61.2_linux-run --silent --accept-eula --installdir=/tmp && \
-    yes | cp -P /tmp/lib64/* /usr/local/cuda/lib64/
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -55,8 +49,8 @@ RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.2.0.tar.gz && \
     tar -xvf magma-2.2.0.tar.gz && \
     cd magma-2.2.0 && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.2.0/cmakelists.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.2.0/thread_queue.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda75-2.2.0/cmakelists.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda75-2.2.0/thread_queue.patch && \
     patch <cmakelists.patch && \
     patch -p1 <thread_queue.patch && \
     mkdir build && \
