@@ -1,4 +1,4 @@
-export PYTORCH_BUILD_VERSION=0.2
+export PYTORCH_BUILD_VERSION=0.2.0
 export PYTORCH_BUILD_NUMBER=1
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
@@ -14,6 +14,12 @@ export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 echo $TORCH_CUDA_ARCH_LIST
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 
+if [[ $CUDA_VERSION == "8.0" ]]; then
+    WHEELHOUSE_DIR="wheelhouse"
+else
+    WHEELHOUSE_DIR="wheelhouse75"
+fi
+
 # clone pytorch source code
 git clone https://github.com/pytorch/pytorch -b v${PYTORCH_BUILD_VERSION}
 cd pytorch
@@ -25,18 +31,18 @@ for PYDIR in /opt/python/*; do
     python setup.py clean
     pip install -r requirements.txt
     pip install numpy
-    time python setup.py bdist_wheel -d wheelhouse
-    # time pip wheel . -w wheelhouse
+    time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
+    # time pip wheel . -w $WHEELHOUSE_DIR
 done
 
 pip install auditwheel
 yum install -y zip
 
-for whl in wheelhouse/torch*.whl; do
-    auditwheel repair $whl -w /wheelhouse/ -L lib
+for whl in $WHEELHOUSE_DIR/torch*.whl; do
+    auditwheel repair $whl -w /$WHEELHOUSE_DIR/ -L lib
 done
 
-for whl in /wheelhouse/torch*manylinux*.whl; do
+for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
     # auditwheel repair is not enough
     # TH, THNN, THC, THCUNN need some manual work too, as they are not
     # touched by auditwheel
@@ -57,39 +63,69 @@ for whl in /wheelhouse/torch*manylinux*.whl; do
     # libTHC
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHC.so.1
     patchelf --replace-needed libgomp.so.1       libgomp-ae56ecdc.so.1.0.0      torch/lib/libTHC.so.1
-    patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHC.so.1
-    patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHC.so.1
-    patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHC.so.1
-    patchelf --replace-needed libcurand.so.8.0   libcurand-3d68c345.so.8.0.61   torch/lib/libTHC.so.1
+    if [[ $CUDA_VERSION == "8.0" ]]; then
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHC.so.1
+	patchelf --replace-needed libcurand.so.8.0   libcurand-3d68c345.so.8.0.61   torch/lib/libTHC.so.1
+    else
+	patchelf --replace-needed libcudart.so.7.5   libcudart-5d6d23a3.so.7.5.18   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcublas.so.7.5   libcublas-74156a04.so.7.5.88   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcusparse.so.7.5 libcusparse-94011b8d.so.7.5.18 torch/lib/libTHC.so.1
+	patchelf --replace-needed libcurand.so.7.5   libcurand-652fe42d.so.7.5.18   torch/lib/libTHC.so.1
+    fi
 
     # libTHCUNN
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHCUNN.so.1
-    patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHCUNN.so.1
-    patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCUNN.so.1
+    if [[ $CUDA_VERSION == "8.0" ]]; then
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHCUNN.so.1
+	patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCUNN.so.1
+    else
+	patchelf --replace-needed libcudart.so.7.5   libcudart-5d6d23a3.so.7.5.18   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcusparse.so.7.5 libcusparse-94011b8d.so.7.5.18 torch/lib/libTHC.so.1
+    fi
 
     # libTHS
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHS.so.1
 
     # libTHCS
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHCS.so.1
-    patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHCS.so.1
-    patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHCS.so.1
-    patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCS.so.1
+    if [[ $CUDA_VERSION == "8.0" ]]; then
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHCS.so.1
+	patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHCS.so.1
+	patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCS.so.1
+    else
+	patchelf --replace-needed libcudart.so.7.5   libcudart-5d6d23a3.so.7.5.18   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcublas.so.7.5   libcublas-74156a04.so.7.5.88   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcusparse.so.7.5 libcusparse-94011b8d.so.7.5.18 torch/lib/libTHC.so.1
+    fi
 
     # libTHPP
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHPP.so.1
-    patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
+    if [[ $CUDA_VERSION == "8.0" ]]; then
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
+    else
+	patchelf --replace-needed libcudart.so.7.5   libcudart-5d6d23a3.so.7.5.18   torch/lib/libTHC.so.1
+    fi
 
     # libTHD
     patchelf --set-rpath '$ORIGIN' torch/lib/libTHD.so.1
 
     # libATen
     patchelf --set-rpath '$ORIGIN' torch/lib/libATen.so.1
-    patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libATen.so.1
+    if [[ $CUDA_VERSION == "8.0" ]]; then
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
+    else
+	patchelf --replace-needed libcudart.so.7.5   libcudart-5d6d23a3.so.7.5.18   torch/lib/libTHC.so.1
+    fi
     
     # libnccl
     patchelf --set-rpath '$ORIGIN' torch/lib/libnccl.so.1
-    patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libnccl.so.1
+    if [[ $CUDA_VERSION == "8.0" ]]; then
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
+    else
+	patchelf --replace-needed libcudart.so.7.5   libcudart-5d6d23a3.so.7.5.18   torch/lib/libTHC.so.1
+    fi
     rm torch/lib/libnccl.so
 
     # libshm
@@ -105,9 +141,8 @@ for whl in /wheelhouse/torch*manylinux*.whl; do
     rm -rf tmp
 done
 
-
-mkdir -p /remote/wheelhouse
-cp /wheelhouse/torch*.whl /remote/wheelhouse/
+mkdir -p /remote/$WHEELHOUSE_DIR
+cp /$WHEELHOUSE_DIR/torch*.whl /remote/$WHEELHOUSE_DIR/
 
 # remove stuff before testing
 rm -rf /usr/local/cuda*
@@ -115,6 +150,6 @@ rm -rf /opt/rh
 pushd /pytorch/test
 for PYDIR in /opt/python/*; do
     "${PYDIR}/bin/pip" uninstall -y torch
-    "${PYDIR}/bin/pip" install torch --no-index -f /wheelhouse
+    "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
     LD_LIBRARY_PATH="" PYCMD=$PYDIR/bin/python ./run_test.sh
 done
