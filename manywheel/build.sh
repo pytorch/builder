@@ -70,7 +70,7 @@ for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
 	patchelf --replace-needed libcurand.so.8.0   libcurand-3d68c345.so.8.0.61   torch/lib/libTHC.so.1
     else
 	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHC.so.1
-	patchelf --replace-needed libcublas.so.7.5   libcublas-74156a04.so.7.5.88   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcublas.so.7.5   libcublas-74156a04.so.7.5.18   torch/lib/libTHC.so.1
 	patchelf --replace-needed libcusparse.so.7.5 libcusparse-652fe42d.so.7.5.18 torch/lib/libTHC.so.1
 	patchelf --replace-needed libcurand.so.7.5   libcurand-5c46e900.so.7.5.18   torch/lib/libTHC.so.1
     fi
@@ -81,8 +81,8 @@ for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
 	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHCUNN.so.1
 	patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCUNN.so.1
     else
-	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHC.so.1
-	patchelf --replace-needed libcusparse.so.7.5 libcusparse-652fe42d.so.7.5.18 torch/lib/libTHC.so.1
+	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHCUNN.so.1
+	patchelf --replace-needed libcusparse.so.7.5 libcusparse-652fe42d.so.7.5.18 torch/lib/libTHCUNN.so.1
     fi
 
     # libTHS
@@ -95,9 +95,9 @@ for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
 	patchelf --replace-needed libcublas.so.8.0   libcublas-e78c880d.so.8.0.88   torch/lib/libTHCS.so.1
 	patchelf --replace-needed libcusparse.so.8.0 libcusparse-94011b8d.so.8.0.61 torch/lib/libTHCS.so.1
     else
-	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHC.so.1
-	patchelf --replace-needed libcublas.so.7.5   libcublas-74156a04.so.7.5.88   torch/lib/libTHC.so.1
-	patchelf --replace-needed libcusparse.so.7.5 libcusparse-652fe42d.so.7.5.18 torch/lib/libTHC.so.1
+	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHCS.so.1
+	patchelf --replace-needed libcublas.so.7.5   libcublas-74156a04.so.7.5.18   torch/lib/libTHCS.so.1
+	patchelf --replace-needed libcusparse.so.7.5 libcusparse-652fe42d.so.7.5.18 torch/lib/libTHCS.so.1
     fi
 
     # libTHPP
@@ -105,7 +105,7 @@ for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
     if [[ $CUDA_VERSION == "8.0" ]]; then
 	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
     else
-	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHPP.so.1
     fi
 
     # libTHD
@@ -114,17 +114,17 @@ for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
     # libATen
     patchelf --set-rpath '$ORIGIN' torch/lib/libATen.so.1
     if [[ $CUDA_VERSION == "8.0" ]]; then
-	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libATen.so.1
     else
-	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libATen.so.1
     fi
     
     # libnccl
     patchelf --set-rpath '$ORIGIN' torch/lib/libnccl.so.1
     if [[ $CUDA_VERSION == "8.0" ]]; then
-	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libTHPP.so.1
+	patchelf --replace-needed libcudart.so.8.0   libcudart-5d6d23a3.so.8.0.61   torch/lib/libnccl.so.1
     else
-	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libTHC.so.1
+	patchelf --replace-needed libcudart.so.7.5   libcudart-e0aa9238.so.7.5.18   torch/lib/libnccl.so.1
     fi
     rm torch/lib/libnccl.so
 
