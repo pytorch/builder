@@ -42,6 +42,8 @@ Run this command:
 
 ```
 nvidia-docker run -it --rm -v $(pwd):/remote soumith/manylinux-cuda:latest bash
+# OR
+nvidia-docker run -it --rm -v $(pwd):/remote soumith/manylinux-cuda75:latest bash
 ```
 
 Then run:
