@@ -1,39 +1,6 @@
 - bump version in setup.py
 - cut branch
 
-Run this command:
-
-```
-nvidia-docker run -it --rm -v $(pwd):/remote nvidia/cuda:8.0-devel-centos6 bash
-```
-
-In docker image
-
-```
-./remote/conda_build.sh
-
-cd /b
-. /py/bin/activate
-. /remote/atoken
-cd /b/wheel/
-./build_all.sh
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # new wheels
@@ -60,7 +27,7 @@ Then run:
 
 
 
-
+# Docker image
 
 First run
 
@@ -74,3 +41,24 @@ Then run
 docker push soumith/manylinux-cuda
 ```
 
+
+
+
+# old instructions
+Run this command:
+
+```
+nvidia-docker run -it --rm -v $(pwd):/remote nvidia/cuda:8.0-devel-centos6 bash
+```
+
+In docker image
+
+```
+./remote/conda_build.sh
+
+cd /b
+. /py/bin/activate
+. /remote/atoken
+cd /b/wheel/
+./build_all.sh
+```
