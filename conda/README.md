@@ -15,3 +15,9 @@
   - [x] without cuda or a driver
   - [x] with a different GPU driver than the original
   - [x] with an insufficient driver version corresponding to the CUDA version
+
+
+# build base docker image
+```
+nvidia-docker build -t soumith/conda-cuda -f Dockerfile .
+```
