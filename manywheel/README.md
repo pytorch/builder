@@ -1,6 +1,6 @@
 - bump version in setup.py
 - cut branch
-
+- upload generated docs and add to version selector
 
 
 # new wheels
@@ -19,7 +19,11 @@ Then run:
 ./remote/build.sh
 ```
 
+Once done, upload wheels via:
 
+```
+./upload.sh
+```
 
 
 
