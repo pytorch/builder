@@ -20,6 +20,7 @@ else
     cp -P /usr/local/cuda/lib64/libcublas.so* $SP_DIR/torch/lib
     cp -P /usr/local/cuda/lib64/libcudart.so* $SP_DIR/torch/lib
     cp -P /usr/local/cuda/lib64/libcurand.so* $SP_DIR/torch/lib
+    cp -P /usr/local/cuda/lib64/libnvToolsExt.so* $SP_DIR/torch/lib
     # cudnn
     cp -P /usr/local/cuda/lib64/libcudnn.so* $SP_DIR/torch/lib
 fi
