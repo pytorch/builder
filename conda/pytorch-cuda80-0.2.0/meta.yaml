@@ -33,11 +33,11 @@ build:
   features:
     - cuda80
 
-test:
- source_files:
-   - test
- commands:
-   - ./test/run_test.sh
+# test:
+#  source_files:
+#    - test
+#  commands:
+#    - ./test/run_test.sh
 
 
 about:
