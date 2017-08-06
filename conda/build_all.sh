@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -e
-
 . /remote/anaconda_token || true
+
+set -e
 
 if [ -z "$ANACONDA_TOKEN" ]; then
     echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
