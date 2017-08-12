@@ -35,11 +35,11 @@ for PYDIR in /opt/python/*; do
     # time pip wheel . -w $WHEELHOUSE_DIR
 done
 
-pip install auditwheel
+/opt/python/cp36-cp36m/bin/pip install auditwheel
 yum install -y zip
 
 for whl in $WHEELHOUSE_DIR/torch*.whl; do
-    auditwheel repair $whl -w /$WHEELHOUSE_DIR/ -L lib
+    /opt/python/cp36-cp36m/bin/auditwheel repair $whl -w /$WHEELHOUSE_DIR/ -L lib
 done
 
 for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
