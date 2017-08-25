@@ -1,5 +1,5 @@
 export PYTORCH_BUILD_VERSION=0.2.0
-export PYTORCH_BUILD_NUMBER=1
+export PYTORCH_BUILD_NUMBER=2
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 
@@ -32,7 +32,6 @@ for PYDIR in /opt/python/*; do
     pip install -r requirements.txt
     pip install numpy
     time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
-    # time pip wheel . -w $WHEELHOUSE_DIR
 done
 
 /opt/python/cp36-cp36m/bin/pip install auditwheel
