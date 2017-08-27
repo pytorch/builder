@@ -9,7 +9,7 @@ if [ -z "$ANACONDA_TOKEN" ]; then
 fi
 
 BUILD_VERSION="0.2.0"
-BUILD_NUMBER=2
+BUILD_NUMBER=3
 
 ANACONDA_USER=soumith
 rm -rf pytorch-src
@@ -56,32 +56,5 @@ if [[ "$OSTYPE" == "linux"* ]]; then
     anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.6 pytorch-cuda80-$BUILD_VERSION --output)
 fi
 
-# set -e
-# VISION_BUILD_VERSION="0.1.8"
-# VISION_BUILD_NUMBER=2
-
-# rm -rf torchvision-src
-# git clone https://github.com/pytorch/vision torchvision-src
-# pushd torchvision-src
-# git checkout v$VISION_BUILD_VERSION
-# popd
-
-# export PYTORCH_VISION_BUILD_VERSION=$VISION_BUILD_VERSION
-# export PYTORCH_VISION_BUILD_NUMBER=$VISION_BUILD_NUMBER
-
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision-$VISION_BUILD_VERSION
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision-$VISION_BUILD_VERSION
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision-$VISION_BUILD_VERSION
-
-# set +e
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 2.7 torchvision-$VISION_BUILD_VERSION --output)
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.5 torchvision-$VISION_BUILD_VERSION --output)
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.6 torchvision-$VISION_BUILD_VERSION --output)
-
-
-
-
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER
-unset PYTORCH_VISION_BUILD_VERSION
-unset PYTORCH_VISION_BUILD_NUMBER

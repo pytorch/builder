@@ -34,8 +34,6 @@ anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACO
 anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.6 torchvision-$VISION_BUILD_VERSION --output)
 
 
-
-
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER
 unset PYTORCH_VISION_BUILD_VERSION
