@@ -215,6 +215,7 @@ if [ "$OS" == "LINUX" ]; then
         then
             echo "Rebuilding and publishing sphinx docs"
 	    pip install --upgrade pip
+            pip install --upgrade setuptools
             pushd docs
             # Make sure it is uninstalled!
             pip uninstall -y sphinx_rtd_theme || true
