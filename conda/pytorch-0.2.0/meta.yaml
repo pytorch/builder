@@ -11,7 +11,7 @@ requirements:
     - numpy
     - setuptools
     - pyyaml
-    - mkl
+    - mkl # [not osx]
     - cffi
     - gcc # [not osx]
     - magma-cuda75 # [not osx]
@@ -19,7 +19,7 @@ requirements:
   run:
     - python
     - numpy
-    - mkl
+    - mkl # [not osx]
     - cffi
     - libgcc # [not osx]
 build:
@@ -31,11 +31,11 @@ build:
     - {{ environ.get('SP_DIR') }}/torch/lib/
   string: py{{py}}_{{environ.get('PYTORCH_BUILD_NUMBER')}}cu75
 
-# test:
-#  source_files:
-#    - test
-#  commands:
-#    - ./test/run_test.sh
+test:
+ source_files:
+   - test
+ commands:
+   - ./test/run_test.sh
 
 
 about:
