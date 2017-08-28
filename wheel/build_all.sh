@@ -2,7 +2,7 @@
 set -e
 
 BUILD_VERSION=0.2.0
-BUILD_NUMBER=2
+BUILD_NUMBER=3
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     rm -rf whl
