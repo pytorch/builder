@@ -211,7 +211,7 @@ echo "ALL CHECKS PASSED"
 if [ "$OS" == "LINUX" ]; then
     if [ "$GIT_BRANCH" == "origin/master" ]
     then
-        if [ $PYTHON_VERSION -ne 3 ]
+        if [ $PYTHON_VERSION -eq 3 ]
         then
             echo "Rebuilding and publishing sphinx docs"
 	    pip install --upgrade pip
