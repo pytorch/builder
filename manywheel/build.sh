@@ -131,19 +131,22 @@ for whl in /$WHEELHOUSE_DIR/torch*manylinux*.whl; do
     patchelf --set-rpath '$ORIGIN' torch/lib/libshm.so
 
     # regenerate the RECORD file with new hashes 
-    record_file=`echo $(basename whl) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
+    record_file=`echo $(basename $whl) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
+    echo "$record_file found. modifying"
     new_record_file="$record_file"_new
     while read -r line
     do
       record_item="$line"
-      IFS=, read -r filename digestmethod digest size <<< "$record_item"
+      IFS=, read -r filename digestcombined size <<< "$record_item"
+      IFS== read -r digestmethod digest <<< "$digestcombined"
+
       if [ $filename == $record_file ]
       then
         echo "$line" >> $new_record_file
       else
         new_digest=`openssl dgst -sha256 -binary $filename | openssl base64 | sed -e 's/+/-/g' | sed -e 's/\//_/g' | sed -e 's/=//g'`
         new_size=`ls -nl $filename | awk '{print $5}'`
-        echo $filename,$digestmethod,$new_digest,$new_size >> $new_record_file 
+        echo $filename,$digestmethod=$new_digest,$new_size >> $new_record_file
       fi
     done < "$record_file"
     mv $new_record_file $record_file
