@@ -10,7 +10,7 @@ requirements:
     - python
     - setuptools
     - python
-    - pillow
+    - pillow >=4.1.1
     - numpy
     - pytorch >=0.2
     - six
@@ -19,7 +19,7 @@ requirements:
 
   run:
     - python
-    - pillow
+    - pillow >=4.1.1
     - numpy
     - pytorch >=0.2
     - six
