@@ -155,6 +155,8 @@ then
     fi
     source activate py2k
     export CONDA_ROOT_PREFIX="$HOME/miniconda/envs/py2k"
+else
+    source activate root
 fi
 
 echo "Conda root: $CONDA_ROOT_PREFIX"
@@ -193,6 +195,31 @@ if [ "$OS" == "OSX" ]; then
 fi
 pip install -r requirements.txt || true
 time python setup.py install
+
+if [ ! -z "$jenkins_nightly" ]; then
+    echo "Installing nightly dependencies"
+    conda install -y -c ezyang/label/gcc5 -c conda-forge protobuf scipy caffe2
+    git clone https://github.com/onnx/onnx-caffe2.git --recurse-submodules --quiet
+    # There is some nuance to the strategy here.  In principle,
+    # we could check out HEAD versions of *all* our dependencies
+    # and see if the whole shebang builds.  But if the build breaks,
+    # it is not obvious who is to blame.  A breakage here is
+    # not *actionable*, which means it is not useful.
+    #
+    # So, our strategy is to checkout HEAD of onnx-pytorch (which
+    # is supposed to be passing CI), and update only *pytorch*
+    # to HEAD.
+    #
+    # BTW, this means that this is likely to fail of onnx-pytorch
+    # is floating some temporary patches that haven't made their
+    # way back to PyTorch.  This is by design: merge those patches!
+    echo "Installing onnx-pytorch"
+    git clone https://github.com/ezyang/onnx-pytorch.git --recurse-submodules --quiet
+    (cd onnx-pytorch/onnx && python setup.py install)
+    (cd onnx-pytorch/onnx-caffe2 && python setup.py install)
+    python onnx-pytorch/test/test_models.py
+    python onnx-pytorch/test/test_caffe2.py
+fi
 
 echo "Testing pytorch"
 export OMP_NUM_THREADS=4
