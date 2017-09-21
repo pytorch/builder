@@ -217,6 +217,7 @@ if [ ! -z "$jenkins_nightly" ]; then
     git clone https://github.com/ezyang/onnx-pytorch.git --recurse-submodules --quiet
     (cd onnx-pytorch/onnx && python setup.py install)
     (cd onnx-pytorch/onnx-caffe2 && python setup.py install)
+    (cd onnx-pytorch && python setup.py install)
     python onnx-pytorch/test/test_models.py
     python onnx-pytorch/test/test_caffe2.py
 fi
