@@ -221,7 +221,7 @@ if [ ! -z "$jenkins_nightly" ]; then
     python onnx-pytorch/test/test_models.py
     python onnx-pytorch/test/test_caffe2.py
     pip uninstall -y onnx || true
-    pip uninstall -r onnx-caffe2 || true
+    pip uninstall -y onnx-caffe2 || true
 fi
 
 echo "Testing pytorch"
