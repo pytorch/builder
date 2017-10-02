@@ -180,6 +180,11 @@ export CMAKE_PREFIX_PATH=$CONDA_ROOT_PREFIX
 echo "Python Version:"
 python --version
 
+# Uninstall onnx and onnx-caffe2; if stale versions are left over,
+# we may spuriously run test/test_onnx.py when we don't want to
+pip uninstall -y onnx || true
+pip uninstall -y onnx-caffe2 || true
+
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
 git clone https://github.com/pytorch/$PROJECT --quiet
@@ -220,8 +225,6 @@ if [ ! -z "$jenkins_nightly" ]; then
     (cd onnx-pytorch && python setup.py install)
     python onnx-pytorch/test/test_models.py
     python onnx-pytorch/test/test_caffe2.py
-    pip uninstall -y onnx || true
-    pip uninstall -y onnx-caffe2 || true
 fi
 
 echo "Testing pytorch"
