@@ -251,6 +251,9 @@ if [ "$OS" == "LINUX" ]; then
 	    pip install --upgrade pip
             pip install --upgrade setuptools
             pushd docs
+            # cp torchvision docs
+            rm -rf source/torchvision
+            cp -r ../vision/docs/source source/torchvision
             # Make sure it is uninstalled!
             pip uninstall -y sphinx_rtd_theme || true
             pip uninstall -y sphinx_rtd_theme || true
