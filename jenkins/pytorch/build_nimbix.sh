@@ -250,6 +250,15 @@ if [ "$OS" == "LINUX" ]; then
             echo "Rebuilding and publishing sphinx docs"
 	    pip install --upgrade pip
             pip install --upgrade setuptools
+            
+            pushd vision/docs
+            # Make sure it is uninstalled!
+            pip uninstall -y sphinx_rtd_theme || true
+            pip uninstall -y sphinx_rtd_theme || true
+            pip install -r requirements.txt || true
+            make html
+            popd
+
             pushd docs
             # Make sure it is uninstalled!
             pip uninstall -y sphinx_rtd_theme || true
@@ -261,11 +270,20 @@ if [ "$OS" == "LINUX" ]; then
             echo $GITHUB_TOKEN >/tmp/token
             git clone https://pytorchbot:$GITHUB_TOKEN@github.com/pytorch/pytorch.github.io -b master tmp --quiet 2>&1 | grep -v $GITHUB_TOKEN || true
             cd tmp
+
+            # add pytorch docs
             git rm -rf docs/master || true
             mv ../build/html docs/master
             find docs/master -name "*.html" -print0 | xargs -0 sed -i -E 's/master[[:blank:]]\([[:digit:]]\.[[:digit:]]\.[[:digit:]]+\+[[:xdigit:]]+[[:blank:]]\)/<a href="http:\/\/pytorch.org\/docs\/versions.html">& \&#x25BC<\/a>/g'
             git add docs/master || true
             git status
+            
+            # add torchvision docs
+            git rm -rf docs/torchvision || true
+            mv ../../vision/build/html docs/torchvision
+            git add docs/torchvision || true
+            git status
+
             git config user.email "soumith+bot@pytorch.org"
             git config user.name "pytorchbot"
             git commit -m "auto-generating sphinx docs"
