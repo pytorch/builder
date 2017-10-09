@@ -8,9 +8,6 @@ source:
      - cmakelists.patch
      - thread_queue.patch
 
-requirements:
-  build:
-    - gcc
 
 build:
   number: 1
