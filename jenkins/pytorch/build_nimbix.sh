@@ -169,6 +169,9 @@ fi
 # install mkl
 conda install -y mkl numpy
 
+# install pyyaml (for setup)
+conda install -y pyyaml
+
 if [ "$OS" == "LINUX" ]; then
     conda install -y magma-cuda80 -c soumith
 fi
