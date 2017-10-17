@@ -7,6 +7,11 @@
 
 confu setup
 $PYTHON ./configure.py
+
+# patch ninja file to compile with -fPIC support
+sed -ibuild.ninja.bak "s/cflags = /cflags = -fPIC /" build.ninja
+sed -ibuild.ninja.bak "s/cxxflags = /cxxflags = -fPIC /" build.ninja
+
 ninja
 
 # move files to expected location
