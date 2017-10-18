@@ -1,0 +1,15 @@
+package:
+  name: nnpack
+  version: "0.0.1"
+
+source:
+  git_url: https://github.com/Maratyszcza/NNPACK.git
+  git_rev: master
+
+build:
+  number: 1
+
+about:
+  home: https://github.com/Maratyszcza/NNPACK
+  license: BSD-2-Clause
+  license_file: LICENSE
