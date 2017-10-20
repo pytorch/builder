@@ -183,10 +183,8 @@ export CMAKE_PREFIX_PATH=$CONDA_ROOT_PREFIX
 echo "Python Version:"
 python --version
 
-# Uninstall onnx and onnx-caffe2; if stale versions are left over,
-# we may spuriously run test/test_onnx.py when we don't want to
-pip uninstall -y onnx || true
-pip uninstall -y onnx-caffe2 || true
+echo "Removing old builds of torch"
+pip uninstall -y torch || true
 
 echo "Installing $PROJECT at branch $GIT_BRANCH and commit $GIT_COMMIT"
 rm -rf $PROJECT
@@ -205,6 +203,12 @@ pip install -r requirements.txt || true
 time python setup.py install
 
 if [ ! -z "$jenkins_nightly" ]; then
+    # Uninstall any leftover copies of onnx and onnx-caffe2
+    echo "Removing any old builds"
+    pip uninstall -y onnx || true
+    pip uninstall -y onnx-caffe2 || true
+    pip uninstall -y onnx-pytorch || true
+
     echo "Installing nightly dependencies"
     conda install -y -c ezyang/label/gcc5 -c conda-forge protobuf scipy caffe2
     git clone https://github.com/onnx/onnx-caffe2.git --recurse-submodules --quiet
