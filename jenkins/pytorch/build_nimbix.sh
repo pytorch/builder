@@ -183,6 +183,25 @@ export CMAKE_PREFIX_PATH=$CONDA_ROOT_PREFIX
 echo "Python Version:"
 python --version
 
+# Why is this uninstall necessary?  In ordinary development,
+# 'python setup.py install' will overwrite an old install, so
+# it is not usually necessary uninstall the old install first.
+# However, it turns out that setuptools performs this install
+# simply by copying files one-by-one, overwriting the old files,
+# NOT an uninstall and reinstall.  This means that there is one
+# nasty edge case:  suppose you have an old install of
+# 'foo/bar/__init__.py', and your new install is 'foo/bar.py'
+# (although this is "rare" to occur in a project history, it
+# might occur if you PR a change to use __init__, but then builder
+# goes back and builds another PR without this change).
+# Because there is no uninstall step, BOTH 'foo/bar.py' and
+# 'foo/bar/__init__.py' will exist in the install, and
+# 'foo/bar/__init__.py' will ALWAYS win import resolution, even
+# though you wanted 'foo/bar.py'.
+#
+# The fix is simple: uninstall, then reinstall.  Of course, if the
+# uninstall leaves files behind, you can still get into a bad situation,
+# but it is less likely to occur now.
 echo "Removing old builds of torch"
 pip uninstall -y torch || true
 
