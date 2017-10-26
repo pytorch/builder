@@ -61,3 +61,21 @@ sudo service nginx start
 - ./certbot-auto renew
 - regenerate key with: https://github.com/pytorch/builder/blob/master/installjenkins.sh#L45-L49
 - bash builder/runjenkins.sh
+
+# How do the bots work?
+
+The GitHub Pull Request builder Jenkins plugin comes with a bot
+that can listen for comments on PRs and take actions accordingly.
+The supported commands are:
+
+* "@pytorchbot ok to test" to accept this pull request for testing
+* "@pytorchbot test this please" for a one time test run
+* "@pytorchbot add to whitelist" to add the author to the whitelist
+* "@pytorchbot retest this please" to start a new build (if the build failed)
+
+You have to be an 'admin' of the particular Jenkins project in order to
+issue these commands.  Go to the 'configure' page of the project in
+question and search for "Admin list" (under "GitHub Pull Request
+Builder") and add your GitHub username.  By the way, you can see the
+list of users who are already whitelisted by clicking the "Advanced..."
+button.
