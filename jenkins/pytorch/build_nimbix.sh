@@ -213,6 +213,9 @@ git fetch --tags https://github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/o
 git checkout $GIT_BRANCH
 git submodule update --init --recursive
 
+echo "Check if torch/lib/ATen was changed (temporary)"
+git diff ${GIT_COMMIT}~:torch/lib/ATen ${GIT_COMMIT}:torch/lib/ATen --exit-code
+
 if [ "$OS" == "OSX" ]; then
     export MACOSX_DEPLOYMENT_TARGET=10.9
     export CC=clang
