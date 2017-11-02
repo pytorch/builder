@@ -214,7 +214,7 @@ git checkout $GIT_BRANCH
 git submodule update --init --recursive
 
 echo "Check if torch/lib/ATen was changed by not zdevito (temporary)"
-if [ "$(git show -s --format='%ae' ${GIT_COMMIT})" != "zdevito@fb.com" ]; then
+if [ "$(git show -s --format='%ae' ${GIT_COMMIT})" != "zdevito@fb.com" ] && [ "$(git show -s --format='%ae' ${GIT_COMMIT})" != "gregchanan@gmail.com" ]; then
     git diff origin/master:torch/lib/ATen HEAD:torch/lib/ATen --exit-code
 fi
 
