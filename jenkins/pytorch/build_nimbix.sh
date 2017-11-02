@@ -213,11 +213,6 @@ git fetch --tags https://github.com/pytorch/$PROJECT +refs/pull/*:refs/remotes/o
 git checkout $GIT_BRANCH
 git submodule update --init --recursive
 
-echo "Check if the latest commit in torch/lib/ATen was changed by zdevito@fb.com/gregchanan@gmail.com (temporary)"
-if [ "$(git show -s --format='%ae' ${GIT_COMMIT})" != "zdevito@fb.com" ] && [ "$(git show -s --format='%ae' ${GIT_COMMIT})" != "gregchanan@gmail.com" ]; then
-    git diff origin/master:torch/lib/ATen HEAD:torch/lib/ATen --exit-code
-fi
-
 if [ "$OS" == "OSX" ]; then
     export MACOSX_DEPLOYMENT_TARGET=10.9
     export CC=clang
