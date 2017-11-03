@@ -174,6 +174,7 @@ conda install -y pyyaml
 
 if [ "$OS" == "LINUX" ]; then
     conda install -y magma-cuda80 -c soumith
+    conda install -y nnpack -c pytorch
 fi
 
 # add mkl to CMAKE_PREFIX_PATH
