@@ -17,6 +17,8 @@ then
   exit 1
 fi
 
+ARCH=`uname -m`
+
 echo "Username: $USER"
 echo "Homedir: $HOME"
 echo "Home ls:"
@@ -33,17 +35,25 @@ echo "Disks:"
 df -h || true
 
 if [ "$OS" == "LINUX" ]; then
-    echo "running nvidia-smi"
-    nvidia-smi
+    if [ "$ARCH" == "ppc64le" ]; then
+        # ppc64le builds do not have GPU enabled so skip this for now
+        # echo "skipping running nvidia-smi"
 
-    echo "Processor info"
-    cat /proc/cpuinfo|grep "model name" | wc -l
-    cat /proc/cpuinfo|grep "model name" | sort | uniq
-    cat /proc/cpuinfo|grep "flags" | sort | uniq
+        echo "Processor info"
+        cat /proc/cpuinfo|grep "cpu" | wc -l
+        cat /proc/cpuinfo|grep "model name" | sort | uniq
+    else
+        echo "running nvidia-smi"
+        nvidia-smi
+
+        echo "Processor info"
+        cat /proc/cpuinfo|grep "model name" | wc -l
+        cat /proc/cpuinfo|grep "model name" | sort | uniq
+        cat /proc/cpuinfo|grep "flags" | sort | uniq
+    fi
 
     echo "Linux release:"
     lsb_release -a || true
-
 else
     echo "Processor info"    
     sysctl -n machdep.cpu.brand_string
@@ -64,8 +74,16 @@ if [ "$OS" == "LINUX" ]; then
         rm -rf ccache
         git clone https://github.com/colesbury/ccache -b ccbin
         pushd ccache
-        ./autogen.sh
-        ./configure
+        if [ "$ARCH" == "ppc64le" ]; then
+            sudo apt-get install -y curl
+            /usr/bin/curl -o config.guess "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD"
+            /usr/bin/curl -o config.sub "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD"
+            ./autogen.sh
+            ./configure
+        else
+            ./autogen.sh
+            ./configure
+        fi
         make install prefix=~/ccache
         popd
         popd
@@ -87,44 +105,69 @@ if [ "$OS" == "LINUX" ]; then
     # add cuda to PATH and LD_LIBRARY_PATH
     export PATH=/usr/local/cuda/bin:$PATH
     export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+    if [ "$ARCH" == "ppc64le" ]; then
+        sudo apt-get install -y libopenblas-dev
+        export LD_LIBRARY_PATH=/usr/local/magma/lib:$LD_LIBRARY_PATH
+    fi
 
     if ! ls /usr/local/cuda-8.0
     then
-        echo "Downloading CUDA 8.0"
-        wget -c https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run -O ~/cuda_8.0.44_linux-run
+        if [ "$ARCH" == "ppc64le" ]; then
+            # ppc64le builds assume to have all CUDA libraries installed
+            # if they are not installed then exit and fix the problem
+            echo "Download CUDA 8.0 for ppc64le"
+            exit
+        else
+            echo "Downloading CUDA 8.0"
+            wget -c https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda_8.0.44_linux-run -O ~/cuda_8.0.44_linux-run
 
-        echo "Installing CUDA 8.0"
-        chmod +x ~/cuda_8.0.44_linux-run
-        sudo bash ~/cuda_8.0.44_linux-run --silent --toolkit --no-opengl-libs
-
-        echo "\nDone installing CUDA 8.0"
+            echo "Installing CUDA 8.0"
+            chmod +x ~/cuda_8.0.44_linux-run
+            sudo bash ~/cuda_8.0.44_linux-run --silent --toolkit --no-opengl-libs
+            echo "\nDone installing CUDA 8.0"
+        fi
     else
         echo "CUDA 8.0 already installed"
     fi
 
     echo "nvcc: $(which nvcc)"
 
-    if ! ls /usr/local/cuda/lib64/libcudnn.so.6.0.21
-    then
-        echo "CuDNN 6.0.21 not found. Downloading and copying to /usr/local/cuda"
-        mkdir -p /tmp/cudnn-download
-        pushd /tmp/cudnn-download
-        rm -rf cuda
-        wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-8.0-linux-x64-v6.0.tgz
-        tar -xvf cudnn-8.0-linux-x64-v6.0.tgz
-        sudo cp -P cuda/include/* /usr/local/cuda/include/
-        sudo cp -P cuda/lib64/* /usr/local/cuda/lib64/
-        popd
-        echo "Downloaded and installed CuDNN 6.0.21"
+    if [ "$ARCH" == "ppc64le" ]; then
+        # cuDNN libraries need to be downloaded from NVDIA and 
+        # requires user registration.
+        # ppc64le builds assume to have all cuDNN libraries installed
+        # if they are not installed then exit and fix the problem
+        if ! ls /usr/lib/powerpc64le-linux-gnu/libcudnn.so.6.0.21
+        then
+            echo "Install CuDNN 6.0 for ppc64le"
+            exit
+        fi
+    else
+        if ! ls /usr/local/cuda/lib64/libcudnn.so.6.0.21
+        then
+            echo "CuDNN 6.0.21 not found. Downloading and copying to /usr/local/cuda"
+            mkdir -p /tmp/cudnn-download
+            pushd /tmp/cudnn-download
+            rm -rf cuda
+            wget http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-8.0-linux-x64-v6.0.tgz
+            tar -xvf cudnn-8.0-linux-x64-v6.0.tgz
+            sudo cp -P cuda/include/* /usr/local/cuda/include/
+            sudo cp -P cuda/lib64/* /usr/local/cuda/lib64/
+            popd
+            echo "Downloaded and installed CuDNN 6.0.21"
+        fi
     fi
-
 fi
 
 echo "Checking Miniconda"
 
 
 if [ "$OS" == "LINUX" ]; then
-    miniconda_url="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    if [ "$ARCH" == "ppc64le" ]; then
+        miniconda_url="https://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-ppc64le.sh"
+    else
+        miniconda_url="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    fi
 else
     miniconda_url="https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
 fi
@@ -167,13 +210,34 @@ then
 fi
 
 # install mkl
-conda install -y mkl numpy
+if [ "$ARCH" == "ppc64le" ]; then
+    conda install -y numpy openblas
+else
+    conda install -y mkl numpy
+fi
 
 # install pyyaml (for setup)
 conda install -y pyyaml
 
 if [ "$OS" == "LINUX" ]; then
-    conda install -y magma-cuda80 -c soumith
+    if [ "$ARCH" == "ppc64le" ]; then
+        if ! ls /usr/local/magma/lib/libmagma.so
+        then
+            sudo apt-get install -y gfortran
+            /usr/bin/curl -o magma-2.2.0.tar.gz "http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.2.0.tar.gz"
+            gunzip -c magma-2.2.0.tar.gz | tar -xvf -
+            pushd magma-2.2.0
+            cp make.inc-examples/make.inc.openblas make.inc
+            sed -i 's/nvcc/\/usr\/local\/cuda\/bin\/nvcc/' make.inc
+            sed -i 's/#OPENBLASDIR/OPENBLASDIR/' make.inc
+            sed -i 's/\/usr\/local\/openblas/\/usr/' make.inc
+            sed -i 's/#CUDADIR/CUDADIR/' make.inc
+            sudo make install
+            popd
+        fi
+    else
+        conda install -y magma-cuda80 -c soumith
+    fi
 fi
 
 # add mkl to CMAKE_PREFIX_PATH
