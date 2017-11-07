@@ -43,6 +43,9 @@ def is_valid(name):
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == "404":
                 exists = False
+            elif e.response['Error']['Code'] == "400":
+                print(name)
+                exists = False
             else:
                 raise
         else:
