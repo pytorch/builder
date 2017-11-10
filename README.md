@@ -79,3 +79,24 @@ question and search for "Admin list" (under "GitHub Pull Request
 Builder") and add your GitHub username.  By the way, you can see the
 list of users who are already whitelisted by clicking the "Advanced..."
 button.
+
+# Testing community repos
+First, build a docker image in the main pytorch repo, with the desired version:
+```
+cd pytorch/pytorch
+git checkout v0.3.0
+sudo docker build -t pytorch-v0.3.0 .
+```
+
+Next, run the docker
+```
+cd pytorch/builder/test_community_repos
+sudo nvidia-docker run -it --rm -v $(pwd):/remote pytorch-v0.3.0:latest
+```
+
+Inside the docker,
+```
+cd /remote/
+./run_all.sh
+```
+

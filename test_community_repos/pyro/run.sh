@@ -1,6 +1,7 @@
 yes | pip install pytest-xdist
 yes | pip install sphinx
 yes | pip install sphinx_rtd_theme
+yes | pip install flake8
 
 TMPDIR=$RANDOM
 mkdir /tmp/$TMPDIR
