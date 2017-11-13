@@ -4,4 +4,6 @@ pushd pytorch-CycleGAN-and-pix2pix
 ../download_data.sh
 ../install-deps.sh
 ../run-script.sh
+popd
+rm -rf pytorch-CycleGAN-and-pix2pix
 
