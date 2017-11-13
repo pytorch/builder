@@ -1,0 +1,1 @@
+yes | pip install matplotlib
