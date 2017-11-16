@@ -1,11 +1,8 @@
 set -e
 
-for file in */ ; do
-    echo "Testing $file";
-    for script in $file/run.sh ; do
-        $script
-    done
-    echo "Test passed $file";
-done
+BASEDIR=$(dirname $0)
+pushd $BASEDIR
 
-echo "ALL TESTS PASSED"
+python run_all.py
+
+popd
