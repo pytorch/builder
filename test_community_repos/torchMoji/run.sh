@@ -1,4 +1,6 @@
 BASEDIR=$(dirname $0)
+pushd $BASEDIR
+
 git clone https://github.com/huggingface/torchMoji.git
 pushd torchMoji
 ../download_data.sh
@@ -7,3 +9,4 @@ pushd torchMoji
 popd
 rm -rf torchMoji
 
+popd

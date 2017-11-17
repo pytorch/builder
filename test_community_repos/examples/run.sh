@@ -1,5 +1,8 @@
 set -e
 
+BASEDIR=$(dirname $0)
+pushd $BASEDIR
+
 for file in */ ; do
     echo "Testing $file";
     for script in $file/run.sh ; do
@@ -8,3 +11,4 @@ for file in */ ; do
     echo "Test passed $file";
 done
 
+popd
