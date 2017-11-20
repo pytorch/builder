@@ -20,6 +20,7 @@
 # build base docker image
 ```
 nvidia-docker build -t soumith/conda-cuda -f Dockerfile .
+docker push soumith/conda-cuda
 ```
 
 
@@ -27,14 +28,10 @@ nvidia-docker build -t soumith/conda-cuda -f Dockerfile .
 # building magma-cuda90
 
 ```
-nvidia-docker run -it --rm -v $(pwd):/remote conda-cuda bash
-yum install -y yum-utils
-yum install -y centos-release-scl
+nvidia-docker run -it --rm -v $(pwd):/remote soumith/conda-cuda bash
+yum install -y yum-utils centos-release-scl
 yum-config-manager --enable rhel-server-rhscl-7-rpms
-yum install -y devtoolset-3-gcc
-yum install -y devtoolset-3-gcc-c++
-yum install -y devtoolset-3-gcc-gfortran
-yum install -y devtoolset-3-binutils
+yum install -y devtoolset-3-gcc devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran devtoolset-3-binutils
 export PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
 export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
 git clone https://github.com/pytorch/builder
