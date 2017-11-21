@@ -24,7 +24,8 @@ export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
 conda config --set anaconda_upload no
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-
+    export CUDA_VERSION="0.0"
+    export CUDNN_VERSION="0.0"
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION    
