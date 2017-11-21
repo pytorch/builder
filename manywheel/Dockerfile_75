@@ -1,6 +1,44 @@
 FROM nvidia/cuda:7.5-devel-centos6
 
-RUN yum install -y git wget curl
+# MKL
+RUN mkdir -p /opt/intel/lib
+COPY mkl_libs/libmkl_core.a /opt/intel/lib/libmkl_core.a
+COPY mkl_libs/libmkl_gnu_thread.a /opt/intel/lib/libmkl_gnu_thread.a
+COPY mkl_libs/libmkl_intel_lp64.a /opt/intel/lib/libmkl_intel_lp64.a
+
+RUN yum install -y git wget curl util-linux xz perl
+
+
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+# get devtoolset-2
+RUN yum install -y yum-utils
+RUN yum install -y centos-release-scl
+RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
+RUN wget http://people.centos.org/tru/devtools-2/devtools-2.repo -O /etc/yum.repos.d/devtools-2.repo
+RUN yum install -y devtoolset-2-gcc
+RUN yum install -y devtoolset-2-gcc-c++
+RUN yum install -y devtoolset-2-gcc-gfortran
+RUN yum install -y devtoolset-2-binutils
+ENV PATH=/opt/rh/devtoolset-2/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-2/root/usr/lib64:/opt/rh/devtoolset-2/root/usr/lib:$LD_LIBRARY_PATH
+
+# cmake
+RUN yum install -y cmake
+
+# build python
+COPY build_scripts /build_scripts
+RUN bash build_scripts/build.sh && rm -r build_scripts
+
+ENV SSL_CERT_FILE=/opt/_internal/certs.pem
+
+# remove unncessary python versions
+RUN rm -rf /opt/python/cp26-cp26m /opt/_internal/cpython-2.6.9-ucs2
+RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
+RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
+RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 
 ENV CUDNN_VERSION 6.0.21
 
@@ -10,40 +48,6 @@ RUN CUDNN_DOWNLOAD_SUM=568d4b070c5f91ab8a15b287b73dd072b99c7267a43edad13f70337cd
     tar -xzf cudnn-7.5-linux-x64-v6.0.tgz -C /usr/local && \
     rm cudnn-7.5-linux-x64-v6.0.tgz && \
     ldconfig
-
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
-
-# MKL
-RUN mkdir -p /opt/intel/lib
-COPY mkl_libs/libmkl_core.a /opt/intel/lib/libmkl_core.a
-COPY mkl_libs/libmkl_gnu_thread.a /opt/intel/lib/libmkl_gnu_thread.a
-COPY mkl_libs/libmkl_intel_lp64.a /opt/intel/lib/libmkl_intel_lp64.a
-
-# get devtoolset-3
-RUN yum install -y yum-utils
-RUN yum install -y centos-release-scl
-RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN yum install -y devtoolset-3-gcc
-RUN yum install -y devtoolset-3-gcc-c++
-RUN yum install -y devtoolset-3-gcc-gfortran
-RUN yum install -y devtoolset-3-binutils
-ENV PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
-
-
-# cmake
-RUN yum install -y cmake
-COPY build_scripts /build_scripts
-RUN bash build_scripts/build.sh && rm -r build_scripts
-
-ENV SSL_CERT_FILE=/opt/_internal/certs.pem
-
-RUN rm -rf /opt/python/cp26-cp26m /opt/_internal/cpython-2.6.9-ucs2
-RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
-RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
-RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 
 # magma
 RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.2.0.tar.gz && \
