@@ -62,7 +62,7 @@ else
 
 	patchedpath=$(fname_with_sha256 $destpath)
 	patchedname=$(basename $patchedpath)
-	mv $destpath $patchedpath
+	mv $destpath $patchedpath || true
 
 	patched+=("$patchedname")
 	echo "Copied $filepath to $patchedpath"
