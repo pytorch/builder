@@ -3,14 +3,16 @@
 - upload generated docs and add to version selector
 
 
-# new wheels
+## Building new wheels
 
 Run this command:
 
 ```
-nvidia-docker run -it --rm -v $(pwd):/remote soumith/manylinux-cuda:latest bash
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda80:latest bash
 # OR
-nvidia-docker run -it --rm -v $(pwd):/remote soumith/manylinux-cuda75:latest bash
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda75:latest bash
+# OR
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda90:latest bash
 ```
 
 Then run:
@@ -25,13 +27,7 @@ Once done, upload wheels via:
 ./upload.sh
 ```
 
-
-
-
-
-
-
-# Docker image
+## Building Docker image
 
 First run
 
@@ -42,27 +38,7 @@ First run
 Then run
 
 ```
-docker push soumith/manylinux-cuda
-```
-
-
-
-
-# old instructions
-Run this command:
-
-```
-nvidia-docker run -it --rm -v $(pwd):/remote nvidia/cuda:8.0-devel-centos6 bash
-```
-
-In docker image
-
-```
-./remote/conda_build.sh
-
-cd /b
-. /py/bin/activate
-. /remote/atoken
-cd /b/wheel/
-./build_all.sh
+docker push soumith/manylinux-cuda80
+docker push soumith/manylinux-cuda75
+docker push soumith/manylinux-cuda90
 ```
