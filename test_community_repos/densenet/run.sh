@@ -6,6 +6,5 @@ pushd densenet.pytorch
 ../run-script.sh
 popd
 rm -rf densenet.pytorch
-pop
-pop
+popd
 
