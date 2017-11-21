@@ -15,9 +15,13 @@ fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
-    INITNAME=$(echo $BASENAME | cut -f1 -d".")
-    ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
-    echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+    if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
+	echo $1
+    else
+	INITNAME=$(echo $BASENAME | cut -f1 -d".")
+	ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
+	echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+    fi
 }
 
 DEPS_LIST=(
@@ -26,8 +30,9 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcublas.so.7.5.18"
     "/usr/local/cuda/lib64/libcurand.so.7.5.18"
     "/usr/local/cuda/lib64/libcusparse.so.7.5.18"
-    "/usr/local/cuda/lib64/libcudnn.so.6.0.21"
     "/usr/local/cuda/lib64/libnvrtc.so.7.5.17"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libcudnn.so.6.0.21"
 )
 
 DEPS_SONAME=(
@@ -36,8 +41,9 @@ DEPS_SONAME=(
     "libcublas.so.7.5"
     "libcurand.so.7.5"
     "libcusparse.so.7.5"
-    "libcudnn.so.6"
     "libnvrtc.so.7.5"
+    "libnvrtc-builtins.so"
+    "libcudnn.so.6"
 )
 
 if [[ "$OSTYPE" == "darwin"* ]]; then

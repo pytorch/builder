@@ -36,7 +36,7 @@ test:
  source_files:
    - test
  commands:
-   - ./test/run_test.sh || true
+   - OMP_NUM_THREADS=4 ./test/run_test.sh || true
 
 
 about:

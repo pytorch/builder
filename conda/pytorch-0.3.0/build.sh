@@ -16,9 +16,13 @@ fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
-    INITNAME=$(echo $BASENAME | cut -f1 -d".")
-    ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
-    echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+    if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
+	echo $1
+    else
+	INITNAME=$(echo $BASENAME | cut -f1 -d".")
+	ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
+	echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+    fi
 }
 
 DEPS_LIST=(

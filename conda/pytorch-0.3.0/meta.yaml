@@ -33,7 +33,7 @@ test:
  source_files:
    - test
  commands:
-   - ./test/run_test.sh
+   - OMP_NUM_THREADS=4 ./test/run_test.sh
 
 
 about:

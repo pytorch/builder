@@ -21,6 +21,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcurand.so.9.0"
     "/usr/local/cuda/lib64/libcusparse.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc.so.9.0"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
     "/usr/local/cuda/lib64/libcudnn.so.7"
 )
 
@@ -31,6 +32,7 @@ DEPS_SONAME=(
     "libcurand.so.9.0"
     "libcusparse.so.9.0"
     "libnvrtc.so.9.0"
+    "libnvrtc-builtins.so"
     "libcudnn.so.7"
 )
 
