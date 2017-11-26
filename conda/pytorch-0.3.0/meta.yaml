@@ -18,7 +18,7 @@ requirements:
   run:
     - python
     - numpy >=1.11
-    - mkl
+    - mkl >=2018
     - cffi
     - cudatoolkit # [not osx]
 

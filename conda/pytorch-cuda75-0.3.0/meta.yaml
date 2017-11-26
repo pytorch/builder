@@ -12,13 +12,13 @@ requirements:
     - setuptools
     - pyyaml
     - cffi
-    - mkl # [not osx]
+    - mkl
     - magma-cuda75 # [not osx]
 
   run:
     - python
     - numpy >=1.11
-    - mkl # [not osx]
+    - mkl >=2018
     - cffi
 
 build:
