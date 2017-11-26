@@ -5,6 +5,8 @@ make tests/test_blas -j $(nproc)
 make -j $(nproc)
 make py
 
+rm -f python/_swigfaiss_gpu.so
+
 sed -i "s/from swigfaiss/from .swigfaiss/g" faiss.py
 
 find $SP_DIR/torch -name "*.so*" -maxdepth 1 -type f | while read sofile; do
