@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export PYTORCH_BUILD_VERSION=0.3.0
-export PYTORCH_BUILD_NUMBER=2
+export PYTORCH_BUILD_NUMBER=3
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
