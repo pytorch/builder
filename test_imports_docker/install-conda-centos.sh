@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-yum install -y wget
+yum install -y -q wget
 
 export MV=3
-wget https://repo.continuum.io/miniconda/Miniconda$MV-latest-Linux-x86_64.sh && \
+wget --quiet https://repo.continuum.io/miniconda/Miniconda$MV-latest-Linux-x86_64.sh && \
     chmod +x Miniconda$MV-latest-Linux-x86_64.sh && \
     ./Miniconda$MV-latest-Linux-x86_64.sh -b -p /opt/conda && \
     rm Miniconda$MV-latest-Linux-x86_64.sh
