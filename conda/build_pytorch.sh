@@ -11,7 +11,7 @@ if [ -z "$ANACONDA_TOKEN" ]; then
 fi
 
 BUILD_VERSION="0.3.0"
-BUILD_NUMBER=3
+BUILD_NUMBER=4
 
 ANACONDA_USER=pytorch
 rm -rf pytorch-src

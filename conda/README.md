@@ -23,12 +23,18 @@ nvidia-docker build -t soumith/conda-cuda -f Dockerfile .
 docker push soumith/conda-cuda
 ```
 
+# building pytorch / torchvision etc.
+```
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
+cd remote
+./build_all.sh
+```
 
 
 # building magma-cuda90
 
 ```
-nvidia-docker run -it --rm -v $(pwd):/remote soumith/conda-cuda bash
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
 yum install -y yum-utils centos-release-scl
 yum-config-manager --enable rhel-server-rhscl-7-rpms
 yum install -y devtoolset-3-gcc devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran devtoolset-3-binutils
