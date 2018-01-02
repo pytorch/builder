@@ -2,12 +2,16 @@ package:
   name: nnpack
   version: "0.0.1"
 
+# 2018-01-02
 source:
   git_url: https://github.com/Maratyszcza/NNPACK.git
-  git_rev: master
+  git_rev: 73f278cb28a44b59b0b4e2b83f3a47554aeabae0
 
 build:
   number: 1
+  script_env:
+    - http_proxy
+    - https_proxy
 
 about:
   home: https://github.com/Maratyszcza/NNPACK
