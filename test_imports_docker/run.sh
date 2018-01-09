@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+docker stop img || true
+
 # If any of these fail, they'll leave behind a running docker container
 # named img.
 # Remove it with `docker stop img` or attach it and see what's up with

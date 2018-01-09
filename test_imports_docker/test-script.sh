@@ -10,4 +10,4 @@ for var in "${@:2}"; do
   docker exec img /remote/$var
 done
 docker stop img
-
+sleep 5
