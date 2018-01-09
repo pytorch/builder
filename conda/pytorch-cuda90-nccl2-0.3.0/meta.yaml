@@ -3,7 +3,8 @@ package:
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
-   path: ../pytorch-src
+   git_url: https://github.com/pytorch/pytorch
+   git_rev: "v{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 requirements:
   build:

@@ -1,11 +1,10 @@
 ## Building conda binaries
 
-- Change the BUILD_VERSION and BUILD_NUMBER variables in build_all.sh as appropriate
+- Change the BUILD_VERSION and BUILD_NUMBER variables in build_pytorch.sh as appropriate
 - If pytorch-$BUILD_VERSION folder doesn't exist, copy over the last version and change the meta.yaml if necessary (if tests change etc.)
   - `cp -r pytorch-0.1.3 pytorch-$BUILD_VERSION`
   - `git add pytorch-$BUILD_VERSION`
-- Run `./build_all.ash` on an OSX machine and a Linux machine
-
+- Run `./build_pytorch.sh` on an OSX machine and a Linux machine
 
 ### TODO
 - [x] Make sure you build against magma
@@ -17,21 +16,24 @@
   - [x] with an insufficient driver version corresponding to the CUDA version
 
 
-# build base docker image
+## build base docker image
+
 ```
 nvidia-docker build -t soumith/conda-cuda -f Dockerfile .
 docker push soumith/conda-cuda
 ```
 
-# building pytorch / torchvision etc.
+## building pytorch / torchvision etc.
+
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
 cd remote
-./build_all.sh
+./build_pytorch.sh 80 # cuda 8.0
+./build_vision.sh
 ```
 
 
-# building magma-cuda90
+## building magma-cuda90
 
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash

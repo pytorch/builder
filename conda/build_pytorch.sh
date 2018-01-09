@@ -10,15 +10,10 @@ if [ -z "$ANACONDA_TOKEN" ]; then
     exit 1
 fi
 
+ANACONDA_USER=pytorch
+
 BUILD_VERSION="0.3.0"
 BUILD_NUMBER=4
-
-ANACONDA_USER=pytorch
-rm -rf pytorch-src
-git clone https://github.com/pytorch/pytorch pytorch-src --recursive
-pushd pytorch-src
-git checkout v$BUILD_VERSION
-popd
 
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
@@ -32,12 +27,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
 else
-    if [[ "$1" == "80"]]; then
+    if [[ "$1" == "80" ]]; then
 	. ./switch_cuda_version.sh 8.0
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
-    elif [[ "$1" == "90"]]; then
+    elif [[ "$1" == "90" ]]; then
 	. ./switch_cuda_version.sh 9.0
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda90-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda90-$BUILD_VERSION
@@ -46,7 +41,7 @@ else
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda90-nccl2-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda90-nccl2-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda90-nccl2-$BUILD_VERSION
-    elif [[ "$1" == "75"]]; then
+    elif [[ "$1" == "75" ]]; then
 	. ./switch_cuda_version.sh 7.5
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda75-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda75-$BUILD_VERSION
