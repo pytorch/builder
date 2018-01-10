@@ -1,0 +1,43 @@
+package:
+  name: pytorch-cpu
+  version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+source:
+   git_url: https://github.com/pytorch/pytorch
+   git_rev: "v{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+requirements:
+  build:
+    - python
+    - numpy 1.11.*
+    - setuptools
+    - pyyaml
+    - cffi
+    - mkl
+
+  run:
+    - python
+    - numpy >=1.11
+    - mkl >=2018
+    - cffi
+
+build:
+  number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
+  detect_binary_files_with_prefix: False
+  string: py{{py}}_cpu_{{environ.get('PYTORCH_BUILD_NUMBER')}}
+
+test:
+ imports:
+    - torch
+ source_files:
+   - test
+ commands:
+   - OMP_NUM_THREADS=4 ./test/run_test.sh
+
+
+about:
+  home: http://pytorch.org/
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.

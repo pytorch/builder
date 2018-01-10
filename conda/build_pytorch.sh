@@ -46,6 +46,10 @@ else
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda75-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda75-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda75-$BUILD_VERSION
+    elif [[ "$1" == "cpu" ]]; then
+	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cpu-$BUILD_VERSION
+	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cpu-$BUILD_VERSION
+	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cpu-$BUILD_VERSION
     else
 	echo "Error, unknown argument $1"
 	exit 1
