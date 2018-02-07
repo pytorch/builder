@@ -2,8 +2,8 @@
 
 set -x
 
-export PYTORCH_BUILD_VERSION=0.3.0
-export PYTORCH_BUILD_NUMBER=4
+export PYTORCH_BUILD_VERSION=0.3.1
+export PYTORCH_BUILD_NUMBER=1
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export NO_CUDA=1
@@ -29,7 +29,9 @@ ls /opt/python
 # clone pytorch source code
 git clone https://github.com/pytorch/pytorch
 pushd pytorch
-git checkout tags/v${PYTORCH_BUILD_VERSION}
+if !git checkout v${PYTORCH_BUILD_VERSION}; then
+    git checkout tags/v${PYTORCH_BUILD_VERSION}
+fi
 git submodule update --init --recursive
 
 OLD_PATH=$PATH

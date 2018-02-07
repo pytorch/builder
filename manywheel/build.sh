@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-export PYTORCH_BUILD_VERSION=0.3.0
-export PYTORCH_BUILD_NUMBER=4
+export PYTORCH_BUILD_VERSION=0.3.1
+export PYTORCH_BUILD_NUMBER=1
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
@@ -9,7 +9,7 @@ export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 
 CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
 
-export TORCH_CUDA_ARCH_LIST="3.0;3.5;5.0;5.2+PTX"
+export TORCH_CUDA_ARCH_LIST="3.5;5.2+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
     echo "CUDA 8.0 Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
@@ -29,17 +29,20 @@ else
 fi
 
 rm -rf /opt/python/cpython-2.6.9-ucs2  /opt/python/cpython-2.6.9-ucs4
-# rm -rf /opt/python/cp35*  # TODO: remove
-# rm -rf /opt/python/cp27*  # TODO: remove
+rm -rf /opt/python/cp35*  # TODO: remove
+rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python
 
 # ########################################################
 # # Compile wheels
 # #######################################################
 # clone pytorch source code
-git clone --recursive https://github.com/pytorch/pytorch -b v${PYTORCH_BUILD_VERSION}
-
+git clone https://github.com/pytorch/pytorch
 pushd pytorch
+if ! git checkout v${PYTORCH_BUILD_VERSION} ; then
+    git checkout tags/v${PYTORCH_BUILD_VERSION}
+fi
+git submodule update --init --recursive
 
 OLD_PATH=$PATH
 for PYDIR in /opt/python/*; do
