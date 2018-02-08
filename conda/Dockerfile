@@ -6,8 +6,6 @@ ENV LANGUAGE en_US.UTF-8
 
 RUN yum install -y wget curl perl cmake util-linux xz
 
-ENV CUDNN_VERSION 7.0.3.11
-
 RUN wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.61.2_linux-run && \
     chmod +x cuda_8.0.61.2_linux-run && \
     cp /usr/local/cuda/version.txt /tmp/ && \
@@ -17,58 +15,40 @@ RUN wget https://developer.nvidia.com/compute/cuda/8.0/Prod2/patches/2/cuda_8.0.
     rm -r cuda_8.0.61.2_linux-run
 
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
-RUN CUDNN_DOWNLOAD_SUM=e44dd20750ea1fa287ed0576c71d7ba30383aabdaacd18df173947cf7a53fc3f && \
-    curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.3/cudnn-8.0-linux-x64-v7.tgz -O && \
-    echo "$CUDNN_DOWNLOAD_SUM  cudnn-8.0-linux-x64-v7.tgz" | sha256sum -c - && \
+RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.5/cudnn-8.0-linux-x64-v7.tgz -O && \
     tar --no-same-owner -xzf cudnn-8.0-linux-x64-v7.tgz -C /usr/local && \
     rm cudnn-8.0-linux-x64-v7.tgz && \
     ldconfig
 
 # NCCL2
-RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.2-1%2Bcuda8.0_x86_64.txz && \
+RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.4-1%2Bcuda8.0_x86_64.txz && \
     ls && \
-    ls -alh nccl_2.1.2-1+cuda8.0_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.1.2-1+cuda8.0_x86_64.txz && \
-    mv nccl_2.1.2-1+cuda8.0_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.1.2-1+cuda8.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.1.2-1+cuda8.0_x86_64* && \
+    ls -alh nccl_2.1.4-1+cuda8.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.1.4-1+cuda8.0_x86_64.txz && \
+    mv nccl_2.1.4-1+cuda8.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.1.4-1+cuda8.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.1.4-1+cuda8.0_x86_64* && \
     ldconfig
 
-# install CUDA 7.5 in the same container
-RUN wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run && \
-    chmod +x cuda_7.5.18_linux.run && \
-    ./cuda_7.5.18_linux.run --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_7.5.18_linux.run
+# install CUDA 9.1 in the same container
+RUN wget https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_387.26_linux && \
+    chmod +x cuda_9.1.85_387.26_linux && \
+    ./cuda_9.1.85_387.26_linux --silent --no-opengl-libs --toolkit && \
+    rm -f cuda_9.1.85_387.26_linux
 
-# install CUDA 7.5 cudnn
-RUN CUDNN_DOWNLOAD_SUM=568d4b070c5f91ab8a15b287b73dd072b99c7267a43edad13f70337cd186c82c && \
-    curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-7.5-linux-x64-v6.0.tgz -O && \
-    echo "$CUDNN_DOWNLOAD_SUM  cudnn-7.5-linux-x64-v6.0.tgz" | sha256sum -c - && \
-    tar -xzf cudnn-7.5-linux-x64-v6.0.tgz -C /usr/local && \
-    rm -f cudnn-7.5-linux-x64-v6.0.tgz && \
-    ldconfig
-
-# install CUDA 9.0 in the same container
-RUN wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run && \
-    chmod +x cuda_9.0.176_384.81_linux-run && \
-    ./cuda_9.0.176_384.81_linux-run --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_9.0.176_384.81_linux-run
-
-# install CUDA 9.0 CuDNN
+# install CUDA 9.1 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
-RUN CUDNN_DOWNLOAD_SUM=09583e93110cee2bf76ea355e1d9c7c366a50ad858362064f7c927cc46209ef9 && \
-    curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.3/cudnn-9.0-linux-x64-v7.tgz -O && \
-    echo "$CUDNN_DOWNLOAD_SUM  cudnn-9.0-linux-x64-v7.tgz" | sha256sum -c - && \
-    tar --no-same-owner -xzf cudnn-9.0-linux-x64-v7.tgz -C /usr/local && \
-    rm cudnn-9.0-linux-x64-v7.tgz && \
+RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.5/cudnn-9.1-linux-x64-v7.tgz -O && \
+    tar --no-same-owner -xzf cudnn-9.1-linux-x64-v7.tgz -C /usr/local && \
+    rm cudnn-9.1-linux-x64-v7.tgz && \
     ldconfig
 
 # NCCL2
-RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.2-1%2Bcuda9.0_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.1.2-1+cuda9.0_x86_64.txz && \
-    mv nccl_2.1.2-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.1.2-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.1.2-1+cuda9.0_x86_64* && \
+RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.4-1%2Bcuda9.1_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.1.4-1+cuda9.1_x86_64.txz && \
+    mv nccl_2.1.4-1+cuda9.1_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.1.4-1+cuda9.1_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.1.4-1+cuda9.1_x86_64* && \
     ldconfig
 
 # Anaconda
