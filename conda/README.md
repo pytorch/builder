@@ -33,7 +33,7 @@ cd remote
 ```
 
 
-## building magma-cuda90
+## building magma-cuda91
 
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
@@ -44,6 +44,6 @@ export PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
 export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
 git clone https://github.com/pytorch/builder
 cd builder/conda
-conda install conda-build
-conda build magma-cuda90-2.2.0
+conda install -y conda-build
+conda build magma-cuda91-2.2.0
 ```
