@@ -14,7 +14,7 @@ requirements:
     - pyyaml
     - cffi
     - mkl
-    - magma-cuda90 # [not osx]
+    - magma-cuda91 # [not osx]
 
   run:
     - python
@@ -27,12 +27,12 @@ build:
   detect_binary_files_with_prefix: False
   string: py{{py}}_cuda{{ environ['CUDA_VERSION'] }}_cudnn{{ environ['CUDNN_VERSION'] }}_nccl2_{{environ.get('PYTORCH_BUILD_NUMBER')}}
   features:
-    - cuda90
+    - cuda91
     - nccl2
 
 test:
  requires:
-    - cuda90
+    - cuda91
     - nccl2
  source_files:
    - test
