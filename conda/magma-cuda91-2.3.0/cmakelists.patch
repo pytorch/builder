@@ -1,5 +1,6 @@
---- magma-2.3.0/CMakeLists.txt    2016-11-20 20:20:02.000000000 -0500
-+++ magma-2.3.0/CMakeLists.txt    2017-07-17 01:10:32.161739159 -040062a63
+--- CMakeLists.txt    2016-11-20 20:20:02.000000000 -0500
++++ CMakeLists.txt    2017-07-17 01:10:32.161739159 -040062a63
+62a63
 > set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -fno-exceptions")
 82,89c83,90
 < find_package( OpenMP )
@@ -41,14 +42,13 @@
 ---
 > # set( LIBS tester lapacktest magma )
 > set( LIBS magma)
-320a331,332
+410a421
 > set_target_properties(magma PROPERTIES POSITION_INDEPENDENT_CODE ON)
-> 
-414c426
+414c425
 < add_library( tester ${libtest_all} )
 ---
 > # add_library( tester ${libtest_all} )
-421,436c433,448
+421,436c432,447
 < if ( USE_FORTRAN )
 < 	foreach( f ${liblapacktest_all} )
 < 		if ( ${f} MATCHES "\\.(f|f90)$" )
@@ -82,11 +82,11 @@
 > # 	endforeach()
 > # 	add_library( lapacktest ${liblapacktest_all_cpp} )
 > # endif()
-456c468
+456c467
 < 
 ---
 > set_target_properties(magma_sparse PROPERTIES POSITION_INDEPENDENT_CODE ON)
-462,464c474,476
+462,464c473,475
 < set( CMAKE_RUNTIME_OUTPUT_DIRECTORY testing )
 < set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY testing_lib )
 < set( CMAKE_LIBRARY_OUTPUT_DIRECTORY testing_lib )
@@ -94,7 +94,7 @@
 > # set( CMAKE_RUNTIME_OUTPUT_DIRECTORY testing )
 > # set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY testing_lib )
 > # set( CMAKE_LIBRARY_OUTPUT_DIRECTORY testing_lib )
-467,478c479,490
+467,478c478,489
 < foreach( f ${testing_all} )
 < 	if ( ${f} MATCHES "\\.(c|cu|cpp)$" )
 < 		list( APPEND testing_all_cpp ${f} )
@@ -120,7 +120,7 @@
 > # 	add_executable( ${EXE} ${TEST} )
 > # 	target_link_libraries( ${EXE} ${LIBS} )
 > # endforeach()
-483,490c495,502
+483,490c494,501
 < set( CMAKE_RUNTIME_OUTPUT_DIRECTORY sparse/testing )
 < foreach( TEST ${sparse_testing_all} )
 < 	string( REGEX REPLACE "\\.(cpp|f90|F90)"     "" EXE ${TEST} )
