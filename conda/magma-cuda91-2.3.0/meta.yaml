@@ -7,6 +7,7 @@ source:
    patches:
      - cmakelists.patch
      - thread_queue.patch
+     - magma_zparict_tools.patch
 
 
 build:
