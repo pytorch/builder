@@ -1,4 +1,5 @@
-62a63
+--- magma-2.3.0/CMakeLists.txt    2016-11-20 20:20:02.000000000 -0500
++++ magma-2.3.0/CMakeLists.txt    2017-07-17 01:10:32.161739159 -040062a63
 > set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -fno-exceptions")
 82,89c83,90
 < find_package( OpenMP )
