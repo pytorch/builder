@@ -45,5 +45,5 @@ export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/
 git clone https://github.com/pytorch/builder
 cd builder/conda
 conda install -y conda-build
-conda build magma-cuda91-2.2.0
+conda build magma-cuda91-2.3.0
 ```
