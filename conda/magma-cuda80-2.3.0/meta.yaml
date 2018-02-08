@@ -7,6 +7,10 @@ source:
    patches:
      - cmakelists.patch
      - thread_queue.patch
+     - magma_cparict_tools.patch
+     - magma_dparict_tools.patch
+     - magma_sparict_tools.patch
+     - magma_zparict_tools.patch
 
 build:
   number: 1
