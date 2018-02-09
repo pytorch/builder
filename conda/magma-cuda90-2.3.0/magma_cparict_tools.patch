@@ -1,0 +1,10 @@
+--- sparse/control/magma_cparict_tools.cpp	2016-08-30 06:37:49.000000000 -0700
++++ sparse/control/magma_cparict_tools.cpp	2016-10-10 19:47:28.911580965 -0700
+206c206,210
+<         magma_int_t id = omp_get_thread_num();
+---
+> #ifdef _OPENMP
+>       magma_int_t id = omp_get_thread_num();
+> #else
+>       magma_int_t id = 0;
+> #endif

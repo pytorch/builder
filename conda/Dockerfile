@@ -30,6 +30,27 @@ RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.4-1%2Bcuda8.0_x86_64.txz && \
     rm -rf nccl_2.1.4-1+cuda8.0_x86_64* && \
     ldconfig
 
+# install CUDA 9.0 in the same container
+RUN wget https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run && \
+    chmod +x cuda_9.0.176_384.81_linux-run && \
+    ./cuda_9.0.176_384.81_linux-run --silent --no-opengl-libs --toolkit && \
+    rm -f cuda_9.0.176_384.81_linux-run
+
+# install CUDA 9.0 CuDNN
+# cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
+RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.0.5/cudnn-9.0-linux-x64-v7.tgz -O && \
+    tar --no-same-owner -xzf cudnn-9.0-linux-x64-v7.tgz -C /usr/local && \
+    rm cudnn-9.0-linux-x64-v7.tgz && \
+    ldconfig
+
+# NCCL2
+RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.4-1%2Bcuda9.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.1.4-1+cuda9.0_x86_64.txz && \
+    mv nccl_2.1.4-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.1.4-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.1.4-1+cuda9.0_x86_64* && \
+    ldconfig
+
 # install CUDA 9.1 in the same container
 RUN wget https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_387.26_linux && \
     chmod +x cuda_9.1.85_387.26_linux && \
