@@ -85,3 +85,14 @@ RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.3.0.tar.gz 
     make -j$(getconf _NPROCESSORS_CONF) && \
     make install && \
     cd ..
+
+RUN rm -f /usr/local/bin/patchelf
+RUN git clone https://github.com/NixOS/patchelf && \
+    cd patchelf && \
+    sed -i 's/serial/parallel/g' configure.ac && \
+    ./bootstrap.sh && \
+    ./configure && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf patchelf
