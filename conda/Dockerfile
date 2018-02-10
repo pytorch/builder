@@ -88,3 +88,16 @@ RUN wget http://people.centos.org/tru/devtools-2/devtools-2.repo -O /etc/yum.rep
 RUN yum install -y devtoolset-2-gcc devtoolset-2-gcc-c++ devtoolset-2-gcc-gfortran devtoolset-2-binutils
 ENV PATH=/opt/rh/devtoolset-2/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-2/root/usr/lib64:/opt/rh/devtoolset-2/root/usr/lib:$LD_LIBRARY_PATH
+
+RUN yum install -y autoconf aclocal automake
+RUN git clone https://github.com/NixOS/patchelf && \
+    cd patchelf && \
+    sed -i 's/serial/parallel/g' configure.ac && \
+    ./bootstrap.sh && \
+    ./configure && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf patchelf
+
+RUN conda uninstall -y patchelf
