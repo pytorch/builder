@@ -9,8 +9,8 @@ export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
-# export NCCL_ROOT_DIR=/usr/local/cuda
 rm -f /usr/local/cuda/include/nccl.h || true
+
 
 fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
@@ -40,6 +40,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudnn.so.7"
 )
 
+
 DEPS_SONAME=(
     "libcudart.so.9.1"
     "libnvToolsExt.so.1"
@@ -51,20 +52,50 @@ DEPS_SONAME=(
     "libcudnn.so.7"
 )
 
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     MACOSX_DEPLOYMENT_TARGET=10.9 python setup.py install
 else
     # install
     python setup.py install
 
-    # copy over needed dependent .so files over
+    # copy over needed dependent .so files over and tag them with their hash
+    patched=()
     for filepath in "${DEPS_LIST[@]}"
     do
 	filename=$(basename $filepath)
 	destpath=$SP_DIR/torch/lib/$filename
-	cp $filepath $destpath
+	if [[ "$filepath" != "$destpath" ]]; then
+	    cp $filepath $destpath
+	fi
 
-	echo "Copied $filepath to $destpath"
+	patchedpath=$(fname_with_sha256 $destpath)
+	patchedname=$(basename $patchedpath)
+	if [[ "$destpath" != "$patchedpath" ]]; then
+	    mv $destpath $patchedpath
+	fi
+
+	patched+=("$patchedname")
+	echo "Copied $filepath to $patchedpath"
+    done
+
+    # run patchelf to fix the so names to the hashed names
+    for ((i=0;i<${#DEPS_LIST[@]};++i));
+    do
+	find $SP_DIR/torch -name '*.so*' | while read sofile; do
+	    origname=${DEPS_SONAME[i]}
+	    patchedname=${patched[i]}
+	    if [[ "$origname" != "$patchedname" ]]; then
+		set +e
+		patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
+		ERRCODE=$?
+		set -e
+		if [ "$ERRCODE" -eq "0" ]; then
+		    echo "patching $sofile entry $origname to $patchedname"
+		    patchelf --replace-needed $origname $patchedname $sofile
+		fi
+	    fi
+	done
     done
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib and conda/lib
@@ -73,7 +104,7 @@ else
 	patchelf --set-rpath '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../..' $sofile
 	patchelf --print-rpath $sofile
     done
-
+    
     # set RPATH of lib/ files to $ORIGIN and conda/lib
     find $SP_DIR/torch/lib -name "*.so*" -maxdepth 1 -type f | while read sofile; do
 	echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../../..'

@@ -26,28 +26,28 @@ fname_with_sha256() {
 }
 
 # for some reason if we use exact version numbers for CUDA9 .so files 
-# (like .so.9.1.176), we see segfaults during dlopen somewhere
+# (like .so.9.0.176), we see segfaults during dlopen somewhere
 # deep inside these libs.
-# hence for CUDA9, use .9.1, and dont use hashed names
+# hence for CUDA9, use .9.0, and dont use hashed names
 DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.9.1"
+    "/usr/local/cuda/lib64/libcudart.so.9.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libcublas.so.9.1"
-    "/usr/local/cuda/lib64/libcurand.so.9.1"
-    "/usr/local/cuda/lib64/libcusparse.so.9.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.9.1"
+    "/usr/local/cuda/lib64/libcublas.so.9.0"
+    "/usr/local/cuda/lib64/libcurand.so.9.0"
+    "/usr/local/cuda/lib64/libcusparse.so.9.0"
+    "/usr/local/cuda/lib64/libnvrtc.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
     "/usr/local/cuda/lib64/libcudnn.so.7"
     "/usr/local/cuda/lib64/libnccl.so.2"
 )
 
 DEPS_SONAME=(
-    "libcudart.so.9.1"
+    "libcudart.so.9.0"
     "libnvToolsExt.so.1"
-    "libcublas.so.9.1"
-    "libcurand.so.9.1"
-    "libcusparse.so.9.1"
-    "libnvrtc.so.9.1"
+    "libcublas.so.9.0"
+    "libcurand.so.9.0"
+    "libcusparse.so.9.0"
+    "libnvrtc.so.9.0"
     "libnvrtc-builtins.so"
     "libcudnn.so.7"
     "libnccl.so.2"
