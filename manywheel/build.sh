@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# disable the installed nccl2 for v0.3.1
+rm -f /usr/local/cuda/include/nccl.h || true
+
 export PYTORCH_BUILD_VERSION=0.3.1
 export PYTORCH_BUILD_NUMBER=1
 export PYTORCH_BINARY_BUILD=1
@@ -13,32 +16,34 @@ export TORCH_CUDA_ARCH_LIST="3.5;5.2+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
     echo "CUDA 8.0 Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
-elif [[ $CUDA_VERSION == "9.0" ]]; then
-    echo "CUDA 9.0 Detected"
+elif [[ $CUDA_VERSION == "9.0" ]] || [[ $CUDA_VERSION == "9.1" ]]; then
+    echo "CUDA $CUDA_VERSION Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
 fi
-# export TORCH_CUDA_ARCH_LIST="6.0" # TODO: remove
 echo $TORCH_CUDA_ARCH_LIST
 
 if [[ $CUDA_VERSION == "8.0" ]]; then
     WHEELHOUSE_DIR="wheelhouse80"
 elif [[ $CUDA_VERSION == "9.0" ]]; then
     WHEELHOUSE_DIR="wheelhouse90"
+elif [[ $CUDA_VERSION == "9.1" ]]; then
+    WHEELHOUSE_DIR="wheelhouse91"
 else
-    WHEELHOUSE_DIR="wheelhouse75"
+    echo "unknown cuda version $CUDA_VERSION"
+    exit 1
 fi
 
 rm -rf /opt/python/cpython-2.6.9-ucs2  /opt/python/cpython-2.6.9-ucs4
-rm -rf /opt/python/cp35*  # TODO: remove
-rm -rf /opt/python/cp27*  # TODO: remove
+# rm -rf /opt/python/cp35*  # TODO: remove
+# rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python
 
 # ########################################################
 # # Compile wheels
 # #######################################################
 # clone pytorch source code
-git clone https://github.com/pytorch/pytorch
-pushd pytorch
+git clone https://github.com/pytorch/pytorch /pytorch
+pushd /pytorch
 if ! git checkout v${PYTORCH_BUILD_VERSION} ; then
     git checkout tags/v${PYTORCH_BUILD_VERSION}
 fi
@@ -89,32 +94,7 @@ make_wheel_record() {
     fi
 }
 
-if [[ $CUDA_VERSION == "7.5" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.7.5.18"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libcublas.so.7.5.18"
-    "/usr/local/cuda/lib64/libcurand.so.7.5.18"
-    "/usr/local/cuda/lib64/libcusparse.so.7.5.18"
-    "/usr/local/cuda/lib64/libnvrtc.so.7.5.17"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcudnn.so.6.0.21"
-    "/usr/lib64/libgomp.so.1"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.7.5"
-    "libnvToolsExt.so.1"
-    "libcublas.so.7.5"
-    "libcurand.so.7.5"
-    "libcusparse.so.7.5"
-    "libnvrtc.so.7.5"
-    "libnvrtc-builtins.so"
-    "libcudnn.so.6"
-    "libgomp.so.1"
-)
-
-elif [[ $CUDA_VERSION == "8.0" ]]; then
+if [[ $CUDA_VERSION == "8.0" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.8.0.61"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
@@ -123,7 +103,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcusparse.so.8.0.61"
     "/usr/local/cuda/lib64/libnvrtc.so.8.0.61"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcudnn.so.7.0.3"
+    "/usr/local/cuda/lib64/libcudnn.so.7.0.5"
     "/usr/lib64/libgomp.so.1"
 )
 
@@ -148,7 +128,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcusparse.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcudnn.so.7"
+    "/usr/local/cuda/lib64/libcudnn.so.7.0.5"
     "/usr/lib64/libgomp.so.1"
 )
 
@@ -163,13 +143,37 @@ DEPS_SONAME=(
     "libcudnn.so.7"
     "libgomp.so.1"
 )
+elif [[ $CUDA_VERSION == "9.1" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.9.1"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libcublas.so.9.1"
+    "/usr/local/cuda/lib64/libcurand.so.9.1"
+    "/usr/local/cuda/lib64/libcusparse.so.9.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.9.1"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libcudnn.so.7.0.5"
+    "/usr/lib64/libgomp.so.1"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.9.1"
+    "libnvToolsExt.so.1"
+    "libcublas.so.9.1"
+    "libcurand.so.9.1"
+    "libcusparse.so.9.1"
+    "libnvrtc.so.9.1"
+    "libnvrtc-builtins.so"
+    "libcudnn.so.7"
+    "libgomp.so.1"
+)
 else
     echo "Unknown cuda version $CUDA_VERSION"
     exit 1
 fi
 
 mkdir -p /$WHEELHOUSE_DIR
-cp pytorch/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
+cp /pytorch/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
 
 for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     rm -rf tmp
@@ -186,26 +190,26 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     do
 	filename=$(basename $filepath)
 	destpath=torch/lib/$filename
-	cp $filepath $destpath
-	
-	if [[ $CUDA_VERSION == "9.0" ]]; then
-	    echo "Copied $filepath to $destpath"
-	else
-	    patchedpath=$(fname_with_sha256 $destpath)
-	    patchedname=$(basename $patchedpath)
-	    mv $destpath $patchedpath
-	    patched+=("$patchedname")
-	    echo "Copied $filepath to $patchedpath"
+	if [[ "$filepath" != "$destpath" ]]; then
+	    cp $filepath $destpath
 	fi
+	
+	patchedpath=$(fname_with_sha256 $destpath)
+	patchedname=$(basename $patchedpath)
+	if [[ "$destpath" != "$patchedpath" ]]; then
+	    mv $destpath $patchedpath
+	fi
+	patched+=("$patchedname")
+	echo "Copied $filepath to $patchedpath"
     done
 
-    if [[ $CUDA_VERSION != "9.0" ]]; then
-	echo "patching to fix the so names to the hashed names"
-	for ((i=0;i<${#DEPS_LIST[@]};++i));
-	do
-	    find torch -name '*.so*' | while read sofile; do
-		origname=${DEPS_SONAME[i]}
-		patchedname=${patched[i]}
+    echo "patching to fix the so names to the hashed names"
+    for ((i=0;i<${#DEPS_LIST[@]};++i));
+    do
+	find torch -name '*.so*' | while read sofile; do
+	    origname=${DEPS_SONAME[i]}
+	    patchedname=${patched[i]}
+	    if [[ "$origname" != "$patchedname" ]]; then
 		set +e
 		patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
 		ERRCODE=$?
@@ -214,9 +218,9 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
 		    echo "patching $sofile entry $origname to $patchedname"
 		    patchelf --replace-needed $origname $patchedname $sofile
 		fi
-	    done
+	    fi
 	done
-    fi
+    done
     
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find torch -maxdepth 1 -type f -name "*.so*" | while read sofile; do

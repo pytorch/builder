@@ -27,8 +27,8 @@ ls /opt/python
 # # Compile wheels
 # #######################################################
 # clone pytorch source code
-git clone https://github.com/pytorch/pytorch
-pushd pytorch
+git clone https://github.com/pytorch/pytorch /pytorch
+pushd /pytorch
 if !git checkout v${PYTORCH_BUILD_VERSION}; then
     git checkout tags/v${PYTORCH_BUILD_VERSION}
 fi
@@ -105,11 +105,15 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     do
 	filename=$(basename $filepath)
 	destpath=torch/lib/$filename
-	cp $filepath $destpath
-	
+	if [[ "$filepath" != "$destpath" ]]; then
+	    cp $filepath $destpath
+	fi
+
 	patchedpath=$(fname_with_sha256 $destpath)
 	patchedname=$(basename $patchedpath)
-	mv $destpath $patchedpath
+	if [[ "$destpath" != "$patchedpath" ]]; then
+	    mv $destpath $patchedpath
+	fi
 	patched+=("$patchedname")
 	echo "Copied $filepath to $patchedpath"
     done
@@ -120,13 +124,15 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
 	find torch -name '*.so*' | while read sofile; do
 	    origname=${DEPS_SONAME[i]}
 	    patchedname=${patched[i]}
-	    set +e
-	    patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
-	    ERRCODE=$?
-	    set -e
-	    if [ "$ERRCODE" -eq "0" ]; then
-		echo "patching $sofile entry $origname to $patchedname"
-		patchelf --replace-needed $origname $patchedname $sofile
+	    if [[ "$origname" != "$patchedname" ]]; then
+		set +e
+		patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
+		ERRCODE=$?
+		set -e
+		if [ "$ERRCODE" -eq "0" ]; then
+		    echo "patching $sofile entry $origname to $patchedname"
+		    patchelf --replace-needed $origname $patchedname $sofile
+		fi
 	    fi
 	done
     done
