@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-devel-centos6
+FROM nvidia/cuda:9.1-devel-centos6
 
 # MKL
 RUN mkdir -p /opt/intel/lib
@@ -13,17 +13,17 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-# get devtoolset-3
+# get devtoolset-2
 RUN yum install -y yum-utils
 RUN yum install -y centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN wget http://people.centos.org/tru/devtools-3/devtools-3.repo -O /etc/yum.repos.d/devtools-3.repo
-RUN yum install -y devtoolset-3-gcc
-RUN yum install -y devtoolset-3-gcc-c++
-RUN yum install -y devtoolset-3-gcc-gfortran
-RUN yum install -y devtoolset-3-binutils
-ENV PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
+RUN wget http://people.centos.org/tru/devtools-2/devtools-2.repo -O /etc/yum.repos.d/devtools-2.repo
+RUN yum install -y devtoolset-2-gcc
+RUN yum install -y devtoolset-2-gcc-c++
+RUN yum install -y devtoolset-2-gcc-gfortran
+RUN yum install -y devtoolset-2-binutils
+ENV PATH=/opt/rh/devtoolset-2/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-2/root/usr/lib64:/opt/rh/devtoolset-2/root/usr/lib:$LD_LIBRARY_PATH
 
 # cmake
 RUN yum install -y cmake
@@ -39,12 +39,6 @@ RUN rm -rf /opt/python/cp26-cp26m /opt/_internal/cpython-2.6.9-ucs2
 RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
 RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
 RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
-
-# install CUDA 9.1 in the same container
-RUN wget https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_387.26_linux && \
-    chmod +x cuda_9.1.85_387.26_linux && \
-    ./cuda_9.1.85_387.26_linux --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_9.1.85_387.26_linux
 
 # install CUDA 9.1 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
@@ -62,13 +56,21 @@ RUN wget https://s3.amazonaws.com/pytorch/nccl_2.1.4-1%2Bcuda9.1_x86_64.txz && \
     ldconfig
 
 # magma
-RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.2.0.tar.gz && \
-    tar -xvf magma-2.2.0.tar.gz && \
-    cd magma-2.2.0 && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.2.0/cmakelists.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.2.0/thread_queue.patch && \
+RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.3.0.tar.gz && \
+    tar -xvf magma-2.3.0.tar.gz && \
+    cd magma-2.3.0 && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.3.0/cmakelists.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.3.0/thread_queue.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.3.0/magma_cparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.3.0/magma_dparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.3.0/magma_sparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda91-2.3.0/magma_zparict_tools.patch && \
     patch <cmakelists.patch && \
-    patch -p1 <thread_queue.patch && \
+    patch -p0 <thread_queue.patch && \
+    patch -p0 <magma_cparict_tools.patch && \
+    patch -p0 <magma_dparict_tools.patch && \
+    patch -p0 <magma_sparict_tools.patch && \
+    patch -p0 <magma_zparict_tools.patch && \
     mkdir build && \
     cd build && \
     cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX && \
