@@ -174,6 +174,8 @@ fi
 
 mkdir -p /$WHEELHOUSE_DIR
 cp /pytorch/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
+mkdir /tmp_dir
+pushd /tmp_dir
 
 for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     rm -rf tmp

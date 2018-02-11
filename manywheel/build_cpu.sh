@@ -29,7 +29,7 @@ ls /opt/python
 # clone pytorch source code
 git clone https://github.com/pytorch/pytorch /pytorch
 pushd /pytorch
-if !git checkout v${PYTORCH_BUILD_VERSION}; then
+if ! git checkout v${PYTORCH_BUILD_VERSION}; then
     git checkout tags/v${PYTORCH_BUILD_VERSION}
 fi
 git submodule update --init --recursive
@@ -88,7 +88,9 @@ DEPS_SONAME=(
 )
 
 mkdir -p /$WHEELHOUSE_DIR
-cp pytorch/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
+cp /pytorch/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
+mkdir /tmp_dir
+pushd /tmp_dir
 
 for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     rm -rf tmp
