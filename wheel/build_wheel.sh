@@ -41,6 +41,8 @@ echo "OSX. No CUDA/CUDNN"
 ###########################################################
 export CONDA_ROOT_PREFIX=$(conda info --root)
 
+conda install -y cmake
+
 conda remove --name py2k  --all -y || true
 conda remove --name py35k --all -y || true
 conda remove --name py36k --all -y || true
@@ -86,9 +88,12 @@ python --version
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
 rm -rf pytorch-src
-git clone --recursive https://github.com/pytorch/pytorch pytorch-src
+git clone https://github.com/pytorch/pytorch pytorch-src
 pushd pytorch-src
-git checkout v$BUILD_VERSION
+if ! git checkout v${BUILD_VERSION} ; then
+    git checkout tags/v${BUILD_VERSION}
+fi
+git submodule update --init --recursive
 
 pip install -r requirements.txt || true
 python setup.py bdist_wheel

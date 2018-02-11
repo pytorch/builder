@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-BUILD_VERSION=0.3.0
-BUILD_NUMBER=4
+BUILD_VERSION=0.3.1
+BUILD_NUMBER=1
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     rm -rf whl
