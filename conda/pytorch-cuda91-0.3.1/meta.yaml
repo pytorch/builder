@@ -8,19 +8,22 @@ source:
 
 requirements:
   build:
-    - python {{PY_VER}}*,>=2.7,<3.3|>=3.4
-    - numpy 1.11.*
+    - cmake
     - setuptools
+    - ninja # [win]
+    - {{ compiler('c') }} # [win]
+
+  host:
+    - python
+    - numpy 1.11.*
     - pyyaml
     - cffi
     - mkl
     - typing
     - magma-cuda91 # [not osx and not win]
-    - ninja # [win]
-    - {{ compiler('c') }} # [win]
 
   run:
-    - python {{PY_VER}}*,>=2.7,<3.3|>=3.4
+    - python
     - numpy >=1.11
     - mkl >=2018
     - cffi

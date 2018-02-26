@@ -5,7 +5,6 @@ c_compiler:
 cxx_compiler:
   - vs2017                     # [win]
 python:
-  - 2.7
   - 3.5
   - 3.6
 # This differs from target_platform in that it determines what subdir the compiler

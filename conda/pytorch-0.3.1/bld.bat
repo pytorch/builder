@@ -1,7 +1,5 @@
 @echo off
 
-set CUDA_VERSION=80
-set CUDNN_VERSION=7
 set CUDA_PATH_V8_0=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0
 set CUDA_PATH=%CUDA_PATH_V8_0%
 

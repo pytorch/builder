@@ -27,29 +27,20 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
 elif [[ "$OSTYPE" == "msys" ]]; then
-    conda uninstall -y conda-build
-    conda install -y conda-build=3.1.1 # The newest version will give "No module named torch" error
     conda build vs2017
     if [[ "$1" == "80" ]]; then
-        export CUDA_VERSION="8.0"
-        export CUDNN_VERSION="7.0"
-        time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
+        . ./switch_cuda_version.sh 8.0
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
     elif [[ "$1" == "90" ]]; then
-        export CUDA_VERSION="9.0"
-        export CUDNN_VERSION="7.0"
-        time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda90-$BUILD_VERSION
+        . ./switch_cuda_version.sh 9.0
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda90-$BUILD_VERSION
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda90-$BUILD_VERSION
     elif [[ "$1" == "91" ]]; then
-        export CUDA_VERSION="9.1"
-        export CUDNN_VERSION="7.0"
-        time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda91-$BUILD_VERSION
+        . ./switch_cuda_version.sh 9.1
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda91-$BUILD_VERSION
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda91-$BUILD_VERSION
     elif [[ "$1" == "cpu" ]]; then
-        time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cpu-$BUILD_VERSION
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cpu-$BUILD_VERSION
         time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cpu-$BUILD_VERSION
     else

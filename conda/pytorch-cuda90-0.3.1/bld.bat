@@ -1,13 +1,11 @@
 @echo off
 
-set CUDA_VERSION=90
-set CUDNN_VERSION=7
 set CUDA_PATH_V9_0=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0
 set CUDA_PATH=%CUDA_PATH_V9_0%
 
 set CUDA_BIN_PATH=%CUDA_PATH%\bin
 set PATH=%CUDA_BIN_PATH%;C:\Program Files\CMake\bin;%PATH%
-set TORCH_CUDA_ARCH_LIST=3.5;5.2+PTX;6.0;6.1
+set TORCH_CUDA_ARCH_LIST=3.5;5.2+PTX;6.0;6.1;7.0
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 set PYTORCH_BINARY_BUILD=1
 set TH_BINARY_BUILD=1
