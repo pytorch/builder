@@ -10,7 +10,7 @@ requirements:
   build:
     - cmake
     - setuptools
-    - ninja # [win]
+    - ninja
     - {{ compiler('c') }} # [win]
 
   host:
