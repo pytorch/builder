@@ -8,13 +8,19 @@ source:
 
 requirements:
   build:
+    - cmake
+    - setuptools
+    - ninja
+    - {{ compiler('c') }} # [win]
+
+  host:
     - python
     - numpy 1.11.*
-    - setuptools
     - pyyaml
     - cffi
     - mkl
-    - magma-cuda91 # [not osx]
+    - typing
+    - magma-cuda91 # [not osx and not win]
 
   run:
     - python
@@ -37,7 +43,8 @@ test:
  source_files:
    - test
  commands:
-   - OMP_NUM_THREADS=4 ./test/run_test.sh
+   - OMP_NUM_THREADS=4 ./test/run_test.sh # [not win]
+   - bash -c 'OMP_NUM_THREADS=4 ./test/run_test.sh' # [win]
 
 
 about:

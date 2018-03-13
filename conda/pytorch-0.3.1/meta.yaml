@@ -8,21 +8,27 @@ source:
 
 requirements:
   build:
+    - cmake
+    - setuptools
+    - ninja
+    - {{ compiler('c') }} # [win]
+
+  host:
     - python
     - numpy 1.11.*
-    - setuptools
     - pyyaml
     - cffi
     - mkl
-    - magma-cuda80 # [not osx]
+    - typing
+    - magma-cuda80 # [not osx and not win]
 
   run:
     - python
     - numpy >=1.11
     - mkl >=2018
     - cffi
-    - cudatoolkit # [not osx]
-    - cudnn =7.0 # [not osx]
+    - cudatoolkit # [not osx and not win]
+    - cudnn =7.0 # [not osx and not win]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
@@ -35,7 +41,8 @@ test:
  source_files:
    - test
  commands:
-   - OMP_NUM_THREADS=4 ./test/run_test.sh || true
+   - OMP_NUM_THREADS=4 ./test/run_test.sh || true # [not win]
+   - bash -c 'OMP_NUM_THREADS=4 ./test/run_test.sh' # [win]
 
 
 about:
