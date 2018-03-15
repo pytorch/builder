@@ -127,6 +127,12 @@ else
     cuda_nodot="$desired_cuda"
     desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
 fi
+
+echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
+echo "Will build for CUDA version: ${desired_cuda}"
+
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
     MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
@@ -141,7 +147,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
 elif [[ "$OSTYPE" == "msys" ]]; then
     mkdir -p "$WIN_PACKAGE_WORK_DIR" || true
-    pytorch_rootdir="${WIN_PACKAGE_WORK_DIR}/pytorch"
+    pytorch_rootdir="$(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch"
     git config --system core.longpaths true
 elif [[ -d '/pytorch' ]]; then
     pytorch_rootdir='/pytorch'
@@ -178,17 +184,14 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     rm -rf "$tmp_conda"
     rm -f "$miniconda_exe"
     curl -k https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
-    ./install_conda.bat && rm "$miniconda_exe"
-    export PATH="$tmp_conda\\Scripts:$PATH"
+    "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
+    pushd $tmp_conda
+    export PATH="$(pwd):$(pwd)/Scripts:$PATH"
     echo $PATH
+    popd
     conda install -y conda-build
 fi
 
-
-echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
-echo "Will build for CUDA version: ${desired_cuda}"
-
-SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd "$SOURCE_DIR"
 
 # Determine which build folder to use

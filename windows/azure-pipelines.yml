@@ -1,0 +1,199 @@
+
+variables:
+  pytorch.build.version: 1.0
+  pytorch.build.number: 1
+  pytorch.branch: master # override the default of build.version
+  pytorch.repo: pytorch
+  build.linux.enabled: false
+  use.sccache: 0
+
+jobs:
+- job: 'Windows_CPU_Wheels_Build'
+  timeoutInMinutes: 0
+  cancelTimeoutInMinutes: 5
+  variables:
+    PACKAGE: wheels
+    CUDA_VERSION: cpu
+  strategy:
+    maxParallel: 10
+    matrix:
+      PY3.5:
+        DESIRED_PYTHON: 3.5
+      PY3.6:
+        DESIRED_PYTHON: 3.6
+      PY3.7:
+        DESIRED_PYTHON: 3.7
+
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - task: BatchScript@1
+    displayName: 'Install VS 2017'
+    enabled: false
+    inputs:
+      filename: 'windows/internal/vs_install.bat'
+
+      modifyEnvironment: false
+
+  - task: BatchScript@1
+    displayName: 'Find VS 2017'
+    inputs:
+      filename: 'windows/internal/check_deps.bat'
+
+      modifyEnvironment: true
+
+  - task: BatchScript@1
+    displayName: 'Environment fix'
+    inputs:
+      filename: 'windows/internal/env_fix.bat'
+
+      modifyEnvironment: false
+
+  - task: BatchScript@1
+    displayName: 'Install 7Zip'
+    inputs:
+      filename: 'windows/internal/7z_install.bat'
+
+      modifyEnvironment: true
+
+  - script: 'choco install -y 7Zip' # Not stable
+    displayName: 'Install 7Zip'
+    enabled: false
+
+  - script: 'call windows/build_pytorch.bat %CUDA_VERSION% %PYTORCH_BUILD_VERSION% %PYTORCH_BUILD_NUMBER%'
+    displayName: Build
+    env:
+      MAX_JOBS: 2
+
+  - task: PublishTestResults@2 # No test results to publish
+    inputs:
+      testResultsFiles: 'windows/pytorch/test/**/*.xml'
+      testRunTitle: 'Publish test results'
+    enabled: false
+
+  - task: BatchScript@1
+    displayName: 'Upload artifacts'
+    inputs:
+      filename: 'windows/internal/publish.bat'
+
+      modifyEnvironment: false
+
+- job: 'Windows_CPU_Conda_Build'
+  timeoutInMinutes: 0
+  cancelTimeoutInMinutes: 5
+  variables:
+    PACKAGE: conda
+    CUDA_VERSION: cpu
+    PYTORCH_REPO: pytorch
+    TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
+
+  strategy:
+    maxParallel: 10
+    matrix:
+      PY3.5:
+        DESIRED_PYTHON: 3.5
+      PY3.6:
+        DESIRED_PYTHON: 3.6
+      PY3.7:
+        DESIRED_PYTHON: 3.7
+
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - task: BatchScript@1
+    displayName: 'Install VS 2017'
+    enabled: false
+    inputs:
+      filename: 'windows/internal/vs_install.bat'
+
+      modifyEnvironment: false
+
+  - task: BatchScript@1
+    displayName: 'Find VS 2017'
+    inputs:
+      filename: 'windows/internal/check_deps.bat'
+
+      modifyEnvironment: true
+
+  - task: BatchScript@1
+    displayName: 'Environment fix'
+    inputs:
+      filename: 'windows/internal/env_fix.bat'
+
+      modifyEnvironment: false
+
+  - task: BatchScript@1
+    displayName: 'Install 7Zip'
+    inputs:
+      filename: 'windows/internal/7z_install.bat'
+
+      modifyEnvironment: true
+
+  - script: 'choco install -y 7Zip'  # Not stable
+    displayName: 'Install 7Zip'
+    enabled: false
+
+  - script: 'mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
+    displayName: 'Create final package directory'
+    env:
+      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
+
+  - bash: './conda/build_pytorch.sh $CUDA_VERSION $PYTORCH_BUILD_VERSION $PYTORCH_BUILD_NUMBER'
+    displayName: 'Build'
+    env:
+      MAX_JOBS: 2
+      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: 'windows/pytorch/test/**/*.xml'
+      testRunTitle: 'Publish test results'
+    enabled: false
+
+  - task: BatchScript@1
+    displayName: 'Upload artifacts'
+    inputs:
+      filename: 'windows/internal/publish.bat'
+
+      modifyEnvironment: false
+
+- job: 'Linux_CPU_Conda_Build'
+  timeoutInMinutes: 0
+  cancelTimeoutInMinutes: 5
+  condition: eq(variables['build.linux.enabled'], 'true')
+  variables:
+    PACKAGE: conda
+    CUDA_VERSION: cpu
+    PYTORCH_REPO: pytorch
+    TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
+
+  strategy:
+    maxParallel: 10
+    matrix:
+      PY3.5:
+        DESIRED_PYTHON: 3.5
+
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+  - script: 'sudo apt-get install p7zip-full'
+    displayName: 'Install 7Zip'
+
+  - task: CondaEnvironment@1
+    displayName: 'Install conda-build'
+    inputs:
+      packageSpecs: 'conda-build'
+
+  - script: 'mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
+    displayName: 'Create final package directory'
+    env:
+      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
+
+  - bash: './conda/build_pytorch.sh $CUDA_VERSION $PYTORCH_BUILD_VERSION $PYTORCH_BUILD_NUMBER'
+    displayName: 'Build'
+    env:
+      MAX_JOBS: 2
+      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'

@@ -24,10 +24,20 @@ robocopy "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\%VC_PATH%"  "%
 if %ERRORLEVEL% GEQ 8 exit 1
 
 REM ========== This one comes from visual studio 2017
-set "UPDATE_VER=14.11.25325"
 set "VC_VER=141"
-set "BT_ROOT=C:\Program Files (x86)\Microsoft Visual Studio\%MSC_VER%\Community"
-set "REDIST_ROOT=%BT_ROOT%\VC\Redist\MSVC\%UPDATE_VER%\onecore\%VC_PATH%"
+
+for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -version [15^,16^) -property installationPath`) do (
+    if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
+        set "VS15VCVARSALL=%%i\VC\Auxiliary\Build\vcvarsall.bat"
+        goto :eof
+    )
+)
+
+@setlocal
+call "%VS15VARSALL%" x64
+
+set "REDIST_ROOT=%VCToolsRedistDir%%VC_PATH%"
+
 robocopy "%REDIST_ROOT%\Microsoft.VC%VC_VER%.CRT" "%LIBRARY_BIN%" *.dll /E
 if %ERRORLEVEL% LSS 8 exit 0
 robocopy "%REDIST_ROOT%\Microsoft.VC%VC_VER%.CRT" "%PREFIX%" *.dll /E
@@ -36,3 +46,4 @@ robocopy "%REDIST_ROOT%\Microsoft.VC%VC_VER%.OpenMP" "%LIBRARY_BIN%" *.dll /E
 if %ERRORLEVEL% LSS 8 exit 0
 robocopy "%REDIST_ROOT%\Microsoft.VC%VC_VER%.OpenMP" "%PREFIX%" *.dll /E
 if %ERRORLEVEL% LSS 8 exit 0
+@endlocal

@@ -13,6 +13,29 @@ set "MSYS2_ENV_CONV_EXCL=CL"
 :: http://stevedower.id.au/blog/building-for-python-3-5-part-two/ for more info
 set "PY_VCRUNTIME_REDIST=%PREFIX%\\bin\\vcruntime140.dll"
 
-set "VSINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\"
+for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -version [15^,16^) -property installationPath`) do (
+    if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
+        set "VSINSTALLDIR=%%i\"
+        goto :vswhere
+    )
+)
+
+:vswhere
+
+:: Shorten PATH to avoid the `input line too long` error.
+SET MyPath=%PATH%
+
+setlocal EnableDelayedExpansion
+
+SET TempPath="%MyPath:;=";"%"
+SET var=
+FOR %%a IN (%TempPath%) DO (
+    IF exist %%~sa (
+        SET "var=!var!;%%~sa"
+    )
+)
+
+set "TempPath=!var:~1!"
+endlocal & set "PATH=%TempPath%"
 
 :: other things added by install_activate.bat at package build time

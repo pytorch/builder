@@ -10,6 +10,7 @@ if NOT "%DISTUTILS_USE_SDK%"==""  echo DISTUTILS_USE_SDK=%DISTUTILS_USE_SDK%
 
 set SRC_DIR=%~dp0\..
 
+call "%VS15VCVARSALL%" x64
 call "%VS15VCVARSALL%" x86_amd64
 
 pushd %SRC_DIR%
@@ -25,6 +26,9 @@ if "%CXX%"=="sccache cl" (
 )
 
 pip wheel -e . --wheel-dir ../output/%CUDA_PREFIX%
+
+IF ERRORLEVEL 1 exit /b 1
+IF NOT ERRORLEVEL 0 exit /b 1
 
 if "%CXX%"=="sccache cl" (
     taskkill /im sccache.exe /f /t || ver > nul
