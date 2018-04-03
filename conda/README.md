@@ -6,16 +6,6 @@
   - `git add pytorch-$BUILD_VERSION`
 - Run `./build_pytorch.sh` on an OSX machine and a Linux machine
 
-### TODO
-- [x] Make sure you build against magma
-- [x] Build and test on Linux + CUDA
-- [ ] Build and test on OSX + CUDA
-- [x] Check what happens when you build on Linux + CUDA on one machine and run the binary on another machine
-  - [x] without cuda or a driver
-  - [x] with a different GPU driver than the original
-  - [x] with an insufficient driver version corresponding to the CUDA version
-
-
 ## build base docker image
 
 ```
