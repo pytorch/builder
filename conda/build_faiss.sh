@@ -27,11 +27,23 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-cpu
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-cpu
 else
-    . ./switch_cuda_version.sh 8.0
+    export CUDA_VERSION="0.0"
+    export CUDNN_VERSION="0.0"
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-cpu
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-cpu
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-cpu
 
+    . ./switch_cuda_version.sh 8.0
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu
+
+    . ./switch_cuda_version.sh 9.0
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu
+
+    . ./switch_cuda_version.sh 9.1
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu
