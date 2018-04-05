@@ -39,14 +39,14 @@ else
     time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu
 
     . ./switch_cuda_version.sh 9.0
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu-cuda90
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu-cuda90
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu-cuda90
 
     . ./switch_cuda_version.sh 9.1
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 faiss-gpu-cuda91
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 faiss-gpu-cuda91
+    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 faiss-gpu-cuda91
 fi
 
 echo "All builds succeeded"
