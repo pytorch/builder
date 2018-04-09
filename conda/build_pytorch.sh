@@ -33,9 +33,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     if [[ "$1" == "80" ]]; then
 	. ./switch_cuda_version.sh 8.0
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-nightly
-	#time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
-	#time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
+	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
+	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
+	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
     elif [[ "$1" == "90" ]]; then
 	. ./switch_cuda_version.sh 9.0
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda90-$BUILD_VERSION
