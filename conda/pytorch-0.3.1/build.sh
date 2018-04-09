@@ -26,9 +26,11 @@ fname_with_sha256() {
 }
 
 DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudnn.so.7.1.2"
 )
 
 DEPS_SONAME=(
+    "libcudnn.so.7"
 )
 
 

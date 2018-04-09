@@ -21,8 +21,7 @@ requirements:
     - numpy >=1.11
     - mkl >=2018
     - cffi
-    - cudatoolkit # [not osx]
-    - cudnn =7.0 # [not osx]
+    - cudatoolkit =8 # [not osx]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
