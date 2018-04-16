@@ -26,6 +26,9 @@ IF "%CUDA_PATH_V9_0%"=="" (
     echo CUDA 9 not found, disabling it
     set NO_CUDA=1
 ) ELSE (
+    set TORCH_CUDA_ARCH_LIST=3.5;5.2+PTX;6.0;6.1;7.0
+    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
+
     set "CUDA_PATH=%CUDA_PATH_V9_0%"
     set "PATH=%CUDA_PATH_V9_0%\bin;%PATH%"
 )
