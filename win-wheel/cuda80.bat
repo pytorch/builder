@@ -30,6 +30,9 @@ IF "%CUDA_PATH_V8_0%"=="" (
         echo CUDA 8 found, but VS2015 not found, disabling it
         set NO_CUDA=1
     ) ELSE (
+        set TORCH_CUDA_ARCH_LIST=3.5;5.2+PTX;6.0;6.1
+        set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
+
         set "CUDA_PATH=%CUDA_PATH_V8_0%"
         set "PATH=%CUDA_PATH_V8_0%\bin;%PATH%"
         set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
