@@ -18,13 +18,16 @@ requirements:
     - python
     - numpy >=1.11
     - mkl
-    - cudatoolkit
 
 build:
   number: {{ environ.get('FAISS_BUILD_NUMBER') }}
   string: py{{py}}_cuda{{ environ['CUDA_VERSION'] }}_{{ environ.get('FAISS_BUILD_NUMBER') }}
+  features:
+    - cuda91
 
 test:
+ requires:
+    - cuda91
  imports:
     - faiss
  source_files:

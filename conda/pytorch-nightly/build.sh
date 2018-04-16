@@ -9,8 +9,14 @@ export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
-# export NCCL_ROOT_DIR=/usr/local/cuda
-rm -f /usr/local/cuda/include/nccl.h || true
+export NCCL_ROOT_DIR=/usr/local/cuda
+# rm -f /usr/local/cuda/include/nccl.h || true
+export USE_STATIC_CUDNN=1
+export USE_STATIC_NCCL=1
+export ATEN_STATIC_CUDA=1
+# export CUDNN_LIBRARY="/usr/local/cuda/lib64/libcudnn_static.a"
+
+# export TORCH_CUDA_ARCH_LIST="6.0"
 
 fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
@@ -26,11 +32,9 @@ fname_with_sha256() {
 }
 
 DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudnn.so.7.1.2"
 )
 
 DEPS_SONAME=(
-    "libcudnn.so.7"
 )
 
 

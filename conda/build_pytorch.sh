@@ -3,7 +3,7 @@
 
 set -e
 
-echo "Building cuda version $1"
+echo "Building cuda version $1 and pytorch version: $2 build_number: $3"
 
 if [ -z "$ANACONDA_TOKEN" ]; then
     echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
@@ -12,11 +12,15 @@ fi
 
 ANACONDA_USER=soumith
 
-BUILD_VERSION="0.3.1"
-BUILD_NUMBER=2
+BUILD_VERSION="$2"
+BUILD_NUMBER="$3"
 
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
+
+if [[ "$BUILD_VERSION" == "nightly" ]]; then
+    export PYTORCH_BUILD_VERSION="$(date +"%Y.%m.%d")"
+fi
 
 conda config --set anaconda_upload no
 
