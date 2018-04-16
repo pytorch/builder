@@ -18,7 +18,7 @@ curl https://s3.amazonaws.com/ossci-windows/mkl_2018.2.185.7z -k -O
 set CMAKE_INCLUDE_PATH=%cd%\\mkl\\include
 set LIB=%cd%\\mkl\\lib;%LIB%
 
-REM REM Download MAGMA Files
+REM Download MAGMA Files
 for %%p in (
         cuda80
         cuda90
