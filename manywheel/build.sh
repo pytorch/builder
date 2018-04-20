@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
-# disable the installed nccl2 for v0.3.1
-rm -f /usr/local/cuda/include/nccl.h || true
-
-export PYTORCH_BUILD_VERSION=0.3.1
+export PYTORCH_BUILD_VERSION=0.4
 export PYTORCH_BUILD_NUMBER=1
 export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
+export NCCL_ROOT_DIR=/usr/local/cuda
+export USE_STATIC_CUDNN=1
+export USE_STATIC_NCCL=1
+export ATEN_STATIC_CUDA=1
 
 CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
 
-export TORCH_CUDA_ARCH_LIST="3.5;5.2+PTX"
+export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
     echo "CUDA 8.0 Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
@@ -62,7 +63,7 @@ popd
 
 #######################################################################
 # ADD DEPENDENCIES INTO THE WHEEL
-# 
+#
 # auditwheel repair doesn't work correctly and is buggy
 # so manually do the work of copying dependency libs and patchelfing
 # and fixing RECORDS entries correctly
@@ -98,74 +99,44 @@ if [[ $CUDA_VERSION == "8.0" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.8.0.61"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libcublas.so.8.0.88"
-    "/usr/local/cuda/lib64/libcurand.so.8.0.61"
-    "/usr/local/cuda/lib64/libcusparse.so.8.0.61"
     "/usr/local/cuda/lib64/libnvrtc.so.8.0.61"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcudnn.so.7.0.5"
-    "/usr/lib64/libgomp.so.1"
 )
 
 DEPS_SONAME=(
     "libcudart.so.8.0"
     "libnvToolsExt.so.1"
-    "libcublas.so.8.0"
-    "libcurand.so.8.0"
-    "libcusparse.so.8.0"
     "libnvrtc.so.8.0"
     "libnvrtc-builtins.so"
-    "libcudnn.so.7"
-    "libgomp.so.1"
 )
 
 elif [[ $CUDA_VERSION == "9.0" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.9.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libcublas.so.9.0"
-    "/usr/local/cuda/lib64/libcurand.so.9.0"
-    "/usr/local/cuda/lib64/libcusparse.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcudnn.so.7.0.5"
-    "/usr/lib64/libgomp.so.1"
 )
 
 DEPS_SONAME=(
     "libcudart.so.9.0"
     "libnvToolsExt.so.1"
-    "libcublas.so.9.0"
-    "libcurand.so.9.0"
-    "libcusparse.so.9.0"
     "libnvrtc.so.9.0"
     "libnvrtc-builtins.so"
-    "libcudnn.so.7"
-    "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "9.1" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.9.1"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libcublas.so.9.1"
-    "/usr/local/cuda/lib64/libcurand.so.9.1"
-    "/usr/local/cuda/lib64/libcusparse.so.9.1"
     "/usr/local/cuda/lib64/libnvrtc.so.9.1"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcudnn.so.7.0.5"
-    "/usr/lib64/libgomp.so.1"
 )
 
 DEPS_SONAME=(
     "libcudart.so.9.1"
     "libnvToolsExt.so.1"
-    "libcublas.so.9.1"
-    "libcurand.so.9.1"
-    "libcusparse.so.9.1"
     "libnvrtc.so.9.1"
     "libnvrtc-builtins.so"
-    "libcudnn.so.7"
-    "libgomp.so.1"
 )
 else
     echo "Unknown cuda version $CUDA_VERSION"
@@ -185,7 +156,7 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
 
     unzip -q $(basename $whl)
     rm -f $(basename $whl)
-    
+
     # copy over needed dependent .so files over and tag them with their hash
     patched=()
     for filepath in "${DEPS_LIST[@]}"
@@ -195,7 +166,7 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
 	if [[ "$filepath" != "$destpath" ]]; then
 	    cp $filepath $destpath
 	fi
-	
+
 	patchedpath=$(fname_with_sha256 $destpath)
 	patchedname=$(basename $patchedpath)
 	if [[ "$destpath" != "$patchedpath" ]]; then
@@ -223,14 +194,14 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
 	    fi
 	done
     done
-    
+
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find torch -maxdepth 1 -type f -name "*.so*" | while read sofile; do
 	echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
 	patchelf --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
 	patchelf --print-rpath $sofile
     done
-    
+
     # set RPATH of lib/ files to $ORIGIN
     find torch/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
 	echo "Setting rpath of $sofile to " '$ORIGIN'
@@ -239,10 +210,7 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     done
 
 
-    # remove the symlink and just keep libnccl.so.1
-    rm -f torch/lib/libnccl.so
-
-    # regenerate the RECORD file with new hashes 
+    # regenerate the RECORD file with new hashes
     record_file=`echo $(basename $whl) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
     echo "Generating new record file $record_file"
     rm -f $record_file
