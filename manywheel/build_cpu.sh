@@ -2,37 +2,32 @@
 
 set -x
 
-export PYTORCH_BUILD_VERSION=0.3.1
+export PYTORCH_BUILD_VERSION=0.4.0
 export PYTORCH_BUILD_NUMBER=1
-export PYTORCH_BINARY_BUILD=1
-export TH_BINARY_BUILD=1
+# export PYTORCH_BINARY_BUILD=1
+# export TH_BINARY_BUILD=1
 export NO_CUDA=1
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
+export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
 
 WHEELHOUSE_DIR="wheelhousecpu"
 
-# wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-# rpm -ivh epel-release-6-8.noarch.rpm
-# yum --enablerepo=epel install -y cmake3
-# rm /usr/bin/cmake
-# ln -s /usr/bin/cmake3 /usr/bin/cmake
-
 rm -rf /usr/local/cuda*
 rm -rf /opt/python/cpython-2.6.9-ucs2  /opt/python/cpython-2.6.9-ucs4
-# rm -rf /opt/python/cp35*  # TODO: remove
-# rm -rf /opt/python/cp27*  # TODO: remove
+rm -rf /opt/python/cp35*  # TODO: remove
+rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python
 
 # ########################################################
 # # Compile wheels
 # #######################################################
 # clone pytorch source code
-git clone https://github.com/pytorch/pytorch /pytorch
-pushd /pytorch
-if ! git checkout v${PYTORCH_BUILD_VERSION}; then
-    git checkout tags/v${PYTORCH_BUILD_VERSION}
-fi
-git submodule update --init --recursive
+# git clone https://github.com/pytorch/pytorch /pytorch
+pushd /remote/pytorch
+# if ! git checkout v${PYTORCH_BUILD_VERSION}; then
+#     git checkout tags/v${PYTORCH_BUILD_VERSION}
+# fi
+# git submodule update --init --recursive
 
 OLD_PATH=$PATH
 for PYDIR in /opt/python/*; do
@@ -52,7 +47,7 @@ popd
 # so manually do the work of copying dependency libs and patchelfing
 # and fixing RECORDS entries correctly
 ######################################################################
-yum install -y zip
+yum install -y zip openssl
 
 fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
@@ -80,11 +75,9 @@ make_wheel_record() {
 }
 
 DEPS_LIST=(
-    "/usr/lib64/libgomp.so.1"
 )
 
 DEPS_SONAME=(
-    "libgomp.so.1"
 )
 
 mkdir -p /$WHEELHOUSE_DIR
@@ -180,13 +173,13 @@ done
 mkdir -p /remote/$WHEELHOUSE_DIR
 cp /$WHEELHOUSE_DIR/torch*.whl /remote/$WHEELHOUSE_DIR/
 
-# remove stuff before testing
-rm -rf /opt/rh
+# # remove stuff before testing
+# rm -rf /opt/rh
 
-export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
-pushd /pytorch/test
-for PYDIR in /opt/python/*; do
-    "${PYDIR}/bin/pip" uninstall -y torch
-    "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python ./run_test.sh
-done
+# export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
+# pushd /pytorch/test
+# for PYDIR in /opt/python/*; do
+#     "${PYDIR}/bin/pip" uninstall -y torch
+#     "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
+#     LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
+# done
