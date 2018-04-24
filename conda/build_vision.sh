@@ -12,7 +12,7 @@ ANACONDA_USER=pytorch
 conda config --set anaconda_upload no
 
 set -e
-VISION_BUILD_VERSION="0.2.0"
+VISION_BUILD_VERSION="0.2.1"
 VISION_BUILD_NUMBER=1
 
 rm -rf torchvision-src
