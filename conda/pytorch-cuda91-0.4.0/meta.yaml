@@ -1,0 +1,53 @@
+package:
+  name: pytorch
+  version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+source:
+   git_url: https://github.com/pytorch/pytorch
+   git_rev: "v{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+requirements:
+  build:
+    - cmake
+    - python
+    - numpy 1.11.*
+    - setuptools
+    - pyyaml
+    - cffi
+    - mkl >=2018
+    - mkl-include
+    - typing
+    - ninja
+    - magma-cuda91 # [not osx]
+
+  run:
+    - python
+    - numpy >=1.11
+    - mkl >=2018
+    - cffi
+    - ninja
+
+build:
+  number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
+  detect_binary_files_with_prefix: False
+  string: py{{py}}_cuda{{ environ['CUDA_VERSION'] }}_cudnn{{ environ['CUDNN_VERSION'] }}_{{environ.get('PYTORCH_BUILD_NUMBER')}}
+  features:
+    - cuda91
+
+test:
+ requires:
+    - cuda91
+ imports:
+    - torch
+ source_files:
+   - test
+ commands:
+   - OMP_NUM_THREADS=4 python ./test/run_test.py || true
+
+
+about:
+  home: http://pytorch.org/
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.

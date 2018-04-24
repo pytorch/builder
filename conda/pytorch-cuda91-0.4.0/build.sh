@@ -3,7 +3,7 @@
 export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$PREFIX
 # compile for Kepler, Kepler+Tesla, Maxwell, Volta
-export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX;6.0;6.1"
+export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX;6.0;6.1;7.0"
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export TH_BINARY_BUILD=1
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
@@ -27,9 +27,17 @@ fname_with_sha256() {
 }
 
 DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.9.1"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.9.1"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
 )
 
 DEPS_SONAME=(
+    "libcudart.so.9.1"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.9.1"
+    "libnvrtc-builtins.so"
 )
 
 
