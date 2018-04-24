@@ -5,7 +5,7 @@
 set -ex
 
 # Python versions to be installed in /opt/$VERSION_NO
-CPYTHON_VERSIONS="2.6.9 2.7.13 3.3.6 3.4.6 3.5.3 3.6.2"
+CPYTHON_VERSIONS="2.7.13 3.5.3 3.6.2"
 
 # openssl version to build, with expected sha256 hash of .tar.gz
 # archive
@@ -33,8 +33,8 @@ source $MY_DIR/build_utils.sh
 yum -y install bzip2 make git patch unzip bison yasm diffutils \
     automake which file cmake28 \
     kernel-devel-`uname -r` \
-    devtoolset-2-binutils devtoolset-2-gcc \
-    devtoolset-2-gcc-c++ devtoolset-2-gcc-gfortran \
+    devtoolset-3-binutils devtoolset-3-gcc \
+    devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran \
     ${PYTHON_COMPILE_DEPS}
 
 # Install newest autoconf
