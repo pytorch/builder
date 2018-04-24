@@ -18,7 +18,7 @@ docker push soumith/conda-cuda
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
 cd remote
-./build_pytorch.sh 80 0.3.1 1 # cuda 8.0 pytorch 0.3.1 build_number 1
+./build_pytorch.sh 80 0.4.0 1 # cuda 8.0 pytorch 0.4.0 build_number 1
 ./build_pytorch.sh 80 nightly 1 # cuda 8.0 pytorch nightly build_number 1
 ./build_vision.sh
 ```
