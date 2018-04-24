@@ -37,7 +37,7 @@ test:
  source_files:
    - test
  commands:
-   - OMP_NUM_THREADS=4 ./test/run_test.sh
+   - OMP_NUM_THREADS=4 python ./test/run_test.py || true
 
 
 about:

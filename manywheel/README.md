@@ -10,9 +10,9 @@ Run this command:
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda80:latest bash
 # OR
-nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda75:latest bash
-# OR
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda90:latest bash
+# OR
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda91:latest bash
 ```
 
 Then run:
