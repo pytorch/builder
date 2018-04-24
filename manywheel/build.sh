@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-export PYTORCH_BUILD_VERSION=0.4
+export PYTORCH_BUILD_VERSION=0.4.0
 export PYTORCH_BUILD_NUMBER=1
-export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
+export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
 export NCCL_ROOT_DIR=/usr/local/cuda
 export USE_STATIC_CUDNN=1
 export USE_STATIC_NCCL=1
@@ -34,7 +34,6 @@ else
     exit 1
 fi
 
-rm -rf /opt/python/cpython-2.6.9-ucs2  /opt/python/cpython-2.6.9-ucs4
 # rm -rf /opt/python/cp35*  # TODO: remove
 # rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python
@@ -43,9 +42,10 @@ ls /opt/python
 # # Compile wheels
 # #######################################################
 # clone pytorch source code
-git clone https://github.com/pytorch/pytorch /pytorch
-pushd /pytorch
-if ! git checkout v${PYTORCH_BUILD_VERSION} ; then
+PYTORCH_DIR="/pytorch"
+git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
+pushd $PYTORCH_DIR
+if ! git checkout v${PYTORCH_BUILD_VERSION}; then
     git checkout tags/v${PYTORCH_BUILD_VERSION}
 fi
 git submodule update --init --recursive
@@ -68,7 +68,7 @@ popd
 # so manually do the work of copying dependency libs and patchelfing
 # and fixing RECORDS entries correctly
 ######################################################################
-yum install -y zip
+yum install -y zip openssl
 
 fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
@@ -144,7 +144,7 @@ else
 fi
 
 mkdir -p /$WHEELHOUSE_DIR
-cp /pytorch/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
+cp $PYTORCH_DIR/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
 mkdir /tmp_dir
 pushd /tmp_dir
 
@@ -210,7 +210,7 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     done
 
 
-    # regenerate the RECORD file with new hashes
+    # regenerate the RECORD file with new hashes 
     record_file=`echo $(basename $whl) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
     echo "Generating new record file $record_file"
     rm -f $record_file
@@ -241,9 +241,9 @@ rm -rf /usr/local/cuda*
 rm -rf /opt/rh
 
 export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
-pushd /pytorch/test
+pushd $PYTORCH_DIR/test
 for PYDIR in /opt/python/*; do
     "${PYDIR}/bin/pip" uninstall -y torch
     "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python ./run_test.sh
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
 done
