@@ -24,14 +24,15 @@ popd
 export PYTORCH_VISION_BUILD_VERSION=$VISION_BUILD_VERSION
 export PYTORCH_VISION_BUILD_NUMBER=$VISION_BUILD_NUMBER
 
-time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision-$VISION_BUILD_VERSION
-time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision-$VISION_BUILD_VERSION
-time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision-$VISION_BUILD_VERSION
+# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision-$VISION_BUILD_VERSION
+# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision-$VISION_BUILD_VERSION
+# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision-$VISION_BUILD_VERSION
+
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision-cpu-$VISION_BUILD_VERSION
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision-cpu-$VISION_BUILD_VERSION
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision-cpu-$VISION_BUILD_VERSION
 
 set +e
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 2.7 torchvision-$VISION_BUILD_VERSION --output)
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.5 torchvision-$VISION_BUILD_VERSION --output)
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.6 torchvision-$VISION_BUILD_VERSION --output)
 
 
 unset PYTORCH_BUILD_VERSION
