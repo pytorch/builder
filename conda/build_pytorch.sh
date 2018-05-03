@@ -42,18 +42,12 @@ else
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda90-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda90-$BUILD_VERSION
 	
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda90-nccl2-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda90-nccl2-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda90-nccl2-$BUILD_VERSION
     elif [[ "$1" == "91" ]]; then
 	. ./switch_cuda_version.sh 9.1
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda91-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda91-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda91-$BUILD_VERSION
 	
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda91-nccl2-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda91-nccl2-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda91-nccl2-$BUILD_VERSION
     elif [[ "$1" == "cpu" ]]; then
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cpu-$BUILD_VERSION
 	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cpu-$BUILD_VERSION
