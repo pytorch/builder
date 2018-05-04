@@ -37,8 +37,8 @@ RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/
     rm cudnn-8.0-linux-x64-v7.1.tgz && \
     ldconfig
 
-# NCCL2
-RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.1.15-1%2Bcuda8.0_x86_64.txz && \
+# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
+RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda8.0_x86_64.txz && \
     ls && \
     ls -alh nccl_2.1.15-1+cuda8.0_x86_64.txz && \
     tar --no-same-owner -xvf nccl_2.1.15-1+cuda8.0_x86_64.txz && \
@@ -70,8 +70,8 @@ RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/
     rm cudnn-9.0-linux-x64-v7.1.tgz && \
     ldconfig
 
-# NCCL2
-RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.1.15-1%2Bcuda9.0_x86_64.txz && \
+# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
+RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda9.0_x86_64.txz && \
     tar --no-same-owner -xvf nccl_2.1.15-1+cuda9.0_x86_64.txz && \
     mv nccl_2.1.15-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
     cp -P nccl_2.1.15-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
@@ -106,13 +106,37 @@ RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/
     rm cudnn-9.1-linux-x64-v7.1.tgz && \
     ldconfig
 
-# NCCL2
-RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.1.15-1%2Bcuda9.1_x86_64.txz && \
+# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
+RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda9.1_x86_64.txz && \
     tar --no-same-owner -xvf nccl_2.1.15-1+cuda9.1_x86_64.txz && \
     mv nccl_2.1.15-1+cuda9.1_x86_64/include/* /usr/local/cuda/include/ && \
     cp -P nccl_2.1.15-1+cuda9.1_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
     rm -rf nccl_2.1.15-1+cuda9.1_x86_64* && \
     ldconfig
+
+
+# prune static libs
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
+ARG CUDA_ROOT="/usr/local/cuda-8.0"
+ARG CUDA_LIB_DIR="/usr/local/cuda-8.0/lib64"
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" \
+    | xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}" && \
+    $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_20 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
+ARG CUDA_ROOT="/usr/local/cuda-9.0"
+ARG CUDA_LIB_DIR="/usr/local/cuda-9.0/lib64"
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | \
+    xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}" && \
+    $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_30 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
+ARG CUDA_ROOT="/usr/local/cuda-9.1"
+ARG CUDA_LIB_DIR="/usr/local/cuda-9.1/lib64"
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | \
+    xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}" && \
+    $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_30 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+
 
 # Anaconda
 RUN wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
