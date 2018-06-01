@@ -70,7 +70,7 @@ elif [ $PYTHON_VERSION == "3.6" ]; then
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py36k"
 fi
 
-conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi
+conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 
 # now $PREFIX should point to your conda env
 ##########################
@@ -79,7 +79,6 @@ conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi
 echo "Conda root: $CONDA_ROOT_PREFIX"
 echo "Env root: $PREFIX"
 
-export PYTORCH_BINARY_BUILD=1
 export TH_BINARY_BUILD=1
 
 echo "Python Version:"
@@ -103,7 +102,7 @@ pip uninstall -y torch || true
 
 pip install dist/$WHEEL_FILENAME_GEN
 cd test
-./run_test.sh
+python run_test.py || true
 cd ..
 
 echo "Wheel file: $WHEEL_FILENAME_GEN $WHEEL_FILENAME_NEW"
