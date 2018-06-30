@@ -3,19 +3,20 @@ package:
   version: "{{ environ.get('FAISS_BUILD_VERSION') }}"
 
 source:
-  git_rev: master
-  git_url: https://github.com/facebookresearch/faiss
+  path: ../faiss-src
 
 requirements:
   build:
     - python
     - numpy 1.11.*
+    - gcc
     - setuptools
     - swig
     - mkl
 
   run:
     - python
+    - gcc
     - numpy >=1.11
     - mkl
 

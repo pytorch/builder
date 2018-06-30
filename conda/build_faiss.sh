@@ -1,22 +1,17 @@
 #!/usr/bin/env bash
-. /remote/anaconda_token || true
 
 set -e
-
-if [ -z "$ANACONDA_TOKEN" ]; then
-    echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
-    exit 1
-fi
 
 export FAISS_BUILD_VERSION="0.1"
 export FAISS_BUILD_NUMBER=1
 
 ANACONDA_USER=pytorch
-rm -rf faiss-src
-git clone https://github.com/facebookresearch/faiss faiss-src --recursive
-pushd faiss-src
-git checkout master
-popd
+# This is usually done once
+# rm -rf faiss-src
+# git clone https://github.com/facebookresearch/faiss faiss-src --recursive
+# pushd faiss-src
+# git checkout master
+# popd
 
 conda config --set anaconda_upload no
 
