@@ -52,7 +52,8 @@ MKDIR_P      = /opt/local/bin/gmkdir -p
 PYTHON       = python
 SWIG         = swig
 
-prefix      ?= /Users/ailzhang/miniconda3/envs/faiss-build
+#prefix      ?= /Users/ailzhang/miniconda3/envs/faiss-build
+prefix      ?= /usr/local
 exec_prefix ?= ${prefix}
 libdir       = ${exec_prefix}/lib
 includedir   = ${prefix}/include
