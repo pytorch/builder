@@ -2,7 +2,7 @@
 
 set -e
 
-export FAISS_BUILD_VERSION="0.1"
+export FAISS_BUILD_VERSION="1.3.0"
 export FAISS_BUILD_NUMBER=1
 
 ANACONDA_USER=pytorch
