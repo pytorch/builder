@@ -18,8 +18,7 @@ requirements:
     - python
     - numpy >=1.11
     - mkl
-    - gcc
-    - cudatoolkit
+    - libgcc
 
 build:
   number: {{ environ.get('FAISS_BUILD_NUMBER') }}

@@ -16,7 +16,7 @@ requirements:
 
   run:
     - python
-    - gcc
+    - libgcc
     - numpy >=1.11
     - mkl
 
