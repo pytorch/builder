@@ -3,7 +3,8 @@ package:
   version: "{{ environ.get('FAISS_BUILD_VERSION') }}"
 
 source:
-  path: ../faiss-src
+  git_rev: v1.3.0
+  git_url: https://github.com/facebookresearch/faiss.git
 
 requirements:
   build:
