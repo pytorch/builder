@@ -10,12 +10,14 @@ requirements:
   build:
     - python
     - numpy 1.11.*
+    - gcc
     - setuptools
     - swig
     - mkl
 
   run:
     - python
+    - libgcc
     - numpy >=1.11
     - mkl
 
