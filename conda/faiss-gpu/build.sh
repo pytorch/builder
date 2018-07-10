@@ -5,7 +5,7 @@ MAJOR_VERSION=`python -c "import sys;print(sys.version_info[0])"`
 make clean
 make -j 10
 make -C gpu -j 10
-make -C python
 make -C python gpu
+make -C python
 
 python setup.py install
