@@ -13,15 +13,7 @@ if not os.path.exists(check_fpath):
 
 # make the faiss python package dir
 shutil.rmtree("faiss", ignore_errors=True)
-os.mkdir("faiss")
-shutil.copyfile("faiss.py", "faiss/__init__.py")
-shutil.copyfile("python/swigfaiss.py", "faiss/swigfaiss.py")
-shutil.copyfile("python/_swigfaiss.so", "faiss/_swigfaiss.so")
-try:
-    shutil.copyfile("python/_swigfaiss_gpu.so", "faiss/_swigfaiss_gpu.so")
-    shutil.copyfile("python/swigfaiss_gpu.py", "faiss/swigfaiss_gpu.py")
-except:
-    pass
+shutil.copytree("python/faiss", "faiss")
 
 long_description="""
 Faiss is a library for efficient similarity search and clustering of dense 
@@ -33,7 +25,7 @@ are implemented on the GPU. It is developed by Facebook AI Research.
 """
 setup(
     name='faiss',
-    version='0.1',
+    version='1.3.0',
     description='A library for efficient similarity search and clustering of dense vectors',
     long_description=long_description,
     url='https://github.com/facebookresearch/faiss',
