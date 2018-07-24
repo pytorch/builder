@@ -1,0 +1,140 @@
+--- CMakeLists.txt    2016-11-20 20:20:02.000000000 -0500
++++ CMakeLists.txt    2017-07-17 01:10:32.161739159 -040062a63
+62a63
+> set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -fno-exceptions")
+82,89c83,90
+< find_package( OpenMP )
+< if ( OPENMP_FOUND )
+< 	message( STATUS "Found OpenMP" )
+< 	message( STATUS "    OpenMP_C_FLAGS   ${OpenMP_C_FLAGS}" )
+< 	message( STATUS "    OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS}" )
+< 	set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}" )
+< 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+< endif()
+---
+> # find_package( OpenMP )
+> # if ( OPENMP_FOUND )
+> # 	message( STATUS "Found OpenMP" )
+> # 	message( STATUS "    OpenMP_C_FLAGS   ${OpenMP_C_FLAGS}" )
+> # 	message( STATUS "    OpenMP_CXX_FLAGS ${OpenMP_CXX_FLAGS}" )
+> # 	set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}" )
+> # 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}" )
+> # endif()
+238a240,246
+> 
+> 	if ( ${GPU_TARGET} MATCHES "All")
+> 	  set( MIN_ARCH 300)
+> 	  SET( NV_SM "-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_52,code=sm_52 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_53,code=sm_53 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 ")
+> 	  SET( NV_COMP "")
+> 	endif()
+>       
+244c252,253
+< 	set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -DHAVE_CUBLAS ${NV_SM} ${NV_COMP} ${FORTRAN_CONVENTION}" )
+---
+> 	set( CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -DHAVE_CUBLAS -Xfatbin -compress-all -Xcompiler -fPIC ${NV_SM} ${NV_COMP} ${FORTRAN_CONVENTION}" )
+> 	MESSAGE(STATUS "CUDA_NVCC_FLAGS: ${CUDA_NVCC_FLAGS}")
+255c264
+< 	find_package( LAPACK )
+---
+> 	# find_package( LAPACK )
+302c311,312
+< set( LIBS tester lapacktest magma )
+---
+> # set( LIBS tester lapacktest magma )
+> set( LIBS magma)
+410a421
+> set_target_properties(magma PROPERTIES POSITION_INDEPENDENT_CODE ON)
+414c425
+< add_library( tester ${libtest_all} )
+---
+> # add_library( tester ${libtest_all} )
+421,436c432,447
+< if ( USE_FORTRAN )
+< 	foreach( f ${liblapacktest_all} )
+< 		if ( ${f} MATCHES "\\.(f|f90)$" )
+< 			list( APPEND liblapacktest_all_f ${f} )
+< 		endif()
+< 	endforeach()
+< 	add_library( lapacktest ${liblapacktest_all_f} )
+< else()
+< 	# alternatively, use only C/C++/CUDA files, including magma_[sdcz]_no_fortran.cpp
+< 	foreach( f ${liblapacktest_all} )
+< 		if ( ${f} MATCHES "\\.(c|cu|cpp)$" )
+< 			list( APPEND liblapacktest_all_cpp ${f} )
+< 		endif()
+< 	endforeach()
+< 	add_library( lapacktest ${liblapacktest_all_cpp} )
+< endif()
+---
+> # if ( USE_FORTRAN )
+> # 	foreach( f ${liblapacktest_all} )
+> # 		if ( ${f} MATCHES "\\.(f|f90)$" )
+> # 			list( APPEND liblapacktest_all_f ${f} )
+> # 		endif()
+> # 	endforeach()
+> # 	add_library( lapacktest ${liblapacktest_all_f} )
+> # else()
+> # 	# alternatively, use only C/C++/CUDA files, including magma_[sdcz]_no_fortran.cpp
+> # 	foreach( f ${liblapacktest_all} )
+> # 		if ( ${f} MATCHES "\\.(c|cu|cpp)$" )
+> # 			list( APPEND liblapacktest_all_cpp ${f} )
+> # 		endif()
+> # 	endforeach()
+> # 	add_library( lapacktest ${liblapacktest_all_cpp} )
+> # endif()
+456c467
+< 
+---
+> set_target_properties(magma_sparse PROPERTIES POSITION_INDEPENDENT_CODE ON)
+462,464c473,475
+< set( CMAKE_RUNTIME_OUTPUT_DIRECTORY testing )
+< set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY testing_lib )
+< set( CMAKE_LIBRARY_OUTPUT_DIRECTORY testing_lib )
+---
+> # set( CMAKE_RUNTIME_OUTPUT_DIRECTORY testing )
+> # set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY testing_lib )
+> # set( CMAKE_LIBRARY_OUTPUT_DIRECTORY testing_lib )
+467,478c478,489
+< foreach( f ${testing_all} )
+< 	if ( ${f} MATCHES "\\.(c|cu|cpp)$" )
+< 		list( APPEND testing_all_cpp ${f} )
+< 	endif()
+< endforeach()
+< foreach( TEST ${testing_all_cpp} )
+< 	string( REGEX REPLACE "\\.(cpp|f90|F90)" "" EXE ${TEST} )
+< 	string( REGEX REPLACE "testing/" "" EXE ${EXE} )
+< 	#message( "${TEST} --> ${EXE}" )
+< 	add_executable( ${EXE} ${TEST} )
+< 	target_link_libraries( ${EXE} ${LIBS} )
+< endforeach()
+---
+> # foreach( f ${testing_all} )
+> # 	if ( ${f} MATCHES "\\.(c|cu|cpp)$" )
+> # 		list( APPEND testing_all_cpp ${f} )
+> # 	endif()
+> # endforeach()
+> # foreach( TEST ${testing_all_cpp} )
+> # 	string( REGEX REPLACE "\\.(cpp|f90|F90)" "" EXE ${TEST} )
+> # 	string( REGEX REPLACE "testing/" "" EXE ${EXE} )
+> # 	#message( "${TEST} --> ${EXE}" )
+> # 	add_executable( ${EXE} ${TEST} )
+> # 	target_link_libraries( ${EXE} ${LIBS} )
+> # endforeach()
+483,490c494,501
+< set( CMAKE_RUNTIME_OUTPUT_DIRECTORY sparse/testing )
+< foreach( TEST ${sparse_testing_all} )
+< 	string( REGEX REPLACE "\\.(cpp|f90|F90)"     "" EXE ${TEST} )
+< 	string( REGEX REPLACE "sparse/testing/" "" EXE ${EXE} )
+< 	#message( "${TEST} --> ${EXE}" )
+< 	add_executable( ${EXE} ${TEST} )
+< 	target_link_libraries( ${EXE} ${LIBS_SPARSE} )
+< endforeach()
+---
+> # set( CMAKE_RUNTIME_OUTPUT_DIRECTORY sparse/testing )
+> # foreach( TEST ${sparse_testing_all} )
+> # 	string( REGEX REPLACE "\\.(cpp|f90|F90)"     "" EXE ${TEST} )
+> # 	string( REGEX REPLACE "sparse/testing/" "" EXE ${EXE} )
+> # 	#message( "${TEST} --> ${EXE}" )
+> # 	add_executable( ${EXE} ${TEST} )
+> # 	target_link_libraries( ${EXE} ${LIBS_SPARSE} )
+> # endforeach()

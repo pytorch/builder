@@ -38,13 +38,13 @@ RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/
     ldconfig
 
 # NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda8.0_x86_64.txz && \
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.2.13-1%2Bcuda8.0_x86_64.txz && \
     ls && \
-    ls -alh nccl_2.1.15-1+cuda8.0_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.1.15-1+cuda8.0_x86_64.txz && \
-    mv nccl_2.1.15-1+cuda8.0_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.1.15-1+cuda8.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.1.15-1+cuda8.0_x86_64* && \
+    ls -alh nccl_2.2.13-1+cuda8.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.2.13-1+cuda8.0_x86_64.txz && \
+    mv nccl_2.2.13-1+cuda8.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.2.13-1+cuda8.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.2.13-1+cuda8.0_x86_64* && \
     ldconfig
 
 # install CUDA 9.0 in the same container
@@ -71,47 +71,32 @@ RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/
     ldconfig
 
 # NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda9.0_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.1.15-1+cuda9.0_x86_64.txz && \
-    mv nccl_2.1.15-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.1.15-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.1.15-1+cuda9.0_x86_64* && \
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.2.13-1%2Bcuda9.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.2.13-1+cuda9.0_x86_64.txz && \
+    mv nccl_2.2.13-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.2.13-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.2.13-1+cuda9.0_x86_64* && \
     ldconfig
 
-# install CUDA 9.1 in the same container
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_387.26_linux && \
-    chmod +x cuda_9.1.85_387.26_linux && \
-    ./cuda_9.1.85_387.26_linux --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_9.1.85_387.26_linux
+# install CUDA 9.2 in the same container
+RUN wget -q https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda_9.2.148_396.37_linux && \
+    chmod +x cuda_9.2.148_396.37_linux && \
+    ./cuda_9.2.148_396.37_linux --silent --no-opengl-libs --toolkit && \
+    rm -f cuda_9.2.148_396.37_linux
 
-# patch 1, patch2, patch3
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.1/Prod/patches/1/cuda_9.1.85.1_linux && \
-    chmod +x cuda_9.1.85.1_linux && \
-    ./cuda_9.1.85.1_linux -s --accept-eula && \
-    rm -f cuda_9.1.85.1_linux
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.1/Prod/patches/2/cuda_9.1.85.2_linux && \
-    chmod +x cuda_9.1.85.2_linux && \
-    ./cuda_9.1.85.2_linux -s --accept-eula && \
-    rm -f cuda_9.1.85.2_linux
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.1/Prod/patches/3/cuda_9.1.85.3_linux && \
-    chmod +x cuda_9.1.85.3_linux && \
-    ./cuda_9.1.85.3_linux -s --accept-eula && \
-    rm -f cuda_9.1.85.3_linux
-
-
-# install CUDA 9.1 CuDNN
+# install CUDA 9.2 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
-RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/cudnn-9.1-linux-x64-v7.1.tgz -O && \
-    tar --no-same-owner -xzf cudnn-9.1-linux-x64-v7.1.tgz -C /usr/local && \
-    rm cudnn-9.1-linux-x64-v7.1.tgz && \
+RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.4/cudnn-9.2-linux-x64-v7.1.tgz -O && \
+    tar --no-same-owner -xzf cudnn-9.2-linux-x64-v7.1.tgz -C /usr/local && \
+    rm cudnn-9.2-linux-x64-v7.1.tgz && \
     ldconfig
 
 # NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda9.1_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.1.15-1+cuda9.1_x86_64.txz && \
-    mv nccl_2.1.15-1+cuda9.1_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.1.15-1+cuda9.1_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.1.15-1+cuda9.1_x86_64* && \
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.2.13-1%2Bcuda9.2_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.2.13-1+cuda9.2_x86_64.txz && \
+    mv nccl_2.2.13-1+cuda9.2_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.2.13-1+cuda9.2_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.2.13-1+cuda9.2_x86_64* && \
     ldconfig
 
 
@@ -131,9 +116,9 @@ RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep
     $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_30 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
 
 ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
-ARG CUDA_ROOT="/usr/local/cuda-9.1"
-ARG CUDA_LIB_DIR="/usr/local/cuda-9.1/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | \
+ARG CUDA_ROOT="/usr/local/cuda-9.2"
+ARG CUDA_LIB_DIR="/usr/local/cuda-9.2/lib64"
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | \
     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}" && \
     $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_30 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
 
