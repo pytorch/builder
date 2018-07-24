@@ -63,11 +63,11 @@ RUN curl -fsSL http://developer.download.nvidia.com/compute/redist/cudnn/v7.1.2/
     ldconfig
 
 # NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.1/nccl_2.1.15-1%2Bcuda9.0_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.1.15-1+cuda9.0_x86_64.txz && \
-    mv nccl_2.1.15-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.1.15-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.1.15-1+cuda9.0_x86_64* && \
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.2.13-1%2Bcuda9.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.2.13-1+cuda9.0_x86_64.txz && \
+    mv nccl_2.2.13-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.2.13-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.2.13-1+cuda9.0_x86_64* && \
     ldconfig
 
 # magma
