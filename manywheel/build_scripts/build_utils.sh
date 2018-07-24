@@ -49,7 +49,7 @@ function do_cpython_build {
     mkdir -p ${prefix}/lib
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
     CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
-    make -j2 > /dev/null
+    make -j40 > /dev/null
     make install > /dev/null
     popd
     rm -rf Python-$py_ver

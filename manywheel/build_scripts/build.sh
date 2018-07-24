@@ -20,7 +20,7 @@ AUTOCONF_HASH=954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
 
 # Dependencies for compiling Python that we want to remove from
 # the final image after compiling Python
-PYTHON_COMPILE_DEPS="zlib-devel bzip2-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel"
+PYTHON_COMPILE_DEPS="zlib-devel bzip2-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel libffi-devel"
 
 # Libraries that are allowed as part of the manylinux1 profile
 MANYLINUX1_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel libXext-devel libXrender-devel  mesa-libGL-devel libICE-devel libSM-devel ncurses-devel"
@@ -87,7 +87,7 @@ ln -s $PY36_BIN/auditwheel /usr/local/bin/auditwheel
 # final image
 yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
     avahi freetype bitstream-vera-fonts \
-    ${PYTHON_COMPILE_DEPS}  > /dev/null 2>&1
+    ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
 yum -y install ${MANYLINUX1_DEPS}
 yum -y clean all > /dev/null 2>&1
 yum list installed
