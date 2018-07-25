@@ -31,6 +31,9 @@ elif [ $PYTHON_VERSION == "3.5" ]; then
 elif [ $PYTHON_VERSION == "3.6" ]; then
     WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp36-cp36m-macosx_10_7_x86_64.whl"
     WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp36-cp36m-macosx_10_7_x86_64.whl"
+elif [ $PYTHON_VERSION == "3.7" ]; then
+    WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp37-cp37m-macosx_10_7_x86_64.whl"
+    WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp37-cp37m-macosx_10_7_x86_64.whl"
 else
     echo "Unhandled python version: $PYTHON_VERSION"
     exit 1
@@ -39,6 +42,24 @@ fi
 echo "OSX. No CUDA/CUDNN"
 
 ###########################################################
+
+if which conda
+then
+    echo "Remove Conda from your PATH / DYLD_LIBRARY_PATH completely"
+    exit 1
+fi
+
+rm -rf tmp_conda
+rm -f Miniconda3-latest-MacOSX-x86_64.sh
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+chmod +x Miniconda3-latest-MacOSX-x86_64.sh && \
+    ./Miniconda3-latest-MacOSX-x86_64.sh -b -p tmp_conda && \
+    rm Miniconda3-latest-MacOSX-x86_64.sh
+condapath=$(python -c "import os; print(os.path.realpath('tmp_conda'))")
+export PATH="$condapath/bin:$PATH"
+echo $PATH
+
+
 export CONDA_ROOT_PREFIX=$(conda info --root)
 
 conda install -y cmake
@@ -46,6 +67,7 @@ conda install -y cmake
 conda remove --name py2k  --all -y || true
 conda remove --name py35k --all -y || true
 conda remove --name py36k --all -y || true
+conda remove --name py37k --all -y || true
 conda info --envs
 
 # create env and activate
@@ -68,6 +90,12 @@ elif [ $PYTHON_VERSION == "3.6" ]; then
     export CONDA_ENVNAME="py36k"
     source activate py36k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py36k"
+elif [ $PYTHON_VERSION == "3.7" ]; then
+    echo "Requested python version 3.7. Activating conda environment"
+    conda create -n py37k python=3.7.0 -y
+    export CONDA_ENVNAME="py37k"
+    source activate py37k
+    export PREFIX="$CONDA_ROOT_PREFIX/envs/py37k"
 fi
 
 conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
