@@ -12,7 +12,7 @@ nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda80
 # OR
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda90:latest bash
 # OR
-nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda91:latest bash
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda92:latest bash
 ```
 
 Then run:
@@ -29,16 +29,8 @@ Once done, upload wheels via:
 
 ## Building Docker image
 
-First run
+Run
 
 ```
 ./deploy.sh
-```
-
-Then run
-
-```
-docker push soumith/manylinux-cuda80
-docker push soumith/manylinux-cuda75
-docker push soumith/manylinux-cuda90
 ```

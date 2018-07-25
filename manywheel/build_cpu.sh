@@ -12,6 +12,8 @@ export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
 WHEELHOUSE_DIR="wheelhousecpu"
 
 rm -rf /usr/local/cuda*
+
+# rm -rf /opt/python/cp37*  # TODO: remove
 # rm -rf /opt/python/cp35*  # TODO: remove
 # rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python

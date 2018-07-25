@@ -2,14 +2,15 @@
 
 export PYTORCH_BUILD_VERSION=0.4.1
 export PYTORCH_BUILD_NUMBER=1
-export TH_BINARY_BUILD=1
-export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
+export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export NCCL_ROOT_DIR=/usr/local/cuda
+export TH_BINARY_BUILD=1
 export USE_STATIC_CUDNN=1
 export USE_STATIC_NCCL=1
 export ATEN_STATIC_CUDA=1
+export USE_CUDA_STATIC_LINK=1
 
 CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
 
@@ -17,7 +18,10 @@ export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
     echo "CUDA 8.0 Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
-elif [[ $CUDA_VERSION == "9.0" ]] || [[ $CUDA_VERSION == "9.1" ]]; then
+elif [[ $CUDA_VERSION == "9.0" ]]; then
+    echo "CUDA $CUDA_VERSION Detected"
+    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
+elif [[ $CUDA_VERSION == "9.2" ]]; then
     echo "CUDA $CUDA_VERSION Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
 fi
@@ -27,13 +31,14 @@ if [[ $CUDA_VERSION == "8.0" ]]; then
     WHEELHOUSE_DIR="wheelhouse80"
 elif [[ $CUDA_VERSION == "9.0" ]]; then
     WHEELHOUSE_DIR="wheelhouse90"
-elif [[ $CUDA_VERSION == "9.1" ]]; then
-    WHEELHOUSE_DIR="wheelhouse91"
+elif [[ $CUDA_VERSION == "9.2" ]]; then
+    WHEELHOUSE_DIR="wheelhouse92"
 else
     echo "unknown cuda version $CUDA_VERSION"
     exit 1
 fi
 
+# rm -rf /opt/python/cp37*  # TODO: remove
 # rm -rf /opt/python/cp35*  # TODO: remove
 # rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python
@@ -128,19 +133,19 @@ DEPS_SONAME=(
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
-elif [[ $CUDA_VERSION == "9.1" ]]; then
+elif [[ $CUDA_VERSION == "9.2" ]]; then
 DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.9.1"
+    "/usr/local/cuda/lib64/libcudart.so.9.2"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.9.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.9.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
     "/usr/lib64/libgomp.so.1"
 )
 
 DEPS_SONAME=(
-    "libcudart.so.9.1"
+    "libcudart.so.9.2"
     "libnvToolsExt.so.1"
-    "libnvrtc.so.9.1"
+    "libnvrtc.so.9.2"
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
