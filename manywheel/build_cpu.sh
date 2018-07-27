@@ -3,7 +3,7 @@
 set -x
 
 export PYTORCH_BUILD_VERSION=0.4.1
-export PYTORCH_BUILD_NUMBER=1
+export PYTORCH_BUILD_NUMBER=2
 export TH_BINARY_BUILD=1
 export NO_CUDA=1
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
@@ -13,7 +13,7 @@ WHEELHOUSE_DIR="wheelhousecpu"
 
 rm -rf /usr/local/cuda*
 
-# rm -rf /opt/python/cp37*  # TODO: remove
+# rm -rf /opt/python/cp36*  # TODO: remove
 # rm -rf /opt/python/cp35*  # TODO: remove
 # rm -rf /opt/python/cp27*  # TODO: remove
 ls /opt/python
@@ -35,7 +35,11 @@ for PYDIR in /opt/python/*; do
     export PATH=$PYDIR/bin:$OLD_PATH
     python setup.py clean
     pip install -r requirements.txt
-    pip install numpy==1.11
+    if [[ $PYDIR  == "/opt/python/cp37-cp37m" ]]; then
+	pip install numpy==1.15
+    else
+	pip install numpy==1.11
+    fi
     time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
 

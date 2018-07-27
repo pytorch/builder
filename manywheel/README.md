@@ -27,6 +27,15 @@ Once done, upload wheels via:
 ./upload.sh
 ```
 
+Upload the default cuda wheels to PyPI:
+
+```
+mkdir wheelhouse_manylinux
+cp wheelhouse90/*.whl wheelhouse_manylinux/
+ls -1 wheelhouse_manylinux/*.whl | awk '{print("mv "$1 " " $1)}' | sed 's/-linux_/-manylinux1_/2' | bash
+twine upload wheelhouse_manylinux/*.whl
+```
+
 ## Building Docker image
 
 Run
