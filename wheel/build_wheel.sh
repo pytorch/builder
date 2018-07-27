@@ -22,16 +22,16 @@ else
     BUILD_NUMBER_PREFIX=".post$BUILD_NUMBER"
 fi
 
-if [ $PYTHON_VERSION -eq 2 ]; then
+if [[ $PYTHON_VERSION == "2" ]]; then
     WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp27-cp27m-macosx_10_6_x86_64.whl"
     WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp27-none-macosx_10_6_x86_64.whl"
-elif [ $PYTHON_VERSION == "3.5" ]; then
+elif [[ $PYTHON_VERSION == "3.5" ]]; then
     WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp35-cp35m-macosx_10_6_x86_64.whl"
     WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp35-cp35m-macosx_10_6_x86_64.whl"
-elif [ $PYTHON_VERSION == "3.6" ]; then
+elif [[ $PYTHON_VERSION == "3.6" ]]; then
     WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp36-cp36m-macosx_10_7_x86_64.whl"
     WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp36-cp36m-macosx_10_7_x86_64.whl"
-elif [ $PYTHON_VERSION == "3.7" ]; then
+elif [[ $PYTHON_VERSION == "3.7" ]]; then
     WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp37-cp37m-macosx_10_7_x86_64.whl"
     WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp37-cp37m-macosx_10_7_x86_64.whl"
 else
@@ -71,26 +71,26 @@ conda remove --name py37k --all -y || true
 conda info --envs
 
 # create env and activate
-if [ $PYTHON_VERSION -eq 2 ]
+if [[ $PYTHON_VERSION == "2" ]]
 then
     echo "Requested python version 2. Activating conda environment"
     conda create -n py2k python=2 -y
     export CONDA_ENVNAME="py2k"
     source activate py2k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py2k"
-elif [ $PYTHON_VERSION == "3.5" ]; then
+elif [[ $PYTHON_VERSION == "3.5" ]]; then
     echo "Requested python version 3.5. Activating conda environment"
     conda create -n py35k python=3.5 -y
     export CONDA_ENVNAME="py35k"
     source activate py35k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py35k"
-elif [ $PYTHON_VERSION == "3.6" ]; then
+elif [[ $PYTHON_VERSION == "3.6" ]]; then
     echo "Requested python version 3.6. Activating conda environment"
     conda create -n py36k python=3.6.0 -y
     export CONDA_ENVNAME="py36k"
     source activate py36k
     export PREFIX="$CONDA_ROOT_PREFIX/envs/py36k"
-elif [ $PYTHON_VERSION == "3.7" ]; then
+elif [[ $PYTHON_VERSION == "3.7" ]]; then
     echo "Requested python version 3.7. Activating conda environment"
     conda create -n py37k python=3.7.0 -y
     export CONDA_ENVNAME="py37k"
