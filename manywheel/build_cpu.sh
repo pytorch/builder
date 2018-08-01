@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+set -ex
 
 export PYTORCH_BUILD_VERSION=0.4.1
 export PYTORCH_BUILD_NUMBER=2
@@ -13,17 +13,33 @@ WHEELHOUSE_DIR="wheelhousecpu"
 
 rm -rf /usr/local/cuda*
 
-# rm -rf /opt/python/cp36*  # TODO: remove
-# rm -rf /opt/python/cp35*  # TODO: remove
-# rm -rf /opt/python/cp27*  # TODO: remove
-ls /opt/python
+# Build for given Python versions, or for all in /opt/python if none given
+if [[ -z "$DESIRED_PYTHON" ]]; then
+  DESIRED_PYTHON=($(ls -d /opt/python/*/))
+fi
+for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
+  # Convert eg. cp27-cp27m to /opt/python/cp27-cp27m
+  if [[ ! -d "${DESIRED_PYTHON[$i]}" ]]; then
+    if [[ -d "/opt/python/${DESIRED_PYTHON[$i]}" ]]; then
+      DESIRED_PYTHON[$i]="/opt/python/${DESIRED_PYTHON[$i]}"
+    else
+      echo "Error: Given Python ${DESIRED_PYTHON[$i]} is not in /opt/python"
+      echo "All array elements of env variable DESIRED_PYTHON must be"
+      echo "valid Python installations under /opt/python"
+      exit 1
+    fi
+  fi
+done
+echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
 
 # ########################################################
 # # Compile wheels
 # #######################################################
 # clone pytorch source code
 PYTORCH_DIR="/pytorch"
-git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
+if [[ ! -d "$PYTORCH_DIR" ]]; then
+  git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
+fi
 pushd $PYTORCH_DIR
 if ! git checkout v${PYTORCH_BUILD_VERSION}; then
     git checkout tags/v${PYTORCH_BUILD_VERSION}
@@ -31,7 +47,7 @@ fi
 git submodule update --init --recursive
 
 OLD_PATH=$PATH
-for PYDIR in /opt/python/*; do
+for PYDIR in "${DESIRED_PYTHON[@]}"; do
     export PATH=$PYDIR/bin:$OLD_PATH
     python setup.py clean
     pip install -r requirements.txt
@@ -185,7 +201,7 @@ rm -rf /opt/rh
 
 export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
 pushd $PYTORCH_DIR/test
-for PYDIR in /opt/python/*; do
+for PYDIR in "${DESIRED_PYTHON[@]}"; do
     "${PYDIR}/bin/pip" uninstall -y torch
     "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
     LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
