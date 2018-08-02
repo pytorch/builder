@@ -39,10 +39,13 @@ echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
 PYTORCH_DIR="/pytorch"
 if [[ ! -d "$PYTORCH_DIR" ]]; then
   git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
-fi
-pushd $PYTORCH_DIR
-if ! git checkout v${PYTORCH_BUILD_VERSION}; then
-    git checkout tags/v${PYTORCH_BUILD_VERSION}
+  pushd $PYTORCH_DIR
+  if ! git checkout v${PYTORCH_BUILD_VERSION}; then
+      git checkout tags/v${PYTORCH_BUILD_VERSION}
+  fi
+else
+  # the pytorch dir will already be cloned and checked-out on jenkins jobs
+  pushd $PYTORCH_DIR
 fi
 git submodule update --init --recursive
 
