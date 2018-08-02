@@ -281,4 +281,5 @@ for PYDIR in "${DESIRED_PYTHON[@]}"; do
     LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py --exclude distributed
     set +e
     LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed
+    set -e
 done
