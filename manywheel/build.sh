@@ -278,5 +278,5 @@ pushd $PYTORCH_DIR/test
 for PYDIR in "${DESIRED_PYTHON[@]}"; do
     "${PYDIR}/bin/pip" uninstall -y torch
     "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py --exclude distributed
 done
