@@ -195,7 +195,7 @@ done
 
 # Print out sizes of all wheels created
 echo "Succesfulle made wheels of size:"
-du -h $WHEELHOUSE_DIR/torch*.whl
+du -h /$WHEELHOUSE_DIR/torch*.whl
 
 # Copy wheels to host machine for persistence after the docker
 
