@@ -59,7 +59,7 @@ for PYDIR in "${DESIRED_PYTHON[@]}"; do
     else
 	pip install numpy==1.11
     fi
-    time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
+    time FULL_CAFFE2=1 python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
 
 popd
