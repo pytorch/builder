@@ -208,10 +208,20 @@ cp /$WHEELHOUSE_DIR/torch*.whl /remote/$WHEELHOUSE_DIR/
 # remove stuff before testing
 rm -rf /opt/rh
 
+# The package's name that we made could be torch-nightly
+if [[ -n "$PACKAGE_NAME" ]]; then
+  package_name="$PACKAGE_NAME"
+else
+  package_name='torch'
+fi
+echo "Expecting the built wheels to be packages for '$package_name'"
+
+
+# Test that all the wheels work
 export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
 pushd $PYTORCH_DIR/test
 for PYDIR in "${DESIRED_PYTHON[@]}"; do
-    "${PYDIR}/bin/pip" uninstall -y torch
-    "${PYDIR}/bin/pip" install torch --no-index -f /$WHEELHOUSE_DIR
+    "${PYDIR}/bin/pip" uninstall -y "$package_name"
+    "${PYDIR}/bin/pip" install "$package_name" --no-index -f /$WHEELHOUSE_DIR
     LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
 done
