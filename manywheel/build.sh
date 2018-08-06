@@ -283,8 +283,8 @@ rm -rf /usr/local/cuda*
 rm -rf /opt/rh
 
 # The package's name that we made could be torch-nightly
-if [[ -n "$PACKAGE_NAME" ]]; then
-  package_name="$PACKAGE_NAME"
+if [[ -n "$TORCH_PACKAGE_NAME" ]]; then
+  package_name="$TORCH_PACKAGE_NAME"
 else
   package_name='torch'
 fi
