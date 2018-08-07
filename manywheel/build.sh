@@ -2,8 +2,12 @@
 
 set -ex
 
-export PYTORCH_BUILD_VERSION=0.4.1
-export PYTORCH_BUILD_NUMBER=2
+if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
+  export PYTORCH_BUILD_VERSION=0.4.1
+fi
+if [[ -z "$PYTORCH_BUILD_NUMBER" ]]; then
+  export PYTORCH_BUILD_NUMBER=2
+fi
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
