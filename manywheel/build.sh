@@ -3,10 +3,10 @@
 set -ex
 
 if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-  export PYTORCH_BUILD_VERSION=0.4.1
+    export PYTORCH_BUILD_VERSION=0.4.1
 fi
 if [[ -z "$PYTORCH_BUILD_NUMBER" ]]; then
-  export PYTORCH_BUILD_NUMBER=2
+    export PYTORCH_BUILD_NUMBER=2
 fi
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
@@ -46,22 +46,21 @@ fi
 
 # Build for given Python versions, or for all in /opt/python if none given
 if [[ -z "$DESIRED_PYTHON" ]]; then
-  DESIRED_PYTHON=($(ls -d /opt/python/*/))
+    pushd /opt/python
+    DESIRED_PYTHON=(*/)
+    popd
 fi
-for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
-  # Convert eg. cp27-cp27m to /opt/python/cp27-cp27m
-  if [[ ! -d "${DESIRED_PYTHON[$i]}" ]]; then
-    if [[ -d "/opt/python/${DESIRED_PYTHON[$i]}" ]]; then
-      DESIRED_PYTHON[$i]="/opt/python/${DESIRED_PYTHON[$i]}"
-    else
-      echo "Error: Given Python ${DESIRED_PYTHON[$i]} is not in /opt/python"
-      echo "All array elements of env variable DESIRED_PYTHON must be"
-      echo "valid Python installations under /opt/python"
-      exit 1
+python_installations=()
+for desired_py in "${DESIRED_PYTHON[@]}"; do
+    python_installations+=("/opt/python/$desired_py")
+    if [[ ! -d "/opt/python/$desired_py" ]]; then
+        echo "Error: Given Python $desired_py is not in /opt/python"
+        echo "All array elements of env variable DESIRED_PYTHON must be"
+        echo "valid Python installations under /opt/python"
+        exit 1
     fi
-  fi
 done
-echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
+echo "Will build for all Pythons versions: ${DESIRED_PYTHON[@]}"
 
 
 # ########################################################
@@ -70,26 +69,26 @@ echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
 # clone pytorch source code
 PYTORCH_DIR="/pytorch"
 if [[ ! -d "$PYTORCH_DIR" ]]; then
-  git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
-  pushd $PYTORCH_DIR
-  if ! git checkout v${PYTORCH_BUILD_VERSION}; then
-      git checkout tags/v${PYTORCH_BUILD_VERSION}
-  fi
+    git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
+    pushd $PYTORCH_DIR
+    if ! git checkout v${PYTORCH_BUILD_VERSION}; then
+          git checkout tags/v${PYTORCH_BUILD_VERSION}
+    fi
 else
-  # the pytorch dir will already be cloned and checked-out on jenkins jobs
-  pushd $PYTORCH_DIR
+    # the pytorch dir will already be cloned and checked-out on jenkins jobs
+    pushd $PYTORCH_DIR
 fi
 git submodule update --init --recursive
 
 OLD_PATH=$PATH
-for PYDIR in "${DESIRED_PYTHON[@]}"; do
+for PYDIR in "${python_installations[@]}"; do
     export PATH=$PYDIR/bin:$OLD_PATH
     python setup.py clean
     pip install -r requirements.txt
     if [[ $PYDIR  == "/opt/python/cp37-cp37m" ]]; then
-	pip install numpy==1.15
+	      pip install numpy==1.15
     else
-	pip install numpy==1.11
+	      pip install numpy==1.11
     fi
     time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
@@ -110,11 +109,11 @@ fname_with_sha256() {
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
     if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
-	echo $1
+	      echo $1
     else
-	INITNAME=$(echo $BASENAME | cut -f1 -d".")
-	ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
-	echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+	      INITNAME=$(echo $BASENAME | cut -f1 -d".")
+	      ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
+	      echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
     fi
 }
 
@@ -274,9 +273,13 @@ for whl in /$WHEELHOUSE_DIR/torch*linux*.whl; do
     rm -rf tmp
 done
 
-# Print out sizes of all wheels created
-echo "Succesfulle made wheels of size:"
-du -h /$WHEELHOUSE_DIR/torch*.whl
+# Take the actual package name. Note how this always works because pip converts
+# - to _ in names.
+pushd /$WHEELHOUSE_DIR
+built_wheels=(torch*.whl)
+IFS='-' read -r package_name some_unused_variable <<< "${built_wheels[0]}"
+echo "Expecting the built wheels to all be called '$package_name'"
+popd
 
 # Copy wheels to host machine for persistence after the docker
 mkdir -p /remote/$WHEELHOUSE_DIR
@@ -286,22 +289,31 @@ cp /$WHEELHOUSE_DIR/torch*.whl /remote/$WHEELHOUSE_DIR/
 rm -rf /usr/local/cuda*
 rm -rf /opt/rh
 
-# The package's name that we made could be torch-nightly
-if [[ -n "$TORCH_PACKAGE_NAME" ]]; then
-  package_name="$TORCH_PACKAGE_NAME"
-else
-  package_name='torch'
-fi
-echo "Expecting the built wheels to be packages for '$package_name'"
-
 
 # Test that all the wheels work
 export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
 pushd $PYTORCH_DIR/test
-for PYDIR in "${DESIRED_PYTHON[@]}"; do
-    "${PYDIR}/bin/pip" uninstall -y "$package_name"
-    "${PYDIR}/bin/pip" install "$package_name" --no-index -f /$WHEELHOUSE_DIR
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py --exclude distributed
+for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
+    # This assumes that there is a 1:1 correspondence between python versions
+    # and wheels, and that the python version is in the name of the wheel,
+    # and that the python version matches the regex "cp\d\d-cp\d\dmu?"
+    pydir="${python_installations[i]}"
+    pyver="${DESIRED_PYTHON[i]}"
+    pyver_short="${pyver:2:1}.${pyver:3:1}"
+
+    # Install the wheel for this Python version
+    "${pydir}/bin/pip" uninstall -y "$package_name"
+    "${pydir}/bin/pip" install "$package_name" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
+
+    # Print info on the libraries installed in this wheel
+    installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
+    echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
+    for installed_lib in "${installed_libraries[@]}"; do
+        ldd "$installed_lib"
+    done
+
+    # Test that the wheel works
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed
 
     # Distributed tests are not expected to work on shared GPU machines (as of
     # 8/06/2018) so the errors from test_distributed are ignored. Expected
