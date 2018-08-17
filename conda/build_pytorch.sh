@@ -1,73 +1,101 @@
 #!/usr/bin/env bash
-. /remote/anaconda_token || true
-
-set -e
-
-echo "Building cuda version $1 and pytorch version: $2 build_number: $3"
-
-if [ -z "$ANACONDA_TOKEN" ]; then
-    echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
-    exit 1
+if [[ -x "/remote/anaconda_token" ]]; then
+    . /remote/anaconda_token || true
 fi
 
-ANACONDA_USER=soumith
+set -ex
 
-BUILD_VERSION="$2"
-BUILD_NUMBER="$3"
+# Defined a portable sed that should work on both mac and linux
+if [ "$(uname)" == 'Darwin' ]; then
+  portable_sed="sed -E -i ''"
+else
+  portable_sed='sed --regexp-extended -i'
+fi
 
-export PYTORCH_BUILD_VERSION=$BUILD_VERSION
-export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
+echo "Building cuda version $1 and pytorch version: $2 build_number: $3"
+desired_cuda="$1"
+build_version="$2"
+build_number="$3"
 
-if [[ "$BUILD_VERSION" == "nightly" ]]; then
+# setup.py is hardcoded to use these variables
+export PYTORCH_BUILD_VERSION=$build_version
+export PYTORCH_BUILD_NUMBER=$build_number
+
+if [[ "$build_version" == "nightly" ]]; then
     export PYTORCH_BUILD_VERSION="$(date +"%Y.%m.%d")"
 fi
 
+
+# This is the channel that finished packages will be uploaded to
+if [[ -z "$ANACONDA_USER" ]]; then
+    ANACONDA_USER=soumith
+fi
+
+# Token needed to upload to the conda channel above
+if [ -z "$ANACONDA_TOKEN" ]; then
+    echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
+fi
+
+# Don't upload the packages until we've verified that they're correct
 conda config --set anaconda_upload no
 
+# Build for a specified Python, or if none were given then all of them
+if [[ -z "$DESIRED_PYTHON" ]]; then
+    DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
+fi
+echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
+echo "Will build for all CUDA versions: ${desired_cuda[@]}"
+
+
+# Determine which build folder to use, if not given it directly
+if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
+    build_folder="$TORCH_CONDA_BUILD_FOLDER"
+else
+    if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '90' ]]; then
+        build_folder='pytorch'
+    elif [[ "$desired_cuda" == 'cpu' ]]; then
+        build_folder='pytorch-cpu'
+    else
+        build_folder="pytorch-$desired_cuda"
+    fi
+    build_folder="$build_folder-$build_version"
+fi
+echo "Using conda-build folder $build_folder"
+
+# Switch the CUDA version that /usr/local/cuda points to
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export CUDA_VERSION="0.0"
     export CUDNN_VERSION="0.0"
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
-    time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 pytorch-$BUILD_VERSION
-else
-    if [[ "$1" == "80" ]]; then
-	. ./switch_cuda_version.sh 8.0
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda80-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda80-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda80-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 pytorch-cuda80-$BUILD_VERSION
-    elif [[ "$1" == "90" ]]; then
-	. ./switch_cuda_version.sh 9.0
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 pytorch-$BUILD_VERSION
-    elif [[ "$1" == "92" ]]; then
-	. ./switch_cuda_version.sh 9.2
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cuda92-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cuda92-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cuda92-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 pytorch-cuda92-$BUILD_VERSION
-    elif [[ "$1" == "cpu" ]]; then
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 pytorch-cpu-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 pytorch-cpu-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 pytorch-cpu-$BUILD_VERSION
-	time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 pytorch-cpu-$BUILD_VERSION
-    else
-	echo "Error, unknown argument $1"
-	exit 1
-    fi
+elif [[ "$desired_cuda" != 'cpu' ]]; then
+    echo "Switching to CUDA version ${desired_cuda:0:1}.${desired_cuda:1:1}"
+    . ./switch_cuda_version.sh "${desired_cuda:0:1}.${desired_cuda:1:1}"
+    $portable_sed "s/cudatoolkit =[0-9]/cudatoolkit =${desired_cuda:0:1}/g" "$build_folder/meta.yaml"
 fi
+
+# Alter the meta.yaml to use passed in Github repo/branch
+if [[ -n "$GITHUB_ORG" ]]; then
+    $portable_sed "s#git_url:.*#git_url: https://github.com/$GITHUB_ORG/pytorch#g" "$build_folder/meta.yaml"
+fi
+if [[ -n "$PYTORCH_BRANCH" ]]; then
+    $portable_sed "s#git_rev:.*#git_rev: $PYTORCH_BRANCH#g" "$build_folder/meta.yaml"
+fi
+
+# Loop through all Python versions to build a package for each
+for py_ver in "${DESIRED_PYTHON[@]}"; do
+    echo "Build $build_folder for Python version $py_ver"
+    time conda build -c "$ANACONDA_USER" \
+                     --no-anaconda-upload \
+                     --python "$py_ver" \
+                     "$build_folder"
+done
 
 echo "All builds succeeded, uploading binaries"
 
 set +e
 
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 2.7 pytorch-$BUILD_VERSION --output)
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.5 pytorch-$BUILD_VERSION --output)
-# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.6 pytorch-$BUILD_VERSION --output)
+# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 2.7 pytorch-$build_version --output)
+# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.5 pytorch-$build_version --output)
+# anaconda -t $ANACONDA_TOKEN upload --user $ANACONDA_USER $(conda build -c $ANACONDA_USER --python 3.6 pytorch-$build_version --output)
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER

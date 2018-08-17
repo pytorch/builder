@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -ex
 
 export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$PREFIX
@@ -12,6 +13,7 @@ export NCCL_ROOT_DIR=/usr/local/cuda
 export USE_STATIC_CUDNN=1
 export USE_STATIC_NCCL=1
 export ATEN_STATIC_CUDA=1
+export USE_CUDA_STATIC_LINK=1
 
 fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
