@@ -13,6 +13,16 @@ export NO_CUDA=1
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
 
+# Keep an array of cmake variables to add to
+if [[ -z "$CMAKE_ARGS" ]]; then
+    # These are passed to tools/build_pytorch_libs.sh::build()
+    CMAKE_ARGS=()
+fi
+if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
+    # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
+    EXTRA_CAFFE2_CMAKE_FLAGS=()
+fi
+
 WHEELHOUSE_DIR="wheelhousecpu"
 
 rm -rf /usr/local/cuda*
@@ -62,7 +72,9 @@ for PYDIR in "${python_installations[@]}"; do
     else
 	      pip install numpy==1.11
     fi
-    time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
+    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+         python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
 
 popd
