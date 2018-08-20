@@ -313,7 +313,7 @@ for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
     done
 
     # Test that the wheel works
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed --verbose
 
     # Distributed tests are not expected to work on shared GPU machines (as of
     # 8/06/2018) so the errors from test_distributed are ignored. Expected
