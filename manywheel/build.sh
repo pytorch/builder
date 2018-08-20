@@ -18,31 +18,35 @@ export USE_STATIC_NCCL=1
 export ATEN_STATIC_CUDA=1
 export USE_CUDA_STATIC_LINK=1
 
+# Keep an array of cmake variables to add to
+if [[ -z "$CMAKE_ARGS" ]]; then
+    # These are passed to tools/build_pytorch_libs.sh::build()
+    CMAKE_ARGS=()
+fi
+if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
+    # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
+    EXTRA_CAFFE2_CMAKE_FLAGS=()
+fi
+
+# Determine CUDA version and architectures to build for
 CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+echo "CUDA $CUDA_VERSION Detected"
 
 export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
-    echo "CUDA 8.0 Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
 elif [[ $CUDA_VERSION == "9.0" ]]; then
-    echo "CUDA $CUDA_VERSION Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
 elif [[ $CUDA_VERSION == "9.2" ]]; then
-    echo "CUDA $CUDA_VERSION Detected"
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
-fi
-echo $TORCH_CUDA_ARCH_LIST
-
-if [[ $CUDA_VERSION == "8.0" ]]; then
-    WHEELHOUSE_DIR="wheelhouse80"
-elif [[ $CUDA_VERSION == "9.0" ]]; then
-    WHEELHOUSE_DIR="wheelhouse90"
-elif [[ $CUDA_VERSION == "9.2" ]]; then
-    WHEELHOUSE_DIR="wheelhouse92"
+    # ATen tests can't build with CUDA 9.2 and the old compiler used here
+    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
 else
     echo "unknown cuda version $CUDA_VERSION"
     exit 1
 fi
+echo $TORCH_CUDA_ARCH_LIST
+WHEELHOUSE_DIR="wheelhouse${CUDA_VERSION:0:1}{CUDA_VERSION:2:1}"
 
 # Build for given Python versions, or for all in /opt/python if none given
 if [[ -z "$DESIRED_PYTHON" ]]; then
@@ -90,7 +94,9 @@ for PYDIR in "${python_installations[@]}"; do
     else
 	      pip install numpy==1.11
     fi
-    time python setup.py bdist_wheel -d $WHEELHOUSE_DIR
+    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+         python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
 
 popd
