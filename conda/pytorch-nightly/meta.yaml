@@ -39,7 +39,7 @@ test:
  source_files:
    - test
  commands:
-   - OMP_NUM_THREADS=4 python ./test/run_test.py || true
+   - OMP_NUM_THREADS=4 python ./test/run_test.py --verbose || true
 
 
 about:
