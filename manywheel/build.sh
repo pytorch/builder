@@ -36,7 +36,7 @@ export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
 if [[ $CUDA_VERSION == "8.0" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
 elif [[ $CUDA_VERSION == "9.0" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
+    export TORCH_CUDA_ARCH_LIST="7.0"
 elif [[ $CUDA_VERSION == "9.2" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
     # ATen tests can't build with CUDA 9.2 and the old compiler used here
@@ -290,41 +290,3 @@ popd
 # Copy wheels to host machine for persistence after the docker
 mkdir -p /remote/$WHEELHOUSE_DIR
 cp /$WHEELHOUSE_DIR/torch*.whl /remote/$WHEELHOUSE_DIR/
-
-# remove stuff before testing
-rm -rf /usr/local/cuda*
-rm -rf /opt/rh
-
-
-# Test that all the wheels work
-export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
-pushd $PYTORCH_DIR/test
-for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
-    # This assumes that there is a 1:1 correspondence between python versions
-    # and wheels, and that the python version is in the name of the wheel,
-    # and that the python version matches the regex "cp\d\d-cp\d\dmu?"
-    pydir="${python_installations[i]}"
-    pyver="${DESIRED_PYTHON[i]}"
-    pyver_short="${pyver:2:1}.${pyver:3:1}"
-
-    # Install the wheel for this Python version
-    "${pydir}/bin/pip" uninstall -y "$package_name"
-    "${pydir}/bin/pip" install "$package_name" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
-
-    # Print info on the libraries installed in this wheel
-    installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
-    echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
-    for installed_lib in "${installed_libraries[@]}"; do
-        ldd "$installed_lib"
-    done
-
-    # Test that the wheel works
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed
-
-    # Distributed tests are not expected to work on shared GPU machines (as of
-    # 8/06/2018) so the errors from test_distributed are ignored. Expected
-    # errors include socket addresses already being used.
-    set +e
-    LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed
-    set -e
-done
