@@ -39,6 +39,16 @@ fi
 # Don't upload the packages until we've verified that they're correct
 conda config --set anaconda_upload no
 
+# Keep an array of cmake variables to add to
+if [[ -z "$CMAKE_ARGS" ]]; then
+    # These are passed to tools/build_pytorch_libs.sh::build()
+    CMAKE_ARGS=()
+fi
+if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
+    # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
+    EXTRA_CAFFE2_CMAKE_FLAGS=()
+fi
+
 # Build for a specified Python, or if none were given then all of them
 if [[ -z "$DESIRED_PYTHON" ]]; then
     DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
@@ -71,6 +81,11 @@ elif [[ "$desired_cuda" != 'cpu' ]]; then
     . ./switch_cuda_version.sh "${desired_cuda:0:1}.${desired_cuda:1:1}"
     $portable_sed "s/cudatoolkit =[0-9]/cudatoolkit =${desired_cuda:0:1}/g" "$build_folder/meta.yaml"
 fi
+if [[ "$desired_cuda" == 92 ]]; then
+    # ATen tests can't build with CUDA 9.2 and the old compiler used here
+    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+fi
+    
 
 # Alter the meta.yaml to use passed in Github repo/branch
 if [[ -n "$GITHUB_ORG" ]]; then
@@ -83,7 +98,9 @@ fi
 # Loop through all Python versions to build a package for each
 for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo "Build $build_folder for Python version $py_ver"
-    time conda build -c "$ANACONDA_USER" \
+    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+         conda build -c "$ANACONDA_USER" \
                      --no-anaconda-upload \
                      --python "$py_ver" \
                      "$build_folder"
