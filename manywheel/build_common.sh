@@ -231,16 +231,21 @@ for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
     done
 
     # Test that the wheel works
-    if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
-        LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed
-
-        # Distributed tests are not expected to work on shared GPU machines (as of
-        # 8/06/2018) so the errors from test_distributed are ignored. Expected
-        # errors include socket addresses already being used.
-        set +e
-        LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed
-        set -e
+    # If given an incantation to use, use it. Otherwise just run all the tests
+    if [[ -n "$RUN_TEST_PARAMS" ]]; then
+        LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py ${RUN_TEST_PARAMS[@]}
     else
-        LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
+        if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
+            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed
+
+            # Distributed tests are not expected to work on shared GPU machines (as of
+            # 8/06/2018) so the errors from test_distributed are ignored. Expected
+            # errors include socket addresses already being used.
+            set +e
+            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed
+            set -e
+        else
+            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
+        fi
     fi
 done
