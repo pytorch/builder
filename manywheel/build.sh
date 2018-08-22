@@ -46,7 +46,7 @@ else
     exit 1
 fi
 echo $TORCH_CUDA_ARCH_LIST
-WHEELHOUSE_DIR="wheelhouse${CUDA_VERSION:0:1}{CUDA_VERSION:2:1}"
+WHEELHOUSE_DIR="wheelhouse${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
 
 # Build for given Python versions, or for all in /opt/python if none given
 if [[ -z "$DESIRED_PYTHON" ]]; then
