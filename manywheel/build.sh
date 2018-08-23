@@ -39,6 +39,7 @@ else
 fi
 echo $TORCH_CUDA_ARCH_LIST
 WHEELHOUSE_DIR="wheelhouse${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
+LIBTORCH_HOUSE_DIR="libtorch_house${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
 
 if [[ $CUDA_VERSION == "8.0" ]]; then
 DEPS_LIST=(
