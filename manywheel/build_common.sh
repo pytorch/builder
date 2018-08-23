@@ -109,8 +109,7 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         ANY_WHEEL=$(ls $WHEELHOUSE_DIR/torch*.whl | head -n1)
         unzip -d any_wheel $ANY_WHEEL
         cp -r any_wheel/torch/lib/include libtorch/
-        echo asdf
-        find any_wheel -name TorchConfig.cmake
+        cp -r any_wheel/torch/share/cmake libtorch/share/
         rm -rf any_wheel
 
         # this file is problematic because it can conflict with an API
@@ -180,10 +179,6 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     else
         PREFIX=libtorch
     fi
-
-    echo ASDF
-    ls
-    find $PREFIX -name '*.h'
 
     if [[ $pkg = *"without-deps"* ]];
     then
