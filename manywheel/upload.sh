@@ -1,4 +1,26 @@
-ls wheelhouse80/   | xargs -I {} aws s3 cp wheelhouse80/{} s3://pytorch/whl/cu80/ --acl public-read
-ls wheelhouse90/   | xargs -I {} aws s3 cp wheelhouse90/{} s3://pytorch/whl/cu90/ --acl public-read
-ls wheelhouse92/   | xargs -I {} aws s3 cp wheelhouse92/{} s3://pytorch/whl/cu92/ --acl public-read
-ls wheelhousecpu/   | xargs -I {} aws s3 cp wheelhousecpu/{} s3://pytorch/whl/cpu/ --acl public-read
+set -ex
+
+# Upload for all CUDA/cpu versions if not given one to use
+if [[ -z "$CUDA_VERSIONS" ]]; then
+    CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
+fi
+
+for cuda_ver in "${CUDA_VERSIONS[@]}"; do
+    wheel_dir="wheelhouse${cuda_ver}/"
+    s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
+
+    if [[ -d "$wheel_dir" ]]; then
+        # Upload the wheels to s3
+        echo "Uploading all of: $(ls $wheel_dir) to $s3_dir"
+        ls "$wheel_dir" | xargs -I {} aws s3 cp "$wheel_dir"/{} "$s3_dir" --acl public-read
+
+        # Update the html links file in the s3 bucket
+        # Pip uses this html file to look through all the wheels and pick the
+        # most recently uploaded one (by the version, not the actual date of
+        # upload). There is one html file per cuda/cpu version
+        aws s3 ls "$s3_dir" | grep --only-matching '\S*\.whl' | sed 's#.*#<a href="&">&</a>#g' > ./torch_nightly.html
+        echo 'Setting torch_nightly.html to:'
+        cat ./torch_nightly.html
+        aws s3 cp './torch_nightly.html' "${s3_dir}/torch_nightly.html"
+    fi
+done
