@@ -22,6 +22,6 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
         echo 'Setting torch_nightly.html to:'
         cat ./torch_nightly.html
         # Note the lack of a / b/c duplicate / do cause problems in s3
-        aws s3 cp './torch_nightly.html' "${s3_dir}torch_nightly.html"
+        aws s3 cp './torch_nightly.html' "${s3_dir}torch_nightly.html"  --acl public-read
     fi
 done
