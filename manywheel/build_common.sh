@@ -236,13 +236,13 @@ for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
         LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py ${RUN_TEST_PARAMS[@]}
     else
         if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
-            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py --exclude distributed
+            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py -x distributed c10d
 
             # Distributed tests are not expected to work on shared GPU machines (as of
             # 8/06/2018) so the errors from test_distributed are ignored. Expected
             # errors include socket addresses already being used.
             set +e
-            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed
+            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed c10d
             set -e
         else
             LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
