@@ -33,6 +33,7 @@ build:
   detect_binary_files_with_prefix: False
   string: py{{py}}_cuda{{ environ['CUDA_VERSION'] }}_cudnn{{ environ['CUDNN_VERSION'] }}_{{environ.get('PYTORCH_BUILD_NUMBER')}}
   script_env:
+    - NO_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
 
