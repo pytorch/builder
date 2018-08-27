@@ -54,6 +54,14 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
 
+# Darwin needs these flags
+if [[ "$OSTYPE" == 'darwin'* ]]; then
+    export DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
+    export MACOSX_DEPLOYMENT_TARGET=10.9
+    export CXX=clang++
+    export CC=clang
+fi
+
 # Build for a specified Python, or if none were given then all of them
 if [[ -z "$DESIRED_PYTHON" ]]; then
     DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
