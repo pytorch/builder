@@ -26,7 +26,6 @@ requirements:
     - mkl >=2018
     - cffi
     - ninja
-    - cudatoolkit =9 # [not osx]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}

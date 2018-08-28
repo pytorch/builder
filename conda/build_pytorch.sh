@@ -12,6 +12,11 @@ else
   portable_sed='sed --regexp-extended -i'
 fi
 
+if [ "$#" -ne 3 ]; then
+    echo "Illegal number of parameters. Pass cuda version, pytorch version, build number"
+    exit 1
+fi
+
 echo "Building cuda version $1 and pytorch version: $2 build_number: $3"
 desired_cuda="$1"
 build_version="$2"
@@ -23,6 +28,11 @@ export PYTORCH_BUILD_NUMBER=$build_number
 
 if [[ "$build_version" == "nightly" ]]; then
     export PYTORCH_BUILD_VERSION="$(date +"%Y.%m.%d")"
+    if [[ -z "$PYTORCH_BRANCH" ]]; then
+	PYTORCH_BRANCH='master'
+    fi
+else
+    PYTORCH_BRANCH="v$build_version"
 fi
 
 # Fill in missing env variables
@@ -37,9 +47,7 @@ fi
 if [[ -z "$GITHUB_ORG" ]]; then
     GITHUB_ORG='pytorch'
 fi
-if [[ -z "$PYTORCH_BRANCH" ]]; then
-    PYTORCH_BRANCH='master'
-fi
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
 fi
@@ -82,6 +90,7 @@ echo "Using conda-build folder $build_folder"
 
 # Clone the Pytorch repo, so that we can call run_test.py in it
 pytorch_rootdir="root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
+rm -rf "$pytorch_rootdir"
 git clone "https://github.com/$GITHUB_ORG/pytorch.git" "$pytorch_rootdir"
 pushd "$pytorch_rootdir"
 git checkout "$PYTORCH_BRANCH"
@@ -127,6 +136,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # the package afterwards, as there's no easy way to extract the final filename
     # from conda-build
     output_folder="out_$folder_tag"
+    rm -rf "$output_folder"
     mkdir "$output_folder"
 
     # Build the package

@@ -28,9 +28,17 @@ fname_with_sha256() {
 }
 
 DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.9.0"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.9.0"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
 )
 
 DEPS_SONAME=(
+    "libcudart.so.9.0"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.9.0"
+    "libnvrtc-builtins.so"
 )
 
 
@@ -50,7 +58,9 @@ else
 
 	patchedpath=$(fname_with_sha256 $destpath)
 	patchedname=$(basename $patchedpath)
+	set +e
 	mv $destpath $patchedpath
+	set -e
 
 	patched+=("$patchedname")
 	echo "Copied $filepath to $patchedpath"
