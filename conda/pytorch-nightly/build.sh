@@ -39,8 +39,7 @@ DEPS_SONAME=(
 
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer \
-        MACOSX_DEPLOYMENT_TARGET=10.9 \
+    MACOSX_DEPLOYMENT_TARGET=10.9 \
         CXX=clang++ \
         CC=clang \
         python setup.py install

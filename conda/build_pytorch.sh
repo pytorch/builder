@@ -6,7 +6,7 @@ fi
 set -ex
 
 # Defined a portable sed that should work on both mac and linux
-if [ "$(uname)" == 'Darwin' ]; then
+if [[ "$OSTYPE" == "darwin"* ]]; then
   portable_sed="sed -E -i ''"
 else
   portable_sed='sed --regexp-extended -i'
@@ -39,6 +39,9 @@ if [[ -z "$GITHUB_ORG" ]]; then
 fi
 if [[ -z "$PYTORCH_BRANCH" ]]; then
     PYTORCH_BRANCH='master'
+fi
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
 fi
 
 # Don't upload the packages until we've verified that they're correct
