@@ -6,7 +6,7 @@ fi
 set -ex
 
 # Defined a portable sed that should work on both mac and linux
-if [ "$(uname)" == 'Darwin' ]; then
+if [[ "$OSTYPE" == "darwin"* ]]; then
   portable_sed="sed -E -i ''"
 else
   portable_sed='sed --regexp-extended -i'
@@ -40,6 +40,9 @@ fi
 if [[ -z "$PYTORCH_BRANCH" ]]; then
     PYTORCH_BRANCH='master'
 fi
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
+fi
 
 # Don't upload the packages until we've verified that they're correct
 conda config --set anaconda_upload no
@@ -52,14 +55,6 @@ fi
 if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
     EXTRA_CAFFE2_CMAKE_FLAGS=()
-fi
-
-# Darwin needs these flags
-if [[ "$OSTYPE" == 'darwin'* ]]; then
-    export DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
-    export MACOSX_DEPLOYMENT_TARGET=10.9
-    export CXX=clang++
-    export CC=clang
 fi
 
 # Build for a specified Python, or if none were given then all of them
