@@ -39,7 +39,11 @@ DEPS_SONAME=(
 
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    MACOSX_DEPLOYMENT_TARGET=10.9 python setup.py install
+    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer \
+        MACOSX_DEPLOYMENT_TARGET=10.9 \
+        CXX=clang++ \
+        CC=clang \
+        python setup.py install
 else
     # install
     python setup.py install
@@ -88,5 +92,4 @@ else
 	      patchelf --set-rpath '$ORIGIN:$ORIGIN/../../../..' $sofile
 	      patchelf --print-rpath $sofile
     done
-    
 fi
