@@ -1,17 +1,25 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 if [ "$#" -ne 3 ]; then
     echo "illegal number of parameters. Need PY_VERSION BUILD_VERSION BUILD_NUMBER"
-    echo "for example: build_wheel.sh 2 0.1.6 20"
+    echo "for example: build_wheel.sh 2.7 0.1.6 20"
+    echo "Python version should be in format 'M.m'"
+    exit 1
+fi
+if which conda
+then
+    echo "Please remove Conda from your PATH / DYLD_LIBRARY_PATH completely"
     exit 1
 fi
 
-PYTHON_VERSION=$1
+DESIRED_PYTHON=$1
 BUILD_VERSION=$2
 BUILD_NUMBER=$3
 
-echo "Building for Python: $PYTHON_VERSION Version: $BUILD_VERSION Build: $BUILD_NUMBER"
+echo "Building for Python: $DESIRED_PYTHON Version: $BUILD_VERSION Build: $BUILD_NUMBER"
+echo "This is for OSX. There is no CUDA/CUDNN"
+python_nodot="${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}"
 
 export PYTORCH_BUILD_VERSION=$BUILD_VERSION
 export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
@@ -22,39 +30,42 @@ else
     BUILD_NUMBER_PREFIX=".post$BUILD_NUMBER"
 fi
 
-if [[ $PYTHON_VERSION == "2" ]]; then
-    WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp27-cp27m-macosx_10_6_x86_64.whl"
-    WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp27-none-macosx_10_6_x86_64.whl"
-elif [[ $PYTHON_VERSION == "3.5" ]]; then
-    WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp35-cp35m-macosx_10_6_x86_64.whl"
-    WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp35-cp35m-macosx_10_6_x86_64.whl"
-elif [[ $PYTHON_VERSION == "3.6" ]]; then
-    WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp36-cp36m-macosx_10_7_x86_64.whl"
-    WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp36-cp36m-macosx_10_7_x86_64.whl"
-elif [[ $PYTHON_VERSION == "3.7" ]]; then
-    WHEEL_FILENAME_GEN="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp37-cp37m-macosx_10_7_x86_64.whl"
-    WHEEL_FILENAME_NEW="torch-$BUILD_VERSION$BUILD_NUMBER_PREFIX-cp37-cp37m-macosx_10_7_x86_64.whl"
-else
-    echo "Unhandled python version: $PYTHON_VERSION"
-    exit 1
+# Fill in empty parameters with defaults
+if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
+    TORCH_PACKAGE_NAME='torch'
+fi
+if [[ -z "$GITHUB_ORG" ]]; then
+    GITHUB_ORG='pytorch'
+fi
+if [[ -z "$PYTORCH_BRANCH" ]]; then
+    PYTORCH_BRANCH="v${BUILD_VERSION}"
+fi
+if [[ -z "$RUN_TEST_PARAMS" ]]; then
+    RUN_TEST_PARAMS=()
+fi
+if [[ -z "PYTORCH_WHEEL_DESTDIR" ]]; then
+    current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+    PYTORCH_WHEEL_DESTDIR="${current_dir}/../whl"
 fi
 
-echo "OSX. No CUDA/CUDNN"
+# Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
+if [[ "$DESIRED_PYTHON" == 2.7 || "$DESIRED_PYTHON" == 3.5 ]]; then
+    mac_version='macosx_10_6_x86_64'
+else
+    mac_version='macosx_10_7_x86_64'
+fi
+wheel_filename_gen="${TORCH_PACKAGE_NAME}-${BUILD_VERSION}${BUILD_NUMBER_PREFIX}-cp${python_nodot}-cp${python_nodot}m-${mac_version}.whl"
+wheel_filename_new="${TORCH_PACKAGE_NAME}-${BUILD_VERSION}${BUILD_NUMBER_PREFIX}-cp${python_nodot}-none-${mac_version}.whl"
 
 ###########################################################
-
-if which conda
-then
-    echo "Remove Conda from your PATH / DYLD_LIBRARY_PATH completely"
-    exit 1
-fi
+# Install a fresh miniconda with a fresh env
 
 rm -rf tmp_conda
 rm -f Miniconda3-latest-MacOSX-x86_64.sh
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-chmod +x Miniconda3-latest-MacOSX-x86_64.sh && \
-    ./Miniconda3-latest-MacOSX-x86_64.sh -b -p tmp_conda && \
-    rm Miniconda3-latest-MacOSX-x86_64.sh
+curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh
+chmod +x miniconda.sh && \
+    ./miniconda.sh -b -p tmp_conda && \
+    rm miniconda.sh
 condapath=$(python -c "import os; print(os.path.realpath('tmp_conda'))")
 export PATH="$condapath/bin:$PATH"
 echo $PATH
@@ -71,32 +82,12 @@ conda remove --name py37k --all -y || true
 conda info --envs
 
 # create env and activate
-if [[ $PYTHON_VERSION == "2" ]]
-then
-    echo "Requested python version 2. Activating conda environment"
-    conda create -n py2k python=2 -y
-    export CONDA_ENVNAME="py2k"
-    source activate py2k
-    export PREFIX="$CONDA_ROOT_PREFIX/envs/py2k"
-elif [[ $PYTHON_VERSION == "3.5" ]]; then
-    echo "Requested python version 3.5. Activating conda environment"
-    conda create -n py35k python=3.5 -y
-    export CONDA_ENVNAME="py35k"
-    source activate py35k
-    export PREFIX="$CONDA_ROOT_PREFIX/envs/py35k"
-elif [[ $PYTHON_VERSION == "3.6" ]]; then
-    echo "Requested python version 3.6. Activating conda environment"
-    conda create -n py36k python=3.6.0 -y
-    export CONDA_ENVNAME="py36k"
-    source activate py36k
-    export PREFIX="$CONDA_ROOT_PREFIX/envs/py36k"
-elif [[ $PYTHON_VERSION == "3.7" ]]; then
-    echo "Requested python version 3.7. Activating conda environment"
-    conda create -n py37k python=3.7.0 -y
-    export CONDA_ENVNAME="py37k"
-    source activate py37k
-    export PREFIX="$CONDA_ROOT_PREFIX/envs/py37k"
-fi
+echo "Requested python version ${DESIRED_PYTHON}. Activating conda environment"
+export CONDA_ENVNAME="py${python_nodot}k"
+conda env remove -yn "$CONDA_ENVNAME" || true
+conda create -n "$CONDA_ENVNAME" python="$DESIRED_PYTHON" -y
+source activate "$CONDA_ENVNAME"
+export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
 
 conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 
@@ -115,9 +106,10 @@ python --version
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
 rm -rf pytorch-src
-git clone https://github.com/pytorch/pytorch pytorch-src
+git clone "https://github.com/${GITHUB_ORG}/pytorch" pytorch-src
 pushd pytorch-src
-if ! git checkout v${BUILD_VERSION} ; then
+if ! git checkout "$PYTORCH_BRANCH" ; then
+    echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${BUILD_VERSION}"
     git checkout tags/v${BUILD_VERSION}
 fi
 git submodule update --init --recursive
@@ -125,15 +117,17 @@ git submodule update --init --recursive
 pip install -r requirements.txt || true
 python setup.py bdist_wheel
 
+##########################
+# now test the binary
 pip uninstall -y torch || true
 pip uninstall -y torch || true
 
-pip install dist/$WHEEL_FILENAME_GEN
-cd test
-python run_test.py || true
-cd ..
+pip install dist/$wheel_filename_gen
+pushd test
+python run_test.py ${RUN_TEST_PARAMS[@]} || true
+popd
 
-echo "Wheel file: $WHEEL_FILENAME_GEN $WHEEL_FILENAME_NEW"
-cp dist/$WHEEL_FILENAME_GEN ../whl/$WHEEL_FILENAME_NEW
+echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
+cp dist/$wheel_filename_gen "${PYTORCH_WHEEL_DESTDIR}/$}wheel_filename_new}"
 
 popd
