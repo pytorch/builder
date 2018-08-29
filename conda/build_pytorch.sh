@@ -14,6 +14,8 @@ fi
 
 if [ "$#" -ne 3 ]; then
     echo "Illegal number of parameters. Pass cuda version, pytorch version, build number"
+    echo "CUDA version should be Mm with no dot, e.g. '80'"
+    echo "DESIRED_PYTHON should be M.m, e.g. '2.7'"
     exit 1
 fi
 
@@ -35,6 +37,9 @@ else
     PYTORCH_BRANCH="v$build_version"
 fi
 
+# Don't upload the packages until we've verified that they're correct
+conda config --set anaconda_upload no
+
 # Fill in missing env variables
 if [ -z "$ANACONDA_TOKEN" ]; then
     # Token needed to upload to the conda channel above
@@ -47,15 +52,6 @@ fi
 if [[ -z "$GITHUB_ORG" ]]; then
     GITHUB_ORG='pytorch'
 fi
-
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
-fi
-
-# Don't upload the packages until we've verified that they're correct
-conda config --set anaconda_upload no
-
-# Keep an array of cmake variables to add to
 if [[ -z "$CMAKE_ARGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build()
     CMAKE_ARGS=()
@@ -64,24 +60,35 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
-
-# Build for a specified Python, or if none were given then all of them
 if [[ -z "$DESIRED_PYTHON" ]]; then
     DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
 fi
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
+fi
+if [[ "$desired_cuda" == 'cpu' ]]; then
+    cpu_only=1
+else
+    # Switch desired_cuda to be M.m to be consistent with other scripts in
+    # pytorch/builder
+    cuda_nodot="$desired_cuda"
+    desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
+fi
+
+
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
-echo "Will build for all CUDA versions: ${desired_cuda[@]}"
+echo "Will build for CUDA version: ${desired_cuda}"
 
 # Determine which build folder to use, if not given it directly
 if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
     build_folder="$TORCH_CONDA_BUILD_FOLDER"
 else
-    if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '90' ]]; then
+    if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '9.0' ]]; then
         build_folder='pytorch'
-    elif [[ "$desired_cuda" == 'cpu' ]]; then
+    elif [[ -n "$cpu_only" ]]; then
         build_folder='pytorch-cpu'
     else
-        build_folder="pytorch-$desired_cuda"
+        build_folder="pytorch-$cuda_nodot"
     fi
     build_folder="$build_folder-$build_version"
 fi
@@ -89,48 +96,40 @@ meta_yaml="$build_folder/meta.yaml"
 echo "Using conda-build folder $build_folder"
 
 # Clone the Pytorch repo, so that we can call run_test.py in it
-pytorch_rootdir="root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
+pytorch_rootdir="$(pwd)/root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
 rm -rf "$pytorch_rootdir"
-git clone "https://github.com/$GITHUB_ORG/pytorch.git" "$pytorch_rootdir"
+git clone --recursive "https://github.com/$GITHUB_ORG/pytorch.git" "$pytorch_rootdir"
 pushd "$pytorch_rootdir"
 git checkout "$PYTORCH_BRANCH"
 popd
 
 # Switch between CPU or CUDA configerations
-build_string="$PYTORCH_BUILD_NUMBER"
-if [[ "$desired_cuda" == 'cpu' ]]; then
+build_string_suffix="$PYTORCH_BUILD_NUMBER"
+if [[ -n "$cpu_only" ]]; then
     export NO_CUDA=1
     export CUDA_VERSION="0.0"
     export CUDNN_VERSION="0.0"
-    $portable_sed '/cudatoolkit/d' "$meta_yaml"
     if [[ "$OSTYPE" != "darwin"* ]]; then
-        build_string="_cpu_${build_string}"
+        build_string_suffix="cpu_${build_string_suffix}"
     fi
+    $portable_sed "/magma-cuda.*/d" "$meta_yaml"
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
     # sets CUDA_VERSION and CUDNN_VERSION
-    echo "Switching to CUDA version ${desired_cuda:0:1}.${desired_cuda:1:1}"
-    . ./switch_cuda_version.sh "${desired_cuda:0:1}.${desired_cuda:1:1}"
-    $portable_sed "s/cudatoolkit =[0-9]/cudatoolkit =${desired_cuda:0:1}/g" "$meta_yaml"
-    build_string="_${CUDA_VERSION}_${CUDNN_VERSION}_${build_string}"
-    if [[ "$desired_cuda" == 92 ]]; then
+    echo "Switching to CUDA version $desired_cuda"
+    . ./switch_cuda_version.sh "$desired_cuda"
+    build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
+    if [[ "$desired_cuda" == '9.2' ]]; then
         # ATen tests can't build with CUDA 9.2 and the old compiler used here
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
     fi
     ALLOW_DISTRIBUTED_TEST_ERRORS=1
 fi
 
-# Alter the meta.yaml to use passed in Github repo/branch
-$portable_sed "s#git_url:.*#git_url: https://github.com/$GITHUB_ORG/pytorch#g" "$meta_yaml"
-$portable_sed "s#git_rev:.*#git_rev: $PYTORCH_BRANCH#g" "$meta_yaml"
-
 # Loop through all Python versions to build a package for each
 for py_ver in "${DESIRED_PYTHON[@]}"; do
-    build_string="py${py_ver:0:1}${py_ver:2:1}_${build_string}"
+    build_string="py${py_ver}_${build_string_suffix}"
     folder_tag="${build_string}_$(date +'%Y%m%d')"
-
-    # Rewrite the build string in meta.yaml to handle cpu-only packages
-    $portable_sed "s/string:.*/string: ${build_string}/g" "$meta_yaml"
 
     # Create the conda package into this temporary folder. This is so we can find
     # the package afterwards, as there's no easy way to extract the final filename
@@ -143,6 +142,9 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo "Build $build_folder for Python version $py_ver"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+         PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
+         PYTORCH_BUILD_STRING="$build_string" \
+         PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
          conda build -c "$ANACONDA_USER" \
                      --no-anaconda-upload \
                      --python "$py_ver" \
@@ -156,9 +158,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     conda create -yn "$test_env" python="$py_ver"
     source activate "$test_env"
     conda install -y numpy>=1.11 mkl>=2018 cffi ninja
-    if [[ "$desired_cuda" == 80 || "$desired_cuda" == 90 ]]; then
-        conda install -y cudatoolkit=="${desired_cuda:0:1}"
-    fi
 
     # Extract the package for testing
     ls -lah "$output_folder"
@@ -185,8 +184,9 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Clean up test folder
     source deactivate
     conda env remove -yn "$test_env"
-    # rm -rf "$output_folder"
+    rm -rf "$output_folder"
 done
+rm -rf "$pytorch_rootdir"
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER

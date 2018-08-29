@@ -3,8 +3,7 @@ package:
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
-   git_url: https://github.com/pytorch/pytorch
-   git_rev: "master"
+  path: "{{ environ.get('PYTORCH_GITHUB_ROOT_DIR') }}"
 
 requirements:
   build:
@@ -18,7 +17,7 @@ requirements:
     - mkl-include
     - typing
     - ninja
-    - magma-cuda80 # [not osx]
+    - magma-cuda{{ environ.get('PYTORCH_MAGMA_CUDA_VERSION') }} # [not osx]
 
   run:
     - python
@@ -26,13 +25,14 @@ requirements:
     - mkl >=2018
     - cffi
     - ninja
-    - cudatoolkit =8 # [not osx]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
   detect_binary_files_with_prefix: False
-  string: py{{py}}_cuda{{ environ['CUDA_VERSION'] }}_cudnn{{ environ['CUDNN_VERSION'] }}_{{environ.get('PYTORCH_BUILD_NUMBER')}}
+  string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
   script_env:
+    - CUDA_VERSION
+    - CUDNN_VERSION
     - NO_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
