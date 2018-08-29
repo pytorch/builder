@@ -56,11 +56,6 @@ fi
 
 # install
 python setup.py install
-set +e
-find $SP_DIR/torch/ -name '*.so'
-find $SP_DIR/torch/ -name '*.so' | xargs -I {} ldd {}
-ldd $SP_DIR/torch/lib/libtorch.so
-set -e
 
 # copy over needed dependent .so files over and tag them with their hash
 patched=()
