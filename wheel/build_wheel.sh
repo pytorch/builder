@@ -70,6 +70,8 @@ wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}
 ###########################################################
 # Install a fresh miniconda with a fresh env
 
+echo "TMP_CONDA"
+pwd
 rm -rf tmp_conda
 rm -f Miniconda3-latest-MacOSX-x86_64.sh
 curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh
@@ -79,6 +81,7 @@ chmod +x miniconda.sh && \
 condapath=$(python -c "import os; print(os.path.realpath('tmp_conda'))")
 export PATH="$condapath/bin:$PATH"
 echo $PATH
+ls -lah tmp_conda || true
 
 
 export CONDA_ROOT_PREFIX=$(conda info --root)
