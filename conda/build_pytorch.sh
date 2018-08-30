@@ -88,6 +88,8 @@ echo "Will build for CUDA version: ${desired_cuda}"
 # Determine which build folder to use, if not given it directly
 if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
     build_folder="$TORCH_CONDA_BUILD_FOLDER"
+elif [[ "$build_version" == 'nightly' ]]; then
+    build_folder='pytorch-nightly'
 else
     if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '9.0' ]]; then
         build_folder='pytorch'
