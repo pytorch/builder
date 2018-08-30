@@ -31,16 +31,18 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     build_version="$OVERRIDE_PACKAGE_VERSION"
     build_number=0
 elif [[ "$build_version" == 'nightly' ]]; then
+    build_nightly=1
     build_version="$(date +%Y.%m.%d)"
-    if [[ -z "$PYTORCH_BRANCH" ]]; then
-	      PYTORCH_BRANCH='master'
-    fi
 fi
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
 if [[ -z "$PYTORCH_BRANCH" ]]; then
-    PYTORCH_BRANCH="v$build_version"
+    if [[ -n "$build_nightly" ]]; then
+        PYTORCH_BRANCH='master'
+    else
+        PYTORCH_BRANCH="v$build_version"
+    fi
 fi
 
 # Don't upload the packages until we've verified that they're correct
@@ -88,7 +90,7 @@ echo "Will build for CUDA version: ${desired_cuda}"
 # Determine which build folder to use, if not given it directly
 if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
     build_folder="$TORCH_CONDA_BUILD_FOLDER"
-elif [[ "$build_version" == 'nightly' ]]; then
+elif [[ -n "$build_nightly" ]]; then
     build_folder='pytorch-nightly'
 else
     if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '9.0' ]]; then
