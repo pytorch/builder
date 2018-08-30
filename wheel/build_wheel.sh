@@ -142,6 +142,6 @@ python run_test.py ${RUN_TEST_PARAMS[@]} || true
 popd
 
 echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-cp dist/$wheel_filename_gen "${PYTORCH_WHEEL_DESTDIR}/$}wheel_filename_new}"
+cp dist/$wheel_filename_gen "${PYTORCH_WHEEL_DESTDIR}/$wheel_filename_new"
 
 popd
