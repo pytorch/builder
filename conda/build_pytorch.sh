@@ -30,7 +30,7 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     # This will be the *exact* version, since build_number<1
     build_version="$OVERRIDE_PACKAGE_VERSION"
     build_number=0
-elif [[ "$PYTORCH_BUILD_VERSION" == 'nightly' ]]; then
+elif [[ "$build_version" == 'nightly' ]]; then
     build_version="$(date +%Y.%m.%d)"
     if [[ -z "$PYTORCH_BRANCH" ]]; then
 	      PYTORCH_BRANCH='master'
