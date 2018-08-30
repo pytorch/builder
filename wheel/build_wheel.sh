@@ -99,7 +99,7 @@ conda create -n "$CONDA_ENVNAME" python="$desired_python" -y
 source activate "$CONDA_ENVNAME"
 export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
 
-conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
+#conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 
 # now $PREFIX should point to your conda env
 ##########################
@@ -116,26 +116,27 @@ python --version
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
 rm -rf pytorch-src
-git clone "https://github.com/${GITHUB_ORG}/pytorch" pytorch-src
-pushd pytorch-src
-if ! git checkout "$PYTORCH_BRANCH" ; then
-    echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
-    git checkout tags/v${build_version}
-fi
-git submodule update --init --recursive
-
-pip install -r requirements.txt || true
-python setup.py bdist_wheel
+#git clone "https://github.com/${GITHUB_ORG}/pytorch" pytorch-src
+#pushd pytorch-src
+#if ! git checkout "$PYTORCH_BRANCH" ; then
+#    echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
+#    git checkout tags/v${build_version}
+#fi
+#git submodule update --init --recursive
+#
+#pip install -r requirements.txt || true
+#python setup.py bdist_wheel
 
 ##########################
 # now test the binary
 pip uninstall -y torch || true
 pip uninstall -y torch || true
 
-pip install dist/$wheel_filename_gen
-pushd test
-python run_test.py ${RUN_TEST_PARAMS[@]} || true
-popd
+touch dist/$wheel_filename_gen
+#pip install dist/$wheel_filename_gen
+#pushd test
+#python run_test.py ${RUN_TEST_PARAMS[@]} || true
+#popd
 
 # N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
 echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
