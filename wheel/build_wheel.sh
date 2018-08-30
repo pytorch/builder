@@ -57,10 +57,6 @@ fi
 if [[ -z "$RUN_TEST_PARAMS" ]]; then
     RUN_TEST_PARAMS=()
 fi
-if [[ -z "PYTORCH_WHEEL_DESTDIR" ]]; then
-    current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-    PYTORCH_WHEEL_DESTDIR="${current_dir}/../whl"
-fi
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
 if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
@@ -141,7 +137,8 @@ pushd test
 python run_test.py ${RUN_TEST_PARAMS[@]} || true
 popd
 
+# N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
 echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-cp dist/$wheel_filename_gen "${PYTORCH_WHEEL_DESTDIR}/$wheel_filename_new"
+cp dist/$wheel_filename_gen "whl/$wheel_filename_new"
 
 popd
