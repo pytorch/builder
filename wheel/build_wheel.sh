@@ -139,6 +139,7 @@ popd
 
 # N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
 echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
+mkdir whl || true
 cp dist/$wheel_filename_gen "whl/$wheel_filename_new"
 
 popd
