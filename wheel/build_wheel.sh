@@ -13,22 +13,36 @@ then
     exit 1
 fi
 
-DESIRED_PYTHON=$1
-BUILD_VERSION=$2
-BUILD_NUMBER=$3
+desired_python=$1
+build_version=$2
+build_number=$3
 
-echo "Building for Python: $DESIRED_PYTHON Version: $BUILD_VERSION Build: $BUILD_NUMBER"
+echo "Building for Python: $desired_python Version: $build_version Build: $build_number"
 echo "This is for OSX. There is no CUDA/CUDNN"
-python_nodot="${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}"
+python_nodot="${desired_python:0:1}${desired_python:2:1}"
 
-export PYTORCH_BUILD_VERSION=$BUILD_VERSION
-export PYTORCH_BUILD_NUMBER=$BUILD_NUMBER
-
-if  [ $BUILD_NUMBER -eq 1 ]; then
-    BUILD_NUMBER_PREFIX=""
+# Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
+# PYTORCH_BUILD_NUMBER > 1
+if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
+    # This will be the *exact* version, since build_number<1
+    build_version="$OVERRIDE_PACKAGE_VERSION"
+    build_number=0
+    build_number_prefix=''
 else
-    BUILD_NUMBER_PREFIX=".post$BUILD_NUMBER"
+    if [[ "$PYTORCH_BUILD_VERSION" == 'nightly' ]]; then
+        # So, pip actually "normalizes" versions from 2018.08.09 to 2018.8.9,
+        # so to to get the right name of the final wheel we have to normalize
+        # the version too. Also couldn't get \d working on MacOS's default sed. 
+        build_version=$(echo $(date +%Y.%m.%d) | sed -E 's/([0-9][0-9][0-9][0-9].)0?([0-9][0-9]?.)0?([0-9][0-9]?)/\1\2\3/g' )
+    fi
+    if [[ $build_number -eq 1 ]]; then
+        build_number_prefix=""
+    else
+        build_number_prefix=".post$build_number"
+    fi
 fi
+export PYTORCH_BUILD_VERSION=$build_version
+export PYTORCH_BUILD_NUMBER=$build_number
 
 # Fill in empty parameters with defaults
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
@@ -38,7 +52,7 @@ if [[ -z "$GITHUB_ORG" ]]; then
     GITHUB_ORG='pytorch'
 fi
 if [[ -z "$PYTORCH_BRANCH" ]]; then
-    PYTORCH_BRANCH="v${BUILD_VERSION}"
+    PYTORCH_BRANCH="v${build_version}"
 fi
 if [[ -z "$RUN_TEST_PARAMS" ]]; then
     RUN_TEST_PARAMS=()
@@ -49,13 +63,13 @@ if [[ -z "PYTORCH_WHEEL_DESTDIR" ]]; then
 fi
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
-if [[ "$DESIRED_PYTHON" == 2.7 || "$DESIRED_PYTHON" == 3.5 ]]; then
+if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
 else
     mac_version='macosx_10_7_x86_64'
 fi
-wheel_filename_gen="${TORCH_PACKAGE_NAME}-${BUILD_VERSION}${BUILD_NUMBER_PREFIX}-cp${python_nodot}-cp${python_nodot}m-${mac_version}.whl"
-wheel_filename_new="${TORCH_PACKAGE_NAME}-${BUILD_VERSION}${BUILD_NUMBER_PREFIX}-cp${python_nodot}-none-${mac_version}.whl"
+wheel_filename_gen="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-cp${python_nodot}m-${mac_version}.whl"
+wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-none-${mac_version}.whl"
 
 ###########################################################
 # Install a fresh miniconda with a fresh env
@@ -82,10 +96,10 @@ conda remove --name py37k --all -y || true
 conda info --envs
 
 # create env and activate
-echo "Requested python version ${DESIRED_PYTHON}. Activating conda environment"
+echo "Requested python version ${desired_python}. Activating conda environment"
 export CONDA_ENVNAME="py${python_nodot}k"
 conda env remove -yn "$CONDA_ENVNAME" || true
-conda create -n "$CONDA_ENVNAME" python="$DESIRED_PYTHON" -y
+conda create -n "$CONDA_ENVNAME" python="$desired_python" -y
 source activate "$CONDA_ENVNAME"
 export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
 
@@ -109,8 +123,8 @@ rm -rf pytorch-src
 git clone "https://github.com/${GITHUB_ORG}/pytorch" pytorch-src
 pushd pytorch-src
 if ! git checkout "$PYTORCH_BRANCH" ; then
-    echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${BUILD_VERSION}"
-    git checkout tags/v${BUILD_VERSION}
+    echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
+    git checkout tags/v${build_version}
 fi
 git submodule update --init --recursive
 

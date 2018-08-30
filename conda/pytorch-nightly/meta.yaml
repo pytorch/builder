@@ -36,6 +36,7 @@ build:
     - NO_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
+    - DEVELOPER_DIR
 
 test:
  imports:
