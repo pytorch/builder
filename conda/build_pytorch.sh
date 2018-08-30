@@ -24,16 +24,22 @@ desired_cuda="$1"
 build_version="$2"
 build_number="$3"
 
-# setup.py is hardcoded to use these variables
+# Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
+# PYTORCH_BUILD_NUMBER > 1
+if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
+    # This will be the *exact* version, since build_number<1
+    build_version="$OVERRIDE_PACKAGE_VERSION"
+    build_number=0
+elif [[ "$PYTORCH_BUILD_VERSION" == 'nightly' ]]; then
+    build_version="$(date +%Y.%m.%d)"
+    if [[ -z "$PYTORCH_BRANCH" ]]; then
+	      PYTORCH_BRANCH='master'
+    fi
+fi
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
-if [[ "$build_version" == "nightly" ]]; then
-    export PYTORCH_BUILD_VERSION="$(date +"%Y.%m.%d")"
-    if [[ -z "$PYTORCH_BRANCH" ]]; then
-	PYTORCH_BRANCH='master'
-    fi
-else
+if [[ -z "$PYTORCH_BRANCH" ]]; then
     PYTORCH_BRANCH="v$build_version"
 fi
 

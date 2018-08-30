@@ -2,12 +2,25 @@
 
 set -ex
 
-if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    export PYTORCH_BUILD_VERSION=0.4.1
+# Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
+# PYTORCH_BUILD_NUMBER > 1
+build_version="$PYTORCH_BUILD_VERSION"
+build_number="$PYTORCH_BUILD_NUMBER"
+if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
+    # This will be the *exact* version, since build_number<1
+    build_version="$OVERRIDE_PACKAGE_VERSION"
+    build_number=0
+elif [[ "$PYTORCH_BUILD_VERSION" == 'nightly' ]]; then
+    build_version="$(date +%Y.%m.%d)"
 fi
-if [[ -z "$PYTORCH_BUILD_NUMBER" ]]; then
-    export PYTORCH_BUILD_NUMBER=2
+if [[ -z "$build_version" ]]; then
+    build_version=0.4.1
 fi
+if [[ -z "$build_number" ]]; then
+    build_number=2
+fi
+export PYTORCH_BUILD_VERSION=$build_version
+export PYTORCH_BUILD_NUMBER=$build_number
 
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
