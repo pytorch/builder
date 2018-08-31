@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -ex
 
 if [ "$#" -ne 3 ]; then
     echo 'Illegal number of parameters'
@@ -35,6 +35,8 @@ fi
 for py_ver in "${all_pythons[@]}"; do
     for cuda_ver in "${all_cuda[@]}"; do
         echo "Building for $package_type for py$py_ver and $cuda_ver"
+        set +e
         "$SOURCE_DIR/build_and_log.sh" "$package_type" "$py_ver" "$cuda_ver"
+        set -e
     done
 done

@@ -16,8 +16,10 @@ today="/scratch/nightlies/$(date +%Y_%m_%d)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 # Build and save the output
+set +e
 "$SOURCE_DIR/build.sh" "$@" > "${today}/logs/$1_$2_$3" 2>&1
 ret="$?"
+set -e
 
 # Just keep track of failed builds for now.
 if [[ "$ret" != 0 ]]; then
