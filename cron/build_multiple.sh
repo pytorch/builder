@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 if [ "$#" -ne 3 ]; then
     echo 'Illegal number of parameters'
     echo '     build_multiple.sh (conda|manywheel) DESIRED_PYTHON,s DESIRED_CUDA,s'
