@@ -32,7 +32,7 @@ else
     if [[ "$build_version" == 'nightly' ]]; then
         # So, pip actually "normalizes" versions from 2018.08.09 to 2018.8.9,
         # so to to get the right name of the final wheel we have to normalize
-        # the version too. Also couldn't get \d working on MacOS's default sed.
+        # the version too. Also couldn't get \d working on MacOS's default sed. 
         build_version=$(echo $(date +%Y.%m.%d) | sed -E 's/([0-9][0-9][0-9][0-9].)0?([0-9][0-9]?.)0?([0-9][0-9]?)/\1\2\3/g' )
     fi
     if [[ $build_number -eq 1 ]]; then
@@ -125,47 +125,21 @@ fi
 git submodule update --init --recursive
 
 pip install -r requirements.txt || true
-
 python setup.py bdist_wheel
 
-if [[ -z "$BUILD_PYTHONLESS" ]];
-then
-    ##########################
-    # now test the binary
-    pip uninstall -y torch || true
-    pip uninstall -y torch || true
+##########################
+# now test the binary
+pip uninstall -y torch || true
+pip uninstall -y torch || true
 
-    pip install dist/$wheel_filename_gen
-    pushd test
-    python run_test.py ${RUN_TEST_PARAMS[@]} || true
-    popd
+pip install dist/$wheel_filename_gen
+pushd test
+python run_test.py ${RUN_TEST_PARAMS[@]} || true
+popd
 
-    # N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
-    echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-    mkdir -p whl
-    cp dist/$wheel_filename_gen "whl/$wheel_filename_new"
+# N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
+echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
+mkdir whl || true
+cp dist/$wheel_filename_gen "whl/$wheel_filename_new"
 
-    popd
-else
-    mkdir -p build
-    pushd build
-    python ../tools/build_libtorch.py
-    popd
-
-    mkdir -p libtorch/{lib,bin,include,share}
-    cp -r build/lib libtorch/
-    cp -r cmake libtorch/share/
-
-    # for now, the headers for the libtorch package will just be
-    # copied in from the wheel
-    unzip -d any_wheel dist/$wheel_filename_gen
-    cp -r any_wheel/torch/lib/include libtorch/
-    rm -rf any_wheel
-
-    # this file is problematic because it can conflict with an API
-    # header of the same name
-    rm libtorch/include/torch/torch.h
-
-    mkdir -p libtorch_packages
-    zip -rq libtorch_packages/libtorch-macos.zip libtorch
-fi
+popd
