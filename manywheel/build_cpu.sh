@@ -16,8 +16,6 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
 fi
 
 WHEELHOUSE_DIR="wheelhousecpu"
-LIBTORCH_HOUSE_DIR="libtorch_housecpu"
-
 
 DEPS_LIST=(
     "/usr/lib64/libgomp.so.1"
