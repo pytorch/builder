@@ -1,0 +1,5 @@
+# At its simplest you can do
+./prep_nightly.sh
+./build_multiple.sh manywheel all all
+./build_multiple.sh conda all all
+./upload.sh
