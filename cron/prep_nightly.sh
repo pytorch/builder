@@ -36,9 +36,11 @@ git clone "https://github.com/${BUILDER_REPO}/builder.git"
 pushd builder
 git checkout "$BUILDER_BRANCH"
 popd
+chmod -w builder
 
 # Clone the requested pytorch checkout
 git clone --recursive "https://github.com/${PYTORCH_REPO}/pytorch.git"
 pushd pytorch
 git checkout "$PYTORCH_BRANCH"
 popd
+chmod -w pytorch

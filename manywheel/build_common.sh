@@ -211,11 +211,10 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         PREFIX=libtorch
     fi
 
-    if [[ $pkg != *"without-deps"* ]];
+    if [[ $pkg != *"without-deps"* ]]; then
         # copy over needed dependent .so files over and tag them with their hash
         patched=()
-        for filepath in "${DEPS_LIST[@]}"
-        do
+        for filepath in "${DEPS_LIST[@]}"; do
             filename=$(basename $filepath)
             destpath=$PREFIX/lib/$filename
             if [[ "$filepath" != "$destpath" ]]; then
