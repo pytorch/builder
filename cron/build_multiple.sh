@@ -42,10 +42,14 @@ for py_ver in "${all_pythons[@]}"; do
         log_name="${today}/logs/$1_$2_$3"
         echo
         echo "$(date) :: Starting $package_type for py$py_ver and $cuda_ver"
-        echo "Placing the log in $log_name"
+        echo "Writing to log:  $log_name"
 
         set +e
-        "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" 2>&1 | tee "$log_name"
+        if [[ -n "$VERBOSE" ]]; then
+            "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" 2>&1 | tee "$log_name"
+        else
+            "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" > "$log_name" 2>&1
+        fi
         ret="$?"
         set -e
 
