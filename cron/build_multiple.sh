@@ -31,12 +31,30 @@ if [[ "${all_cuda[0]}" == 'all' ]]; then
     all_cuda=('cpu' 'cu80' 'cu90' 'cu92')
 fi
 
+echo
+echo 'Starting PyTorch binary build.'
+echo "$(date) :: Starting PyTorch binaries build"
+echo "Building $package_type for [${all_cuda[@]}] x [${all_pythons[@]}]"
+
 # Build over all combinations
 for py_ver in "${all_pythons[@]}"; do
     for cuda_ver in "${all_cuda[@]}"; do
-        echo "Building for $package_type for py$py_ver and $cuda_ver"
+        log_name="${today}/logs/$1_$2_$3"
+        echo
+        echo "$(date) :: Starting $package_type for py$py_ver and $cuda_ver"
+        echo "Placing the log in $log_name"
+
         set +e
-        "$SOURCE_DIR/build_and_log.sh" "$package_type" "$py_ver" "$cuda_ver"
+        "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" 2>&1 | tee "$log_name"
+        ret="$?"
         set -e
+
+        # Keep track of the failed builds
+        if [[ "$ret" != 0 ]]; then
+            echo "$(date) :: Build status of $package_type for py$py_ver and $cuda_ver :: FAILURE!"
+            echo "$1_$2_$3" >> "${today}/logs/failed"
+        else
+            echo "$(date) :: Build status of $package_type for py$py_ver and $cuda_ver :: SUCCESS!"
+        fi
     done
 done

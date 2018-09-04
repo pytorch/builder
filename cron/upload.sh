@@ -14,7 +14,7 @@ pushd "$today"
 
 # Default parameters
 if [[ -z "PIP_UPLOAD_FOLDER" ]]; then
-    PIP_UPLOAD_FOLDER='nightly/'
+    export PIP_UPLOAD_FOLDER='nightly/'
 fi
 if [[ -z "$CUDA_VERSIONS" ]]; then
     export CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
@@ -24,6 +24,6 @@ fi
 "$SOURCE_DIR/../manywheel/upload.sh"
 
 # Update wheel htmls
-"$SOURCE_DIR/../update_s3_html.sh"
+"$SOURCE_DIR/../update_s3_htmls.sh"
 
 # TODO upload condas
