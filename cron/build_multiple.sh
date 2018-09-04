@@ -39,7 +39,7 @@ echo "Building $package_type for [${all_cuda[@]}] x [${all_pythons[@]}]"
 # Build over all combinations
 for py_ver in "${all_pythons[@]}"; do
     for cuda_ver in "${all_cuda[@]}"; do
-        log_name="${today}/logs/$1_$2_$3"
+        log_name="${today}/logs/${package_type}_${py_ver}_${cuda_ver}"
         echo
         echo "$(date) :: Starting $package_type for py$py_ver and $cuda_ver"
         echo "Writing to log:  $log_name"
