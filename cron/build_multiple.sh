@@ -10,6 +10,10 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
+nice_time () {
+  echo "$(($1 / 3600 )) hours, $(($1 / 60)) minutes, and $(($1 % 60)) seconds"
+}
+
 set -e
 
 today="/scratch/nightlies/$(date +%Y_%m_%d)"
@@ -33,7 +37,7 @@ set -x
 
 # Build over all combinations
 failed_builds=()
-successful_builds=()
+good_builds=()
 for package_type in "${all_packages[@]}"; do
 
   # Allow 'all' to translate to all python/cuda versions
@@ -48,7 +52,8 @@ for package_type in "${all_packages[@]}"; do
   # Loop through all Python/CUDA versions sequentially
   for py_ver in "${all_pythons[@]}"; do
     for cuda_ver in "${all_cuda[@]}"; do
-      log_name="${today}/logs/${package_type}_${py_ver}_${cuda_ver}"
+      build_tag="${package_type}_${py_ver}_${cuda_ver}"
+      log_name="${today}/logs/$build_tag"
       set +x
       echo
       echo "$(date) :: Starting $package_type for py$py_ver and $cuda_ver"
@@ -57,21 +62,28 @@ for package_type in "${all_packages[@]}"; do
       set +e
       set -x
       if [[ -n "$VERBOSE" ]]; then
+        SECONDS=0
         "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" 2>&1 | tee "$log_name"
+        duration="$SECONDS"
       else
+        SECONDS=0
         "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" > "$log_name" 2>&1
+        duration="$SECONDS"
       fi
       ret="$?"
       set -e
   
       # Keep track of the failed builds
       if [[ "$ret" != 0 ]]; then
-        echo "$(date) :: Build status of $package_type for py$py_ver and $cuda_ver :: FAILURE!"
-        echo "$1_$2_$3" >> "$package_type $py_ver $cuda_ver"
-        failed_builds+=("$package_type,$py_ver,$cuda_ver")
+        set +x
+        echo "$(date) :: Finished $build_tag in $(nice_time $duration)"
+        echo "$(date) :: Status: FAILURE"
+        >&2 echo "$(date) :: Status: FAILed building $build_tag"
+        echo "$build_tag" >> "${today}/logs/failed"
+        failed_builds+=("$build_tag")
       else
         echo "$(date) :: Build status of $package_type for py$py_ver and $cuda_ver :: SUCCESS!"
-        successful_builds+=("$package_type,$py_ver,$cuda_ver")
+        good_builds+=("$build_tag")
       fi
     done
   done
@@ -82,11 +94,11 @@ echo "$(date) :: All builds finished."
 echo "Final status:"
 echo "  Failed  : ${#failed_builds[@]}"
 for build in "${failed_builds[@]}"; do
-    IFS=, params=("$build")
+    IFS=_ params=("$build")
     echo "     ${params[0]} ${params[1]} ${params[2]}"
 done
-echo "  Success : ${#successful_builds[@]}"
-for build in "${failed_builds[@]}"; do
-    IFS=, params=("$build")
+echo "  Success : ${#good_builds[@]}"
+for build in "${good_builds[@]}"; do
+    IFS=_ params=("$build")
     echo "     ${params[0]} ${params[1]} ${params[2]}"
 done
