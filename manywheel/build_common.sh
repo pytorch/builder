@@ -73,7 +73,7 @@ for PYDIR in "${python_installations[@]}"; do
               pip install numpy==1.11
     fi
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} -DFOUND_MKL=0" \
          python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
 
@@ -166,6 +166,12 @@ mkdir /tmp_dir
 pushd /tmp_dir
 
 for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
+
+    # if the glob didn't match anything
+    if [[ ! -e $pkg ]]; then
+        continue
+    fi
+
     rm -rf tmp
     mkdir -p tmp
     cd tmp
