@@ -13,7 +13,7 @@ SOURCE_DIR=$(cd $(dirname $0) && pwd)
 pushd "$today"
 
 # Default parameters
-if [[ -z "PIP_UPLOAD_FOLDER" ]]; then
+if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
     export PIP_UPLOAD_FOLDER='nightly/'
 fi
 if [[ -z "$CUDA_VERSIONS" ]]; then
