@@ -73,7 +73,7 @@ for PYDIR in "${python_installations[@]}"; do
               pip install numpy==1.11
     fi
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} -DFOUND_MKL=0" \
+         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          python setup.py bdist_wheel -d $WHEELHOUSE_DIR
 done
 
