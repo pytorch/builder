@@ -110,7 +110,8 @@ docker_args+=" -v ${pytorch_root_dir}:/pytorch"
 docker_args+=" -v ${host_package_dir}:${docker_package_dir}"
 
 # Run Docker as the user of this script
- docker_args+=" --user $(id -u):$(id -g)"
+# This prevents using the CUDA on the docker images
+ #docker_args+=" --user $(id -u):$(id -g)"
 
 # Image
 docker_args+=" ${docker_image}"
