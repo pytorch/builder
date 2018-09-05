@@ -54,8 +54,10 @@ for package_type in "${all_packages[@]}"; do
     for cuda_ver in "${all_cuda[@]}"; do
       build_tag="${package_type}_${py_ver}_${cuda_ver}"
       log_name="${today}/logs/$build_tag"
+
       set +x
       echo
+      echo "##############################"
       echo "$(date) :: Starting $package_type for py$py_ver and $cuda_ver"
       echo "Writing to log:  $log_name"
   
@@ -85,6 +87,8 @@ for package_type in "${all_packages[@]}"; do
         echo "$(date) :: Build status of $package_type for py$py_ver and $cuda_ver :: SUCCESS!"
         good_builds+=("$build_tag")
       fi
+
+      echo "################################################################################"
     done
   done
 done
