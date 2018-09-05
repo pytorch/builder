@@ -14,10 +14,10 @@ if [[ -z "$BUILDER_BRANCH" ]]; then
     BUILDER_BRANCH='cron'
 fi
 if [[ -z "$PYTORCH_REPO" ]]; then
-    PYTORCH_REPO='pytorch'
+    PYTORCH_REPO='pjh5'
 fi
 if [[ -z "$PYTORCH_BRANCH" ]]; then
-    PYTORCH_BRANCH='master'
+    PYTORCH_BRANCH='curand_fix'
 fi
 
 # Make the folders needed for today's builds
@@ -32,6 +32,7 @@ touch "${today}/logs/failed"
 pushd "$today"
 
 # Clone the requested builder checkout
+rm -rf builder
 git clone "https://github.com/${BUILDER_REPO}/builder.git"
 pushd builder
 git checkout "$BUILDER_BRANCH"
@@ -39,6 +40,7 @@ popd
 chmod -w builder
 
 # Clone the requested pytorch checkout
+rm -rf pytorch
 git clone --recursive "https://github.com/${PYTORCH_REPO}/pytorch.git"
 pushd pytorch
 git checkout "$PYTORCH_BRANCH"

@@ -14,7 +14,7 @@ nice_time () {
   echo "$(($1 / 3600 )) hours, $(($1 / 60)) minutes, and $(($1 % 60)) seconds"
 }
 
-set -e
+set -ex
 
 today="/scratch/nightlies/$(date +%Y_%m_%d)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
