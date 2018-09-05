@@ -8,7 +8,7 @@ set -ex
 # (when uploading to e.g. whl/cpu/) and also to handle nightlies (when
 # uploading to e.g. /whl/nightly/cpu)
 
-today="/scratch/nightlies/$(date +%Y_%m_%d)"
+today="/scratch/hellemn/nightlies/$(date +%Y_%m_%d)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 pushd "$today"
 

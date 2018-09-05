@@ -27,7 +27,7 @@ echo "Building a $package_type package for python$desired_python and $desired_cu
 echo "Starting a new build at $(date)"
 
 # Move to today's workspace folder
-today="/scratch/nightlies/$(date +%Y_%m_%d)"
+today="/scratch/hellemn/nightlies/$(date +%Y_%m_%d)"
 if [[ ! -d "$today" ]]; then
     echo "The prep job for today's nightlies has not been run correctly"
     exit 1

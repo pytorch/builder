@@ -6,8 +6,8 @@ set -ex
 
 CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
 
-full_root=/scratch/nightlies/full/
-old_root=/scratch/nightlies/old/
+full_root=/scratch/hellemn/nightlies/full/
+old_root=/scratch/hellemn/nightlies/old/
 today=2018.8.31
 
 for cuda_ver in "${CUDA_VERSIONS[@]}"; do

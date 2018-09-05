@@ -16,7 +16,7 @@ nice_time () {
 
 set -ex
 
-today="/scratch/nightlies/$(date +%Y_%m_%d)"
+today="/scratch/hellemn/nightlies/$(date +%Y_%m_%d)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 IFS=, all_packages=($1)

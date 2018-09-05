@@ -21,7 +21,7 @@ if [[ -z "$PYTORCH_BRANCH" ]]; then
 fi
 
 # Make the folders needed for today's builds
-today="/scratch/nightlies/$(date +%Y_%m_%d)"
+today="/scratch/hellemn/nightlies/$(date +%Y_%m_%d)"
 mkdir -p "${today}/wheelhousecpu"
 mkdir -p "${today}/wheelhouse80"
 mkdir -p "${today}/wheelhouse90"
