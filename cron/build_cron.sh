@@ -61,7 +61,7 @@ set -ex
 
 if [ "$#" -ne 1 ]; then
     echo "Illegal number of parameters. Require which worker I am [0-2]"
-    echo "e.g. ./build_cron.sh 0
+    echo "e.g. ./build_cron.sh 0"
     exit 1
 fi
 
