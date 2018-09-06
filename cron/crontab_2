@@ -2,10 +2,5 @@
 # There are currently 36 jobs and 3 machines
 # Each machine should run its 12 jobs in 4 parallel batches, about
 # conda jobs and gpu jobs take longer
-# conda py3.5,py3.6,py3.6 all
-4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y+\%m_\%d)/logs/master
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightlies.sh > /scratch/hellemn/nightlies/$(date +\%Y+\%m_\%d)/logs/master/prep_nightlies.log 2>&1
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5,py3.6,py3.7 cpu > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/conda_py3.5_py3.6_py3.7_cpu.log 2>&1
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5,py3.6,py3.7 cu80 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/conda_py3.5_py3.6_py3.7_cu80.log 2>&1
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5,py3.6,py3.7 cu90 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/conda_py3.5_py3.6_py3.7_cu90.log 2>&1
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5,py3.6,py3.7 cu92 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/conda_py3.5_py3.6_py3.7_cu92.log 2>&1
+4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_2
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_cron.sh > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_2/cronjob.log 2>&1
