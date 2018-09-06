@@ -86,9 +86,13 @@ for package_type in "${all_packages[@]}"; do
         >&2 echo "$(date) :: Status: FAILed building $build_tag"
         echo "$build_tag" >> "${today}/logs/failed"
         failed_builds+=("$build_tag")
+        set -x
       else
-        echo "$(date) :: Build status of $package_type for py$py_ver and $cuda_ver :: SUCCESS!"
+        set +x
+        echo "$(date) :: Finished $build_tag in $(nice_time $duration)"
+        echo "$(date) :: Status: SUCCESS!"
         good_builds+=("$build_tag")
+        set -x
       fi
 
       echo "################################################################################"
