@@ -27,7 +27,7 @@ mkdir -p "${today}/wheelhouse80"
 mkdir -p "${today}/wheelhouse90"
 mkdir -p "${today}/wheelhouse92"
 mkdir -p "${today}/conda"
-mkdir -p "${today}/logs"
+mkdir -p "${today}/logs" || true
 touch "${today}/logs/failed"
 pushd "$today"
 

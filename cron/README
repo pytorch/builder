@@ -1,5 +1,5 @@
 # At its simplest you can do
-./prep_nightly.sh
+./prep_nightlies.sh
 ./build_multiple.sh manywheel all all
 ./build_multiple.sh conda all all
 ./upload.sh

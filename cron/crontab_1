@@ -1,8 +1,11 @@
 # m h  dom mon dow   command
 # There are currently 36 jobs and 3 machines
 # Each machine should run its 12 jobs in 4 parallel batches
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightly.sh
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.6m cpu,cu80,cu90
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.7m cpu,cu80,cu90
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.6m,py3.7m cu92
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py2.7 all
+# manywheel py3.6m,py3.7m all
+# conda py2.7 all
+4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +%Y+%m_%d)/logs/master
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightlies.sh > /scratch/hellemn/nightlies/$(date +%Y+%m_%d)/logs/master/prep_nightlies.log 2>&1
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.6m cpu,cu80,cu90 > /scratch/hellemn/nightlies/$(date +%Y_%m_%d)/logs/master/manywheel_py3.6m_cpu_cu80_cu90.log 2>&1
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.7m cpu,cu80,cu90 > /scratch/hellemn/nightlies/$(date +%Y_%m_%d)/logs/master/manywheel_py3.7m_cpu_cu80_cu90.log 2>&1
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.6m,py3.7m cu92 > /scratch/hellemn/nightlies/$(date +%Y_%m_%d)/logs/master/manywheel_py3.6m_py3.7m_cu92.log 2>&1
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py2.7 all > /scratch/hellemn/nightlies/$(date +%Y_%m_%d)/logs/master/conda_py2.7_all.log 2>&1

@@ -53,7 +53,7 @@ for package_type in "${all_packages[@]}"; do
   for py_ver in "${all_pythons[@]}"; do
     for cuda_ver in "${all_cuda[@]}"; do
       build_tag="${package_type}_${py_ver}_${cuda_ver}"
-      log_name="${today}/logs/$build_tag"
+      log_name="${today}/logs/$build_tag.log"
 
       set +x
       echo
