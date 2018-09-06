@@ -2,7 +2,22 @@
 
 set -ex
 
+# TODO move this into the Docker images
 yum install -y zip openssl
+
+# Default location for the remote directory to store wheelhouse* dirs (on the
+# host machine) is /remote
+if [[ -z "$HOST_PACKAGE_DIR" ]]; then
+    HOST_PACKAGE_DIR='/remote'
+fi
+
+# We use the package name to test the package by passing this to 'pip install'
+# This is the env variable that setup.py uses to name the package. This may
+# be incorrect if pip 'normalizes' the name first, e.g. by changing all - to _
+if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
+    TORCH_PACKAGE_NAME='torch'
+fi
+echo "Expecting the built wheels to all be called '$TORCH_PACKAGE_NAME'"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
 # PYTORCH_BUILD_NUMBER > 1
@@ -45,9 +60,7 @@ for desired_py in "${DESIRED_PYTHON[@]}"; do
 done
 echo "Will build for all Pythons versions: ${DESIRED_PYTHON[@]}"
 
-# ########################################################
-# # Compile wheels as well as libtorch
-# #######################################################
+mkdir -p /tmp/$WHEELHOUSE_DIR
 # clone pytorch source code
 PYTORCH_DIR="/pytorch"
 if [[ ! -d "$PYTORCH_DIR" ]]; then
@@ -57,24 +70,32 @@ if [[ ! -d "$PYTORCH_DIR" ]]; then
           git checkout tags/v${PYTORCH_BUILD_VERSION}
     fi
 else
-    # the pytorch dir will already be cloned and checked-out on jenkins jobs
+    # the pytorch dir is already cloned and checked out. We copy it to avoid
+    # poluting the original dir (in case of multiple parallel builds on a
+    # single machine
+    cp -r /pytorch /my_pytorch
+    PYTORCH_DIR='/my_pytorch'
     pushd $PYTORCH_DIR
 fi
 git submodule update --init --recursive
 
+
+# ########################################################
+# # Compile wheels as well as libtorch
+# #######################################################
 OLD_PATH=$PATH
 for PYDIR in "${python_installations[@]}"; do
     export PATH=$PYDIR/bin:$OLD_PATH
     python setup.py clean
     pip install -r requirements.txt
     if [[ $PYDIR  == "/opt/python/cp37-cp37m" ]]; then
-              pip install numpy==1.15
+        pip install numpy==1.15
     else
-              pip install numpy==1.11
+        pip install numpy==1.11
     fi
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-         python setup.py bdist_wheel -d $WHEELHOUSE_DIR
+         python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
 done
 
 LIBTORCH_VARIANTS=(
@@ -84,6 +105,7 @@ LIBTORCH_VARIANTS=(
     static-without-deps
 )
 
+# Build libtorch packages
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
     for VARIANT in ${LIBTORCH_VARIANTS[@]}; do
         # Now build pythonless libtorch
@@ -136,11 +158,11 @@ fname_with_sha256() {
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
     if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
-              echo $1
+        echo $1
     else
-              INITNAME=$(echo $BASENAME | cut -f1 -d".")
-              ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
-              echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+        INITNAME=$(echo $BASENAME | cut -f1 -d".")
+        ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
+        echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
     fi
 }
 
@@ -156,12 +178,15 @@ make_wheel_record() {
     fi
 }
 
-mkdir -p /$WHEELHOUSE_DIR
-cp $PYTORCH_DIR/$WHEELHOUSE_DIR/*.whl /$WHEELHOUSE_DIR
+echo 'Built these wheels:'
+ls /tmp/$WHEELHOUSE_DIR
+mkdir -p "/$WHEELHOUSE_DIR"
+mv /tmp/$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p /$LIBTORCH_HOUSE_DIR
-    cp $PYTORCH_DIR/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
+    mv $PYTORCH_DIR/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
 fi
+rm -rf /tmp/$WHEELHOUSE_DIR
 mkdir /tmp_dir
 pushd /tmp_dir
 
@@ -186,14 +211,10 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         PREFIX=libtorch
     fi
 
-    if [[ $pkg = *"without-deps"* ]];
-    then
-        echo -n
-    else
+    if [[ $pkg != *"without-deps"* ]]; then
         # copy over needed dependent .so files over and tag them with their hash
         patched=()
-        for filepath in "${DEPS_LIST[@]}"
-        do
+        for filepath in "${DEPS_LIST[@]}"; do
             filename=$(basename $filepath)
             destpath=$PREFIX/lib/$filename
             if [[ "$filepath" != "$destpath" ]]; then
@@ -210,8 +231,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         done
 
         echo "patching to fix the so names to the hashed names"
-        for ((i=0;i<${#DEPS_LIST[@]};++i));
-        do
+        for ((i=0;i<${#DEPS_LIST[@]};++i)); do
             find $PREFIX -name '*.so*' | while read sofile; do
                 origname=${DEPS_SONAME[i]}
                 patchedname=${patched[i]}
@@ -269,21 +289,13 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     rm -rf tmp
 done
 
-# Take the actual package name. Note how this always works because pip converts
-# - to _ in names.
-pushd /$WHEELHOUSE_DIR
-built_wheels=(torch*.whl)
-IFS='-' read -r package_name some_unused_variable <<< "${built_wheels[0]}"
-echo "Expecting the built wheels to all be called '$package_name'"
-popd
-
-# Copy packages to host machine for persistence after the docker
+# Copy wheels to host machine for persistence before testing
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
-    mkdir -p /remote/$LIBTORCH_HOUSE_DIR
-    cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip /remote/$LIBTORCH_HOUSE_DIR/
+    mkdir -p "${HOST_PACKAGE_DIR}/$LIBTORCH_HOUSE_DIR" || true
+    cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "${HOST_PACKAGE_DIR}/$LIBTORCH_HOUSE_DIR"
 else
-    mkdir -p /remote/$WHEELHOUSE_DIR
-    cp /$WHEELHOUSE_DIR/torch*.whl /remote/$WHEELHOUSE_DIR/
+    mkdir -p "${HOST_PACKAGE_DIR}/$WHEELHOUSE_DIR" || true
+    cp /$WHEELHOUSE_DIR/torch*.whl "${HOST_PACKAGE_DIR}/$WHEELHOUSE_DIR"
 fi
 
 # remove stuff before testing
@@ -292,11 +304,9 @@ if ls /usr/local/cuda* >/dev/null 2>&1; then
     rm -rf /usr/local/cuda*
 fi
 
-if [[ -n "$BUILD_PYTHONLESS" ]]
-then
-    echo -n
-else
-    # Test that all the wheels work
+
+# Test that all the wheels work
+if [[ -z "$BUILD_PYTHONLESS" ]]; then
     export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
     pushd $PYTORCH_DIR/test
     for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
@@ -306,18 +316,18 @@ else
         pydir="${python_installations[i]}"
         pyver="${DESIRED_PYTHON[i]}"
         pyver_short="${pyver:2:1}.${pyver:3:1}"
-
+    
         # Install the wheel for this Python version
-        "${pydir}/bin/pip" uninstall -y "$package_name"
-        "${pydir}/bin/pip" install "$package_name" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
-
+        "${pydir}/bin/pip" uninstall -y "$TORCH_PACKAGE_NAME"
+        "${pydir}/bin/pip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
+    
         # Print info on the libraries installed in this wheel
         installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
         echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
         for installed_lib in "${installed_libraries[@]}"; do
             ldd "$installed_lib"
         done
-
+    
         # Test that the wheel works
         # If given an incantation to use, use it. Otherwise just run all the tests
         if [[ -n "$RUN_TEST_PARAMS" ]]; then
@@ -325,15 +335,13 @@ else
         else
             if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
                 LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py -x distributed c10d
-
+    
                 # Distributed tests are not expected to work on shared GPU machines (as of
                 # 8/06/2018) so the errors from test_distributed are ignored. Expected
                 # errors include socket addresses already being used.
                 set +e
                 LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed c10d
                 set -e
-            else
-                LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py
             fi
         fi
     done
