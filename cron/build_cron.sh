@@ -4,7 +4,6 @@
 # Divides work amongst the workers and runs the jobs in parallel on each worker
 #
 # Needs NIGHTLIES_FOLDER to point to /scratch/<username>/nightlies
-# TODO ^ needs support in all the other scripts too
 #
 # There are currently 36 jobs and 3 machines
 # Each machine should run its 12 jobs in 4 parallel batches, about
@@ -63,12 +62,13 @@ which_worker=$1
 if [[ -z "$NIGHTLIES_FOLDER" ]]; then
     NIGHTLIES_FOLDER='/scratch/hellemn/nightlies/'
 fi
+today="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 # Worker 0
 # manywheel 2.7m,2.7mu,3.5m all
 if [[ "$which_worker" == 0 ]]; then
-    log_root="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)/logs/master/worker_0"
+    log_root="$today/logs/master/worker_0"
     mkdir -p "$log_root"
     /cron/prep_nightlies.sh > "$log_root/prep_nightlies.log" 2>&1
     "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cpu > "$log_root/manywheel_2.7m_2.7mu_3.5_cpu.log" 2>&1 &
@@ -81,7 +81,7 @@ fi
 # manywheel 3.6m,3.7m all
 # conda 2.7 all
 if [[ "$which_worker" == 1 ]]; then
-    log_root="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)/logs/master/worker_1"
+    log_root="$today/logs/master/worker_1"
     mkdir -p "$log_root"
     "$SOURCE_DIR/prep_nightlies.sh" > "$log_root/prep_nightlies.log" 2>&1
     "$SOURCE_DIR/build_multiple.sh" manywheel 3.6m cpu,cu80,cu90 > "$log_root/manywheel_3.6m_cpu_cu80_cu90.log" 2>&1 &
@@ -93,7 +93,7 @@ fi
 # Worker 2
 # conda 3.5,3.6,3.6 all
 if [[ "$which_worker" == 2 ]]; then
-    log_root="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)/logs/master/worker_2"
+    log_root="$today/logs/master/worker_2"
     mkdir -p "$log_root"
     "$SOURCE_DIR/prep_nightlies.sh" > "$log_root/prep_nightlies.log" 2>&1
     "$SOURCE_DIR/build_multiple.sh" conda 3.5,3.6,3.7 cpu > "$log_root/conda_3.5_3.6_3.7_cpu.log" 2>&1 &
