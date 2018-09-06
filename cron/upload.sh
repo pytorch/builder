@@ -23,7 +23,9 @@ fi
 if [[ -z "$UPLOAD_DATE" ]]; then
     UPLOAD_DATE="$(date +%Y_%m_%d)"
 fi
-today="$NIGHTLIES_FOLDER/$UPLOAD_DATE"
+# N.B there is NO / HERE. Because s3 is not real folders, just filenames with /
+# in them
+today="$NIGHTLIES_FOLDER$UPLOAD_DATE"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 pushd "$today"
 
