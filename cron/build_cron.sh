@@ -78,7 +78,7 @@ SOURCE_DIR=$(cd $(dirname $0) && pwd)
 if [[ "$which_worker" == 0 ]]; then
     log_root="$today/logs/master/worker_0"
     mkdir -p "$log_root"
-    /cron/prep_nightlies.sh > "$log_root/prep_nightlies.log" 2>&1
+    "$SOURCE_DIR/prep_nightlies.sh" > "$log_root/prep_nightlies.log" 2>&1
     "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cpu > "$log_root/manywheel_2.7m_2.7mu_3.5_cpu.log" 2>&1 &
     "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cu80 > "$log_root/manywheel_2.7m_2.7mu_3.5_cu80.log" 2>&1 &
     "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cu90 > "$log_root/manywheel_2.7m_2.7mu_3.5_cu90.log" 2>&1 &
