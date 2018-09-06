@@ -66,38 +66,38 @@ fi
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 # Worker 0
-# manywheel py2.7m,py2.7mu,py3.5m all
+# manywheel 2.7m,2.7mu,3.5m all
 if [[ "$which_worker" == 0 ]]; then
     log_root="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)/logs/master/worker_0"
     mkdir -p "$log_root"
     /cron/prep_nightlies.sh > "$log_root/prep_nightlies.log" 2>&1
-    "$SOURCE_DIR/build_multiple.sh" manywheel py2.7m,py2.7mu,py3.5 cpu > "$log_root/manywheel_py2.7m_py2.7mu_py3.5_cpu.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" manywheel py2.7m,py2.7mu,py3.5 cu80 > "$log_root/manywheel_py2.7m_py2.7mu_py3.5_cu80.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" manywheel py2.7m,py2.7mu,py3.5 cu90 > "$log_root/manywheel_py2.7m_py2.7mu_py3.5_cu90.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" manywheel py2.7m,py2.7mu,py3.5 cu92 > "$log_root/manywheel_py2.7m_py2.7mu_py3.5_cu92.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cpu > "$log_root/manywheel_2.7m_2.7mu_3.5_cpu.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cu80 > "$log_root/manywheel_2.7m_2.7mu_3.5_cu80.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cu90 > "$log_root/manywheel_2.7m_2.7mu_3.5_cu90.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 2.7m,2.7mu,3.5 cu92 > "$log_root/manywheel_2.7m_2.7mu_3.5_cu92.log" 2>&1 &
 fi
 
 # Worker 1
-# manywheel py3.6m,py3.7m all
-# conda py2.7 all
+# manywheel 3.6m,3.7m all
+# conda 2.7 all
 if [[ "$which_worker" == 1 ]]; then
     log_root="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)/logs/master/worker_1"
     mkdir -p "$log_root"
     "$SOURCE_DIR/prep_nightlies.sh" > "$log_root/prep_nightlies.log" 2>&1
-    "$SOURCE_DIR/build_multiple.sh" manywheel py3.6m cpu,cu80,cu90 > "$log_root/manywheel_py3.6m_cpu_cu80_cu90.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" manywheel py3.7m cpu,cu80,cu90 > "$log_root/manywheel_py3.7m_cpu_cu80_cu90.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" manywheel py3.6m,py3.7m cu92 > "$log_root/manywheel_py3.6m_py3.7m_cu92.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" conda py2.7 all > "$log_root/conda_py2.7_all.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 3.6m cpu,cu80,cu90 > "$log_root/manywheel_3.6m_cpu_cu80_cu90.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 3.7m cpu,cu80,cu90 > "$log_root/manywheel_3.7m_cpu_cu80_cu90.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" manywheel 3.6m,3.7m cu92 > "$log_root/manywheel_3.6m_3.7m_cu92.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" conda 2.7 all > "$log_root/conda_2.7_all.log" 2>&1 &
 fi
 
 # Worker 2
-# conda py3.5,py3.6,py3.6 all
+# conda 3.5,3.6,3.6 all
 if [[ "$which_worker" == 2 ]]; then
     log_root="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)/logs/master/worker_2"
     mkdir -p "$log_root"
     "$SOURCE_DIR/prep_nightlies.sh" > "$log_root/prep_nightlies.log" 2>&1
-    "$SOURCE_DIR/build_multiple.sh" conda py3.5,py3.6,py3.7 cpu > "$log_root/conda_py3.5_py3.6_py3.7_cpu.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" conda py3.5,py3.6,py3.7 cu80 > "$log_root/conda_py3.5_py3.6_py3.7_cu80.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" conda py3.5,py3.6,py3.7 cu90 > "$log_root/conda_py3.5_py3.6_py3.7_cu90.log" 2>&1 &
-    "$SOURCE_DIR/build_multiple.sh" conda py3.5,py3.6,py3.7 cu92 > "$log_root/conda_py3.5_py3.6_py3.7_cu92.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" conda 3.5,3.6,3.7 cpu > "$log_root/conda_3.5_3.6_3.7_cpu.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" conda 3.5,3.6,3.7 cu80 > "$log_root/conda_3.5_3.6_3.7_cu80.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" conda 3.5,3.6,3.7 cu90 > "$log_root/conda_3.5_3.6_3.7_cu90.log" 2>&1 &
+    "$SOURCE_DIR/build_multiple.sh" conda 3.5,3.6,3.7 cu92 > "$log_root/conda_3.5_3.6_3.7_cu92.log" 2>&1 &
 fi
