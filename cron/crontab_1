@@ -1,7 +1,7 @@
 # m h  dom mon dow   command
 # There are currently 36 jobs and 3 machines
 # Each machine should run its 12 jobs in 4 parallel batches
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightlies.sh
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightly.sh
 15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.6m cpu,cu80,cu90
 15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.7m cpu,cu80,cu90
 15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel py3.6m,py3.7m cu92
