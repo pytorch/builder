@@ -1,0 +1,9 @@
+# m h  dom mon dow   command
+# There are currently 36 jobs and 3 machines
+# Each machine should run its 12 jobs in 4 parallel batches, about
+# conda jobs and gpu jobs take longer
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightlies.sh
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5 cpu
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5 cu80
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5 cu90
+15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda py3.5 cu92

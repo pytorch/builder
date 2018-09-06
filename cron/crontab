@@ -1,7 +1,0 @@
-# m h  dom mon dow   command
-# Each build takes about 40 minutes
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/prep_nightlies.sh
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel all cpu,cu80
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh manywheel all cu90,cu92
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda all cpu,cu80
-15 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_multiple.sh conda all cu90,cu92
