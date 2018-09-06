@@ -14,10 +14,10 @@ if [[ -z "$BUILDER_BRANCH" ]]; then
     BUILDER_BRANCH='cron'
 fi
 if [[ -z "$PYTORCH_REPO" ]]; then
-    PYTORCH_REPO='pjh5'
+    PYTORCH_REPO='pytorch'
 fi
 if [[ -z "$PYTORCH_BRANCH" ]]; then
-    PYTORCH_BRANCH='curand_fix'
+    PYTORCH_BRANCH='master'
 fi
 
 # Make the folders needed for today's builds
