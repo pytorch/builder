@@ -144,8 +144,6 @@ then
     echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
     mkdir -p whl
     cp dist/$wheel_filename_gen "whl/$wheel_filename_new"
-
-    popd
 else
     mkdir -p build
     pushd build
@@ -166,6 +164,8 @@ else
     # header of the same name
     rm libtorch/include/torch/torch.h
 
-    mkdir -p libtorch_packages
-    zip -rq libtorch_packages/libtorch-macos.zip libtorch
+    mkdir -p ../wheel/libtorch_packages
+    zip -rq ../wheel/libtorch_packages/libtorch-macos.zip libtorch
 fi
+
+popd
