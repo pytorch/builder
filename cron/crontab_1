@@ -3,4 +3,4 @@
 # Each machine should run its 12 jobs in 4 parallel batches
 MAILTO='hellemn@fb.com'
 4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_1
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_cron.sh > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_1/cronjob.log 2>&1
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_cron.sh 1 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_1/cronjob.log 2>&1

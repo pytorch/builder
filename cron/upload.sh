@@ -1,6 +1,15 @@
 #!/bin/bash
 
-# Upload all the wheels and conda packages
+# Upload all the wheels and conda packages.
+# UPLOAD_DATE
+#   Switch the date from the default 'today' to any past date, in YYYY-mm-dd
+# PIP_UPLOAD_FOLDER
+#   For now this has to be nightly/ or something non-empty. Originally, the
+#   empty string was used to denote uploading to the original packages (the non
+#   nightly packages) where e.g. torch-0.4.1 live. This was dangerous and easy
+#   to accidentally do however, so right now the empty string is not allowed
+# CUDA_VERSIONS
+#   Which package folders to upload. In [cpu, cu80, cu90, cu92]
 
 set -ex
 
@@ -11,7 +20,10 @@ set -ex
 if [[ -z "$NIGHTLIES_FOLDER" ]]; then
     NIGHTLIES_FOLDER='/scratch/hellemn/nightlies/'
 fi
-today="$NIGHTLIES_FOLDER/$(date +%Y_%m_%d)"
+if [[ -z "$UPLOAD_DATE" ]]; then
+    UPLOAD_DATE="$(date +%Y_%m_%d)"
+fi
+today="$NIGHTLIES_FOLDER/$UPLOAD_DATE"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 pushd "$today"
 

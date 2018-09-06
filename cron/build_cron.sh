@@ -57,6 +57,14 @@
 #    'conda 3.7 cu92'
 #)
 
+set -ex
+
+if [ "$#" -ne 1 ]; then
+    echo "Illegal number of parameters. Require which worker I am [0-2]"
+    echo "e.g. ./build_cron.sh 0
+    exit 1
+fi
+
 which_worker=$1
 
 if [[ -z "$NIGHTLIES_FOLDER" ]]; then

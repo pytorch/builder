@@ -4,4 +4,4 @@
 # conda jobs and gpu jobs take longer
 MAILTO='hellemn@fb.com'
 4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_0
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_cron.sh > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_0/cronjob.log 2>&1
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_cron.sh 0 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_0/cronjob.log 2>&1
