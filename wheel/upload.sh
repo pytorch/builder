@@ -20,4 +20,4 @@ s3_dir="s3://pytorch/${package_dir}/${PIP_UPLOAD_FOLDER}cpu/"
 # N.B. this is hardcoded to match wheel/build_wheel.sh, which copies built
 # wheels to this folder
 echo "Uploading all of: $(ls $package_dir) to $s3_dir"
-ls "$package_dir" | xargs -I {} aws s3 cp "$package_dir"/{} "$s3_dir" --acl public-read
+ls "$(pwd)/$package_dir" | xargs -I {} aws s3 cp "$package_dir"/{} "$s3_dir" --acl public-read
