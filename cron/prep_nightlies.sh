@@ -8,10 +8,10 @@ set -ex
 # Default parameters
 ##############################################################################
 if [[ -z "$BUILDER_REPO" ]]; then
-    BUILDER_REPO='pjh5'
+    BUILDER_REPO='pytorch'
 fi
 if [[ -z "$BUILDER_BRANCH" ]]; then
-    BUILDER_BRANCH='cron'
+    BUILDER_BRANCH='master'
 fi
 if [[ -z "$PYTORCH_REPO" ]]; then
     PYTORCH_REPO='pytorch'
@@ -20,7 +20,8 @@ if [[ -z "$PYTORCH_BRANCH" ]]; then
     PYTORCH_BRANCH='master'
 fi
 if [[ -z "$NIGHTLIES_FOLDER" ]]; then
-    NIGHTLIES_FOLDER='/scratch/hellemn/nightlies/'
+    echo "Env variable NIGHTLIES_FOLDER must be set"
+    exit 1
 fi
 if [[ -z "$NIGHTLIES_DATE" ]]; then
     export NIGHTLIES_DATE="$(date +%Y_%m_%d)"

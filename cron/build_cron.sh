@@ -78,7 +78,11 @@ if [[ "$which_worker" != 0 && "$which_worker" != 1 && "$which_worker" != 2 ]]; t
 fi
 
 if [[ -z "$NIGHTLIES_FOLDER" ]]; then
-    NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        export NIGHTLIES_FOLDER='/Users/administrator/nightlies/'
+    else
+        export NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
+    fi
 fi
 if [[ -z "$NIGHTLIES_DATE" ]]; then
     # cron can use a different time than is returned by `date`, so we save

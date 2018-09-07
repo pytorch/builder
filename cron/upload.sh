@@ -18,7 +18,8 @@ set -ex
 # uploading to e.g. /whl/nightly/cpu)
 
 if [[ -z "$NIGHTLIES_FOLDER" ]]; then
-    NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
+    echo "Env variable NIGHTLIES_FOLDER must be set"
+    exit 1
 fi
 if [[ -z "$NIGHTLIES_DATE" ]]; then
     export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
