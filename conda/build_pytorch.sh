@@ -12,17 +12,23 @@ else
   portable_sed='sed --regexp-extended -i'
 fi
 
-if [ "$#" -ne 3 ]; then
-    echo "Illegal number of parameters. Pass cuda version, pytorch version, build number"
-    echo "CUDA version should be Mm with no dot, e.g. '80'"
-    echo "DESIRED_PYTHON should be M.m, e.g. '2.7'"
-    exit 1
+if [[ -n "$DESIRED_CUDA" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
+    desired_cuda="$DESIRED_CUDA"
+    build_version="$PYTORCH_BUILD_VERSION"
+    build_number="$PYTORCH_BUILD_NUMBER"
+else
+    if [ "$#" -ne 3 ]; then
+        echo "Illegal number of parameters. Pass cuda version, pytorch version, build number"
+        echo "CUDA version should be Mm with no dot, e.g. '80'"
+        echo "DESIRED_PYTHON should be M.m, e.g. '2.7'"
+        exit 1
+    fi
+    
+    desired_cuda="$1"
+    build_version="$2"
+    build_number="$3"
 fi
-
-echo "Building cuda version $1 and pytorch version: $2 build_number: $3"
-desired_cuda="$1"
-build_version="$2"
-build_number="$3"
+echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
 # PYTORCH_BUILD_NUMBER > 1
@@ -87,6 +93,9 @@ fi
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
 echo "Will build for CUDA version: ${desired_cuda}"
 
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+cd "$SOURCE_DIR"
+
 # Determine which build folder to use, if not given it directly
 if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
     build_folder="$TORCH_CONDA_BUILD_FOLDER"
@@ -102,16 +111,24 @@ else
     fi
     build_folder="$build_folder-$build_version"
 fi
+if [[ ! -d "$build_folder" ]]; then
+    echo "ERROR: Cannot find the build_folder: $build_folder"
+    exit 1
+fi
 meta_yaml="$build_folder/meta.yaml"
 echo "Using conda-build folder $build_folder"
 
-# Clone the Pytorch repo, so that we can call run_test.py in it
-pytorch_rootdir="$(pwd)/root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
-rm -rf "$pytorch_rootdir"
-git clone --recursive "https://github.com/$GITHUB_ORG/pytorch.git" "$pytorch_rootdir"
-pushd "$pytorch_rootdir"
-git checkout "$PYTORCH_BRANCH"
-popd
+# Clone the Pytorch repo
+if [[ -d '/pytorch' ]]; then
+    pytorch_rootdir='/pytorch'
+else
+    pytorch_rootdir="$(pwd)/root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
+    rm -rf "$pytorch_rootdir"
+    git clone --recursive "https://github.com/$GITHUB_ORG/pytorch.git" "$pytorch_rootdir"
+    pushd "$pytorch_rootdir"
+    git checkout "$PYTORCH_BRANCH"
+    popd
+fi
 
 # Switch between CPU or CUDA configerations
 build_string_suffix="$PYTORCH_BUILD_NUMBER"
@@ -172,6 +189,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Extract the package for testing
     ls -lah "$output_folder"
     built_package="$(find $output_folder/ -name '*pytorch*')"
+
+    # Copy the built package to the host machine for persistence before testing
+    if [[ -n "$HOST_PACKAGE_DIR" ]]; then
+        cp "$built_package" "$HOST_PACKAGE_DIR/conda/"
+    fi
+
     conda install -y "$built_package"
 
     # Run tests
@@ -198,14 +221,14 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     fi
     popd
 
-    # TODO Upload the package
-
     # Clean up test folder
     source deactivate
     conda env remove -yn "$test_env"
     rm -rf "$output_folder"
 done
-rm -rf "$pytorch_rootdir"
+if [[ "$pytorch_rootdir" != '/pytorch' ]]; then
+    rm -rf "$pytorch_rootdir"
+fi
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER

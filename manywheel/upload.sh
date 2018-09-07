@@ -9,6 +9,13 @@ if [[ -z "$CUDA_VERSIONS" ]]; then
     CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
 fi
 
+# Make sure the user specifically refers to an upload folder
+if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
+    echo 'The upload folder is not set. We refuse to upload.'
+    echo 'Please set PIP_UPLOAD_FOLDER'
+    exit 1
+fi
+
 for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
     if [[ "$cuda_ver" == cpu ]]; then
