@@ -57,6 +57,15 @@ fi
 if [[ -z "$RUN_TEST_PARAMS" ]]; then
     RUN_TEST_PARAMS=()
 fi
+if [[ -z "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
+    # This should really be an absolute path to make it easy for upload.sh to
+    # know where to find the final packages
+    if [[ -z "$BUILD_PYTHONLESS" ]]; then
+        MAC_PACKAGE_FINAL_FOLDER='whl'
+    else
+        MAC_PACKAGE_FINAL_FOLDER='libtorch_packages'
+    fi
+fi
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
 if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
@@ -142,11 +151,8 @@ then
 
     # N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
     echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-    if [[ -z "$WHEEL_FINAL_FOLDER" ]]; then
-        WHEEL_FINAL_FOLDER='whl'
-        mkdir -p whl
-    fi
-    cp "$(pwd)/dist/$wheel_filename_gen" "$WHEEL_FINAL_FOLDER/$wheel_filename_new"
+    mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
+    cp "$(pwd)/dist/$wheel_filename_gen" "$MAC_PACKAGE_FINAL_FOLDER/$wheel_filename_new"
 else
     mkdir -p build
     pushd build
@@ -167,8 +173,8 @@ else
     # header of the same name
     rm "$(pwd)/libtorch/include/torch/torch.h"
 
-    mkdir -p "$(pwd)/../wheel/libtorch_packages"
-    zip -rq "$(pwd)/../wheel/libtorch_packages/libtorch-macos.zip" libtorch
+    mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
+    zip -rq "$MAC_PACKAGE_FINAL_FOLDER/libtorch-macos.zip" libtorch
 fi
 
 popd
