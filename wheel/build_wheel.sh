@@ -124,7 +124,7 @@ if ! git checkout "$PYTORCH_BRANCH" ; then
 fi
 git submodule update --init --recursive
 
-pip install -r requirements.txt || true
+pip install -r "$(pwd)/requirements.txt" || true
 
 python setup.py bdist_wheel
 
@@ -135,7 +135,7 @@ then
     pip uninstall -y torch || true
     pip uninstall -y torch || true
 
-    pip install dist/$wheel_filename_gen
+    pip install "$(pwd)/dist/$wheel_filename_gen"
     pushd test
     python run_test.py ${RUN_TEST_PARAMS[@]} || true
     popd
@@ -143,7 +143,7 @@ then
     # N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
     echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
     mkdir -p whl
-    cp dist/$wheel_filename_gen "whl/$wheel_filename_new"
+    cp "$(pwd)/dist/$wheel_filename_gen" "$(pwd)/whl/$wheel_filename_new"
 else
     mkdir -p build
     pushd build
@@ -151,21 +151,21 @@ else
     popd
 
     mkdir -p libtorch/{lib,bin,include,share}
-    cp -r build/lib libtorch/
-    cp -r cmake libtorch/share/
+    cp -r "$(pwd)/build/lib" "$(pwd)/libtorch/"
+    cp -r "$(pwd)/cmake" "$(pwd)/libtorch/share/"
 
     # for now, the headers for the libtorch package will just be
     # copied in from the wheel
     unzip -d any_wheel dist/$wheel_filename_gen
-    cp -r any_wheel/torch/lib/include libtorch/
-    rm -rf any_wheel
+    cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
+    rm -rf "$(pwd)/any_wheel"
 
     # this file is problematic because it can conflict with an API
     # header of the same name
-    rm libtorch/include/torch/torch.h
+    rm "$(pwd)/libtorch/include/torch/torch.h"
 
-    mkdir -p ../wheel/libtorch_packages
-    zip -rq ../wheel/libtorch_packages/libtorch-macos.zip libtorch
+    mkdir -p "$(pwd)/../wheel/libtorch_packages"
+    zip -rq "$(pwd)/../wheel/libtorch_packages/libtorch-macos.zip" libtorch
 fi
 
 popd
