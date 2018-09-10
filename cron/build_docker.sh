@@ -46,10 +46,10 @@ if [[ -z "$DESIRED_CUDA" ]]; then
     exit 1
 fi
 if [[ -z "$PACKAGE_TYPE" ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel'"
+    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
     exit 1
-elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'manywheel' ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel'"
+elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'manywheel' && "$PACKAGE_TYPE" != 'libtorch' ]]; then
+    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
     exit 1
 fi
 package_type="$PACKAGE_TYPE"
@@ -83,6 +83,10 @@ if [[ "$package_type" == 'conda' ]]; then
     docker_image="soumith/conda-cuda"
 else
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
+    if [[ "$package_type" == 'libtorch' ]]; then
+        building_pythonless=1
+    fi
+
     building_manywheels=1
     if [[ "$desired_python" == '2.7mu' ]]; then
         desired_python='cp27-cp27mu'
@@ -157,6 +161,8 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
     echo "export TORCH_CONDA_BUILD_FOLDER=${TORCH_CONDA_BUILD_FOLDER}"
     echo "export DEBUG=${DEBUG}"
     echo "export ON_SUCCESS_WRITE_ME=$ON_SUCCESS_WRITE_ME"
+
+    echo "export BUILD_PYTHONLESS=${building_pythonless}"
 
     echo "cd /"
 

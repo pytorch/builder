@@ -121,7 +121,7 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
 
         # for now, the headers for the libtorch package will just be copied in
         # from one of the wheels
-        ANY_WHEEL=$(ls $WHEELHOUSE_DIR/torch*.whl | head -n1)
+        ANY_WHEEL=$(ls /tmp/$WHEELHOUSE_DIR/torch*.whl | head -n1)
         unzip -d any_wheel $ANY_WHEEL
         cp -r any_wheel/torch/lib/include libtorch/
         cp -r any_wheel/torch/share/cmake libtorch/share/
@@ -131,8 +131,8 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         # header of the same name
         rm libtorch/include/torch/torch.h
 
-        mkdir -p $LIBTORCH_HOUSE_DIR
-        zip -rq $LIBTORCH_HOUSE_DIR/libtorch-$VARIANT.zip libtorch
+        mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
+        zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT.zip libtorch
     done
 fi
 
@@ -177,7 +177,8 @@ mkdir -p "/$WHEELHOUSE_DIR"
 mv /tmp/$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p /$LIBTORCH_HOUSE_DIR
-    mv $pytorch_rootdir/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
+    mv /tmp/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
+    rm -rf /tmp/$LIBTORCH_HOUSE_DIR
 fi
 rm -rf /tmp/$WHEELHOUSE_DIR
 mkdir /tmp_dir
@@ -311,18 +312,18 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     curpy="${pydir}/bin/python"
     pyver="${DESIRED_PYTHON[i]}"
     pyver_short="${pyver:2:1}.${pyver:3:1}"
-  
+
     # Install the wheel for this Python version
     "$curpip" uninstall -y "$TORCH_PACKAGE_NAME"
     "$curpip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
-  
+
     # Print info on the libraries installed in this wheel
     installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
     echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
     for installed_lib in "${installed_libraries[@]}"; do
         ldd "$installed_lib"
     done
-  
+
     # Test that the wheel works
     # If given an incantation to use, use it. Otherwise just run all the tests
     tests_to_skip=()

@@ -17,14 +17,20 @@ if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
 fi
 
 for cuda_ver in "${CUDA_VERSIONS[@]}"; do
-    s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
+    s3_wheel_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
+    s3_libtorch_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
     if [[ "$cuda_ver" == cpu ]]; then
         wheel_dir="wheelhousecpu/"
+        libtorch_dir="libtorch_housecpu/"
     else
         wheel_dir="wheelhouse${cuda_ver:2:2}/"
+        libtorch_dir="libtorch_house${cuda_ver:2:2}/"
     fi
 
     # Upload the wheels to s3
-    echo "Uploading all of: $(ls $wheel_dir) to $s3_dir"
-    ls "$wheel_dir" | xargs -I {} aws s3 cp "$wheel_dir"/{} "$s3_dir" --acl public-read
+    echo "Uploading all of: $(ls $wheel_dir) to $s3_wheel_dir"
+    ls "$wheel_dir" | xargs -I {} aws s3 cp "$wheel_dir"/{} "$s3_wheel_dir" --acl public-read
+
+    echo "Uploading all of: $(ls $libtorch_dir) to $s3_libtorch_dir"
+    ls "$libtorch_dir" | xargs -I {} aws s3 cp "$libtorch_dir"/{} "$s3_libtorch_dir" --acl public-read
 done
