@@ -161,12 +161,12 @@ else
 
     mkdir -p libtorch/{lib,bin,include,share}
     cp -r "$(pwd)/build/lib" "$(pwd)/libtorch/"
-    cp -r "$(pwd)/cmake" "$(pwd)/libtorch/share/"
 
     # for now, the headers for the libtorch package will just be
     # copied in from the wheel
     unzip -d any_wheel dist/$wheel_filename_gen
     cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
+    cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
     rm -rf "$(pwd)/any_wheel"
 
     # this file is problematic because it can conflict with an API
