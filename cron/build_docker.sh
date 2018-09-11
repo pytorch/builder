@@ -1,46 +1,64 @@
 #!/bin/bash
 
+set -ex
+SOURCE_DIR=$(cd $(dirname $0) && pwd)
+source "${SOURCE_DIR}/nightly_defaults.sh"
+
+# Handles building for manywheels and linux conda packages.
+# Env variables that should be set:
+#   PYTORCH_BUILD_VERSION
+#     This is the version string, e.g. 0.4.1 , that will be used as the
+#     pip/conda version, OR the word 'nightly', which signals all the
+#     downstream scripts to use the current date as the version number (plus
+#     other changes). This is NOT the conda build string.
+#
+#   PYTORCH_BUILD_NUMBER
+#     This is usually the number 1. If more than one build is uploaded for the
+#     same version/date, then this can be incremented to 2,3 etc in which case
+#     '.post2' will be appended to the version string of the package. This can
+#     be set to '0' only if OVERRIDE_PACKAGE_VERSION is being used to bypass
+#     all the version string logic in downstream scripts.
+#
+#   NIGHTLIES_FOLDER
+#     An arbitrary root folder to store all nightlies folders, each of which is
+#     a parent level date folder with separate subdirs for logs, wheels, conda
+#     packages, etc. This should be kept the same across all scripts called in
+#     a cron job, so it only has a default value in the top-most script
+#     build_cron.sh to avoid the default values from diverging.
+#
+#   NIGHTLIES_DATE
+#     The date in YYYY_mm_dd format that we are building for. This defaults to
+#     the current date. Sometimes cron uses a different time than that returned
+#     by `date`, so ideally this is set once by the top-most script
+#     build_cron.sh so that all scripts use the same date.
+
 # Parameters
 ##############################################################################
 
-if [ "$#" -ne 3 ]; then
-    echo 'Illegal number of parameters'
-    echo '     build.sh (conda|manywheel) DESIRED_PYTHON DESIRED_CUDA'
-    echo 'e.g. build.sh manywheel 2.7mu cu80'
-    echo 'e.g. build.sh conda 2.7 cpu'
-    echo ' DESIRED_PYTHON must match:   \d.\d(mu?)?'
-    echo ' DESIRED_CUDA must match  :   (cpu|cu\d\d)'
+if [[ -z "$DESIRED_PYTHON" ]]; then
+    echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
     exit 1
 fi
-package_type="$1"
-desired_python="$2"
-desired_cuda="$3"
-
-set -ex
-
-# Validate parameters
-if [[ "$package_type" != 'conda' && "$package_type" != 'manywheel' ]]; then
-    echo "This script doesn't handle packages of type $package_type"
+if [[ -z "$DESIRED_CUDA" ]]; then
+    echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
     exit 1
 fi
+if [[ -z "$PACKAGE_TYPE" ]]; then
+    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel'"
+    exit 1
+elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'manywheel' ]]; then
+    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel'"
+    exit 1
+fi
+package_type="$PACKAGE_TYPE"
+desired_python="$DESIRED_PYTHON"
+desired_cuda="$DESIRED_CUDA"
+
 echo "Building a $package_type package for python$desired_python and $desired_cuda"
-echo "Starting a new build at $(date)"
+echo "Starting to run the build at $(date)"
 
 # Move to today's workspace folder
-if [[ -z "$NIGHTLIES_FOLDER" ]]; then
-    echo "Env variable NIGHTLIES_FOLDER must be set"
-    exit 1
-fi
-if [[ -z "$NIGHTLIES_DATE" ]]; then
-    export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
-fi
-today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
-if [[ ! -d "$today" ]]; then
-    echo "The prep job for today's nightlies has not been run correctly"
-    exit 1
-fi
-builder_root_dir="${today}/builder"
-pytorch_root_dir="${today}/pytorch"
+mkdir -p "$today" || true
 host_package_dir="$today"
 docker_package_dir="/host_machine_pkgs"
 
@@ -52,6 +70,7 @@ else
     cuda_nodot="${desired_cuda:2:2}"
 fi
 if [[ "$package_type" == 'conda' ]]; then
+    export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '_' '-')"
     desired_python="${desired_python:0:3}"
     if [[ -n "$build_for_cpu" ]]; then
         desired_cuda='cpu'
@@ -61,6 +80,7 @@ if [[ "$package_type" == 'conda' ]]; then
     build_script='/remote/conda/build_pytorch.sh'
     docker_image="soumith/conda-cuda"
 else
+    export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
     building_manywheels=1
     if [[ "$desired_python" == '2.7mu' ]]; then
         desired_python='cp27-cp27mu'
@@ -80,23 +100,6 @@ else
     fi
 fi
 
-# Set default parameters
-if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
-    # TODO handle pips converting - to _
-    if [[ -n "$building_manywheels" ]]; then
-        TORCH_PACKAGE_NAME='torch_nightly'
-    else
-        TORCH_PACKAGE_NAME='torch-nightly'
-    fi
-fi
-if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    PYTORCH_BUILD_VERSION='nightly'
-fi
-if [[ -z "$PYTORCH_BUILD_NUMBER" ]]; then
-    PYTORCH_BUILD_NUMBER='1'
-fi
-
-
 # Build up Docker Arguments
 ##############################################################################
 docker_args=""
@@ -112,8 +115,8 @@ docker_args+=" -d"
 #docker_args+=" --shm-size 8G"
 
 # Mount pytorch/builder, pytorch/pytorch, and the package storage folder
-docker_args+=" -v ${builder_root_dir}:/remote"
-docker_args+=" -v ${pytorch_root_dir}:/pytorch"
+docker_args+=" -v ${NIGHTLIES_BUILDER_ROOT}:/remote"
+docker_args+=" -v ${NIGHTLIES_PYTORCH_ROOT}:/pytorch"
 docker_args+=" -v ${host_package_dir}:${docker_package_dir}"
 
 # Run Docker as the user of this script
@@ -135,6 +138,7 @@ docker rm -f $id > /dev/null" EXIT
 # I found the only way to make the command below return the proper
 # exit code is by splitting run and exec. Executing run directly
 # doesn't propagate a non-zero exit code properly.
+# TODO the exit code is not propogated correctly right now. It is always 0
 (
     echo "export DESIRED_PYTHON=${desired_python}"
     echo "export DESIRED_CUDA=${desired_cuda}"
@@ -147,7 +151,6 @@ docker rm -f $id > /dev/null" EXIT
     echo "export PYTORCH_BUILD_VERSION=${PYTORCH_BUILD_VERSION}"
     echo "export PYTORCH_BUILD_NUMBER=${PYTORCH_BUILD_NUMBER}"
     echo "export OVERRIDE_PACKAGE_VERSION=${OVERRIDE_PACKAGE_VERSION}"
-    echo "export FULL_CAFFE2=${FULL_CAFFE2}"
     echo "export DEBUG=${DEBUG}"
     echo "export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
     echo "export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"

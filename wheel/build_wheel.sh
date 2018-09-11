@@ -1,21 +1,38 @@
 #!/usr/bin/env bash
 set -ex
 
-if [ "$#" -ne 3 ]; then
-    echo "illegal number of parameters. Need PY_VERSION BUILD_VERSION BUILD_NUMBER"
-    echo "for example: build_wheel.sh 2.7 0.1.6 20"
-    echo "Python version should be in format 'M.m'"
-    exit 1
+# Env variables that should be set:
+#   DESIRED_PYTHON
+#     Which Python version to build for in format 'Maj.min' e.g. '2.7' or '3.6'
+#     
+#   MAC_PACKAGE_FINAL_FOLDER
+#     **absolute** path to folder where final whl packages will be stored. The
+#     default should not be used when calling this from a script. The default
+#     is 'whl', and corresponds to the default in the wheel/upload.sh script.
+
+if [[ -n "$DESIRED_PYTHON" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
+    desired_python="$DESIRED_PYTHON"
+    build_version="$PYTORCH_BUILD_VERSION"
+    build_number="$PYTORCH_BUILD_NUMBER"
+else
+    if [ "$#" -ne 3 ]; then
+        echo "illegal number of parameters. Need PY_VERSION BUILD_VERSION BUILD_NUMBER"
+        echo "for example: build_wheel.sh 2.7 0.1.6 20"
+        echo "Python version should be in format 'M.m'"
+        exit 1
+    fi
+    
+    desired_python=$1
+    build_version=$2
+    build_number=$3
 fi
+
+# Try to ensure that no other Python installation interferes with this build
 if which conda
 then
     echo "Please remove Conda from your PATH / DYLD_LIBRARY_PATH completely"
     exit 1
 fi
-
-desired_python=$1
-build_version=$2
-build_number=$3
 
 echo "Building for Python: $desired_python Version: $build_version Build: $build_number"
 echo "This is for OSX. There is no CUDA/CUDNN"
@@ -48,8 +65,8 @@ export PYTORCH_BUILD_NUMBER=$build_number
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
 fi
-if [[ -z "$GITHUB_ORG" ]]; then
-    GITHUB_ORG='pytorch'
+if [[ -z "$PYTORCH_REPO" ]]; then
+    PYTORCH_REPO='pytorch'
 fi
 if [[ -z "$PYTORCH_BRANCH" ]]; then
     PYTORCH_BRANCH="v${build_version}"
@@ -66,6 +83,13 @@ if [[ -z "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
         MAC_PACKAGE_FINAL_FOLDER='libtorch_packages'
     fi
 fi
+if [[ -z "$MAC_WHEEL_WORK_DIR" ]]; then
+    # Used to store the separate conda installation and pytorch repo that will
+    # be used for only this build
+    MAC_WHEEL_WORK_DIR="$(pwd)/tmp_wheel_conda_${DESIRED_PYTHON}"
+fi
+rm -rf "$MAC_WHEEL_WORK_DIR"
+mkdir -p "$MAC_WHEEL_WORK_DIR"
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
 if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
@@ -79,21 +103,22 @@ wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}
 ###########################################################
 # Install a fresh miniconda with a fresh env
 
-rm -rf tmp_conda
-rm -f Miniconda3-latest-MacOSX-x86_64.sh
-curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh
-chmod +x miniconda.sh && \
-    ./miniconda.sh -b -p tmp_conda && \
-    rm miniconda.sh
-condapath=$(python -c "import os; print(os.path.realpath('tmp_conda'))")
-export PATH="$condapath/bin:$PATH"
+tmp_conda="${MAC_WHEEL_WORK_DIR}/conda"
+miniconda_sh="${MAC_WHEEL_WORK_DIR}/miniconda.sh"
+rm -rf "$tmp_conda"
+rm -f "$miniconda_sh"
+curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+chmod +x "$miniconda_sh" && \
+    "$miniconda_sh" -b -p "$tmp_conda" && \
+    rm "$miniconda_sh"
+export PATH="$tmp_conda/bin:$PATH"
 echo $PATH
 
 
 export CONDA_ROOT_PREFIX=$(conda info --root)
 
-conda install -y cmake
-
+# TODO since it's a separate conda install it's probably safe to delete this
+# env logic
 conda remove --name py2k  --all -y || true
 conda remove --name py35k --all -y || true
 conda remove --name py36k --all -y || true
@@ -107,10 +132,28 @@ conda env remove -yn "$CONDA_ENVNAME" || true
 conda create -n "$CONDA_ENVNAME" python="$desired_python" -y
 source activate "$CONDA_ENVNAME"
 export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
-
-conda install -n $CONDA_ENVNAME -y numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
-
 # now $PREFIX should point to your conda env
+
+
+# Have a separate Pytorch repo clone
+pytorch_root_dir="${MAC_WHEEL_WORK_DIR}/pytorch"
+if [[ -z "$NIGHTLIES_PYTORCH_ROOT" ]]; then
+    rm -rf "$pytorch_root_dir"
+    git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_root_dir"
+    pushd "$pytorch_root_dir"
+    if ! git checkout "$PYTORCH_BRANCH" ; then
+        echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
+        git checkout tags/v${build_version}
+    fi
+    git submodule update --init --recursive
+else
+    # Even if given a Pytorch repo, copy it to avoid polluting the original
+    mkdir -p "$pytorch_root_dir" || true
+    cp -R "$NIGHTLIES_PYTORCH_ROOT/*" "$pytorch_root_dir/"
+    chmod -R +w "$pytorch_root_dir"
+    pushd "$pytorch_root_dir"
+fi
+
 ##########################
 # now build the binary
 
@@ -124,15 +167,7 @@ python --version
 
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
-rm -rf pytorch-src
-git clone "https://github.com/${GITHUB_ORG}/pytorch" pytorch-src
-pushd pytorch-src
-if ! git checkout "$PYTORCH_BRANCH" ; then
-    echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
-    git checkout tags/v${build_version}
-fi
-git submodule update --init --recursive
-
+conda install -n $CONDA_ENVNAME -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 pip install -r "$(pwd)/requirements.txt" || true
 
 python setup.py bdist_wheel

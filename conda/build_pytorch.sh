@@ -97,9 +97,7 @@ SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd "$SOURCE_DIR"
 
 # Determine which build folder to use, if not given it directly
-if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
-    build_folder="$TORCH_CONDA_BUILD_FOLDER"
-elif [[ -n "$build_nightly" ]]; then
+if [[ -n "$build_nightly" ]]; then
     build_folder='pytorch-nightly'
 else
     if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '9.0' ]]; then
@@ -201,7 +199,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     tests_to_skip=()
     if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
         # Distributed tests don't work on the shared gpus of CI
-        tests_to_skip+=("distributed" "c10d")
+        tests_to_skip+=("distributed" "thd_distributed" "c10d")
     fi
     if [[ "$py_ver" == '2.7' ]]; then
         # test_wrong_return_type doesn't work on the latest conda python 2.7
@@ -212,12 +210,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     if [[ -n "$RUN_TEST_PARAMS" ]]; then
         python test/run_test.py ${RUN_TEST_PARAMS[@]}
     elif [[ -n "$tests_to_skip" ]]; then
-        python test/run_test.py -x ${tests_to_skip[@]}
+        python test/run_test.py -v -x ${tests_to_skip[@]}
         set +e
-        python test/run_test.py -i ${tests_to_skip[@]}
+        python test/run_test.py -v -i ${tests_to_skip[@]}
         set -e
     else
-        python test/run_test.py
+        python test/run_test.py -v
     fi
     popd
 
