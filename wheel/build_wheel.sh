@@ -149,7 +149,7 @@ if [[ -z "$NIGHTLIES_PYTORCH_ROOT" ]]; then
 else
     # Even if given a Pytorch repo, copy it to avoid polluting the original
     mkdir -p "$pytorch_root_dir" || true
-    cp -R "$NIGHTLIES_PYTORCH_ROOT/*" "$pytorch_root_dir/"
+    cp -R "$NIGHTLIES_PYTORCH_ROOT"/* "$pytorch_root_dir/"
     chmod -R +w "$pytorch_root_dir"
     pushd "$pytorch_root_dir"
 fi
