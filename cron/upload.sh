@@ -21,7 +21,11 @@ if [[ -z "$CUDA_VERSIONS" ]]; then
 fi
 
 # Upload wheels
+# manywheel/upload.sh looks in the current directory for wheelhousecpu/ etc
+# folders
+pushd "$today"
 "${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
+popd
 
 # Update wheel htmls
 "${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"
