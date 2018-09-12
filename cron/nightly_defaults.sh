@@ -73,7 +73,7 @@ fi
 #   downstream scripts to use the current date as the version number (plus
 #   other changes). This is NOT the conda build string.
 if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    export PYTORCH_BUILD_VERSION='nightly'
+    export PYTORCH_BUILD_VERSION="0.5.0.dev$(date +%Y%m%d)"
 fi
 
 # PYTORCH_BUILD_NUMBER
@@ -81,9 +81,22 @@ fi
 #   same version/date, then this can be incremented to 2,3 etc in which case
 #   '.post2' will be appended to the version string of the package. This can
 #   be set to '0' only if OVERRIDE_PACKAGE_VERSION is being used to bypass
-#   all the version string logic in downstream scripts.
+#   all the version string logic in downstream scripts. Since we use the
+#   override below, exporting this shouldn't actually matter.
 if [[ -z "$PYTORCH_BUILD_NUMBER" ]]; then
     export PYTORCH_BUILD_NUMBER='1'
+fi
+if [[ "$PYTORCH_BUILD_NUMBER" -gt 1 ]]; then
+    export PYTORCH_BUILD_VERSION="${PYTORCH_BUILD_VERSION}${PYTORCH_BUILD_NUMBER}"
+fi
+
+# The nightly builds use their own versioning logic, so we override whatever
+# logic is in setup.py or other scripts
+export OVERRIDE_PACKAGE_VERSION="$PYTORCH_BUILD_VERSION"
+
+# Build folder for conda builds to use
+if [[ -z "$TORCH_CONDA_BUILD_FOLDER" ]]; then
+    export TORCH_CONDA_BUILD_FOLDER='pytorch-nightly'
 fi
 
 # TORCH_PACKAGE_NAME
