@@ -27,14 +27,12 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     # This will be the *exact* version, since build_number<1
     build_version="$OVERRIDE_PACKAGE_VERSION"
     build_number=0
-elif [[ "$build_version" == 'nightly' ]]; then
-    build_version="$(date +%Y.%m.%d)"
 fi
 if [[ -z "$build_version" ]]; then
     build_version=0.4.1
 fi
 if [[ -z "$build_number" ]]; then
-    build_number=2
+    build_number=1
 fi
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number

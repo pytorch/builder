@@ -51,12 +51,6 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     build_number=0
     build_number_prefix=''
 else
-    if [[ "$build_version" == 'nightly' ]]; then
-        # So, pip actually "normalizes" versions from 2018.08.09 to 2018.8.9,
-        # so to to get the right name of the final wheel we have to normalize
-        # the version too. Also couldn't get \d working on MacOS's default sed.
-        build_version=$(echo $(date +%Y.%m.%d) | sed -E 's/([0-9][0-9][0-9][0-9].)0?([0-9][0-9]?.)0?([0-9][0-9]?)/\1\2\3/g' )
-    fi
     if [[ $build_number -eq 1 ]]; then
         build_number_prefix=""
     else
