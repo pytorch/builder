@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -ex
+echo "build_cron.sh at $(pwd) starting at $(date) on $(uname -a)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
@@ -40,8 +41,8 @@ else
     fi
 fi
 
-mkdir -p "${today}/logs" || true
-touch "${today}/logs/failed"
+mkdir -p "${today}/logs/failed" || true
+mkdir -p "${today}/logs/succeeded" || true
 
 # Divy up the tasks
 #

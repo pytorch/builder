@@ -1,6 +1,7 @@
 # m h  dom mon dow   command
 # The only difference between these crontabs is the argument passed to
 # cron_start.sh
+# N.B. it appears that cron runs an hour ahead on this machine
 MAILTO='hellemn@fb.com'
-4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/cron_start.sh 1 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/start_cron.log 2>&1
+4 1 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master
+5 1 * * * /scratch/hellemn/git/pjh5/builder/cron/cron_start.sh 1 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/start_cron.log 2>&1
