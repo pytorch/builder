@@ -39,10 +39,6 @@ export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
 # running from.
 export NIGHTLIES_BUILDER_ROOT="$(cd $(dirname $0)/.. && pwd)"
 
-# N.B. All the build-jobs on this machine will be accessing these same repos,
-# so we set them to read-only so that they do not interfere with each other.
-chmod -R -w "$NIGHTLIES_BUILDER_ROOT"
-
 # The shared pytorch repo to be used by all builds
 export NIGHTLIES_PYTORCH_ROOT="${today}/pytorch"
 
@@ -69,7 +65,6 @@ if [[ ! -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
     pushd "$NIGHTLIES_PYTORCH_ROOT"
     git checkout "$PYTORCH_BRANCH"
     popd
-    chmod -R -w "$NIGHTLIES_PYTORCH_ROOT"
 fi
 
 # PYTORCH_BUILD_VERSION
@@ -105,6 +100,3 @@ fi
 if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
     export PIP_UPLOAD_FOLDER='nightly/'
 fi
-
-# Used by Mac wheel builds to store the wheels
-export MAC_PACKAGE_FINAL_FOLDER="${today}/mac_wheels/"

@@ -62,20 +62,15 @@ echo "Will build for all Pythons versions: ${DESIRED_PYTHON[@]}"
 
 mkdir -p /tmp/$WHEELHOUSE_DIR
 # clone pytorch source code
-PYTORCH_DIR="/pytorch"
-if [[ ! -d "$PYTORCH_DIR" ]]; then
-    git clone https://github.com/pytorch/pytorch $PYTORCH_DIR
-    pushd $PYTORCH_DIR
+pytorch_rootdir="/pytorch"
+if [[ ! -d "$pytorch_rootdir" ]]; then
+    git clone https://github.com/pytorch/pytorch $pytorch_rootdir
+    pushd $pytorch_rootdir
     if ! git checkout v${PYTORCH_BUILD_VERSION}; then
           git checkout tags/v${PYTORCH_BUILD_VERSION}
     fi
 else
-    # the pytorch dir is already cloned and checked out. We copy it to avoid
-    # poluting the original dir (in case of multiple parallel builds on a
-    # single machine
-    cp -r /pytorch /my_pytorch
-    PYTORCH_DIR='/my_pytorch'
-    pushd $PYTORCH_DIR
+    pushd $pytorch_rootdir
 fi
 git submodule update --init --recursive
 
@@ -184,7 +179,7 @@ mkdir -p "/$WHEELHOUSE_DIR"
 mv /tmp/$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p /$LIBTORCH_HOUSE_DIR
-    mv $PYTORCH_DIR/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
+    mv $pytorch_rootdir/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
 fi
 rm -rf /tmp/$WHEELHOUSE_DIR
 mkdir /tmp_dir
@@ -308,7 +303,7 @@ fi
 # Test that all the wheels work
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
   export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
-  pushd $PYTORCH_DIR/test
+  pushd $pytorch_rootdir/test
   for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
     # This assumes that there is a 1:1 correspondence between python versions
     # and wheels, and that the python version is in the name of the wheel,
@@ -333,18 +328,17 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     # Test that the wheel works
     # If given an incantation to use, use it. Otherwise just run all the tests
     tests_to_skip=()
-    run_test_cmd="LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD=$curpy $curpy run_test.py"
     if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
         # Distributed tests don't work on the shared gpus of CI
         tests_to_skip+=("distributed" "thd_distributed" "c10d")
     fi
     if [[ -n "$RUN_TEST_PARAMS" ]]; then
-         $run_test_cmd ${RUN_TEST_PARAMS[@]}
+        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py ${RUN_TEST_PARAMS[@]}
     elif [[ -n "$tests_to_skip" ]]; then
-        $run_test_cmd -v -x ${tests_to_skip[@]}
-        $run_test_cmd -v -i ${tests_to_skip[@]} || true
+        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py -v -x ${tests_to_skip[@]}
+        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py -v -i ${tests_to_skip[@]} || true
     else
-        $run_test_cmd
+        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py
     fi
   done
 fi

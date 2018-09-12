@@ -5,6 +5,21 @@ fi
 
 set -ex
 
+# Env variables that should be set
+# LINUX env variables that should be set
+#   HOST_PACKAGE_DIR
+#     Absolute path (in docker space) to folder where final packages will be
+#     stored.
+#     
+# MACOS env variables that should be set
+#   MAC_PACKAGE_FINAL_FOLDER
+#     **Absolute** path to folder where final packages will be stored.
+#
+#   MAC_PACKAGE_WORK_DIR
+#     Absolute path to a workdir in which to clone an isolated conda
+#     installation and pytorch checkout. If the pytorch checkout already exists
+#     then it will not be overwritten.
+
 # Defined a portable sed that should work on both mac and linux
 if [[ "$OSTYPE" == "darwin"* ]]; then
   portable_sed="sed -E -i ''"
@@ -96,7 +111,8 @@ echo "Will build for CUDA version: ${desired_cuda}"
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd "$SOURCE_DIR"
 
-# Determine which build folder to use, if not given it directly
+#
+# Determine which build folder to use
 if [[ -n "$build_nightly" ]]; then
     build_folder='pytorch-nightly'
 else
@@ -116,13 +132,21 @@ fi
 meta_yaml="$build_folder/meta.yaml"
 echo "Using conda-build folder $build_folder"
 
+#
 # Clone the Pytorch repo
-if [[ -d '/pytorch' ]]; then
+if [[ "$(uname)" == 'Darwin' ]]; then
+    if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
+        MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_wheel_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
+    fi
+    mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
+    pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
+elif [[ -d '/pytorch' ]]; then
     pytorch_rootdir='/pytorch'
 else
     pytorch_rootdir="$(pwd)/root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
-    rm -rf "$pytorch_rootdir"
-    git clone --recursive "https://github.com/$GITHUB_ORG/pytorch.git" "$pytorch_rootdir"
+fi
+if [[ ! -d "$pytorch_rootdir" ]]; then
+    git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_rootdir"
     pushd "$pytorch_rootdir"
     git checkout "$PYTORCH_BRANCH"
     popd
@@ -190,7 +214,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Copy the built package to the host machine for persistence before testing
     if [[ -n "$HOST_PACKAGE_DIR" ]]; then
+        mkdir -p "$HOST_PACKAGE_DIR/conda" || true
         cp "$built_package" "$HOST_PACKAGE_DIR/conda/"
+    fi
+    if [[ -n "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
+        mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
+        cp "$built_package" "$MAC_PACKAGE_FINAL_FOLDER"
     fi
 
     conda install -y "$built_package"
@@ -224,9 +253,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     conda env remove -yn "$test_env"
     rm -rf "$output_folder"
 done
-if [[ "$pytorch_rootdir" != '/pytorch' ]]; then
-    rm -rf "$pytorch_rootdir"
-fi
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER

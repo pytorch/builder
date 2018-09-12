@@ -114,9 +114,7 @@ docker_args+=" -d"
 # See: https://github.com/pytorch/pytorch/issues/2244
 #docker_args+=" --shm-size 8G"
 
-# Mount pytorch/builder, pytorch/pytorch, and the package storage folder
-docker_args+=" -v ${NIGHTLIES_BUILDER_ROOT}:/remote"
-docker_args+=" -v ${NIGHTLIES_PYTORCH_ROOT}:/pytorch"
+# Mount the folder that will collect the finished packages
 docker_args+=" -v ${host_package_dir}:${docker_package_dir}"
 
 # Run Docker as the user of this script
@@ -134,6 +132,10 @@ id=$(nvidia-docker run ${docker_args} /bin/cat)
 
 trap "echo 'Stopping container...' &&
 docker rm -f $id > /dev/null" EXIT
+
+# Copy pytorch/builder and pytorch/pytorch into the container
+nvidia-docker cp "$NIGHTLIES_BUILDER_ROOT" "$id:/remote"
+nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
 # I found the only way to make the command below return the proper
 # exit code is by splitting run and exec. Executing run directly

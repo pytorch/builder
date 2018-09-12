@@ -71,13 +71,6 @@ while [[ $# -gt 0 ]]; do
   fi
 done
 
-# Swap build script out on Macs
-if [[ "$(uname)" == 'Darwin' ]]; then
-    build_script="${NIGHTLIES_BUILDER_ROOT}/wheel/build_wheel.sh"
-else
-    build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_docker.sh"
-fi
-
 
 # Allow 'all' to translate to all python/cuda versions
 
@@ -101,6 +94,19 @@ for config in "${all_configs[@]}"; do
   build_tag="${package_type}_${py_ver}_${cuda_ver}"
   log_name="${today}/logs/$build_tag.log"
 
+  # Swap build script out on Macs
+  if [[ "$(uname)" == 'Darwin' ]]; then
+      if [[ "$package_type" == 'conda' ]]; then
+          build_script="${NIGHTLIES_BUILDER_ROOT}/conda/build_pytorch.sh"
+          mac_package_folder="${today}/mac_condas"
+      else
+          build_script="${NIGHTLIES_BUILDER_ROOT}/wheel/build_wheel.sh"
+          mac_package_folder="${today}/mac_wheels"
+      fi
+  else
+      build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_docker.sh"
+  fi
+
   set +x
   echo
   echo "##############################"
@@ -113,7 +119,8 @@ for config in "${all_configs[@]}"; do
   PACKAGE_TYPE="$package_type" \
           DESIRED_PYTHON="$py_ver" \
           DESIRED_CUDA="$cuda_ver" \
-          MAC_WHEEL_WORK_DIR="${today}/wheel_build_dirs/${build_tag}" \
+          MAC_PACKAGE_WORK_DIR="${today}/wheel_build_dirs/${build_tag}" \
+          MAC_PACKAGE_FINAL_FOLDER="$mac_package_folder" \
           "$build_script" > "$log_name" 2>&1
   duration="$SECONDS"
   ret="$?"

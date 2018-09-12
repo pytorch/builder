@@ -9,6 +9,11 @@ set -ex
 #     **absolute** path to folder where final whl packages will be stored. The
 #     default should not be used when calling this from a script. The default
 #     is 'whl', and corresponds to the default in the wheel/upload.sh script.
+#
+#   MAC_PACKAGE_WORK_DIR
+#     absolute path to a workdir in which to clone an isolated conda
+#     installation and pytorch checkout. If the pytorch checkout already exists
+#     then it will not be overwritten.
 
 if [[ -n "$DESIRED_PYTHON" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
     desired_python="$DESIRED_PYTHON"
@@ -83,13 +88,14 @@ if [[ -z "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
         MAC_PACKAGE_FINAL_FOLDER='libtorch_packages'
     fi
 fi
-if [[ -z "$MAC_WHEEL_WORK_DIR" ]]; then
-    # Used to store the separate conda installation and pytorch repo that will
-    # be used for only this build
-    MAC_WHEEL_WORK_DIR="$(pwd)/tmp_wheel_conda_${DESIRED_PYTHON}"
+
+# Create an isolated directory to store this builds pytorch checkout and conda
+# installation
+if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
+    MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_wheel_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
-rm -rf "$MAC_WHEEL_WORK_DIR"
-mkdir -p "$MAC_WHEEL_WORK_DIR"
+mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
+pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
 if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
@@ -103,8 +109,8 @@ wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}
 ###########################################################
 # Install a fresh miniconda with a fresh env
 
-tmp_conda="${MAC_WHEEL_WORK_DIR}/conda"
-miniconda_sh="${MAC_WHEEL_WORK_DIR}/miniconda.sh"
+tmp_conda="${MAC_PACKAGE_WORK_DIR}/conda"
+miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
 rm -rf "$tmp_conda"
 rm -f "$miniconda_sh"
 curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
@@ -136,22 +142,14 @@ export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
 
 
 # Have a separate Pytorch repo clone
-pytorch_root_dir="${MAC_WHEEL_WORK_DIR}/pytorch"
-if [[ -z "$NIGHTLIES_PYTORCH_ROOT" ]]; then
-    rm -rf "$pytorch_root_dir"
-    git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_root_dir"
-    pushd "$pytorch_root_dir"
+if [[ ! -d "$pytorch_rootdir" ]]; then
+    git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_rootdir"
+    pushd "$pytorch_rootdir"
     if ! git checkout "$PYTORCH_BRANCH" ; then
         echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
         git checkout tags/v${build_version}
     fi
     git submodule update --init --recursive
-else
-    # Even if given a Pytorch repo, copy it to avoid polluting the original
-    mkdir -p "$pytorch_root_dir" || true
-    cp -R "$NIGHTLIES_PYTORCH_ROOT"/* "$pytorch_root_dir/"
-    chmod -R +w "$pytorch_root_dir"
-    pushd "$pytorch_root_dir"
 fi
 
 ##########################
