@@ -2,7 +2,7 @@
 
 set -ex
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
-source "${SOURCE_DIR}/nightly_default.sh"
+source "${SOURCE_DIR}/nightly_defaults.sh"
 
 # Upload all the wheels and conda packages.
 # NIGHTLIES_DATE
