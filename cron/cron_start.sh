@@ -5,6 +5,8 @@ set -ex
 # Minimal bootstrap to clone the latest pytorch/builder repo and then call
 # /that/ repo's build_cron.sh
 
+echo "cron_start.sh at $(pwd) starting at $(date) on $(uname -a)"
+
 # BUILDER_REPO
 #   The Github org/user whose fork of builder to check out (git clone
 #   https://github.com/<THIS_PART>/builder.git). This will always be cloned

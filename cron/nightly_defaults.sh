@@ -5,6 +5,8 @@ set -ex
 # Default parameters for nightly builds to be sourced both by build_cron.sh and
 # by the build_docker.sh and wheel/build_wheel.sh scripts.
 
+echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a)"
+
 # NIGHTLIES_FOLDER
 # N.B. this is also defined in cron_start.sh
 #   An arbitrary root folder to store all nightlies folders, each of which is a

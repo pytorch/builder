@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -ex
+echo "build_multiple.sh at $(pwd) starting at $(date) on $(uname -a)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
@@ -90,17 +91,23 @@ for config in "${all_configs[@]}"; do
   package_type="${confs[0]}"
   py_ver="${confs[1]}"
   cuda_ver="${confs[2]}"
-
   build_tag="${package_type}_${py_ver}_${cuda_ver}"
+
+  # When the run build is running it will write logs to the logs/ folder. If
+  # the build succeeds (as detected inside the docker image since exit codes
+  # aren't being propogated), then the build will write 'SUCCESS' to its log in
+  # logs/succeeded/ . When the build is over, we check if that file has been
+  # written and if so move the log to logs/succeeded/ ; otherwise the build has
+  # failed and logs are moved to logs/failed/
   log_name="${today}/logs/$build_tag.log"
+  failed_log_loc="${today}/logs/failed/$build_tag.log"
+  succeeded_log_loc="${today}/logs/succeeded/$build_tag.log"
+  rm -f "$failed_log_loc"
+  rm -f "$succeeded_log_loc"
 
   # Swap build script out on Macs
   if [[ "$(uname)" == 'Darwin' ]]; then
-      if [[ "$package_type" == 'conda' ]]; then
-          build_script="${NIGHTLIES_BUILDER_ROOT}/conda/build_pytorch.sh"
-      else
-          build_script="${NIGHTLIES_BUILDER_ROOT}/wheel/build_wheel.sh"
-      fi
+      build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_mac.sh"
   else
       build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_docker.sh"
   fi
@@ -117,25 +124,27 @@ for config in "${all_configs[@]}"; do
   PACKAGE_TYPE="$package_type" \
           DESIRED_PYTHON="$py_ver" \
           DESIRED_CUDA="$cuda_ver" \
-          MAC_PACKAGE_WORK_DIR="${today}/wheel_build_dirs/${build_tag}" \
+          ON_SUCCESS_WRITE_ME="$succeeded_log_loc" \
           "$build_script" > "$log_name" 2>&1
   duration="$SECONDS"
   ret="$?"
   set -e
 
   # Keep track of the failed builds
-  if [[ "$ret" != 0 ]]; then
+  if [[ -f "$succeeded_log_loc" ]]; then
+    set +x
+    echo "$(date) :: Finished $build_tag in $(nice_time $duration)"
+    echo "$(date) :: Status: SUCCESS!"
+    rm -f "$succeeded_log_loc"
+    mv "$log_name" "$succeeded_log_loc"
+    good_builds+=("$build_tag")
+  else
     set +x
     echo "$(date) :: Finished $build_tag in $(nice_time $duration)"
     echo "$(date) :: Status: FAILURE"
     >&2 echo "$(date) :: Status: FAILed building $build_tag"
-    echo "$build_tag" >> "${today}/logs/failed"
+    mv "$log_name" "$failed_log_loc"
     failed_builds+=("$build_tag")
-  else
-    set +x
-    echo "$(date) :: Finished $build_tag in $(nice_time $duration)"
-    echo "$(date) :: Status: SUCCESS!"
-    good_builds+=("$build_tag")
   fi
 
   echo "################################################################################"

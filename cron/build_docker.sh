@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -ex
+
+echo "build_docker.sh at $(pwd) starting at $(date) on $(uname -a)"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
@@ -140,7 +142,6 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 # I found the only way to make the command below return the proper
 # exit code is by splitting run and exec. Executing run directly
 # doesn't propagate a non-zero exit code properly.
-# TODO the exit code is not propogated correctly right now. It is always 0
 (
     echo "export DESIRED_PYTHON=${desired_python}"
     echo "export DESIRED_CUDA=${desired_cuda}"
@@ -154,8 +155,7 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
     echo "export PYTORCH_BUILD_NUMBER=${PYTORCH_BUILD_NUMBER}"
     echo "export OVERRIDE_PACKAGE_VERSION=${OVERRIDE_PACKAGE_VERSION}"
     echo "export DEBUG=${DEBUG}"
-    echo "export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
-    echo "export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+    echo "export ON_SUCCESS_WRITE_ME=$ON_SUCCESS_WRITE_ME"
 
     echo "cd /"
 
@@ -165,6 +165,16 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
     # Run the build script
     echo "$build_script"
+
+    # Mark this build as a success. build_multiple expects this file to be
+    # written if the build succeeds
+    echo "ret=$?"
+    echo "if [[ $ret == 0 && -n $ON_SUCCESS_WRITE_ME ]]; then"
+    echo "    echo 'SUCCESS' > $ON_SUCCESS_WRITE_ME"
+    echo "fi"
+
+    echo "exit $ret"
 ) | nvidia-docker exec -i "$id" bash
+echo "docker run exited with $?"
 
 exit 0
