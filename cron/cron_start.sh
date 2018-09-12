@@ -10,7 +10,7 @@ set -ex
 #   https://github.com/<THIS_PART>/builder.git). This will always be cloned
 #   fresh to build with. Default is 'pytorch'
 if [[ -z "$BUILDER_REPO" ]]; then
-    export BUILDER_REPO='pjh5'
+    export BUILDER_REPO='pytorch'
 fi
 
 # BUILD_BRANCH
@@ -19,7 +19,7 @@ fi
 #   my_branch_name) or can be a git commit (git checkout 4b2674n...). Default
 #   is 'master'
 if [[ -z "$BUILDER_BRANCH" ]]; then
-    export BUILDER_BRANCH='mac_cron'
+    export BUILDER_BRANCH='master'
 fi
 
 # N.B. NIGHTLIES_FOLDER and NIGHTLIES_DATE are also set in nightly_defaults.sh
