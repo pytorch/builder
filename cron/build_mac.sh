@@ -57,7 +57,7 @@ echo "Starting to run the build at $(date)"
 mkdir -p "$today" || true
 
 # Make the workdir for the mac builds
-workdir="${today}/wheel_build_dirs/${build_tag}"
+workdir="${today}/wheel_build_dirs/${package_type}_${desired_python}"
 export MAC_PACKAGE_WORK_DIR="$workdir"
 rm -rf "$workdir"
 mkdir -p "$workdir"
