@@ -5,6 +5,31 @@ set -ex
 # Default parameters for nightly builds to be sourced both by build_cron.sh and
 # by the build_docker.sh and wheel/build_wheel.sh scripts.
 
+# NIGHTLIES_FOLDER
+# N.B. this is also defined in cron_start.sh
+#   An arbitrary root folder to store all nightlies folders, each of which is a
+#   parent level date folder with separate subdirs for logs, wheels, conda
+#   packages, etc. This should be kept the same across all scripts called in a
+#   cron job, so it only has a default value in the top-most script
+#   build_cron.sh to avoid the default values from diverging.
+if [[ -z "$NIGHTLIES_FOLDER" ]]; then
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        export NIGHTLIES_FOLDER='/Users/administrator/nightlies/'
+    else
+        export NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
+    fi
+fi
+
+# NIGHTLIES_DATE
+# N.B. this is also defined in cron_start.sh
+#   The date in YYYY_mm_dd format that we are building for. This defaults to
+#   the current date. Sometimes cron uses a different time than that returned
+#   by `date`, so ideally this is set once by the top-most script
+#   build_cron.sh so that all scripts use the same date.
+if [[ -z "$NIGHTLIES_DATE" ]]; then
+    export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
+fi
+
 # Used in lots of places as the root dir to store all conda/wheel/manywheel
 # packages as well as logs for the day
 export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
@@ -79,31 +104,6 @@ fi
 # uploading to e.g. /whl/nightly/cpu)
 if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
     export PIP_UPLOAD_FOLDER='nightly/'
-fi
-
-# NIGHTLIES_FOLDER
-# N.B. this is also defined in cron_start.sh
-#   An arbitrary root folder to store all nightlies folders, each of which is a
-#   parent level date folder with separate subdirs for logs, wheels, conda
-#   packages, etc. This should be kept the same across all scripts called in a
-#   cron job, so it only has a default value in the top-most script
-#   build_cron.sh to avoid the default values from diverging.
-if [[ -z "$NIGHTLIES_FOLDER" ]]; then
-    if [[ "$(uname)" == 'Darwin' ]]; then
-        export NIGHTLIES_FOLDER='/Users/administrator/nightlies/'
-    else
-        export NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
-    fi
-fi
-
-# NIGHTLIES_DATE
-# N.B. this is also defined in cron_start.sh
-#   The date in YYYY_mm_dd format that we are building for. This defaults to
-#   the current date. Sometimes cron uses a different time than that returned
-#   by `date`, so ideally this is set once by the top-most script
-#   build_cron.sh so that all scripts use the same date.
-if [[ -z "$NIGHTLIES_DATE" ]]; then
-    export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
 fi
 
 # Used by Mac wheel builds to store the wheels
