@@ -20,14 +20,15 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
 
     # Pull all existing whls in this directory and turn them into html links
-    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./torch_nightly.html
+    # N.B. we use the .dev as a hacky way to exclude all wheels with old
+    # 'yyyy.mm.dd' versions
+    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.dev\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./torch_nightly.html
 
     # Check your work every once in a while
     echo 'Setting torch_nightly.html to:'
     cat ./torch_nightly.html
 
     # Upload the html file back up
-    # WARNING seems like this could race.
     # Note the lack of a / b/c duplicate / do cause problems in s3
     aws s3 cp './torch_nightly.html' "${s3_dir}torch_nightly.html"  --acl public-read
 done
