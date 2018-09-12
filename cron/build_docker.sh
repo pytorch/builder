@@ -154,6 +154,7 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
     echo "export PYTORCH_BUILD_VERSION=${PYTORCH_BUILD_VERSION}"
     echo "export PYTORCH_BUILD_NUMBER=${PYTORCH_BUILD_NUMBER}"
     echo "export OVERRIDE_PACKAGE_VERSION=${OVERRIDE_PACKAGE_VERSION}"
+    echo "export TORCH_CONDA_BUILD_FOLDER=${TORCH_CONDA_BUILD_FOLDER}"
     echo "export DEBUG=${DEBUG}"
     echo "export ON_SUCCESS_WRITE_ME=$ON_SUCCESS_WRITE_ME"
 
@@ -168,7 +169,7 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
     # Mark this build as a success. build_multiple expects this file to be
     # written if the build succeeds
-    echo "ret=$?"
+    echo "ret=\$?"
     echo "if [[ $ret == 0 && -n $ON_SUCCESS_WRITE_ME ]]; then"
     echo "    echo 'SUCCESS' > $ON_SUCCESS_WRITE_ME"
     echo "fi"
