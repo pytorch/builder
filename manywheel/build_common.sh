@@ -307,42 +307,44 @@ fi
 
 # Test that all the wheels work
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
-    export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
-    pushd $PYTORCH_DIR/test
-    for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
-        # This assumes that there is a 1:1 correspondence between python versions
-        # and wheels, and that the python version is in the name of the wheel,
-        # and that the python version matches the regex "cp\d\d-cp\d\dmu?"
-        pydir="${python_installations[i]}"
-        pyver="${DESIRED_PYTHON[i]}"
-        pyver_short="${pyver:2:1}.${pyver:3:1}"
-    
-        # Install the wheel for this Python version
-        "${pydir}/bin/pip" uninstall -y "$TORCH_PACKAGE_NAME"
-        "${pydir}/bin/pip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
-    
-        # Print info on the libraries installed in this wheel
-        installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
-        echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
-        for installed_lib in "${installed_libraries[@]}"; do
-            ldd "$installed_lib"
-        done
-    
-        # Test that the wheel works
-        # If given an incantation to use, use it. Otherwise just run all the tests
-        if [[ -n "$RUN_TEST_PARAMS" ]]; then
-            LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py ${RUN_TEST_PARAMS[@]}
-        else
-            if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
-                LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$pydir/bin/python $pydir/bin/python run_test.py -x distributed c10d
-    
-                # Distributed tests are not expected to work on shared GPU machines (as of
-                # 8/06/2018) so the errors from test_distributed are ignored. Expected
-                # errors include socket addresses already being used.
-                set +e
-                LD_LIBRARY_PATH="/usr/local/nvidia/lib64" PYCMD=$PYDIR/bin/python $PYDIR/bin/python run_test.py -i distributed c10d
-                set -e
-            fi
-        fi
+  export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
+  pushd $PYTORCH_DIR/test
+  for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
+    # This assumes that there is a 1:1 correspondence between python versions
+    # and wheels, and that the python version is in the name of the wheel,
+    # and that the python version matches the regex "cp\d\d-cp\d\dmu?"
+    pydir="${python_installations[i]}"
+    curpip="${pydir}/bin/pip"
+    curpy="${pydir}/bin/python"
+    pyver="${DESIRED_PYTHON[i]}"
+    pyver_short="${pyver:2:1}.${pyver:3:1}"
+  
+    # Install the wheel for this Python version
+    "$curpip" uninstall -y "$TORCH_PACKAGE_NAME"
+    "$curpip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
+  
+    # Print info on the libraries installed in this wheel
+    installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
+    echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
+    for installed_lib in "${installed_libraries[@]}"; do
+        ldd "$installed_lib"
     done
+  
+    # Test that the wheel works
+    # If given an incantation to use, use it. Otherwise just run all the tests
+    tests_to_skip=()
+    run_test_cmd="LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD=$curpy $curpy run_test.py"
+    if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
+        # Distributed tests don't work on the shared gpus of CI
+        tests_to_skip+=("distributed" "thd_distributed" "c10d")
+    fi
+    if [[ -n "$RUN_TEST_PARAMS" ]]; then
+         $run_test_cmd ${RUN_TEST_PARAMS[@]}
+    elif [[ -n "$tests_to_skip" ]]; then
+        $run_test_cmd -v -x ${tests_to_skip[@]}
+        $run_test_cmd -v -i ${tests_to_skip[@]} || true
+    else
+        $run_test_cmd
+    fi
+  done
 fi

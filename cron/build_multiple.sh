@@ -1,32 +1,37 @@
 #!/bin/bash
 
+set -ex
+SOURCE_DIR=$(cd $(dirname $0) && pwd)
+source "${SOURCE_DIR}/nightly_defaults.sh"
+
+# Builds a set of packages sequentially with nice output and logging.
+# De-duping is not done. If you specify something twice, it will get built twice.
+#
+# Command line arguments
+#   DESIRED_PYTHONS
+#     All Python versions to build for, separated by commas, in format '2.7mu'
+#     for manywheels or in format '2.7' for conda/mac-wheels e.g.
+#     '2.7m,2.7mu,3.5m,3.6m' or '2.7,3.7' . This can also just be the word
+#     'all', which will expand to all supported python versions.
+#
+#   DESIRED_CUDAS
+#     All CUDA versions to build for including 'cpu', separated by commas, in
+#     format 'cpu' or 'cu80' or 'cu92' etc. e.g. 'cpu,cu80,cu90' or 'cu90,cu92'
+#     . This can also just be the word 'all', which will expand to all
+#     supported cpu/CUDA versions.
+
 if [ "$#" -lt 3 ]; then
     echo 'Illegal number of parameters'
-    echo '     build_multiple.sh [conda|manywheel] DESIRED_PYTHON,s DESIRED_CUDA,s'
+    echo '     build_multiple.sh [conda|manywheel|wheel] DESIRED_PYTHON,s DESIRED_CUDA,s'
     echo 'e.g. build_multiple.sh manywheel 2.7mu,3.5,3.6 cpu,cu80'
     echo 'e.g. build_multiple.sh conda,manywheel 2.7 all'
     echo ' DESIRED_PYTHONs must match:   \d.\d(mu?)?'
     echo ' DESIRED_CUDAs must match  :   (cpu|cu\d\d)'
 fi
 
-# Builds a set of packages sequentially with nice output and logging.
-# De-duping is not done. If you specify something twice, it will get built twice.
-
 nice_time () {
   echo "$(($1 / 3600 )) hours, $(($1 / 60)) minutes, and $(($1 % 60)) seconds"
 }
-
-set -ex
-
-if [[ -z "$NIGHTLIES_FOLDER" ]]; then
-    echo "Env variable NIGHTLIES_FOLDER must be set"
-    exit 1
-fi
-if [[ -z "$NIGHTLIES_DATE" ]]; then
-    export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
-fi
-today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
-SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 # Save all configurations into a big list and loop through them later
 # Read through sets of <package types> <python versions> <cuda versions>
@@ -43,7 +48,7 @@ while [[ $# -gt 0 ]]; do
   # Expand 'all's and add all combos to the list of configurations
   for package_type in "${all_packages[@]}"; do
     if [[ "${all_pythons[0]}" == 'all' ]]; then
-      if [[ "$package_type" == 'conda' ]]; then
+      if [[ "$package_type" == 'conda' || "$package_type" == 'wheel' ]]; then
         all_pythons=('2.7' '3.5' '3.6' '3.7')
       else
         all_pythons=('2.7m' '2.7mu' '3.5m' '3.6m' '3.7m')
@@ -66,9 +71,12 @@ while [[ $# -gt 0 ]]; do
   fi
 done
 
-echo "ALL_PACKAGES IS $all_packages"
-echo "ALL_PYTHONS IS $all_pythons"
-echo "ALL_CUDA IS $all_cuda"
+# Swap build script out on Macs
+if [[ "$(uname)" == 'Darwin' ]]; then
+    build_script="${NIGHTLIES_BUILDER_ROOT}/wheel/build_wheel.sh"
+else
+    build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_docker.sh"
+fi
 
 
 # Allow 'all' to translate to all python/cuda versions
@@ -101,15 +109,13 @@ for config in "${all_configs[@]}"; do
 
   set +e
   set -x
-  if [[ -n "$VERBOSE" ]]; then
-    SECONDS=0
-    "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" 2>&1 | tee "$log_name"
-    duration="$SECONDS"
-  else
-    SECONDS=0
-    "$SOURCE_DIR/build.sh" "$package_type" "$py_ver" "$cuda_ver" > "$log_name" 2>&1
-    duration="$SECONDS"
-  fi
+  SECONDS=0
+  PACKAGE_TYPE="$package_type" \
+          DESIRED_PYTHON="$py_ver" \
+          DESIRED_CUDA="$cuda_ver" \
+          MAC_WHEEL_WORK_DIR="${today}/wheel_build_dirs/${build_tag}" \
+          "$build_script" > "$log_name" 2>&1
+  duration="$SECONDS"
   ret="$?"
   set -e
 

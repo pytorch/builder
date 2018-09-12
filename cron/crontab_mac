@@ -1,0 +1,6 @@
+# m h  dom mon dow   command
+# The only difference between these crontabs is the argument passed to
+# cron_start.sh
+MAILTO='hellemn@fb.com'
+4 0 * * * mkdir -p /Users/administrator/nightlies/$(date +\%Y_\%m_\%d)/logs/master
+5 0 * * * /Users/administrator/git/pjh5/builder/cron/cron_start.sh > /Users/administrator/nightlies/$(date +\%Y_\%m_\%d)/logs/master/cron_start.log 2>&1

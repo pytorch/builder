@@ -1,7 +1,6 @@
 # m h  dom mon dow   command
-# There are currently 36 jobs and 3 machines
-# Each machine should run its 12 jobs in 4 parallel batches, about
-# conda jobs and gpu jobs take longer
+# The only difference between these crontabs is the argument passed to
+# cron_start.sh
 MAILTO='hellemn@fb.com'
-4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_0
-5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/build_cron.sh 0 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/worker_0/cronjob.log 2>&1
+4 0 * * * mkdir -p /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master
+5 0 * * * /scratch/hellemn/git/pjh5/builder/cron/cron_start.sh 0 > /scratch/hellemn/nightlies/$(date +\%Y_\%m_\%d)/logs/master/start_cron.log 2>&1
