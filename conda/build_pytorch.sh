@@ -12,7 +12,7 @@ set -ex
 #     stored.
 #     
 # MACOS env variables that should be set
-#   MAC_PACKAGE_FINAL_FOLDER
+#   MAC_CONDA_FINAL_FOLDER
 #     **Absolute** path to folder where final packages will be stored.
 #
 #   MAC_PACKAGE_WORK_DIR
@@ -217,9 +217,9 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         mkdir -p "$HOST_PACKAGE_DIR/conda" || true
         cp "$built_package" "$HOST_PACKAGE_DIR/conda/"
     fi
-    if [[ -n "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
-        mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
-        cp "$built_package" "$MAC_PACKAGE_FINAL_FOLDER"
+    if [[ -n "$MAC_CONDA_FINAL_FOLDER" ]]; then
+        mkdir -p "$MAC_CONDA_FINAL_FOLDER" || true
+        cp "$built_package" "$MAC_CONDA_FINAL_FOLDER"
     fi
 
     conda install -y "$built_package"

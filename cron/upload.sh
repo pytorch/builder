@@ -20,14 +20,18 @@ if [[ -z "$CUDA_VERSIONS" ]]; then
     export CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
 fi
 
-# Upload wheels
-# manywheel/upload.sh looks in the current directory for wheelhousecpu/ etc
-# folders
-pushd "$today"
-"${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
-popd
+if [[ "$(uname)" == 'Darwin' ]]; then
+    # Upload everything
+    "${NIGHTLIES_BUILDER_ROOT}/wheel/upload.sh"
+else
+    # Upload wheels
+    # manywheel/upload.sh looks in the current directory for wheelhousecpu/ etc
+    pushd "$today"
+    "${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
+    popd
+
+    # TODO upload condas
+fi
 
 # Update wheel htmls
 "${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"
-
-# TODO upload condas

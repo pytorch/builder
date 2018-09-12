@@ -98,10 +98,8 @@ for config in "${all_configs[@]}"; do
   if [[ "$(uname)" == 'Darwin' ]]; then
       if [[ "$package_type" == 'conda' ]]; then
           build_script="${NIGHTLIES_BUILDER_ROOT}/conda/build_pytorch.sh"
-          mac_package_folder="${today}/mac_condas"
       else
           build_script="${NIGHTLIES_BUILDER_ROOT}/wheel/build_wheel.sh"
-          mac_package_folder="${today}/mac_wheels"
       fi
   else
       build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_docker.sh"
@@ -120,7 +118,6 @@ for config in "${all_configs[@]}"; do
           DESIRED_PYTHON="$py_ver" \
           DESIRED_CUDA="$cuda_ver" \
           MAC_PACKAGE_WORK_DIR="${today}/wheel_build_dirs/${build_tag}" \
-          MAC_PACKAGE_FINAL_FOLDER="$mac_package_folder" \
           "$build_script" > "$log_name" 2>&1
   duration="$SECONDS"
   ret="$?"

@@ -5,7 +5,7 @@ set -ex
 #   DESIRED_PYTHON
 #     Which Python version to build for in format 'Maj.min' e.g. '2.7' or '3.6'
 #     
-#   MAC_PACKAGE_FINAL_FOLDER
+#   MAC_LIBTORCH_FINAL_FOLDER
 #     **absolute** path to folder where final whl packages will be stored. The
 #     default should not be used when calling this from a script. The default
 #     is 'whl', and corresponds to the default in the wheel/upload.sh script.
@@ -70,6 +70,7 @@ export PYTORCH_BUILD_NUMBER=$build_number
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
 fi
+TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
 if [[ -z "$PYTORCH_REPO" ]]; then
     PYTORCH_REPO='pytorch'
 fi
@@ -79,14 +80,12 @@ fi
 if [[ -z "$RUN_TEST_PARAMS" ]]; then
     RUN_TEST_PARAMS=()
 fi
-if [[ -z "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
-    # This should really be an absolute path to make it easy for upload.sh to
-    # know where to find the final packages
-    if [[ -z "$BUILD_PYTHONLESS" ]]; then
-        MAC_PACKAGE_FINAL_FOLDER='whl'
-    else
-        MAC_PACKAGE_FINAL_FOLDER='libtorch_packages'
-    fi
+if [[ -n "$BUILD_PYTHONLESS" && -z "$MAC_WHEEL_FINAL_FOLDER" ]]; then
+    # Don't try to upload the whl if not building it
+    MAC_WHEEL_FINAL_FOLDER='whl'
+fi
+if [[ -z "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
+    MAC_LIBTORCH_FINAL_FOLDER='libtorch_packages'
 fi
 
 # Create an isolated directory to store this builds pytorch checkout and conda
@@ -96,6 +95,7 @@ if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
 fi
 mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
 pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
+whl_tmp_dir="${MAC_PACKAGE_WORK_DIR}/dist"
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
 if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
@@ -103,6 +103,8 @@ if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
 else
     mac_version='macosx_10_7_x86_64'
 fi
+
+# Determine the wheel package name so that we can rename it later
 wheel_filename_gen="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-cp${python_nodot}m-${mac_version}.whl"
 wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-none-${mac_version}.whl"
 
@@ -139,6 +141,10 @@ conda create -n "$CONDA_ENVNAME" python="$desired_python" -y
 source activate "$CONDA_ENVNAME"
 export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
 # now $PREFIX should point to your conda env
+echo "Conda root: $CONDA_ROOT_PREFIX"
+echo "Env root: $PREFIX"
+echo "Python Version:"
+python --version
 
 
 # Have a separate Pytorch repo clone
@@ -150,43 +156,43 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
         git checkout tags/v${build_version}
     fi
     git submodule update --init --recursive
+    popd
 fi
 
 ##########################
 # now build the binary
 
-echo "Conda root: $CONDA_ROOT_PREFIX"
-echo "Env root: $PREFIX"
 
 export TH_BINARY_BUILD=1
-
-echo "Python Version:"
-python --version
-
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
 conda install -n $CONDA_ENVNAME -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
-pip install -r "$(pwd)/requirements.txt" || true
+pip install -r "${pytorch_rootdir}/requirements.txt" || true
 
-python setup.py bdist_wheel
+pushd "$pytorch_rootdir"
+python setup.py bdist_wheel -d "$whl_tmp_dir"
+popd
 
-if [[ -z "$BUILD_PYTHONLESS" ]];
-then
+# Copy the whl to a final destination before tests are run
+echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
+if [[ -n "$MAC_WHEEL_FINAL_FOLDER" ]]; then
+    mkdir -p "$MAC_WHEEL_FINAL_FOLDER" || true
+    cp "$whl_tmp_dir/$wheel_filename_gen" "$MAC_WHEEL_FINAL_FOLDER/$wheel_filename_new"
+fi
+
+if [[ -z "$BUILD_PYTHONLESS" ]]; then
     ##########################
     # now test the binary
-    pip uninstall -y torch || true
-    pip uninstall -y torch || true
+    pip uninstall -y "$TORCH_PACKAGE_NAME" || true
+    pip uninstall -y "$TORCH_PACKAGE_NAME" || true
 
-    pip install "$(pwd)/dist/$wheel_filename_gen"
-    pushd test
+    # Only one binary is built, so it's safe to just specify the whl directory
+    pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir"
+    pushd "${pytorch_rootdir}/test"
     python run_test.py ${RUN_TEST_PARAMS[@]} || true
     popd
-
-    # N.B. this is hardcoded to match wheel/upload.sh, which uploads from whl/
-    echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-    mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
-    cp "$(pwd)/dist/$wheel_filename_gen" "$MAC_PACKAGE_FINAL_FOLDER/$wheel_filename_new"
 else
+    pushd "$pytorch_rootdir"
     mkdir -p build
     pushd build
     python ../tools/build_libtorch.py
@@ -206,8 +212,10 @@ else
     # header of the same name
     rm "$(pwd)/libtorch/include/torch/torch.h"
 
-    mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
-    zip -rq "$MAC_PACKAGE_FINAL_FOLDER/libtorch-macos.zip" libtorch
+    if [[ -n "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
+        mkdir -p "$MAC_LIBTORCH_FINAL_FOLDER" || true
+        zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos.zip" libtorch
+    fi
 fi
 
 popd

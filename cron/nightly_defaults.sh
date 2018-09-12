@@ -100,3 +100,10 @@ fi
 if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
     export PIP_UPLOAD_FOLDER='nightly/'
 fi
+
+# MAC_(CONDA|WHEEL)_FINAL_FOLDER
+#   Absolute path to the folders where final conda/wheel packages should be
+#   stored
+export MAC_CONDA_FINAL_FOLDER="${today}/mac_condas"
+export MAC_WHEEL_FINAL_FOLDER="${today}/mac_wheels"
+export MAC_LIBTORCH_FINAL_FOLDER="${today}/mac_libtorch_packages"
