@@ -5,7 +5,7 @@ set -ex
 #   DESIRED_PYTHON
 #     Which Python version to build for in format 'Maj.min' e.g. '2.7' or '3.6'
 #     
-#   MAC_PACKAGE_FINAL_FOLDER
+#   MAC_LIBTORCH_FINAL_FOLDER
 #     **absolute** path to folder where final whl packages will be stored. The
 #     default should not be used when calling this from a script. The default
 #     is 'whl', and corresponds to the default in the wheel/upload.sh script.
@@ -80,14 +80,12 @@ fi
 if [[ -z "$RUN_TEST_PARAMS" ]]; then
     RUN_TEST_PARAMS=()
 fi
-if [[ -z "$MAC_PACKAGE_FINAL_FOLDER" ]]; then
-    # This should really be an absolute path to make it easy for upload.sh to
-    # know where to find the final packages
-    if [[ -z "$BUILD_PYTHONLESS" ]]; then
-        MAC_PACKAGE_FINAL_FOLDER='whl'
-    else
-        MAC_PACKAGE_FINAL_FOLDER='libtorch_packages'
-    fi
+if [[ -n "$BUILD_PYTHONLESS" && -z "$MAC_WHEEL_FINAL_FOLDER" ]]; then
+    # Don't try to upload the whl if not building it
+    MAC_WHEEL_FINAL_FOLDER='whl'
+fi
+if [[ -z "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
+    MAC_LIBTORCH_FINAL_FOLDER='libtorch_packages'
 fi
 
 # Create an isolated directory to store this builds pytorch checkout and conda
@@ -177,8 +175,10 @@ popd
 
 # Copy the whl to a final destination before tests are run
 echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
-cp "$whl_tmp_dir/$wheel_filename_gen" "$MAC_PACKAGE_FINAL_FOLDER/$wheel_filename_new"
+if [[ -n "$MAC_WHEEL_FINAL_FOLDER" ]]; then
+    mkdir -p "$MAC_WHEEL_FINAL_FOLDER" || true
+    cp "$whl_tmp_dir/$wheel_filename_gen" "$MAC_WHEEL_FINAL_FOLDER/$wheel_filename_new"
+fi
 
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
     ##########################
@@ -212,8 +212,10 @@ else
     # header of the same name
     rm "$(pwd)/libtorch/include/torch/torch.h"
 
-    mkdir -p "$MAC_PACKAGE_FINAL_FOLDER" || true
-    zip -rq "$MAC_PACKAGE_FINAL_FOLDER/libtorch-macos.zip" libtorch
+    if [[ -n "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
+        mkdir -p "$MAC_LIBTORCH_FINAL_FOLDER" || true
+        zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos.zip" libtorch
+    fi
 fi
 
 popd
