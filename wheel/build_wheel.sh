@@ -211,5 +211,3 @@ else
         zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos.zip" libtorch
     fi
 fi
-
-popd
