@@ -27,9 +27,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 else
     # Upload wheels
     # manywheel/upload.sh looks in the current directory for wheelhousecpu/ etc
-    pushd "$today"
-    "${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
-    popd
+    PACKAGE_ROOT_DIR="$today" "${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
 
     # TODO upload condas
 fi

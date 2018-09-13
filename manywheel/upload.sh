@@ -4,6 +4,10 @@ set -ex
 # (when uploading to e.g. whl/cpu/) and also to handle nightlies (when
 # uploading to e.g. /whl/nightly/cpu)
 
+if [[ -z "$PACKAGE_ROOT_DIR" ]]; then
+    PACKAGE_ROOT_DIR="$(pwd)"
+fi
+
 # Upload for all CUDA/cpu versions if not given one to use
 if [[ -z "$CUDA_VERSIONS" ]]; then
     CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
@@ -20,11 +24,11 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     s3_wheel_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
     s3_libtorch_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
     if [[ "$cuda_ver" == cpu ]]; then
-        wheel_dir="wheelhousecpu/"
-        libtorch_dir="libtorch_housecpu/"
+        wheel_dir="${PACKAGE_ROOT_DIR}/wheelhousecpu/"
+        libtorch_dir="${PACKAGE_ROOT_DIR}/libtorch_housecpu/"
     else
-        wheel_dir="wheelhouse${cuda_ver:2:2}/"
-        libtorch_dir="libtorch_house${cuda_ver:2:2}/"
+        wheel_dir="${PACKAGE_ROOT_DIR}/wheelhouse${cuda_ver:2:2}/"
+        libtorch_dir="${PACKAGE_ROOT_DIR}/libtorch_house${cuda_ver:2:2}/"
     fi
 
     # Upload the wheels to s3
