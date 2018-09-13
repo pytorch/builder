@@ -161,7 +161,7 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     pip uninstall -y "$TORCH_PACKAGE_NAME" || true
 
     # Only one binary is built, so it's safe to just specify the whl directory
-    pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir"
+    pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir" --no-dependencies -v
 
     # Run the tests
     tests_to_skip=("jit")

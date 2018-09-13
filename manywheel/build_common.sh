@@ -315,7 +315,7 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
 
     # Install the wheel for this Python version
     "$curpip" uninstall -y "$TORCH_PACKAGE_NAME"
-    "$curpip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies
+    "$curpip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
     # Print info on the libraries installed in this wheel
     installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
