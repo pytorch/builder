@@ -22,7 +22,7 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     # Pull all existing whls in this directory and turn them into html links
     # N.B. we use the .dev as a hacky way to exclude all wheels with old
     # 'yyyy.mm.dd' versions
-    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.dev\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./torch_nightly.html
+    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.dev20\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./torch_nightly.html
 
     # Check your work every once in a while
     echo 'Setting torch_nightly.html to:'

@@ -28,9 +28,13 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     fi
 
     # Upload the wheels to s3
-    echo "Uploading all of: $(ls $wheel_dir) to $s3_wheel_dir"
-    ls "$wheel_dir" | xargs -I {} aws s3 cp "$wheel_dir"/{} "$s3_wheel_dir" --acl public-read
+    if [[ -d "$wheel_dir" ]]; then
+        echo "Uploading all of: $(ls $wheel_dir) to $s3_wheel_dir"
+        ls "$wheel_dir" | xargs -I {} aws s3 cp "$wheel_dir"/{} "$s3_wheel_dir" --acl public-read
+    fi
 
-    echo "Uploading all of: $(ls $libtorch_dir) to $s3_libtorch_dir"
-    ls "$libtorch_dir" | xargs -I {} aws s3 cp "$libtorch_dir"/{} "$s3_libtorch_dir" --acl public-read
+    if [[ -d "$libtorch_dir" ]]; then
+        echo "Uploading all of: $(ls $libtorch_dir) to $s3_libtorch_dir"
+        ls "$libtorch_dir" | xargs -I {} aws s3 cp "$libtorch_dir"/{} "$s3_libtorch_dir" --acl public-read
+    fi
 done
