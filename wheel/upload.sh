@@ -26,7 +26,8 @@ fi
 # Upload libtorch packages to s3
 if [[ -d "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
     s3_dir="s3://pytorch/libtorch_packages/${PIP_UPLOAD_FOLDER}cpu/"
-    echo "Uploading all of: $(ls $MAC_LIBTORCH_FINAL_FOLDER) to $s3_dir (but not actually)"
+    echo "Uploading all of: $(ls $MAC_LIBTORCH_FINAL_FOLDER) to $s3_dir"
+    ls "$MAC_LIBTORCH_FINAL_FOLDER" | xargs -I {} aws s3 cp "$MAC_LIBTORCH_FINAL_FOLDER"/{} "$s3_dir" --acl public-read
 fi
 
 # Upload conda packages
