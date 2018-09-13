@@ -93,11 +93,10 @@ elif [[ "$which_worker" == 2 ]]; then
 elif [[ "$which_worker" == 'mac' ]]; then
     # wheel all
     # conda all cpu
-    # 'conda 3.5,3.6,3.7 cpu'
-    # 'wheel 3.7 cpu -- conda 2.7 cpu'
     tasks=(
-        'wheel 2.7,3.5 cpu'
-        'wheel 3.6,3.7 cpu'
+        'wheel 2.7,3.5,3.6 cpu'
+        'wheel 3.7 cpu -- conda 2.7 cpu'
+        'conda 3.5,3.6,3.7 cpu'
     )
 fi
 
