@@ -2,7 +2,7 @@
 
 set -ex
 
-echo "build_docker.sh at $(pwd) starting at $(date) on $(uname -a)"
+echo "build_docker.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 

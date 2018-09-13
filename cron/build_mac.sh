@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -ex
-echo "build_mac.sh at $(pwd) starting at $(date) on $(uname -a)"
+echo "build_mac.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$ with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
@@ -37,7 +37,7 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 ##############################################################################
 
 if [[ -z "$DESIRED_PYTHON" ]]; then
-    echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
+    echo "The env variabled DESIRED_PYTHON must be set like '2.7' or '3.6' etc"
     exit 1
 fi
 if [[ -z "$PACKAGE_TYPE" ]]; then

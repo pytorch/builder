@@ -5,7 +5,10 @@ set -ex
 # Default parameters for nightly builds to be sourced both by build_cron.sh and
 # by the build_docker.sh and wheel/build_wheel.sh scripts.
 
-echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a)"
+echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
+
+# List of people to email when things go wrong
+NIGHTLIES_EMAIL_LIST=('hellemn@fb.com')
 
 # NIGHTLIES_FOLDER
 # N.B. this is also defined in cron_start.sh
@@ -122,3 +125,11 @@ fi
 export MAC_CONDA_FINAL_FOLDER="${today}/mac_condas"
 export MAC_WHEEL_FINAL_FOLDER="${today}/mac_wheels"
 export MAC_LIBTORCH_FINAL_FOLDER="${today}/mac_libtorch_packages"
+
+# (FAILED|SUCCEEDED)_LOG_DIR
+#   Absolute path to folders that store final logs. Initially these folders
+#   should be empty. When a build fails, it's log should be moved to
+#   FAILED_LOG_DIR, thus tracking failures/succeeded builds and also keeping
+#   logs in a convenient place.
+export FAILED_LOG_DIR="${today}/logs/failed"
+export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
