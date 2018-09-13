@@ -90,6 +90,7 @@ fi
 mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
 pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
 whl_tmp_dir="${MAC_PACKAGE_WORK_DIR}/dist"
+mkdir -p "$whl_tmp_dir"
 
 # Python 2.7 and 3.5 build against macOS 10.6, others build against 10.7
 if [[ "$desired_python" == 2.7 || "$desired_python" == 3.5 ]]; then
@@ -117,30 +118,6 @@ export PATH="$tmp_conda/bin:$PATH"
 echo $PATH
 
 
-export CONDA_ROOT_PREFIX=$(conda info --root)
-
-# TODO since it's a separate conda install it's probably safe to delete this
-# env logic
-conda remove --name py2k  --all -y || true
-conda remove --name py35k --all -y || true
-conda remove --name py36k --all -y || true
-conda remove --name py37k --all -y || true
-conda info --envs
-
-# create env and activate
-echo "Requested python version ${desired_python}. Activating conda environment"
-export CONDA_ENVNAME="py${python_nodot}k"
-conda env remove -yn "$CONDA_ENVNAME" || true
-conda create -n "$CONDA_ENVNAME" python="$desired_python" -y
-source activate "$CONDA_ENVNAME"
-export PREFIX="$CONDA_ROOT_PREFIX/envs/$CONDA_ENVNAME"
-# now $PREFIX should point to your conda env
-echo "Conda root: $CONDA_ROOT_PREFIX"
-echo "Env root: $PREFIX"
-echo "Python Version:"
-python --version
-
-
 # Have a separate Pytorch repo clone
 if [[ ! -d "$pytorch_rootdir" ]]; then
     git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_rootdir"
@@ -160,11 +137,12 @@ fi
 export TH_BINARY_BUILD=1
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
-conda install -n $CONDA_ENVNAME -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
+conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 pip install -r "${pytorch_rootdir}/requirements.txt" || true
 
 pushd "$pytorch_rootdir"
 python setup.py bdist_wheel -d "$whl_tmp_dir"
+echo "The wheel is in $(find $pytorch_rootdir -name '*.whl')"
 popd
 
 # Copy the whl to a final destination before tests are run
