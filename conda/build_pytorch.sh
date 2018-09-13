@@ -245,7 +245,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     fi
     if [[ "$(uname)" == 'Darwin' ]]; then
         # TODO investigate this
-        tests_to_skip+=('cpp_extension')
+        tests_to_skip+=('cpp_extensions')
     fi
     pushd "$pytorch_rootdir"
     if [[ -n "$RUN_TEST_PARAMS" ]]; then

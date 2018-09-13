@@ -162,8 +162,12 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
 
     # Only one binary is built, so it's safe to just specify the whl directory
     pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir"
+
+    # Run the tests
+    tests_to_skip=("jit")
     pushd "${pytorch_rootdir}/test"
-    python run_test.py ${RUN_TEST_PARAMS[@]} || true
+    python run_test.py ${RUN_TEST_PARAMS[@]} -v -x "${tests_to_skip[@]}"
+    python run_test.py ${RUN_TEST_PARAMS[@]} -v -i "${tests_to_skip[@]}" || true
     popd
 else
     pushd "$pytorch_rootdir"
