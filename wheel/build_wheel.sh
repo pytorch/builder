@@ -4,7 +4,7 @@ set -ex
 # Env variables that should be set:
 #   DESIRED_PYTHON
 #     Which Python version to build for in format 'Maj.min' e.g. '2.7' or '3.6'
-#     
+#
 #   MAC_LIBTORCH_FINAL_FOLDER
 #     **absolute** path to folder where final whl packages will be stored. The
 #     default should not be used when calling this from a script. The default
@@ -26,7 +26,7 @@ else
         echo "Python version should be in format 'M.m'"
         exit 1
     fi
-    
+
     desired_python=$1
     build_version=$2
     build_number=$3
@@ -183,7 +183,7 @@ else
 
     # for now, the headers for the libtorch package will just be
     # copied in from the wheel
-    unzip -d any_wheel dist/$wheel_filename_gen
+    unzip -d any_wheel "$whl_tmp_dir/$wheel_filename_gen"
     cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
     cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
     rm -rf "$(pwd)/any_wheel"

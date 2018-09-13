@@ -5,7 +5,7 @@ echo "build_mac.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$ with
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
-# Handles building for mac wheels and mac conda packages.
+# Handles building for mac wheels and mac conda packages and mac libtorch packages.
 # Env variables that should be set:
 #   PYTORCH_BUILD_VERSION
 #     This is the version string, e.g. 0.4.1 , that will be used as the
@@ -41,10 +41,10 @@ if [[ -z "$DESIRED_PYTHON" ]]; then
     exit 1
 fi
 if [[ -z "$PACKAGE_TYPE" ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'wheel'"
+    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'wheel' or 'libtorch'"
     exit 1
-elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'wheel' ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'wheel'"
+elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'wheel' && "$PACKAGE_TYPE" != 'libtorch' ]]; then
+    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'wheel' or 'libtorch'"
     exit 1
 fi
 package_type="$PACKAGE_TYPE"
@@ -73,6 +73,10 @@ if [[ "$package_type" == 'conda' ]]; then
     "${NIGHTLIES_BUILDER_ROOT}/conda/build_pytorch.sh"
     ret="$?"
 else
+    if [[ "$package_type" == 'libtorch' ]]; then
+        export BUILD_PYTHONLESS=1
+    fi
+
     # Wheel settings
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
     export MAC_PACKAGE_FINAL_FOLDER="$MAC_WHEEL_FINAL_FOLDER"
