@@ -117,6 +117,9 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
     git checkout "$PYTORCH_BRANCH"
     popd
 fi
+pushd "$pytorch_rootdir"
+git submodule update --init --recursive
+popd
 
 #
 # Mac conda builds need their own siloed conda. Dockers don't since each docker

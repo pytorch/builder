@@ -128,9 +128,11 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
         echo "Could not checkout $PYTORCH_BRANCH, so trying tags/v${build_version}"
         git checkout tags/v${build_version}
     fi
-    git submodule update --init --recursive
     popd
 fi
+pushd "$pytorch_rootdir"
+git submodule update --init --recursive
+popd
 
 ##########################
 # now build the binary
