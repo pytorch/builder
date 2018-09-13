@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -ex
-echo "build_cron.sh at $(pwd) starting at $(date) on $(uname -a)"
+echo "build_cron.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
@@ -41,8 +41,16 @@ else
     fi
 fi
 
-mkdir -p "${today}/logs/failed" || true
-mkdir -p "${today}/logs/succeeded" || true
+if [[ -d "$FAILED_LOG_DIR" || -d "$SUCCEEDED_LOG_DIR" ]]; then
+    echo "The failed/succeeded log dirs already exist for this date."
+    echo "Please delete or remove the existing directories."
+    exit 1
+fi
+
+mkdir -p "$FAILED_LOG_DIR"
+mkdir -p "$SUCCEEDED_LOG_DIR"
+log_root="$today/logs/master/worker_$which_worker"
+mkdir -p "$log_root"
 
 # Divy up the tasks
 #
@@ -94,11 +102,32 @@ elif [[ "$which_worker" == 'mac' ]]; then
 fi
 
 # Run the tasks
-log_root="$today/logs/master/worker_$which_worker"
-mkdir -p "$log_root"
+child_pids=()
 for task in "${tasks[@]}"; do
     log_file="$log_root/$(echo $task | tr ' ' '_' | tr -d ',-').log"
     "${NIGHTLIES_BUILDER_ROOT}/cron/build_multiple.sh" $task > "$log_file" 2>&1 &
+    child_pid="$!"
+    echo "Starting [build_multiple.sh $task] at $(date) with pid $child_pid"
+    child_pids+=("$child_pid")
 done
 
-# TODO capture PIDs of processes and wait for them to call upload.sh
+# Wait for all the jobs to finish
+echo "Waiting for all jobs to finish at $(date)"
+for child_pid in "${child_pids[@]}"; do
+    wait "$child_pid"
+done
+echo "All jobs finished! at $(date)"
+
+# Count the total number of failures
+num_failures="$( ls -1q $FAILED_LOG_DIR | wc -l )"
+echo "Detected $num_failures failed builds"
+
+# If there were no failures the upload the binaries, otherwise email someone
+if [[ "$num_failures" == 0 ]]; then
+    echo "No failures detected. Moving on to upload.sh"
+    "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh"
+else
+    echo "Emailing all of ${NIGHTLIES_EMAIL_LIST[@]} (but not implemented yet)"
+fi
+
+
