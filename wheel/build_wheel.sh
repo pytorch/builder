@@ -116,6 +116,8 @@ chmod +x "$miniconda_sh" && \
     rm "$miniconda_sh"
 export PATH="$tmp_conda/bin:$PATH"
 echo $PATH
+conda create -yn "py$python_nodot" python="$desired_python"
+source activate "py$python_nodot"
 
 
 # Have a separate Pytorch repo clone
