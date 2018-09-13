@@ -30,9 +30,9 @@ else
         echo "e.g. ./build_cron.sh 0"
         exit 1
     fi
-    
+
     which_worker=$1
-    
+
     # This file is hardcoded to exactly 3 linux workers and 1 mac worker
     if [[ "$which_worker" != 0 && "$which_worker" != 1 && "$which_worker" != 2 ]]; then
         echo "Illegal parameter. This script is made for exactly 3 workers."
@@ -54,14 +54,16 @@ mkdir -p "$log_root"
 
 # Divy up the tasks
 #
-# There are currently 36 jobs and 3 machines
-# Each machine should run its 12 jobs in 4 parallel batches, about
+# There are currently 41 jobs and 3 machines
+# Each machine should run its 12/13 jobs in 5 parallel batches, about
 # conda jobs and gpu jobs take longer
 #
 # The jobs is the combination of all:
 # manywheel X [2.7m 2.7mu 3.5m 3.6m 3.7m] X [cpu cu80 cu90 cu92]
 # conda     X [2.7        3.5  3.6  3.7 ] X [cpu cu80 cu90 cu92]
 # wheel     X [2.7        3.5  3.6  3.7 ] X [cpu               ]
+# libtorch  X [2.7m                     ] X [cpu cu80 cu90 cu92] (linux)
+# libtorch  X [2.7                      ] X [cpu               ] (mac)
 #
 # cpu builds ~ 15 minutes. gpu builds > 1 hr
 # Try to divide the cpu jobs evenly among the  tasks
@@ -72,6 +74,7 @@ if [[ "$which_worker" == 0 ]]; then
         'manywheel 2.7mu cpu,cu80,cu90'
         'manywheel 3.5m cpu,cu80,cu90'
         'manywheel 2.7m,2.7mu,3.5m cu92'
+        'libtorch 2.7m cpu,cu80'
     )
 elif [[ "$which_worker" == 1 ]]; then
     # manywheel 3.6m,3.7, all
@@ -81,6 +84,7 @@ elif [[ "$which_worker" == 1 ]]; then
         'manywheel 3.7m cpu,cu80,cu90'
         'conda 2.7 cpu,cu80,cu90'
         'manywheel 3.6m,3.7m cu92  -- conda 2.7 cu92'
+        'libtorch 2.7m cu90'
     )
 elif [[ "$which_worker" == 2 ]]; then
     # conda 3.5,3.6,3.7 all
@@ -89,6 +93,7 @@ elif [[ "$which_worker" == 2 ]]; then
         'conda 3.6 cpu,cu80,cu90'
         'conda 3.7 cpu,cu80,cu90'
         'conda 3.5,3.6,3.7 cu92'
+        'libtorch 2.7m cu92'
     )
 elif [[ "$which_worker" == 'mac' ]]; then
     # wheel all
@@ -97,6 +102,7 @@ elif [[ "$which_worker" == 'mac' ]]; then
         'wheel 2.7,3.5,3.6 cpu'
         'wheel 3.7 cpu -- conda 2.7 cpu'
         'conda 3.5,3.6,3.7 cpu'
+        'libtorch 2.7 cpu'
     )
 fi
 
@@ -128,5 +134,3 @@ if [[ "$num_failures" == 0 ]]; then
 else
     echo "Emailing all of ${NIGHTLIES_EMAIL_LIST[@]} (but not implemented yet)"
 fi
-
-
