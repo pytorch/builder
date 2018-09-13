@@ -175,12 +175,12 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
     # Mark this build as a success. build_multiple expects this file to be
     # written if the build succeeds
-    echo "ret=\$?"
-    echo "if [[ $ret == 0 && -n $ON_SUCCESS_WRITE_ME ]]; then"
-    echo "    echo 'SUCCESS' > $ON_SUCCESS_WRITE_ME"
-    echo "fi"
+    echo 'ret=$?'
+    echo 'if [[ $ret == 0 && -n $ON_SUCCESS_WRITE_ME ]]; then'
+    echo '    echo 'SUCCESS' > $ON_SUCCESS_WRITE_ME'
+    echo 'fi'
 
-    echo "exit $ret"
+    echo 'exit $ret'
 ) | nvidia-docker exec -i "$id" bash
 echo "docker run exited with $?"
 
