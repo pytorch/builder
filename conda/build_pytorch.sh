@@ -165,7 +165,6 @@ else
         # ATen tests can't build with CUDA 9.2 and the old compiler used here
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
     fi
-    ALLOW_DISTRIBUTED_TEST_ERRORS=1
 fi
 
 # Loop through all Python versions to build a package for each
@@ -218,11 +217,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     conda install -y "$built_package"
 
     # Run tests
-    tests_to_skip=()
-    if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
-        # Distributed tests don't work on the shared gpus of CI
-        tests_to_skip+=("distributed" "thd_distributed" "c10d")
-    fi
+    # Distributed tests don't work
+    tests_to_skip=("distributed" "thd_distributed" "c10d")
     if [[ "$py_ver" == '2.7' ]]; then
         # test_wrong_return_type doesn't work on the latest conda python 2.7
         # version TODO verify this

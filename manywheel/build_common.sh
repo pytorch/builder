@@ -326,11 +326,8 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
 
     # Test that the wheel works
     # If given an incantation to use, use it. Otherwise just run all the tests
-    tests_to_skip=()
-    if [[ "$ALLOW_DISTRIBUTED_TEST_ERRORS" ]]; then
-        # Distributed tests don't work on the shared gpus of CI
-        tests_to_skip+=("distributed" "thd_distributed" "c10d")
-    fi
+    # Distributed tests don't work
+    tests_to_skip=("distributed" "thd_distributed" "c10d")
     if [[ -n "$RUN_TEST_PARAMS" ]]; then
         LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py ${RUN_TEST_PARAMS[@]}
     elif [[ -n "$tests_to_skip" ]]; then

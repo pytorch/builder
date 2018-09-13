@@ -123,6 +123,9 @@ docker_args+=" -d"
 # Mount the folder that will collect the finished packages
 docker_args+=" -v ${host_package_dir}:${docker_package_dir}"
 
+# Mount the folder that stores the file in which to write SUCCESS at the end
+docker_args+=" -v $(dirname $ON_SUCCESS_WRITE_ME):/statuses"
+
 # Run Docker as the user of this script
 # This prevents using the CUDA on the docker images
  #docker_args+=" --user $(id -u):$(id -g)"
@@ -160,7 +163,7 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
     echo "export OVERRIDE_PACKAGE_VERSION=${OVERRIDE_PACKAGE_VERSION}"
     echo "export TORCH_CONDA_BUILD_FOLDER=${TORCH_CONDA_BUILD_FOLDER}"
     echo "export DEBUG=${DEBUG}"
-    echo "export ON_SUCCESS_WRITE_ME=$ON_SUCCESS_WRITE_ME"
+    echo "export ON_SUCCESS_WRITE_ME=/statuses/$(basename $ON_SUCCESS_WRITE_ME)"
 
     echo "export BUILD_PYTHONLESS=${building_pythonless}"
 

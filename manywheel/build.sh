@@ -95,7 +95,5 @@ else
     exit 1
 fi
 
-ALLOW_DISTRIBUTED_TEST_ERRORS=1
-
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 source $SCRIPTPATH/build_common.sh
