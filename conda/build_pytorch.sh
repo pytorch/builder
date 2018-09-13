@@ -5,6 +5,10 @@ fi
 
 set -ex
 
+# TODO there is a LOT of duplicate code everywhere. There's duplicate code for
+# mac siloing of pytorch and conda installations with wheel/build_wheel.sh.
+# There's also duplicate versioning logic amongst *all* the building scripts
+
 # Env variables that should be set
 # LINUX env variables that should be set
 #   HOST_PACKAGE_DIR
@@ -59,9 +63,6 @@ if [[ -z "$PYTORCH_BRANCH" ]]; then
     PYTORCH_BRANCH="v$build_version"
 fi
 
-# Don't upload the packages until we've verified that they're correct
-conda config --set anaconda_upload no
-
 # Fill in missing env variables
 if [ -z "$ANACONDA_TOKEN" ]; then
     # Token needed to upload to the conda channel above
@@ -96,6 +97,43 @@ else
     cuda_nodot="$desired_cuda"
     desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
 fi
+if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
+    MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
+fi
+
+#
+# Clone the Pytorch repo
+if [[ "$(uname)" == 'Darwin' ]]; then
+    mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
+    pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
+elif [[ -d '/pytorch' ]]; then
+    pytorch_rootdir='/pytorch'
+else
+    pytorch_rootdir="$(pwd)/root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
+fi
+if [[ ! -d "$pytorch_rootdir" ]]; then
+    git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_rootdir"
+    pushd "$pytorch_rootdir"
+    git checkout "$PYTORCH_BRANCH"
+    popd
+fi
+
+#
+# Mac conda builds need their own siloed conda. Dockers don't since each docker
+# image comes with a siloed conda
+if [[ "$(uname)" == 'Darwin' ]]; then
+    tmp_conda="${MAC_PACKAGE_WORK_DIR}/conda"
+    miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
+    rm -rf "$tmp_conda"
+    rm -f "$miniconda_sh"
+    curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+    chmod +x "$miniconda_sh" && \
+        "$miniconda_sh" -b -p "$tmp_conda" && \
+        rm "$miniconda_sh"
+    export PATH="$tmp_conda/bin:$PATH"
+    echo $PATH
+    conda install -y conda-build
+fi
 
 
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
@@ -124,26 +162,6 @@ if [[ ! -d "$build_folder" ]]; then
 fi
 meta_yaml="$build_folder/meta.yaml"
 echo "Using conda-build folder $build_folder"
-
-#
-# Clone the Pytorch repo
-if [[ "$(uname)" == 'Darwin' ]]; then
-    if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
-        MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_wheel_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
-    fi
-    mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
-    pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
-elif [[ -d '/pytorch' ]]; then
-    pytorch_rootdir='/pytorch'
-else
-    pytorch_rootdir="$(pwd)/root_${GITHUB_ORG}pytorch${PYTORCH_BRANCH}"
-fi
-if [[ ! -d "$pytorch_rootdir" ]]; then
-    git clone "https://github.com/${PYTORCH_REPO}/pytorch" "$pytorch_rootdir"
-    pushd "$pytorch_rootdir"
-    git checkout "$PYTORCH_BRANCH"
-    popd
-fi
 
 # Switch between CPU or CUDA configerations
 build_string_suffix="$PYTORCH_BUILD_NUMBER"
@@ -181,6 +199,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
+    conda config --set anaconda_upload no
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
@@ -202,7 +221,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Extract the package for testing
     ls -lah "$output_folder"
-    built_package="$(find $output_folder/ -name '*pytorch*')"
+    built_package="$(find $output_folder/ -name '*pytorch*.tar.bz2')"
 
     # Copy the built package to the host machine for persistence before testing
     if [[ -n "$HOST_PACKAGE_DIR" ]]; then
