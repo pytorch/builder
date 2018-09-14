@@ -36,21 +36,25 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 # Parameters
 ##############################################################################
 
-if [[ -z "$DESIRED_PYTHON" ]]; then
-    echo "The env variabled DESIRED_PYTHON must be set like '2.7' or '3.6' etc"
+if [[ "$#" != 2 ]]; then
+  if [[ -z "$DESIRED_PYTHON" || -z "$PACKAGE_TYPE" ]]; then
+      echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
+      echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
+      exit 1
+  fi
+  package_type="$PACKAGE_TYPE"
+  desired_python="$DESIRED_PYTHON"
+else
+  package_type="$1"
+  desired_python="$2"
+  desired_cuda="$3"
+fi
+if [[ "$package_type" != 'conda' && "$package_type" != 'wheel' && "$package_type" != 'libtorch' ]]; then
+    echo "The package type must be 'conda' or 'wheel' or 'libtorch'"
     exit 1
 fi
-if [[ -z "$PACKAGE_TYPE" ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'wheel' or 'libtorch'"
-    exit 1
-elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'wheel' && "$PACKAGE_TYPE" != 'libtorch' ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'wheel' or 'libtorch'"
-    exit 1
-fi
-package_type="$PACKAGE_TYPE"
-desired_python="$DESIRED_PYTHON"
 
-echo "Building a $package_type package for python$desired_python and $desired_cuda"
+echo "Building a $package_type package for python$desired_python"
 echo "Starting to run the build at $(date)"
 
 # Move to today's workspace folder
