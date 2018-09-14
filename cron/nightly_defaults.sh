@@ -78,7 +78,7 @@ fi
 #   downstream scripts to use the current date as the version number (plus
 #   other changes). This is NOT the conda build string.
 if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    export PYTORCH_BUILD_VERSION="0.5.0.dev$(date +%Y%m%d)"
+    export PYTORCH_BUILD_VERSION="1.0.0.dev$(date +%Y%m%d)"
 fi
 
 # PYTORCH_BUILD_NUMBER
