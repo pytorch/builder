@@ -29,8 +29,3 @@ if [[ -d "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
     echo "Uploading all of: $(ls $MAC_LIBTORCH_FINAL_FOLDER) to $s3_dir"
     ls "$MAC_LIBTORCH_FINAL_FOLDER" | xargs -I {} aws s3 cp "$MAC_LIBTORCH_FINAL_FOLDER"/{} "$s3_dir" --acl public-read
 fi
-
-# Upload conda packages
-if [[ -d "$MAC_CONDA_FINAL_FOLDER" ]]; then
-    echo "Uploading all of: $(ls $MAC_CONDA_FINAL_FOLDER) (but not actually)"
-fi

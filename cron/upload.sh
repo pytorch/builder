@@ -21,16 +21,15 @@ if [[ -z "$CUDA_VERSIONS" ]]; then
     export CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
 fi
 
+# Upload wheels
 if [[ "$(uname)" == 'Darwin' ]]; then
-    # Upload everything
     "${NIGHTLIES_BUILDER_ROOT}/wheel/upload.sh"
 else
-    # Upload wheels
-    # manywheel/upload.sh looks in the current directory for wheelhousecpu/ etc
     PACKAGE_ROOT_DIR="$today" "${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
-
-    # TODO upload condas
 fi
+
+# Upload conda packages
+"${NIGHTLIES_BUILDER_ROOT}/conda/upload.sh"
 
 # Update wheel htmls
 "${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"

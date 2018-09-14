@@ -228,12 +228,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Copy the built package to the host machine for persistence before testing
     if [[ -n "$HOST_PACKAGE_DIR" ]]; then
-        mkdir -p "$HOST_PACKAGE_DIR/conda" || true
-        cp "$built_package" "$HOST_PACKAGE_DIR/conda/"
+        mkdir -p "$HOST_PACKAGE_DIR/conda_pkgs" || true
+        cp "$built_package" "$HOST_PACKAGE_DIR/conda_pkgs/"
     fi
     if [[ -n "$MAC_CONDA_FINAL_FOLDER" ]]; then
         mkdir -p "$MAC_CONDA_FINAL_FOLDER" || true
-        cp "$built_package" "$MAC_CONDA_FINAL_FOLDER"
+        cp "$built_package" "$MAC_CONDA_FINAL_FOLDER/"
     fi
 
     conda install -y "$built_package"
