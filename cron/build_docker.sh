@@ -37,24 +37,25 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 # Parameters
 ##############################################################################
 
-if [[ -z "$DESIRED_PYTHON" ]]; then
-    echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
+if [[ "$#" != 3 ]]; then
+  if [[ -z "$DESIRED_PYTHON" || -z "$DESIRED_CUDA" || -z "$PACKAGE_TYPE" ]]; then
+      echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
+      echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
+      echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
+      exit 1
+  fi
+  package_type="$PACKAGE_TYPE"
+  desired_python="$DESIRED_PYTHON"
+  desired_cuda="$DESIRED_CUDA"
+else
+  package_type="$1"
+  desired_python="$2"
+  desired_cuda="$3"
+fi
+if [[ "$package_type" != 'conda' && "$package_type" != 'manywheel' && "$package_type" != 'libtorch' ]]; then
+    echo "The package type must be 'conda' or 'manywheel' or 'libtorch'"
     exit 1
 fi
-if [[ -z "$DESIRED_CUDA" ]]; then
-    echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
-    exit 1
-fi
-if [[ -z "$PACKAGE_TYPE" ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
-    exit 1
-elif [[ "$PACKAGE_TYPE" != 'conda' && "$PACKAGE_TYPE" != 'manywheel' && "$PACKAGE_TYPE" != 'libtorch' ]]; then
-    echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
-    exit 1
-fi
-package_type="$PACKAGE_TYPE"
-desired_python="$DESIRED_PYTHON"
-desired_cuda="$DESIRED_CUDA"
 
 echo "Building a $package_type package for python$desired_python and $desired_cuda"
 echo "Starting to run the build at $(date)"
@@ -105,6 +106,10 @@ else
         docker_image="soumith/manylinux-cuda$cuda_nodot"
     fi
 fi
+if [[ -n "$ON_SUCCESS_WRITE_ME" ]]; then
+    success_folder="$(dirname $ON_SUCCESS_WRITE_ME)"
+    success_basename="$(basename $ON_SUCCESS_WRITE_ME)"
+fi
 
 # Build up Docker Arguments
 ##############################################################################
@@ -124,7 +129,9 @@ docker_args+=" -d"
 docker_args+=" -v ${host_package_dir}:${docker_package_dir}"
 
 # Mount the folder that stores the file in which to write SUCCESS at the end
-docker_args+=" -v $(dirname $ON_SUCCESS_WRITE_ME):/statuses"
+if [[ -n "$success_folder" ]]; then
+    docker_args+=" -v $success_folder:/statuses"
+fi
 
 # Run Docker as the user of this script
 # This prevents using the CUDA on the docker images
@@ -163,7 +170,7 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
     echo "export OVERRIDE_PACKAGE_VERSION=${OVERRIDE_PACKAGE_VERSION}"
     echo "export TORCH_CONDA_BUILD_FOLDER=${TORCH_CONDA_BUILD_FOLDER}"
     echo "export DEBUG=${DEBUG}"
-    echo "export ON_SUCCESS_WRITE_ME=/statuses/$(basename $ON_SUCCESS_WRITE_ME)"
+    echo "export ON_SUCCESS_WRITE_ME=/statuses/$success_basename"
 
     echo "export BUILD_PYTHONLESS=${building_pythonless}"
 
@@ -178,6 +185,8 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
     # Mark this build as a success. build_multiple expects this file to be
     # written if the build succeeds
+    # Note the ' instead of " so the variables are all evaluated within the
+    # docker
     echo 'ret=$?'
     echo 'if [[ $ret == 0 && -n $ON_SUCCESS_WRITE_ME ]]; then'
     echo '    echo 'SUCCESS' > $ON_SUCCESS_WRITE_ME'
