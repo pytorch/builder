@@ -132,7 +132,7 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         rm libtorch/include/torch/torch.h
 
         mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
-        zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT.zip libtorch
+        zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
     done
 fi
 

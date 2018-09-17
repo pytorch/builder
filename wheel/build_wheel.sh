@@ -194,6 +194,6 @@ else
 
     if [[ -n "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
         mkdir -p "$MAC_LIBTORCH_FINAL_FOLDER" || true
-        zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos.zip" libtorch
+        zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
     fi
 fi
