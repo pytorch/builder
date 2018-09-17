@@ -134,3 +134,7 @@ if [[ "$num_failures" == 0 ]]; then
 else
     echo "Emailing all of ${NIGHTLIES_EMAIL_LIST[@]} (but not implemented yet)"
 fi
+
+# Regardless of failures, clean up the old build folders so that we don't run
+# out of memory
+"${NIGHTLIES_BUILDER_ROOT}/cron/clean.sh" > "${log_root}/clean.sh" 2>&1
