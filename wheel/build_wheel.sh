@@ -79,7 +79,7 @@ if [[ -n "$BUILD_PYTHONLESS" && -z "$MAC_WHEEL_FINAL_FOLDER" ]]; then
     MAC_WHEEL_FINAL_FOLDER='whl'
 fi
 if [[ -z "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
-    MAC_LIBTORCH_FINAL_FOLDER='libtorch_packages'
+    MAC_LIBTORCH_FINAL_FOLDER='libtorch'
 fi
 
 # Create an isolated directory to store this builds pytorch checkout and conda
