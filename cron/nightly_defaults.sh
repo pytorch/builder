@@ -133,3 +133,16 @@ export MAC_LIBTORCH_FINAL_FOLDER="${today}/mac_libtorch_packages"
 #   logs in a convenient place.
 export FAILED_LOG_DIR="${today}/logs/failed"
 export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
+
+# DAYS_TO_KEEP
+#   How many days to keep around for clean.sh. Build folders older than this
+#   will be purged at the end of cron jobs. '1' means to keep only the current
+#   day. Values less than 1 are not allowed. The default is 5.
+if [[ -z "$DAYS_TO_KEEP" ]]; then
+    export DAYS_TO_KEEP=5
+fi
+if [[ "$DAYS_TO_KEEP" < '1' ]]; then
+    echo "DAYS_TO_KEEP cannot be less than 1."
+    echo "A value of 1 means to only keep the build for today"
+    exit 1
+fi
