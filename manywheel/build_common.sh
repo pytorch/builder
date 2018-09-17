@@ -86,9 +86,11 @@ for PYDIR in "${python_installations[@]}"; do
     else
         pip install numpy==1.11
     fi
+    echo "Calling setup.py bdist at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
+    echo "Finished setup.py bdist at $(date)"
 done
 
 LIBTORCH_VARIANTS=(
@@ -111,9 +113,11 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
 
         mkdir -p build
         pushd build
+        echo "Calling tools/build_libtorch.py at $(date)"
         time CMAKE_ARGS=${CMAKE_ARGS[@]} \
              EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
              python ../tools/build_libtorch.py
+        echo "Finished tools/build_libtorch.py at $(date)"
         popd
 
         mkdir -p libtorch/{lib,bin,include,share}
@@ -328,6 +332,7 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     # If given an incantation to use, use it. Otherwise just run all the tests
     # Distributed tests don't work
     tests_to_skip=("distributed" "thd_distributed" "c10d")
+    echo "Calling python run_test.py at $(date)"
     if [[ -n "$RUN_TEST_PARAMS" ]]; then
         LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py ${RUN_TEST_PARAMS[@]}
     elif [[ -n "$tests_to_skip" ]]; then
@@ -336,5 +341,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     else
         LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py
     fi
+    echo "Finished python run_test.py at $(date)"
   done
 fi

@@ -202,6 +202,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
+    echo "Calling conda-build at $(date)"
     conda config --set anaconda_upload no
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
@@ -214,6 +215,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      --output-folder "$output_folder" \
                      --no-test \
                      "$build_folder"
+    echo "Finished conda-build at $(date)"
 
     # Create a new environment to test in
     # TODO these reqs are hardcoded for pytorch-nightly
@@ -251,6 +253,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         tests_to_skip+=('cpp_extensions')
     fi
     pushd "$pytorch_rootdir"
+    echo "Calling test/run_test.py at $(date)"
     if [[ -n "$RUN_TEST_PARAMS" ]]; then
         python test/run_test.py ${RUN_TEST_PARAMS[@]}
     elif [[ -n "$tests_to_skip" ]]; then
@@ -262,6 +265,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         python test/run_test.py -v
     fi
     popd
+    echo "Finished test/run_test.py at $(date)"
 
     # Clean up test folder
     source deactivate

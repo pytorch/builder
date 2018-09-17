@@ -11,10 +11,10 @@ else
 fi
 
 # Upload linux conda packages (from outside the docker)
-# TODO coordinate this location better
+# This env variable should only be populated if this was called by cron/upload.sh
 echo "Trying to upload conda packages from ${today}/conda_pkgs"
 if [[ -n "$today" && -d "${today}/conda_pkgs" ]]; then
-    ls "${today}/conda_pkgs" | xargs -I {} anaconda upload "${today}/conda_pkgs"/{} -c pytorch -u pytorch
+    ls "${today}/conda_pkgs" | xargs -I {} anaconda upload "${today}/conda_pkgs"/{} -u pytorch --label main
 else
     echo "Couldn't find ${today}/conda_pkgs"
 fi
