@@ -145,7 +145,9 @@ conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 pip install -r "${pytorch_rootdir}/requirements.txt" || true
 
 pushd "$pytorch_rootdir"
+echo "Calling setup.py bdist_wheel at $(date)"
 python setup.py bdist_wheel -d "$whl_tmp_dir"
+echo "Finished setup.py bdist_wheel at $(date)"
 echo "The wheel is in $(find $pytorch_rootdir -name '*.whl')"
 popd
 
@@ -168,8 +170,11 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     # Run the tests
     tests_to_skip=("jit")
     pushd "${pytorch_rootdir}/test"
+    echo "Calling python run_test.py -x at $(date)"
     python run_test.py ${RUN_TEST_PARAMS[@]} -v -x "${tests_to_skip[@]}"
+    echo "Calling python run_test.py -i at $(date)"
     python run_test.py ${RUN_TEST_PARAMS[@]} -v -i "${tests_to_skip[@]}" || true
+    echo "Finished python run_test.py at $(date)"
     popd
 else
     pushd "$pytorch_rootdir"

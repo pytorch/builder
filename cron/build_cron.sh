@@ -130,7 +130,7 @@ echo "Detected $num_failures failed builds"
 # If there were no failures the upload the binaries, otherwise email someone
 if [[ "$num_failures" == 0 ]]; then
     echo "No failures detected. Moving on to upload.sh"
-    "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh"
+    "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" > "${log_root}/upload.log" 2>&1
 else
     echo "Emailing all of ${NIGHTLIES_EMAIL_LIST[@]} (but not implemented yet)"
 fi
