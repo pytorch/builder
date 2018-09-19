@@ -107,6 +107,7 @@ wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}
 # Install a fresh miniconda with a fresh env
 
 tmp_conda="${MAC_PACKAGE_WORK_DIR}/conda"
+tmp_env_name="py$python_nodot"
 miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
 rm -rf "$tmp_conda"
 rm -f "$miniconda_sh"
@@ -116,8 +117,8 @@ chmod +x "$miniconda_sh" && \
     rm "$miniconda_sh"
 export PATH="$tmp_conda/bin:$PATH"
 echo $PATH
-conda create -yn "py$python_nodot" python="$desired_python"
-source activate "py$python_nodot"
+conda create -yn "$tmp_env_name" python="$desired_python"
+source activate "$tmp_env_name"
 
 
 # Have a separate Pytorch repo clone
@@ -167,6 +168,17 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     # Only one binary is built, so it's safe to just specify the whl directory
     pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir" --no-dependencies -v
 
+    # Check that OpenBlas is not linked to
+    all_dylibs=($(find "${tmp_conda}/envs/${tmp_env_name}/lib/python${desired_python}/site-packages/torch/" -name '*.dylib'))
+    for dylib in "${all_dylibs[@]}"; do
+        if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
+            echo "BUILD ERROR!!"
+            echo "Found openblas as a dependency of $dylib"
+            echo "Full dependencies is: $(otool -L $dylib)"
+            exit 1
+        fi
+    done
+
     # Run the tests
     tests_to_skip=("jit")
     pushd "${pytorch_rootdir}/test"
@@ -202,3 +214,9 @@ else
         zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
     fi
 fi
+
+# Now delete the temporary build folder
+# $whl_tmp_dir is not deleted since it will be the only place to find the whl
+# if MAC_WHEEL_FINAL_FOLDER isn't specified
+rm -rf "$pytorch_rootdir"
+rm -rf "$tmp_conda"

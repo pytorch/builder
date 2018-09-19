@@ -8,7 +8,20 @@ set -ex
 echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 
 # List of people to email when things go wrong
-NIGHTLIES_EMAIL_LIST=('hellemn@fb.com')
+export NIGHTLIES_EMAIL_LIST=('hellemn@fb.com')
+
+# PYTORCH_CREDENTIALS_FILE
+#   A bash file that exports credentials needed to upload to aws and anaconda.
+#   Needed variables are PYTORCH_ANACONDA_USERNAME, PYTORCH_ANACONDA_PASSWORD,
+#   AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY. Or it can just export the AWS
+#   keys and then prepend a logged-in conda installation to the path.
+if [[ -z "$PYTORCH_CREDENTIALS_FILE" ]]; then
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        export PYTORCH_CREDENTIALS_FILE='/Users/administrator/nightlies/credentials.sh'
+    else
+        export PYTORCH_CREDENTIALS_FILE='/private/home/hellemn/nightly_credentials.sh'
+    fi
+fi
 
 # NIGHTLIES_FOLDER
 # N.B. this is also defined in cron_start.sh
@@ -139,7 +152,12 @@ export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
 #   will be purged at the end of cron jobs. '1' means to keep only the current
 #   day. Values less than 1 are not allowed. The default is 5.
 if [[ -z "$DAYS_TO_KEEP" ]]; then
-    export DAYS_TO_KEEP=5
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        # Mac machines have less memory
+        export DAYS_TO_KEEP=3
+    else
+        export DAYS_TO_KEEP=5
+    fi
 fi
 if [[ "$DAYS_TO_KEEP" < '1' ]]; then
     echo "DAYS_TO_KEEP cannot be less than 1."
