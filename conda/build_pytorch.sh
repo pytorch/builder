@@ -14,12 +14,21 @@ set -ex
 #   HOST_PACKAGE_DIR
 #     Absolute path (in docker space) to folder where final packages will be
 #     stored.
-#     
+#
 # MACOS env variables that should be set
 #   MAC_CONDA_FINAL_FOLDER
 #     **Absolute** path to folder where final packages will be stored.
 #
 #   MAC_PACKAGE_WORK_DIR
+#     Absolute path to a workdir in which to clone an isolated conda
+#     installation and pytorch checkout. If the pytorch checkout already exists
+#     then it will not be overwritten.
+#
+# WINDOWS env variables that should be set
+#   WIN_CONDA_FINAL_FOLDER
+#     **Absolute** path to folder where final packages will be stored.
+#
+#   WIN_PACKAGE_WORK_DIR
 #     Absolute path to a workdir in which to clone an isolated conda
 #     installation and pytorch checkout. If the pytorch checkout already exists
 #     then it will not be overwritten.
@@ -42,7 +51,7 @@ else
         echo "DESIRED_PYTHON should be M.m, e.g. '2.7'"
         exit 1
     fi
-    
+
     desired_cuda="$1"
     build_version="$2"
     build_number="$3"
@@ -84,7 +93,11 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
 if [[ -z "$DESIRED_PYTHON" ]]; then
-    DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
+    if [[ "$OSTYPE" == "msys" ]]; then
+        DESIRED_PYTHON=('3.5' '3.6' '3.7')
+    else
+        DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
+    fi
 fi
 if [[ "$OSTYPE" == "darwin"* ]]; then
     DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
@@ -100,12 +113,19 @@ fi
 if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
     MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
+if [[ -z "$WIN_PACKAGE_WORK_DIR" ]]; then
+    WIN_PACKAGE_WORK_DIR="${USERPROFILE}\\tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
+fi
 
 #
 # Clone the Pytorch repo
 if [[ "$(uname)" == 'Darwin' ]]; then
     mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
     pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
+elif [[ "$OSTYPE" == "msys" ]]; then
+    mkdir -p "$WIN_PACKAGE_WORK_DIR" || true
+    pytorch_rootdir="${WIN_PACKAGE_WORK_DIR}/pytorch"
+    git config --system core.longpaths true
 elif [[ -d '/pytorch' ]]; then
     pytorch_rootdir='/pytorch'
 else
@@ -134,6 +154,16 @@ if [[ "$(uname)" == 'Darwin' ]]; then
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
     export PATH="$tmp_conda/bin:$PATH"
+    echo $PATH
+    conda install -y conda-build
+elif [[ "$OSTYPE" == "msys" ]]; then
+    export tmp_conda="${WIN_PACKAGE_WORK_DIR}\\conda"
+    export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
+    rm -rf "$tmp_conda"
+    rm -f "$miniconda_exe"
+    curl -k https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
+    ./install_conda.bat && rm "$miniconda_exe"
+    export PATH="$tmp_conda\\Scripts:$PATH"
     echo $PATH
     conda install -y conda-build
 fi
@@ -200,10 +230,18 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     rm -rf "$output_folder"
     mkdir "$output_folder"
 
+    # We need to build the compiler activation scripts first on Windows
+    if [[ "$OSTYPE" == "msys" ]]; then
+        conda build -c "$ANACONDA_USER" \
+                     --no-anaconda-upload \
+                     --output-folder "$output_folder" \
+                     vs2017
+    fi
+
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
-    echo "Calling conda-build at $(date)"
     conda config --set anaconda_upload no
+    echo "Calling conda-build at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
@@ -237,12 +275,19 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         mkdir -p "$MAC_CONDA_FINAL_FOLDER" || true
         cp "$built_package" "$MAC_CONDA_FINAL_FOLDER/"
     fi
+    if [[ -n "$WIN_CONDA_FINAL_FOLDER" ]]; then
+        mkdir -p "$WIN_CONDA_FINAL_FOLDER" || true
+        cp "$built_package" "$WIN_CONDA_FINAL_FOLDER/"
+    fi
 
     conda install -y "$built_package"
 
     # Run tests
-    # Distributed tests don't work
-    tests_to_skip=("distributed" "thd_distributed" "c10d")
+    tests_to_skip=()
+    if [[ "$OSTYPE" != "msys" ]]; then
+        # Distributed tests don't work on linux or mac
+        tests_to_skip+=("distributed" "thd_distributed" "c10d")
+    fi
     if [[ "$py_ver" == '2.7' ]]; then
         # test_wrong_return_type doesn't work on the latest conda python 2.7
         # version TODO verify this
@@ -275,3 +320,4 @@ done
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER
+

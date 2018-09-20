@@ -9,6 +9,9 @@ source:
 requirements:
   build:
     - cmake
+    - {{ compiler('c') }} # [win]
+
+  host:
     - python
     - numpy 1.11.*
     - setuptools
@@ -25,6 +28,8 @@ requirements:
     - mkl >=2018
     - cffi
     - ninja
+    - intel-openmp # [win]
+    - mkl_fft # [win]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
@@ -37,7 +42,8 @@ test:
  source_files:
    - test
  commands:
-   - OMP_NUM_THREADS=4 python ./test/run_test.py || true
+   - OMP_NUM_THREADS=4 python ./test/run_test.py || true # [not win]
+   - python test/run_test.py # [win]
 
 
 about:
