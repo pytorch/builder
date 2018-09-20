@@ -134,7 +134,11 @@ if [[ -n "$success_folder" ]]; then
 fi
 
 # Run Docker as the user of this script
-# This prevents using the CUDA on the docker images
+# Without this line, all writes to the host filesystem (all folders in -v
+# flags) will be as root, and won't actually be deletable on the host machine
+# after the docker exits. But with this flag, yum and other CUDA functionality
+# have troubles accessing files they need. So instead of using this line we
+# just start up another docker to delete this files at the end
  #docker_args+=" --user $(id -u):$(id -g)"
 
 # Image
