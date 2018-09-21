@@ -72,16 +72,29 @@ fi
 #   The branch of Pytorch to checkout for building (git checkout <THIS_PART>).
 #   This can either be the name of the branch (e.g. git checkout
 #   my_branch_name) or can be a git commit (git checkout 4b2674n...). Default
-#   is 'master'
+#   is 'latest', which is a special term that signals to pull the last commit
+#   before 0:00 midnight on the NIGHTLIES_DATE
 if [[ -z "$PYTORCH_BRANCH" ]]; then
-    export PYTORCH_BRANCH='master'
+    export PYTORCH_BRANCH='latest'
 fi
 
 # Clone the requested pytorch checkout
 if [[ ! -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
     git clone --recursive "https://github.com/${PYTORCH_REPO}/pytorch.git" "$NIGHTLIES_PYTORCH_ROOT"
     pushd "$NIGHTLIES_PYTORCH_ROOT"
+
+    # Switch to the latest commit by 11:59 yesterday
+    if [[ "$PYTORCH_BRANCH" == 'latest' ]]; then
+        echo "PYTORCH_BRANCH is set to latest so I will find the last commit"
+        echo "before 0:00 midnight on $NIGHTLIES_DATE"
+        git_date="$(echo $NIGHTLIES_DATE | tr '_' '-')"
+        last_commit="$(git log --before $git_date -n 1 | perl -lne 'print $1 if /^commit (\w+)/')"
+        echo "Setting PYTORCH_BRANCH to $last_commit since that was the last"
+        echo "commit before $NIGHTLIES_DATE"
+        export PYTORCH_BRANCH="$last_commit"
+    fi
     git checkout "$PYTORCH_BRANCH"
+    git submodule update
     popd
 fi
 
