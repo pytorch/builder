@@ -177,3 +177,10 @@ if [[ "$DAYS_TO_KEEP" < '1' ]]; then
     echo "A value of 1 means to only keep the build for today"
     exit 1
 fi
+
+# PYTORCH_NIGHTLIES_TIMEOUT
+#   Timeout in seconds. Condas builds often take up to 2 hours 20 minutes, so
+#   the default is set to (2 * 60 + 20 + 20 [buffer]) * 60 == 9600 seconds
+if [[ -z "$PYTORCH_NIGHTLIES_TIMEOUT" ]]; then
+    export PYTORCH_NIGHTLIES_TIMEOUT=9600
+fi
