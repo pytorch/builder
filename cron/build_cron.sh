@@ -41,12 +41,6 @@ else
     fi
 fi
 
-if [[ -d "$FAILED_LOG_DIR" || -d "$SUCCEEDED_LOG_DIR" ]]; then
-    echo "The failed/succeeded log dirs already exist for this date."
-    echo "Please delete or remove the existing directories."
-    exit 1
-fi
-
 mkdir -p "$FAILED_LOG_DIR"
 mkdir -p "$SUCCEEDED_LOG_DIR"
 log_root="$today/logs/master/worker_$which_worker"

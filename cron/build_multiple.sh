@@ -31,8 +31,15 @@ if [ "$#" -lt 3 ]; then
 fi
 
 nice_time () {
-  echo "$(($1 / 3600 )) hours, $(($1 / 60)) minutes, and $(($1 % 60)) seconds"
+  echo "$(($1 / 60)) minutes and $(($1 % 60)) seconds"
 }
+if [[ "$(uname)" == 'Darwin' ]]; then
+    # On the Mac timeout was installed through 'brew install coreutils', which
+    # prepends a 'g' to all the command names
+    export portable_timeout='gtimeout'
+else
+    export portable_timeout='timeout'
+fi
 
 # Save all configurations into a big list and loop through them later
 # Read through sets of <package types> <python versions> <cuda versions>
@@ -122,12 +129,13 @@ for config in "${all_configs[@]}"; do
   set -x
   SECONDS=0
   PACKAGE_TYPE="$package_type" \
-          DESIRED_PYTHON="$py_ver" \
-          DESIRED_CUDA="$cuda_ver" \
-          ON_SUCCESS_WRITE_ME="$succeeded_log_loc" \
+      DESIRED_PYTHON="$py_ver" \
+      DESIRED_CUDA="$cuda_ver" \
+      ON_SUCCESS_WRITE_ME="$succeeded_log_loc" \
+      $portable_timeout "$PYTORCH_NIGHTLIES_TIMEOUT" \
           "$build_script" > "$log_name" 2>&1
-  duration="$SECONDS"
   ret="$?"
+  duration="$SECONDS"
   set -e
 
   # Keep track of the failed builds
