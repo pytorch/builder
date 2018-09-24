@@ -40,12 +40,21 @@ fi
 
 # NIGHTLIES_DATE
 # N.B. this is also defined in cron_start.sh
-#   The date in YYYY_mm_dd format that we are building for. This defaults to
-#   the current date. Sometimes cron uses a different time than that returned
-#   by `date`, so ideally this is set once by the top-most script
-#   build_cron.sh so that all scripts use the same date.
+#   The date in YYYY_mm_dd format that we are building for. If this is not
+#   already set, then this will first try to find the date of the nightlies
+#   folder that this builder repo exists in; e.g. if this script exists in
+#   some_dir/2019_09_04/builder/cron/ then this will be set to 2019_09_04 (must
+#   match YYYY_mm_dd). This is for convenience when debugging/uploading past
+#   dates, so that you don't have to set NIGHTLIES_DATE yourself. If a date
+#   folder cannot be found in that exact location, then this will default to
+#   the current date.
 if [[ -z "$NIGHTLIES_DATE" ]]; then
-    export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
+    _existing_nightlies_date="$(basename $(cd $(dirname $0)/../.. && pwd) | grep -o '[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]')"
+    if [[ -n "$_existing_nightlies_date" ]]; then
+        export NIGHTLIES_DATE="$_existing_nightlies_date"
+    else
+        export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
+    fi
 fi
 
 # Used in lots of places as the root dir to store all conda/wheel/manywheel
@@ -183,4 +192,16 @@ fi
 #   the default is set to (2 * 60 + 20 + 20 [buffer]) * 60 == 9600 seconds
 if [[ -z "$PYTORCH_NIGHTLIES_TIMEOUT" ]]; then
     export PYTORCH_NIGHTLIES_TIMEOUT=9600
+fi
+
+# PORTABLE_TIMEOUT
+#   Command/executable of some timeout command. Defined here because the path
+#   to the MacOS executable is harcoded to the gtimeout that I installed on my
+#   machine with homebrew.
+if [[ "$(uname)" == 'Darwin' ]]; then
+    # On the Mac timeout was installed through 'brew install coreutils', which
+    # prepends a 'g' to all the command names
+    export PORTABLE_TIMEOUT='/usr/local/bin/gtimeout'
+else
+    export PORTABLE_TIMEOUT='timeout'
 fi
