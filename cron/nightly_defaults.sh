@@ -60,6 +60,7 @@ fi
 # Used in lots of places as the root dir to store all conda/wheel/manywheel
 # packages as well as logs for the day
 export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
+mkdir -p "$today" || true
 
 # N.B. BUILDER_REPO and BUILDER_BRANCH are both set in cron_start.sh, as that
 # is the script that actually clones the builder repo that /this/ script is
@@ -154,12 +155,15 @@ if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
     export PIP_UPLOAD_FOLDER='nightly/'
 fi
 
-# MAC_(CONDA|WHEEL|LIBTORCH)_FINAL_FOLDER
-#   Absolute path to the folders where final conda/wheel packages should be
-#   stored
-export MAC_CONDA_FINAL_FOLDER="${today}/mac_conda_pkgs"
-export MAC_WHEEL_FINAL_FOLDER="${today}/mac_wheels"
-export MAC_LIBTORCH_FINAL_FOLDER="${today}/mac_libtorch_packages"
+# nightlies_package_folder()
+#   Function from (package_type, CUDA/cpu ver) -> where packages should be
+#   stored. OS does not factor since the folders will be on different machines
+#   and won't overlap
+#   N.B. PYTORCH_FINAL_PACKAGE_DIR is not a constant, and is not set here. This
+#   should be set by build_docker or build_mac according to this function.
+nightlies_package_folder () {
+    echo "${today}/$1/$2/"
+}
 
 # (FAILED|SUCCEEDED)_LOG_DIR
 #   Absolute path to folders that store final logs. Initially these folders

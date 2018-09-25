@@ -5,7 +5,7 @@ set -ex
 #   DESIRED_PYTHON
 #     Which Python version to build for in format 'Maj.min' e.g. '2.7' or '3.6'
 #
-#   MAC_LIBTORCH_FINAL_FOLDER
+#   PYTORCH_FINAL_PACKAGE_DIR
 #     **absolute** path to folder where final whl packages will be stored. The
 #     default should not be used when calling this from a script. The default
 #     is 'whl', and corresponds to the default in the wheel/upload.sh script.
@@ -74,13 +74,14 @@ fi
 if [[ -z "$RUN_TEST_PARAMS" ]]; then
     RUN_TEST_PARAMS=()
 fi
-if [[ -n "$BUILD_PYTHONLESS" && -z "$MAC_WHEEL_FINAL_FOLDER" ]]; then
-    # Don't try to upload the whl if not building it
-    MAC_WHEEL_FINAL_FOLDER='whl'
+if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+    if [[ -n "$BUILD_PYTHONLESS" ]]; then
+        PYTORCH_FINAL_PACKAGE_DIR='libtorch'
+    else
+        PYTORCH_FINAL_PACKAGE_DIR='whl'
+    fi
 fi
-if [[ -z "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
-    MAC_LIBTORCH_FINAL_FOLDER='libtorch'
-fi
+mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
 # Create an isolated directory to store this builds pytorch checkout and conda
 # installation
@@ -152,14 +153,11 @@ echo "Finished setup.py bdist_wheel at $(date)"
 echo "The wheel is in $(find $pytorch_rootdir -name '*.whl')"
 popd
 
-# Copy the whl to a final destination before tests are run
-echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
-if [[ -n "$MAC_WHEEL_FINAL_FOLDER" ]]; then
-    mkdir -p "$MAC_WHEEL_FINAL_FOLDER" || true
-    cp "$whl_tmp_dir/$wheel_filename_gen" "$MAC_WHEEL_FINAL_FOLDER/$wheel_filename_new"
-fi
-
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
+    # Copy the whl to a final destination before tests are run
+    echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
+    cp "$whl_tmp_dir/$wheel_filename_gen" "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new"
+
     ##########################
     # now test the binary
     pip uninstall -y "$TORCH_PACKAGE_NAME" || true
@@ -209,14 +207,11 @@ else
     # header of the same name
     rm "$(pwd)/libtorch/include/torch/torch.h"
 
-    if [[ -n "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
-        mkdir -p "$MAC_LIBTORCH_FINAL_FOLDER" || true
-        zip -rq "$MAC_LIBTORCH_FINAL_FOLDER/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
-    fi
+    zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
 fi
 
 # Now delete the temporary build folder
 # $whl_tmp_dir is not deleted since it will be the only place to find the whl
-# if MAC_WHEEL_FINAL_FOLDER isn't specified
+# if PYTORCH_FINAL_PACKAGE_DIR isn't specified
 rm -rf "$pytorch_rootdir"
 rm -rf "$tmp_conda"

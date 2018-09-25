@@ -5,12 +5,6 @@ set -ex
 # TODO move this into the Docker images
 yum install -y zip openssl
 
-# Default location for the remote directory to store wheelhouse* dirs (on the
-# host machine) is /remote
-if [[ -z "$HOST_PACKAGE_DIR" ]]; then
-    HOST_PACKAGE_DIR='/remote'
-fi
-
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. This may
 # be incorrect if pip 'normalizes' the name first, e.g. by changing all - to _
@@ -287,13 +281,13 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     rm -rf tmp
 done
 
-# Copy wheels to host machine for persistence before testing
+# Copy wheels to host machine for persistence before testing. This expects
+# '/remote' to be mounted on the host and for the host to expect packages to
+# appear here.
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
-    mkdir -p "${HOST_PACKAGE_DIR}/$LIBTORCH_HOUSE_DIR" || true
-    cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "${HOST_PACKAGE_DIR}/$LIBTORCH_HOUSE_DIR"
+    cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
 else
-    mkdir -p "${HOST_PACKAGE_DIR}/$WHEELHOUSE_DIR" || true
-    cp /$WHEELHOUSE_DIR/torch*.whl "${HOST_PACKAGE_DIR}/$WHEELHOUSE_DIR"
+    cp /$WHEELHOUSE_DIR/torch*.whl "$PYTORCH_FINAL_PACKAGE_DIR"
 fi
 
 # remove stuff before testing

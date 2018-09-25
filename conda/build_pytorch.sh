@@ -10,24 +10,17 @@ set -ex
 # There's also duplicate versioning logic amongst *all* the building scripts
 
 # Env variables that should be set
-# LINUX env variables that should be set
-#   HOST_PACKAGE_DIR
-#     Absolute path (in docker space) to folder where final packages will be
-#     stored.
+# PYTORCH_FINAL_PACKAGE_DIR
+#   Absolute path (in docker space) to folder where final packages will be
+#   stored.
 #
 # MACOS env variables that should be set
-#   MAC_CONDA_FINAL_FOLDER
-#     **Absolute** path to folder where final packages will be stored.
-#
 #   MAC_PACKAGE_WORK_DIR
 #     Absolute path to a workdir in which to clone an isolated conda
 #     installation and pytorch checkout. If the pytorch checkout already exists
 #     then it will not be overwritten.
 #
 # WINDOWS env variables that should be set
-#   WIN_CONDA_FINAL_FOLDER
-#     **Absolute** path to folder where final packages will be stored.
-#
 #   WIN_PACKAGE_WORK_DIR
 #     Absolute path to a workdir in which to clone an isolated conda
 #     installation and pytorch checkout. If the pytorch checkout already exists
@@ -267,17 +260,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     built_package="$(find $output_folder/ -name '*pytorch*.tar.bz2')"
 
     # Copy the built package to the host machine for persistence before testing
-    if [[ -n "$HOST_PACKAGE_DIR" ]]; then
-        mkdir -p "$HOST_PACKAGE_DIR/conda_pkgs" || true
-        cp "$built_package" "$HOST_PACKAGE_DIR/conda_pkgs/"
-    fi
-    if [[ -n "$MAC_CONDA_FINAL_FOLDER" ]]; then
-        mkdir -p "$MAC_CONDA_FINAL_FOLDER" || true
-        cp "$built_package" "$MAC_CONDA_FINAL_FOLDER/"
-    fi
-    if [[ -n "$WIN_CONDA_FINAL_FOLDER" ]]; then
-        mkdir -p "$WIN_CONDA_FINAL_FOLDER" || true
-        cp "$built_package" "$WIN_CONDA_FINAL_FOLDER/"
+    if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" && -d "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+        cp "$built_package" "$PYTORCH_FINAL_PACKAGE_DIR/"
     fi
 
     conda install -y "$built_package"
