@@ -129,8 +129,12 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         # header of the same name
         rm libtorch/include/torch/torch.h
 
+        echo $PYTORCH_BUILD_VERSION > libtorch/build-version
+
         mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
         zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
+        cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-$PYTORCH_BUILD_VERSION.zip \
+           /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-latest.zip
     done
 fi
 

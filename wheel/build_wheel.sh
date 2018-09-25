@@ -207,7 +207,11 @@ else
     # header of the same name
     rm "$(pwd)/libtorch/include/torch/torch.h"
 
+    echo $PYTORCH_BUILD_VERSION > libtorch/build-version
+
     zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
+    cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip"  \
+       "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-latest.zip"
 fi
 
 # Now delete the temporary build folder
