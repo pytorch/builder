@@ -24,7 +24,7 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 if [ "$#" -lt 3 ]; then
     echo 'Illegal number of parameters'
     echo '     build_multiple.sh [conda|manywheel|wheel] DESIRED_PYTHON,s DESIRED_CUDA,s'
-    echo 'e.g. build_multiple.sh manywheel 2.7mu,3.5,3.6 cpu,cu80'
+    echo 'e.g. build_multiple.sh manywheel 2.7mu,3.5m,3.6m cpu,cu80'
     echo 'e.g. build_multiple.sh conda,manywheel 2.7 all'
     echo ' DESIRED_PYTHONs must match:   \d.\d(mu?)?'
     echo ' DESIRED_CUDAs must match  :   (cpu|cu\d\d)'
@@ -73,12 +73,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-# Allow 'all' to translate to all python/cuda versions
-
 set +x
 echo
-echo "Starting PyTorch binary build for $NIGHTLIES_DATE"
-echo "$(date) :: Starting PyTorch binaries build"
+echo "$(date) :: Starting PyTorch binary build for $NIGHTLIES_DATE"
 echo "Building all of [${all_configs[@]}]"
 set -x
 

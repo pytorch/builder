@@ -5,27 +5,36 @@ echo "upload.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
-# Upload all the wheels and conda packages.
+# Upload all nightly packages.
+# This has two use cases:
+# In the regular nightlies use-case this script is passed all the succesfull
+# logs
+#   ./cron/upload.sh conda_2.7_cpu.log manywheel_2.7mu_cu80.log ...
+# and only those corresponding packages are uploaded.
+# Otherwise, if given no parameters this will upload all packages.
 
-# If given package types, then only upload those package types
-if [[ "$#" -eq 0 ]]; then
-    upload_wheels=1
-    upload_condas=1
-else
-    upload_wheels=0
-    upload_condas=0
-    while [[ $# -gt 0 ]]; do
-        if [[ "$1" == *wheel* ]]; then
-            upload_wheels=1
-        fi
-        if [[ "$1" == *conda* ]]; then
-            upload_condas=1
-        fi
-        shift
-    done
-fi
+upload_it () {
+    pkg_type="$1"
+    cuda_ver="$2"
+    pkg="$3"
 
+    if [[ "$pkg_type" == 'conda' ]]; then
+        echo "Uploading $pkg_dir/$pkg to anaconda"
+        anaconda upload "$pkg_dir/$pkg" -u pytorch --label main
+    elif [[ "$pkg_type" == 'libtorch' ]]; then
+        s3_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
+        echo "Uploading $pkg_dir/$pkg to $s3_dir"
+        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read
+    else
+        uploaded_a_wheel=1
+        s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
+        echo "Uploading $pkg_dir/$pkg to $s3_dir"
+        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read
+    fi
+}
 
+# Set-up tools we need to upload
+##############################################################################
 # Source the credentials if given
 if [[ -x "$PYTORCH_CREDENTIALS_FILE" ]]; then
     source "$PYTORCH_CREDENTIALS_FILE"
@@ -61,20 +70,69 @@ if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
     yes | anaconda login --username "$PYTORCH_ANACONDA_USERNAME" --password "$PYTORCH_ANACONDA_PASSWORD"
 fi
 
+# Loop through all packages to upload
+##############################################################################
+# If given package types, then only upload those package types
+packages_to_upload=()
+if [[ "$#" -eq 0 ]]; then
+    # If not given any specific packages to upload, then upload everything that
+    # we can find
+    # Packages are organized by type and CUDA/cpu version so we have to loop
+    # over these to find all the packages
+    _ALL_PKG_TYPES=("manywheel" "wheel" "conda" "libtorch")
+    _ALL_CUDA_VERSIONS=("cpu" "cu80" "cu90" "cu92")
+    for pkg_type in "${_ALL_PKG_TYPES[@]}"; do
+        for cuda_ver in "${_ALL_CUDA_VERSIONS[@]}"; do
+            pkg_dir="$(nightlies_package_folder $pkg_type $cuda_ver)"
+            if [[ ! -d "$pkg_dir" ]]; then
+                continue
+            fi
+            all_pkgs=($(ls $pkg_dir))
+            for pkg in "${all_pkgs[@]}"; do
+                upload_it "$pkg_type" "$cuda_ver" "$pkg"
+            done
+        done
+    done
+else
+    # Else we're given a bunch of log names, turn these into exact packages
+    # Remove all '.log's from the names
+    all_configs=()
+    while [[ $# -gt 0 ]]; do
+        IFS=, confs=($(basename $1 .log | tr '_' ','))
+        pkg_type="${confs[0]}"
+        py_ver="${confs[1]}"
+        cuda_ver="${confs[2]}"
+        pkg_dir="$(nightlies_package_folder $pkg_type $cuda_ver)"
 
-# Upload wheels
-if [[ "$upload_wheels" == 1 ]]; then
-    if [[ "$(uname)" == 'Darwin' ]]; then
-        "${NIGHTLIES_BUILDER_ROOT}/wheel/upload.sh"
-    else
-        PACKAGE_ROOT_DIR="$today" "${NIGHTLIES_BUILDER_ROOT}/manywheel/upload.sh"
-    fi
+        # Map e.g. 2.7mu -> cp27mu
+        if [[ "${#py_ver}" -gt 3 ]]; then
+            if [[ "$py_ver" == '2.7mu' ]]; then
+                py_ver="cp27mu"
+            else
+                py_ver="cp${py_ver:0:1}${py_ver:2:1}m"
+            fi
+        fi
 
-    # Update wheel htmls
-    "${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"
+        # Find the exact package to upload
+        # We need to match - or _ after the python version to avoid matching
+        # cp27mu when we're trying to mach cp27m. TODO this will only work when
+        # the name in both conda and wheel packages does follow the python
+        # version with a - or _
+        set +e
+        unset pkg
+        pkg="$(ls $pkg_dir | grep $py_ver[-_])"
+        set -e
+        if [[ -n "$pkg" ]]; then
+            # Add pkg_type/cuda_ver/package_name to the list
+            upload_it "$pkg_type" "$cuda_ver" "$pkg"
+        else
+            echo "!!WARNING!! Could not find the package for $1. I looked for"
+            echo "!!WARNING!! python version $py_ver in $pkg_dir but couldn't"
+            echo "!!WARNING!! find anything"
+        fi
+        shift
+    done
 fi
 
-# Upload conda packages
-if [[ "$upload_condas" == 1 ]]; then
-    "${NIGHTLIES_BUILDER_ROOT}/conda/upload.sh"
-fi
+# Update wheel htmls
+"${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"

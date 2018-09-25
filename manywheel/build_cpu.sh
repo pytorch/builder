@@ -17,6 +17,14 @@ fi
 
 WHEELHOUSE_DIR="wheelhousecpu"
 LIBTORCH_HOUSE_DIR="libtorch_housecpu"
+if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+    if [[ -z "$BUILD_PYTHONLESS" ]]; then
+        PYTORCH_FINAL_PACKAGE_DIR="/remote/wheelhousecpu"
+    else
+        PYTORCH_FINAL_PACKAGE_DIR="/remote/libtorch_housecpu"
+    fi
+fi
+mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
 
 DEPS_LIST=(
