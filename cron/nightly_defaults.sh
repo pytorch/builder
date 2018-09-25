@@ -49,7 +49,9 @@ fi
 #   folder cannot be found in that exact location, then this will default to
 #   the current date.
 if [[ -z "$NIGHTLIES_DATE" ]]; then
+    set +e
     _existing_nightlies_date="$(basename $(cd $(dirname $0)/../.. && pwd) | grep -o '[0-9][0-9][0-9][0-9]_[0-9][0-9]_[0-9][0-9]')"
+    set -e
     if [[ -n "$_existing_nightlies_date" ]]; then
         export NIGHTLIES_DATE="$_existing_nightlies_date"
     else

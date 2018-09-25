@@ -11,6 +11,52 @@ if [[ "$NIGHTLIES_DATE" != "$(date +%Y_%m_%d)" ]]; then
     exit 0
 fi
 
+# Define a remove function that will work on both Mac and Linux
+if [[ "$(uname)" == 'Darwin' ]]; then
+    remove_dir () {
+        # Don't accidentally delete the nightlies folder
+        if [[ "$1" == 'nightlies' ]]; then
+            echo "If you really really want to delete the entire nightlies folder"
+            echo "then you'll have to delete this message."
+            exit 1
+        fi
+        rm -rf "$1"
+    }
+else
+    # So, the dockers don't have a proper user setup, so they all run as root.
+    # When they write their finished packages to the host system, they can't be
+    # deleted without sudo access. Actually fixing the permissions in the
+    # docker involves both setting up a correct user and adding sudo in the
+    # right places to yum, pip, conda, and CUDA functionality. Instead of all
+    # that, we run the rm command in a different docker image, since the
+    # dockers all run as root.
+    remove_dir  () {
+        # Don't accidentally delete the nightlies folder
+        if [[ "$1" == 'nightlies' ]]; then
+            echo "If you really really want to delete the entire nightlies folder"
+            echo "then you'll have to delete this message."
+            exit 1
+        fi
+        docker run -v "$(dirname $1)":/remote soumith/conda-cuda rm -rf "/remote/$(basename $1)"
+    }
+fi
+
+# If given a folder to delete, delete it without question
+if [[ "$#" -gt 0 ]]; then
+    while [[ "$#" -gt 0 ]]; do
+        cur_dir="$1"
+        if [[ "${cur_dir:0:1}" == '/' ]]; then
+            remove_dir "$cur_dir"
+        else
+            # Assume that all dirs are in the NIGHTLIES_FOLDER
+            remove_dir "${NIGHTLIES_FOLDER}/${cur_dir}"
+        fi
+        shift
+    done
+    exit 0
+fi
+
+
 # Delete everything older than a specified number of days (default is 5)
 any_removal_failed=0
 cutoff_date=$(date --date="$DAYS_TO_KEEP days ago" +%Y_%m_%d)
@@ -23,18 +69,7 @@ for build_dir in "$NIGHTLIES_FOLDER"/*; do
         # Technically, this should condition on whether a mac or docker
         # produces the packages, but the linux jobs only run on linux machines
         # so this is fine.
-        if [[ "$(uname)" == 'Darwin' ]]; then
-            rm -rf "$build_dir"
-        else
-            # So, the dockers don't have a proper user setup, so they all run as
-            # root. When they write their finished packages to the host system,
-            # they can't be deleted without sudo access. Actually fixing the
-            # permissions in the docker involves both setting up a correct user and
-            # adding sudo in the right places to yum, pip, conda, and CUDA
-            # functionality. Instead of all that, we run the rm command in a
-            # different docker image, since the dockers all run as root.
-            docker run -v "${NIGHTLIES_FOLDER}":/remote soumith/conda-cuda rm -rf "/remote/$cur_date"
-        fi
+        remove_dir   "$build_dir"
 
         # Make sure the rm worked, in this case we want this next command to
         # fail
