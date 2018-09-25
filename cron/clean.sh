@@ -33,7 +33,7 @@ for build_dir in "$NIGHTLIES_FOLDER"/*; do
             # adding sudo in the right places to yum, pip, conda, and CUDA
             # functionality. Instead of all that, we run the rm command in a
             # different docker image, since the dockers all run as root.
-            docker run -v "${NIGHTLIES_FOLDER}":/remote -it soumith/conda-cuda rm -rf "/remote/$cur_date"
+            docker run -v "${NIGHTLIES_FOLDER}":/remote soumith/conda-cuda rm -rf "/remote/$cur_date"
         fi
 
         # Make sure the rm worked, in this case we want this next command to
