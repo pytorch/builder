@@ -1,5 +1,22 @@
 #!/bin/bash
 
+# cron/clean.sh
+# Usage:
+#   ./cron/clean.sh
+# This is always called by the nightly jobs with no parameters. When called
+# this way, this will delete all nightly folders (date folders) that are at
+# least DAYS_TO_KEEP days old. e.g. if DAYS_TO_KEEP is 5 and today is
+# 2018_09_25, then 2018_09_20 and all earlier dates will be deleted.
+# Technically, all folders in the nightlies root folder that are lexicogocially
+# <= 2018_09_20 will be deleted. This will only work if the NIGHTLIES_DATE
+# matches the current date, to avoid accidentally wiping date folders when
+# manually running previous days.
+# Usage:
+#   ./cron/clean.sh [experiment]
+# When called with parameters, it will delete those explicit folders. This
+# assumes that the parameters are either full paths or directories relative to
+# the current nightlies root folder (for today's date).
+
 set -ex
 echo "clean.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
@@ -58,8 +75,14 @@ fi
 
 
 # Delete everything older than a specified number of days (default is 5)
+if [[ "$(uname)" == 'Darwin' ]]; then
+    cutoff_date=$(date -v "-${DAYS_TO_KEEP}d" +%Y_%m_%d)
+else
+    cutoff_date=$(date --date="$DAYS_TO_KEEP days ago" +%Y_%m_%d)
+fi
+
+# Loop through the nightlies folder deleting all date like objects
 any_removal_failed=0
-cutoff_date=$(date --date="$DAYS_TO_KEEP days ago" +%Y_%m_%d)
 for build_dir in "$NIGHTLIES_FOLDER"/*; do
     cur_date="$(basename $build_dir)"
     if [[ "$cur_date" < "$cutoff_date" || "$cur_date" == "$cutoff_date" ]]; then
