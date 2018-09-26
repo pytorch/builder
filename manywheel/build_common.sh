@@ -125,10 +125,6 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         cp -r any_wheel/torch/share/cmake libtorch/share/
         rm -rf any_wheel
 
-        # this file is problematic because it can conflict with an API
-        # header of the same name
-        rm libtorch/include/torch/torch.h
-
         echo $PYTORCH_BUILD_VERSION > libtorch/build-version
 
         mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
