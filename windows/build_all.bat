@@ -1,6 +1,29 @@
 @echo off
 
-set "CONDA_HOME=c:\ProgramData\miniconda3"
+if "%~1"=="" goto arg_error
+if "%~2"=="" goto arg_error
+if NOT "%~3"=="" goto arg_error
+goto arg_end
+
+:arg_error
+
+echo Illegal number of parameters. Pass pytorch version, build number
+exit /b 1
+
+:arg_end
+
+set PYTORCH_BUILD_VERSION=%~1
+set PYTORCH_BUILD_NUMBER=%~2
+
+REM Install Miniconda3
+set "CONDA_HOME=%CD%\conda"
+set "tmp_conda=%CONDA_HOME%"
+set "miniconda_exe=%CD%\miniconda.exe"
+rmdir /s /q conda
+del miniconda.exe
+curl -k https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
+call ..\conda\install_conda.bat
+
 set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 set "ORIG_PATH=%PATH%"
 
@@ -39,9 +62,6 @@ copy %CD%\\tmp_bin\\sccache.exe %CD%\\tmp_bin\\nvcc.exe
 
 set CUDA_NVCC_EXECUTABLE=%CD%\\tmp_bin\\nvcc
 set "PATH=%CD%\\tmp_bin;%PATH%"
-
-set PYTORCH_BUILD_VERSION=0.4.1
-set PYTORCH_BUILD_NUMBER=1
 
 set PYTORCH_BINARY_BUILD=1
 set TH_BINARY_BUILD=1

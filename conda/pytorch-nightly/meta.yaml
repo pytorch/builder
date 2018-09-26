@@ -8,6 +8,9 @@ source:
 requirements:
   build:
     - cmake
+    - {{ compiler('c') }} # [win]
+
+  host:
     - python
     - numpy 1.11.*
     - setuptools
@@ -17,7 +20,7 @@ requirements:
     - mkl-include
     - typing
     - ninja
-    - magma-cuda{{ environ.get('PYTORCH_MAGMA_CUDA_VERSION') }} # [not osx]
+    - magma-cuda{{ environ.get('PYTORCH_MAGMA_CUDA_VERSION') }} # [not osx and not win]
 
   run:
     - python
@@ -44,7 +47,8 @@ test:
  source_files:
    - test
  commands:
-   - OMP_NUM_THREADS=4 python ./test/run_test.py || true
+   - OMP_NUM_THREADS=4 python ./test/run_test.py || true # [not win]
+   - python ./test/run_test.py # [win]
 
 
 about:
