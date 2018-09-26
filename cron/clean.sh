@@ -58,7 +58,8 @@ else
     }
 fi
 
-# If given a folder to delete, delete it without question
+# If given a folder to delete, delete it without question, and then don't purge
+# all the dockers
 if [[ "$#" -gt 0 ]]; then
     while [[ "$#" -gt 0 ]]; do
         cur_dir="$1"
@@ -109,5 +110,9 @@ for build_dir in "$NIGHTLIES_FOLDER"/*; do
         fi
     fi
 done
+
+# Purge all dockers
+docker ps -aq | xargs -I {} docker rm {} --force
+yes | docker system prune
 
 exit "$any_removal_failed"

@@ -7,8 +7,9 @@ set -ex
 
 echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 
-# List of people to email when things go wrong
-export NIGHTLIES_EMAIL_LIST=('hellemn@fb.com')
+# List of people to email when things go wrong. This is passed directly to
+# `mail -t`
+export NIGHTLIES_EMAIL_LIST='hellemn@fb.com'
 
 # PYTORCH_CREDENTIALS_FILE
 #   A bash file that exports credentials needed to upload to aws and anaconda.
