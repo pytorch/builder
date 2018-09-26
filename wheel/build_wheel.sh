@@ -203,10 +203,6 @@ else
     cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
     rm -rf "$(pwd)/any_wheel"
 
-    # this file is problematic because it can conflict with an API
-    # header of the same name
-    rm "$(pwd)/libtorch/include/torch/torch.h"
-
     echo $PYTORCH_BUILD_VERSION > libtorch/build-version
 
     zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
