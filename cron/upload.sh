@@ -24,12 +24,12 @@ upload_it () {
     elif [[ "$pkg_type" == 'libtorch' ]]; then
         s3_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
         echo "Uploading $pkg_dir/$pkg to $s3_dir"
-        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read
+        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read --quiet
     else
         uploaded_a_wheel=1
         s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
         echo "Uploading $pkg_dir/$pkg to $s3_dir"
-        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read
+        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read --quiet
     fi
 }
 
