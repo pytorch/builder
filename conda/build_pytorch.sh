@@ -33,6 +33,30 @@ else
   portable_sed='sed --regexp-extended -i'
 fi
 
+# add_before <some marker> <some insertion> <in this file>
+# essentially replaces
+#
+#    <some marker>
+#
+# with
+#
+#    <some insertion>
+#    <some marker>
+#
+# ( *)     captured spaces before match == the indentation in the meta.yaml
+# ${1}     the marker to insert before
+# '\1'     captured whitespace == correct indentation
+# ${2}     the string to insert
+# \\"$'\n' escaped newline
+# '\1'      captured whitespace == correct indentation
+# ${1}     put the marker back
+add_before() {
+  $portable_sed 's@( *)'"${1}@"'\1'"${2}\\"$'\n''\1'"${1}@" $3
+}
+
+
+# Parse arguments and determmine version
+###########################################################
 if [[ -n "$DESIRED_CUDA" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
     desired_cuda="$DESIRED_CUDA"
     build_version="$PYTORCH_BUILD_VERSION"
@@ -110,8 +134,8 @@ if [[ -z "$WIN_PACKAGE_WORK_DIR" ]]; then
     WIN_PACKAGE_WORK_DIR="${USERPROFILE}\\tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
 
-#
 # Clone the Pytorch repo
+###########################################################
 if [[ "$(uname)" == 'Darwin' ]]; then
     mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
     pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
@@ -134,7 +158,6 @@ pushd "$pytorch_rootdir"
 git submodule update --init --recursive
 popd
 
-#
 # Mac conda builds need their own siloed conda. Dockers don't since each docker
 # image comes with a siloed conda
 if [[ "$(uname)" == 'Darwin' ]]; then
@@ -168,8 +191,8 @@ echo "Will build for CUDA version: ${desired_cuda}"
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 cd "$SOURCE_DIR"
 
-#
 # Determine which build folder to use
+###########################################################
 if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
     build_folder="$TORCH_CONDA_BUILD_FOLDER"
 else
@@ -190,6 +213,7 @@ meta_yaml="$build_folder/meta.yaml"
 echo "Using conda-build folder $build_folder"
 
 # Switch between CPU or CUDA configerations
+###########################################################
 build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
     export NO_CUDA=1
@@ -208,6 +232,13 @@ else
     if [[ "$desired_cuda" == '9.2' ]]; then
         # ATen tests can't build with CUDA 9.2 and the old compiler used here
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+    fi
+
+    # Add the feature for this cuda version on nightly builds
+    if [[ "$build_folder" == 'pytorch-nightly' ]]; then
+        # The '# Features go here' must exactly match the meta.yaml
+        add_before '# Features go here' 'features:' "$meta_yaml"
+        add_before '# Features go here' "  - cuda$cuda_nodot" "$meta_yaml"
     fi
 fi
 
@@ -230,6 +261,10 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      --output-folder "$output_folder" \
                      vs2017
     fi
+
+    # Output the meta.yaml for easy debugging
+    echo 'Finalized meta.yaml is'
+    cat "$meta_yaml"
 
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
