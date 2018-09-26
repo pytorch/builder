@@ -112,7 +112,9 @@ for build_dir in "$NIGHTLIES_FOLDER"/*; do
 done
 
 # Purge all dockers
-docker ps -aq | xargs -I {} docker rm {} --force
-yes | docker system prune
+if [[ "$(uname)" != 'Darwin' ]]; then
+    docker ps -aq | xargs -I {} docker rm {} --force
+    yes | docker system prune
+fi
 
 exit "$any_removal_failed"
