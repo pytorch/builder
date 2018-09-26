@@ -110,6 +110,10 @@ for task in "${tasks[@]}"; do
     child_pids+=("$child_pid")
 done
 
+# We would like to always upload and delete old build folders
+set +e
+first_ret=0
+
 # Wait for all the jobs to finish
 echo "Waiting for all jobs to finish at $(date)"
 for child_pid in "${child_pids[@]}"; do
@@ -118,17 +122,41 @@ done
 echo "All jobs finished! at $(date)"
 
 # Count the total number of failures
-num_failures="$( ls -1q $FAILED_LOG_DIR | wc -l )"
-echo "Detected $num_failures failed builds"
+failed_jobs=($(ls $FAILED_LOG_DIR))
+echo "Detected ${#failed_jobs[@]} failed builds"
 
-# If there were no failures the upload the binaries, otherwise email someone
-if [[ "$num_failures" == 0 ]]; then
-    echo "No failures detected. Moving on to upload.sh"
-    "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" > "${log_root}/upload.log" 2>&1
-else
-    echo "Emailing all of ${NIGHTLIES_EMAIL_LIST[@]} (but not implemented yet)"
+# Email everyone if the jobs failed
+if [[ "${#failed_jobs[@]}" != 0 ]]; then
+    echo "Emailing all of $NIGHTLIES_EMAIL_LIST"
+    mail -s "$NIGHTLIES_DATE nightlies failed" -t "$NIGHTLIES_EMAIL_LIST" <<< \
+"On $(uname -a)
+On $(date)
+Nightly jobs failed. Failed jobs are: ${failed_jobs[@]}"
+    ret="$?"
+    if [[ "$first_ret" == 0 ]]; then
+        first_ret="$ret"
+    fi
+fi
+
+# Upload the working binaries
+# Only upload automatically on the current day, not on manual re-runs of past
+# days
+if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
+    succeeded_jobs=($(ls $SUCCEEDED_LOG_DIR))
+    echo "Uploading all of these succesful jobs\n: $succeeded_jobs"
+    "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" ${succeeded_jobs[@]} > "${log_root}/upload.log" 2>&1
+    ret="$?"
+    if [[ "$first_ret" == 0 ]]; then
+        first_ret="$ret"
+    fi
 fi
 
 # Regardless of failures, clean up the old build folders so that we don't run
 # out of memory
 "${NIGHTLIES_BUILDER_ROOT}/cron/clean.sh" > "${log_root}/clean.sh" 2>&1
+ret="$?"
+if [[ "$first_ret" == 0 ]]; then
+    first_ret="$ret"
+fi
+
+exit "$first_ret"
