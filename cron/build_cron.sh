@@ -128,7 +128,13 @@ echo "Detected ${#failed_jobs[@]} failed builds"
 # Email everyone if the jobs failed
 if [[ "${#failed_jobs[@]}" != 0 ]]; then
     echo "Emailing all of $NIGHTLIES_EMAIL_LIST"
-    mail -s "$NIGHTLIES_DATE nightlies failed" -t "$NIGHTLIES_EMAIL_LIST" <<< \
+    if [[ "(uname)" == 'Darwin' ]]; then
+        # `mail` on mac doesn't expect the -t
+        dash_t=''
+    else
+        dash_t='-t'
+    fi
+    mail -s "$NIGHTLIES_DATE nightlies failed" $dash_t "$NIGHTLIES_EMAIL_LIST" <<< \
 "On $(uname -a)
 On $(date)
 Nightly jobs failed. Failed jobs are: ${failed_jobs[@]}"
