@@ -20,6 +20,7 @@ requirements:
     - mkl-include
     - typing
     - ninja
+    - magma-cuda{{ environ.get('PYTORCH_MAGMA_CUDA_VERSION') }} # [not osx and not win]
 
   run:
     - python
