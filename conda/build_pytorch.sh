@@ -235,7 +235,8 @@ else
     fi
 
     # Add the feature for this cuda version on nightly builds
-    if [[ "$build_folder" == 'pytorch-nightly' ]]; then
+    # the feature tracking is added for non-default CUDA builds. Currently the default CUDA build is CUDA 9.0
+    if [[ "$build_folder" == 'pytorch-nightly' && "$desired_cuda" != '9.0' ]]; then
         # The '# Features go here' must exactly match the meta.yaml
         add_before '# Features go here' 'features:' "$meta_yaml"
         add_before '# Features go here' "  - cuda$cuda_nodot" "$meta_yaml"
