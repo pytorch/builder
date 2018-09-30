@@ -55,7 +55,7 @@ if [ "$OS" == "LINUX" ]; then
     echo "Linux release:"
     lsb_release -a || true
 else
-    echo "Processor info"    
+    echo "Processor info"
     sysctl -n machdep.cpu.brand_string
 fi
 
@@ -133,7 +133,7 @@ if [ "$OS" == "LINUX" ]; then
     echo "nvcc: $(which nvcc)"
 
     if [ "$ARCH" == "ppc64le" ]; then
-        # cuDNN libraries need to be downloaded from NVDIA and 
+        # cuDNN libraries need to be downloaded from NVDIA and
         # requires user registration.
         # ppc64le builds assume to have all cuDNN libraries installed
         # if they are not installed then exit and fix the problem
@@ -330,6 +330,16 @@ conda install -y pillow
 time python setup.py install
 popd
 
+echo "Installing ignite at branch master"
+rm -rf ignite
+git clone https://github.com/pytorch/ignite --quiet
+pushd ignite
+if [ $PYTHON_VERSION -eq 2 ]
+    conda install -y enum34
+fi
+time python setup.py install
+popd
+
 echo "ALL CHECKS PASSED"
 
 if [ "$OS" == "LINUX" ]; then
@@ -348,6 +358,11 @@ if [ "$OS" == "LINUX" ]; then
             pip uninstall -y sphinx_rtd_theme || true
             pip uninstall -y sphinx_rtd_theme || true
             pip install -r requirements.txt || true
+            make html
+
+            #copy ignite docs
+            rm -rf source/ignite
+            cp -r ../ignite/docs/source source/ignite
             make html
 
             rm -rf tmp
