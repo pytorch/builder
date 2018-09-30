@@ -9,8 +9,6 @@ requirements:
   build:
     - cmake
     - {{ compiler('c') }} # [win]
-
-  host:
     - python
     - numpy 1.11.*
     - setuptools
