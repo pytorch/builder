@@ -40,18 +40,22 @@ mkdir -p "$workdir"
 # Copy the pytorch directory into the workdir
 cp -R "$NIGHTLIES_PYTORCH_ROOT" "$workdir"
 
+# Copy the builder directory into the workdir
+# This is needed b/c the conda scripts can alter the meta.yaml
+cp -R "$NIGHTLIES_BUILDER_ROOT" "$workdir"
+
 # Build the package
 ##############################################################################
 if [[ "$package_type" == 'conda' ]]; then
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '_' '-')"
-    "${NIGHTLIES_BUILDER_ROOT}/conda/build_pytorch.sh"
+    "${workdir}/builder/conda/build_pytorch.sh"
     ret="$?"
 else
     if [[ "$package_type" == 'libtorch' ]]; then
         export BUILD_PYTHONLESS=1
     fi
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
-    "${NIGHTLIES_BUILDER_ROOT}/wheel/build_wheel.sh"
+    "${workdir}/builder/wheel/build_wheel.sh"
     ret="$?"
 fi
 
