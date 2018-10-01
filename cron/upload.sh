@@ -113,22 +113,34 @@ else
             fi
         fi
 
-        # Find the exact package to upload
-        # We need to match - or _ after the python version to avoid matching
-        # cp27mu when we're trying to mach cp27m. TODO this will only work when
-        # the name in both conda and wheel packages does follow the python
-        # version with a - or _
-        set +e
-        unset pkg
-        pkg="$(ls $pkg_dir | grep $py_ver[-_])"
-        set -e
-        if [[ -n "$pkg" ]]; then
-            # Add pkg_type/cuda_ver/package_name to the list
-            upload_it "$pkg_type" "$cuda_ver" "$pkg"
+        if [[ "$pkg_type" == 'libtorch' ]]; then
+            # Libtorch builds create a lot of different variants for each cuda
+            # version and ignores the python version. The package dir in this
+            # case will contain shared/static with/without deps. We just upload
+            # all the packages we find
+            for pkg in $pkg_dir/*; do
+                upload_it 'libtorch' "$cuda_ver" "$pkg"
+            done
         else
-            echo "!!WARNING!! Could not find the package for $1. I looked for"
-            echo "!!WARNING!! python version $py_ver in $pkg_dir but couldn't"
-            echo "!!WARNING!! find anything"
+            # Conda/wheel/manywheel - Find the exact package to upload
+            # This package dir contains packages of different python versions,
+            # some of which may have failed tests. We need to find the exact
+            # python version that succeeded to upload.
+            # We need to match - or _ after the python version to avoid
+            # matching cp27mu when we're trying to mach cp27m. TODO this will
+            # only work when the name in both conda and wheel packages does
+            # follow the python version with a - or _
+            set +e
+            unset pkg
+            pkg="$(ls $pkg_dir | grep $py_ver[-_])"
+            set -e
+            if [[ -n "$pkg" ]]; then
+                upload_it "$pkg_type" "$cuda_ver" "$pkg"
+            else
+                echo "!!WARNING!! Could not find the package for $1. I looked for"
+                echo "!!WARNING!! python version $py_ver in $pkg_dir but couldn't"
+                echo "!!WARNING!! find anything"
+            fi
         fi
         shift
     done
