@@ -19,17 +19,17 @@ upload_it () {
     pkg="$3"
 
     if [[ "$pkg_type" == 'conda' ]]; then
-        echo "Uploading $pkg_dir/$pkg to anaconda"
-        anaconda upload "$pkg_dir/$pkg" -u pytorch --label main
+        echo "Uploading $pkg to anaconda"
+        anaconda upload "$pkg" -u pytorch --label main --force
     elif [[ "$pkg_type" == 'libtorch' ]]; then
         s3_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
-        echo "Uploading $pkg_dir/$pkg to $s3_dir"
-        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read --quiet
+        echo "Uploading $pkg to $s3_dir"
+        aws s3 cp "$pkg" "$s3_dir" --acl public-read --quiet
     else
         uploaded_a_wheel=1
         s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
-        echo "Uploading $pkg_dir/$pkg to $s3_dir"
-        aws s3 cp "$pkg_dir/$pkg" "$s3_dir" --acl public-read --quiet
+        echo "Uploading $pkg to $s3_dir"
+        aws s3 cp "$pkg" "$s3_dir" --acl public-read --quiet
     fi
 }
 
@@ -87,8 +87,7 @@ if [[ "$#" -eq 0 ]]; then
             if [[ ! -d "$pkg_dir" ]]; then
                 continue
             fi
-            all_pkgs=($(ls $pkg_dir))
-            for pkg in "${all_pkgs[@]}"; do
+            for pkg in $pkg_dir/*; do
                 upload_it "$pkg_type" "$cuda_ver" "$pkg"
             done
         done
@@ -135,7 +134,7 @@ else
             pkg="$(ls $pkg_dir | grep $py_ver[-_])"
             set -e
             if [[ -n "$pkg" ]]; then
-                upload_it "$pkg_type" "$cuda_ver" "$pkg"
+                upload_it "$pkg_type" "$cuda_ver" "$pkg_dir/$pkg"
             else
                 echo "!!WARNING!! Could not find the package for $1. I looked for"
                 echo "!!WARNING!! python version $py_ver in $pkg_dir but couldn't"
