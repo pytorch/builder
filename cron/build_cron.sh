@@ -43,7 +43,7 @@ fi
 
 mkdir -p "$FAILED_LOG_DIR"
 mkdir -p "$SUCCEEDED_LOG_DIR"
-log_root="$today/logs/master/worker_$which_worker"
+log_root="$today/logs/master"
 mkdir -p "$log_root"
 
 # Divy up the tasks
