@@ -105,5 +105,8 @@ else
     exit 1
 fi
 
+# builder/test.sh requires DESIRED_CUDA to know what tests to exclude
+export DESIRED_CUDA="${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
+
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 source $SCRIPTPATH/build_common.sh

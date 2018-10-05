@@ -292,7 +292,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     test_env="env_$folder_tag"
     conda create -yn "$test_env" python="$py_ver"
     source activate "$test_env"
-    conda install -y numpy>=1.11 mkl>=2018 cffi ninja future six
+    conda install -y numpy>=1.11 mkl>=2018 cffi ninja future six pytest
 
     # Extract the package for testing
     ls -lah "$output_folder"
@@ -306,34 +306,15 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     conda install -y "$built_package"
 
     # Run tests
-    tests_to_skip=()
-    if [[ "$OSTYPE" != "msys" ]]; then
-        # Distributed tests don't work on linux or mac
-        tests_to_skip+=("distributed" "thd_distributed" "c10d")
-    fi
-    if [[ "$py_ver" == '2.7' ]]; then
-        # test_wrong_return_type doesn't work on the latest conda python 2.7
-        # version TODO verify this
-        tests_to_skip+=('jit')
-    fi
-    if [[ "$(uname)" == 'Darwin' ]]; then
-        # TODO investigate this
-        tests_to_skip+=('cpp_extensions')
-    fi
+    echo "$(date) :: Running tests"
     pushd "$pytorch_rootdir"
-    echo "Calling test/run_test.py at $(date)"
-    if [[ -n "$RUN_TEST_PARAMS" ]]; then
-        python test/run_test.py ${RUN_TEST_PARAMS[@]}
-    elif [[ -n "$tests_to_skip" ]]; then
-        python test/run_test.py -v -x ${tests_to_skip[@]}
-        set +e
-        python test/run_test.py -v -i ${tests_to_skip[@]}
-        set -e
+    if [[ -z "$cpu_only" ]]; then
+        "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" 'cpu'
     else
-        python test/run_test.py -v
+        "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" "cu$cuda_nodot"
     fi
     popd
-    echo "Finished test/run_test.py at $(date)"
+    echo "$(date) :: Finished tests"
 
     # Clean up test folder
     source deactivate
