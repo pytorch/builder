@@ -308,7 +308,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Run tests
     echo "$(date) :: Running tests"
     pushd "$pytorch_rootdir"
-    if [[ -z "$cpu_only" ]]; then
+    if [[ "$cpu_only" == 1 ]]; then
         "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" 'cpu'
     else
         "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" "cu$cuda_nodot"
