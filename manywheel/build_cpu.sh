@@ -37,5 +37,8 @@ DEPS_SONAME=(
 
 rm -rf /usr/local/cuda*
 
+# builder/test.sh requires DESIRED_CUDA to know what tests to exclude
+export DESIRED_CUDA='cpu'
+
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 source $SCRIPTPATH/build_common.sh

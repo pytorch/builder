@@ -1,6 +1,7 @@
 # meant to be called only from the neighboring build.sh and build_cpu.sh scripts
 
 set -ex
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 # TODO move this into the Docker images
 yum install -y zip openssl
@@ -322,19 +323,14 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
         ldd "$installed_lib"
     done
 
-    # Test that the wheel works
-    # If given an incantation to use, use it. Otherwise just run all the tests
-    # Distributed tests don't work
-    tests_to_skip=("distributed" "thd_distributed" "c10d")
-    echo "Calling python run_test.py at $(date)"
-    if [[ -n "$RUN_TEST_PARAMS" ]]; then
-        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py ${RUN_TEST_PARAMS[@]}
-    elif [[ -n "$tests_to_skip" ]]; then
-        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py -v -x ${tests_to_skip[@]}
-        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py -v -i ${tests_to_skip[@]} || true
-    else
-        LD_LIBRARY_PATH=/usr/local/nvidia/lib64 PYCMD="$curpy" "$curpy" run_test.py
-    fi
-    echo "Finished python run_test.py at $(date)"
+    # Run the tests
+    "$curpip" install pytest
+    echo "$(date) :: Running tests"
+    pushd "$pytorch_rootdir"
+    LD_LIBRARY_PATH=/usr/local/nvidia/lib64 \
+            PYCMD="$curpy" \
+            "${SOURCE_DIR}/../run_tests.sh" 'manywheel' "$pyver_short" "$DESIRED_CUDA"
+    popd
+    echo "$(date) :: Finished tests"
   done
 fi

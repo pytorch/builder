@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -ex
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 # Env variables that should be set:
 #   DESIRED_PYTHON
@@ -108,7 +109,7 @@ wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}
 # Install a fresh miniconda with a fresh env
 
 tmp_conda="${MAC_PACKAGE_WORK_DIR}/conda"
-tmp_env_name="py$python_nodot"
+tmp_env_name="wheel_py$python_nodot"
 miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
 rm -rf "$tmp_conda"
 rm -f "$miniconda_sh"
@@ -145,6 +146,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.10
 
 conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 pip install -r "${pytorch_rootdir}/requirements.txt" || true
+pip install pytest || true
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
@@ -178,14 +180,11 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     done
 
     # Run the tests
-    tests_to_skip=("jit")
-    pushd "${pytorch_rootdir}/test"
-    echo "Calling python run_test.py -x at $(date)"
-    python run_test.py ${RUN_TEST_PARAMS[@]} -v -x "${tests_to_skip[@]}"
-    echo "Calling python run_test.py -i at $(date)"
-    python run_test.py ${RUN_TEST_PARAMS[@]} -v -i "${tests_to_skip[@]}" || true
-    echo "Finished python run_test.py at $(date)"
+    echo "$(date) :: Running tests"
+    pushd "$pytorch_rootdir"
+    "${SOURCE_DIR}/../run_tests.sh" 'wheel' "$desired_python" 'cpu'
     popd
+    echo "$(date) :: Finished tests"
 else
     pushd "$pytorch_rootdir"
     mkdir -p build
@@ -210,8 +209,10 @@ else
        "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-latest.zip"
 fi
 
-# Now delete the temporary build folder
+# Now delete the temporary build folder and temporary env
 # $whl_tmp_dir is not deleted since it will be the only place to find the whl
 # if PYTORCH_FINAL_PACKAGE_DIR isn't specified
+source deactivate
+conda env remove -yn "$tmp_env_name"
 rm -rf "$pytorch_rootdir"
 rm -rf "$tmp_conda"
