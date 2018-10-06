@@ -22,11 +22,11 @@ if [[ -z "$NO_CUDA" || "$NO_CUDA" == 0 ]]; then
 fi
 if [[ -n "$build_with_cuda" ]]; then
     export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
-    if [[ $CUDA_VERSION == "8.0" ]]; then
+    if [[ $CUDA_VERSION == 8.0* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
-    elif [[ $CUDA_VERSION == "9.0" ]]; then
+    elif [[ $CUDA_VERSION == 9.0* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
-    elif [[ $CUDA_VERSION == "9.2" ]]; then
+    elif [[ $CUDA_VERSION == 9.2* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
     fi
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
