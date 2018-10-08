@@ -203,6 +203,28 @@ fi
 # Conda specific flaky tests
 ##########################################################################
 
+# Only on Anaconda's python 2.7
+# So, this doesn't really make sense. All the mac jobs are run on the same
+# machine, so the wheel jobs still use conda to silo their python
+# installations. The wheel job for Python 2.7 should use the exact same Python
+# from conda as the conda job for Python 2.7. Yet, this only appears on the
+# conda jobs.
+if [[ "$package_type" == 'conda' && "$py_ver" == '2.7' ]]; then
+		# Traceback (most recent call last):
+		#   File "test_jit.py", line 6281, in test_wrong_return_type
+		#     @torch.jit.script
+		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/__init__.py", line 639, in script
+		#     graph = _jit_script_compile(ast, rcb)
+		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 80, in get_signature
+		#     return parse_type_line(type_line)
+		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 131, in parse_type_line
+		#     return arg_types, ann_to_type(ret_ann)
+		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 192, in ann_to_type
+		#     return TupleType([ann_to_type(a) for a in ann.__args__])
+		# TypeError: 'TupleInstance' object is not iterable
+		tests_to_skip+=('TestScript and test_wrong_return_type')
+fi
+
 # Lots of memory leaks on CUDA
 if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
 
@@ -404,28 +426,6 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 fi
 
 if [[ "$(uname)" == 'Darwin' && "$package_type" == 'conda' ]]; then
-
-		# Only on Anaconda's python 2.7
-    # So, this doesn't really make sense. All the mac jobs are run on the same
-    # machine, so the wheel jobs still use conda to silo their python
-    # installations. The wheel job for Python 2.7 should use the exact same
-    # Python from conda as the conda job for Python 2.7. Yet, this only appears
-    # on the conda jobs.
-    if [[ "$py_ver" == '2.7' ]]; then
-				# Traceback (most recent call last):
-				#   File "test_jit.py", line 6281, in test_wrong_return_type
-				#     @torch.jit.script
-				#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/__init__.py", line 639, in script
-				#     graph = _jit_script_compile(ast, rcb)
-				#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 80, in get_signature
-				#     return parse_type_line(type_line)
-				#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 131, in parse_type_line
-				#     return arg_types, ann_to_type(ret_ann)
-				#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 192, in ann_to_type
-				#     return TupleType([ann_to_type(a) for a in ann.__args__])
-				# TypeError: 'TupleInstance' object is not iterable
-				tests_to_skip+=('TestScript and wrong_return_type')
-		fi
 
 		#
 		# TestDistBackend
