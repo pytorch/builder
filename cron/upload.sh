@@ -94,7 +94,7 @@ if [[ "$#" -eq 0 ]]; then
     done
 else
     # Else we're given a bunch of log names, turn these into exact packages
-    # Remove all '.log's from the names
+    # This is really fragile
     all_configs=()
     while [[ $# -gt 0 ]]; do
         IFS=, confs=($(basename $1 .log | tr '_' ','))
@@ -110,6 +110,11 @@ else
             else
                 py_ver="cp${py_ver:0:1}${py_ver:2:1}m"
             fi
+        fi
+
+        # On Darwin, map 2.7 -> cp27 without the m
+        if [[ "$(uname)" == 'Darwin' ]]; then
+            py_ver="cp${py_ver:0:1}${py_ver:2:1}"
         fi
 
         if [[ "$pkg_type" == 'libtorch' ]]; then
@@ -136,9 +141,10 @@ else
             if [[ -n "$pkg" ]]; then
                 upload_it "$pkg_type" "$cuda_ver" "$pkg_dir/$pkg"
             else
-                echo "!!WARNING!! Could not find the package for $1. I looked for"
-                echo "!!WARNING!! python version $py_ver in $pkg_dir but couldn't"
-                echo "!!WARNING!! find anything"
+                echo "Could not find the package for $1. I looked for"
+                echo "python version $py_ver in $pkg_dir but couldn't"
+                echo "find anything"
+                exit 1
             fi
         fi
         shift
