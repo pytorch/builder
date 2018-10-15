@@ -82,13 +82,16 @@ fi
 # Universal flaky tests
 ##############################################################################
 
-# RendezvousEnvTest hangs sometimes hangs forever
+# RendezvousEnvTest sometimes hangs forever
 # Otherwise it will fail on CUDA with
 #   Traceback (most recent call last):
 #     File "test_c10d.py", line 179, in test_common_errors
 #       next(gen)
 #   AssertionError: ValueError not raised
 tests_to_skip+=('RendezvousEnvTest and test_common_errors')
+
+# This hung forever once on conda_3.5_cu92
+tests_to_skip+=('TestTorch and test_sum_dim')
 
 # test_trace_warn isn't actually flaky, but it doesn't work with pytest so we
 # just skip it
@@ -279,6 +282,10 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # AssertionError: __main__.TestNN.test_BatchNorm3d_momentum_eval_cuda leaked -1024 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_BatchNorm3d_momentum_eval_cuda')
 
+    # 3.5_cu80
+    # AssertionError: 3584 not less than or equal to 1e-05 : test_nn.TestNN.test_BCEWithLogitsLoss_cuda_double leaked 3584 bytes CUDA memory on device 0
+    tests_to_skip+=('TestNN && test_BCEWithLogitsLoss_cuda_double')
+
     # 2.7_cu92
     # AssertionError: __main__.TestNN.test_ConvTranspose2d_cuda leaked -1024 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_ConvTranspose2d_cuda')
@@ -385,6 +392,10 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_ignore_index_cuda_float leaked -3584 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_float')
 
+    # 3.6_cu90
+    # AssertionError: 3584 not less than or equal to 1e-05 : test_nn.TestNN.test_NLLLoss_2d_weights_cuda_double leaked 3584 bytes CUDA memory on device 0
+    tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_half')
+
     # 3.6_cu80
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_sum_reduction_cuda_double leaked 3584 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_double')
@@ -392,6 +403,10 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # 3.6_cu80
     # AssertionError: 2560 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_sum_reduction_cuda_float leaked 2560 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_float')
+
+    # 3.7_cu92
+    # AssertionError: 1536 not less than or equal to 1e-05 : test_nn.TestNN.test_NLLLoss_2d_weights_cuda_half leaked 1536 bytes CUDA memory on device 0
+    tests_to_skip+=('TestNN and test_NLLLoss_2d_weights_cuda_half')
 
     # 3.6_cu80
     # AssertionError: 1536 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_sum_reduction_cuda_half leaked 1536 bytes CUDA memory on device 0
@@ -445,6 +460,10 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # 3.7_cu92 x2
     # AssertionError: 1024 not less than or equal to 1e-05 : __main__.TestJit.test_ge_cuda leaked 1024 bytes CUDA memory on device 0
     tests_to_skip+=('TestJit and test_ge_cuda')
+
+    # 3.5_cu90
+    # AssertionError: 1024 not less than or equal to 1e-05 : test_jit.TestJit.test_comparison_ge_le_cuda leaked -1024 bytes CUDA memory on device 0
+    tests_to_skip+=('TestJit and test_comparison_ge_le_cuda')
 
     # 3.6_cu92
     # 3.7_cu92
