@@ -113,7 +113,7 @@ else
         fi
 
         # On Darwin, map 2.7 -> cp27 without the m
-        if [[ "$(uname)" == 'Darwin' ]]; then
+        if [[ "$(uname)" == 'Darwin' && "$pkg_type" != 'conda' ]]; then
             py_ver="cp${py_ver:0:1}${py_ver:2:1}"
         fi
 
