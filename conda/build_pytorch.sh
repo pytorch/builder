@@ -224,8 +224,10 @@ if [[ -n "$cpu_only" ]]; then
     fi
     # remove the line magma-cuda*, because cpu build doesn't need magma
     $portable_sed "/magma-cuda.*/d" "$meta_yaml"
-    # rename the package pytorch-nightly-cpu, because it's cpu build
-    $portable_sed "s/name: pytorch-nightly/name: pytorch-nightly-cpu/" "$meta_yaml"
+    # on Linux, rename the package pytorch-nightly-cpu, because it's cpu build
+    if [[ "$(uname)" != 'Darwin' ]]; then
+        $portable_sed "s/name: pytorch-nightly/name: pytorch-nightly-cpu/" "$meta_yaml"
+    fi
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
     # sets CUDA_VERSION and CUDNN_VERSION
