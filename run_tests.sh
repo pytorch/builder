@@ -93,6 +93,15 @@ tests_to_skip+=('RendezvousEnvTest and test_common_errors')
 # test_trace_warn isn't actually flaky, but it doesn't work with pytest so we
 # just skip it
 tests_to_skip+=('TestJit and test_trace_warn')
+#
+# Python specific flaky tests
+##############################################################################
+
+# test_dataloader.py:721: AssertionError
+# looks like a timeout, but interestingly only appears on python 3
+if [[ "$py_ver" == 3* ]]; then
+    tests_to_skip+=('TestDataLoader and test_proper_exit')
+fi
 
 #
 # CUDA flaky tests, all package types
@@ -191,11 +200,45 @@ if [[ "$cuda_ver" != 'cpu' ]]; then
     tests_to_skip+=('TestDistBackend and test_broadcast')
 
     # Memory leak very similar to all the conda ones below, but appears on manywheel
-    if  [[ "$cuda_ver" != 'cpu' ]]; then
-        # 3.6m_cu80
-        # AssertionError: 1605632 not less than or equal to 1e-05 : __main__.TestEndToEndHybridFrontendModels.test_vae_cuda leaked 1605632 bytes CUDA memory on device 0
-        tests_to_skip+=('TestEndToEndHybridFrontendModels and test_vae_cuda')
-    fi
+    # 3.6m_cu80
+    # AssertionError: 1605632 not less than or equal to 1e-05 : __main__.TestEndToEndHybridFrontendModels.test_vae_cuda leaked 1605632 bytes CUDA memory on device 0
+    tests_to_skip+=('TestEndToEndHybridFrontendModels and test_vae_cuda')
+
+		# ________________________ TestNN.test_embedding_bag_cuda ________________________
+		# 
+		# self = <test_nn.TestNN testMethod=test_embedding_bag_cuda>
+		# dtype = torch.float32
+		# 
+		#     @unittest.skipIf(not TEST_CUDA, "CUDA unavailable")
+		#     @repeat_test_for_types(ALL_TENSORTYPES)
+		#     @skipIfRocm
+		#     def test_embedding_bag_cuda(self, dtype=torch.float):
+		#         self._test_EmbeddingBag(True, 'sum', False, dtype)
+		#         self._test_EmbeddingBag(True, 'mean', False, dtype)
+		#         self._test_EmbeddingBag(True, 'max', False, dtype)
+		#         if dtype != torch.half:
+		#             # torch.cuda.sparse.HalfTensor is not enabled.
+		#             self._test_EmbeddingBag(True, 'sum', True, dtype)
+		# >           self._test_EmbeddingBag(True, 'mean', True, dtype)
+		# 
+		# test_nn.py:2144:
+		# _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+		# test_nn.py:2062: in _test_EmbeddingBag
+		#     _test_vs_Embedding(N, D, B, L)
+		# test_nn.py:2059: in _test_vs_Embedding
+		#     self.assertEqual(es_weight_grad, e.weight.grad, needed_prec)
+		# common.py:373: in assertEqual
+		#     assertTensorsEqual(x, y)
+		# common.py:365: in assertTensorsEqual
+		#     self.assertLessEqual(max_err, prec, message)
+		# E   AssertionError: tensor(0.0000, device='cuda:0', dtype=torch.float32) not less than or equal to 2e-05 :
+		#  1 failed, 1202 passed, 19 skipped, 2 xfailed, 796 warnings in 1166.73 seconds =
+		# Traceback (most recent call last):
+		#   File "test/run_test.py", line 391, in <module>
+		#     main()
+		#   File "test/run_test.py", line 383, in main
+		#     raise RuntimeError(message)
+		tests_to_skip+=('TestNN and test_embedding_bag_cuda')
 fi
 
 
