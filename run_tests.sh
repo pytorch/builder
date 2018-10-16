@@ -284,7 +284,7 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
 
     # 3.5_cu80
     # AssertionError: 3584 not less than or equal to 1e-05 : test_nn.TestNN.test_BCEWithLogitsLoss_cuda_double leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN && test_BCEWithLogitsLoss_cuda_double')
+    tests_to_skip+=('TestNN and test_BCEWithLogitsLoss_cuda_double')
 
     # 2.7_cu92
     # AssertionError: __main__.TestNN.test_ConvTranspose2d_cuda leaked -1024 bytes CUDA memory on device 0
@@ -294,6 +294,12 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # AssertionError: 1024 not less than or equal to 1e-05 : __main__.TestNN.test_ConvTranspose3d_cuda leaked -1024 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_ConvTranspose3d_cuda')
 
+    #
+    #
+    # CTCLoss
+    # These are all flaky
+    tests_to_skip+=('TestNN and test_CTCLoss')
+
     # 2.7_cu90
     # 2.7_cu92
     # 3.5_cu90 x2
@@ -301,7 +307,7 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # 3.7_cu80 x3
     # 3.7_cu90
     # AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_1d_target_cuda_double leaked 37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_1d_target_cuda_double')
+    #tests_to_skip+=('TestNN and test_CTCLoss_1d_target_cuda_double')
 
     # 2.7_cu80 --18944
     # 2.7_cu92
@@ -311,47 +317,47 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # 3.6_cu92 --18944
     # 3.7_cu80
     # AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_1d_target_cuda_float leaked -37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_1d_target_cuda_float')
+    #tests_to_skip+=('TestNN and test_CTCLoss_1d_target_cuda_float')
 
     # 3.5_cu90
     # 3.7_cu92
     # AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_1d_target_sum_reduction_cuda_double leaked 37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_1d_target_sum_reduction_cuda_double')
+    #tests_to_skip+=('TestNN and test_CTCLoss_1d_target_sum_reduction_cuda_double')
 
     # 3.7_cu92
     # AssertionError: 18432 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_1d_target_sum_reduction_cuda_float leaked -18432 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_1d_target_sum_reduction_cuda_float')
+    #tests_to_skip+=('TestNN and test_CTCLoss_1d_target_sum_reduction_cuda_float')
 
     # 3.5_cu92 x2
     # 3.6_cu80
     # 3.7_cu90
     # AssertionError: AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_2d_int_target_cuda_double leaked 37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_cuda_double')
+    #tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_cuda_double')
 
     # 3.5_cu92
     # 3.6_cu80 --37376
     # 3.6_cu92
     # AssertionError: 18944 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_2d_int_target_cuda_float leaked 18944 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_cuda_float')
+    #tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_cuda_float')
 
     # 2.7_cu90
     # 3.5_cu80
     # 3.7_cu80 x2
     # AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_2d_int_target_sum_reduction_cuda_double leaked 37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_sum_reduction_cuda_double')
+    #tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_sum_reduction_cuda_double')
 
     # 2.7_cu90
     # 2.7_cu92 --18944
     # AssertionError: __main__.TestNN.test_CTCLoss_2d_int_target_sum_reduction_cuda_float leaked -37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_sum_reduction_cuda_float')
+    #tests_to_skip+=('TestNN and test_CTCLoss_2d_int_target_sum_reduction_cuda_float')
 
     # 2.7_cu92
     # AssertionError: __main__.TestNN.test_CTCLoss_cuda_double leaked 37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_cuda_double')
+    #tests_to_skip+=('TestNN and test_CTCLoss_cuda_double')
 
     # 2.7_cu92
     # AssertionError: __main__.TestNN.test_CTCLoss_cuda_float leaked 18944 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_cuda_float')
+    #tests_to_skip+=('TestNN and test_CTCLoss_cuda_float')
 
     # 2.7_cu92
     # 3.5_cu90 x2
@@ -359,99 +365,105 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # 3.5_cu92
     # 3.6_cu80 x2
     # AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_sum_reduction_cuda_double leaked 37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_sum_reduction_cuda_double')
+    #tests_to_skip+=('TestNN and test_CTCLoss_sum_reduction_cuda_double')
 
     # 2.7_cu92 --18944
     # 3.6_cu80
     # AssertionError: 37376 not less than or equal to 1e-05 : __main__.TestNN.test_CTCLoss_sum_reduction_cuda_float leaked -37376 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_CTCLoss_sum_reduction_cuda_float')
+    #tests_to_skip+=('TestNN and test_CTCLoss_sum_reduction_cuda_float')
+
+    #
+    #
+    # NLLLoss
+    # These are all flaky
+    tests_to_skip+=('TestNN and NLLLoss')
 
     # 3.5_cu90 x2
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_cuda_double leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_cuda_double')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_cuda_double')
 
     # 2.7_cu80
     # AssertionError: __main__.TestNN.test_NLLLoss_2d_cuda_float leaked 2560 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_cuda_float')
 
     # 2.7_cu80
     # 2.7_cu92
     # 3.6_cu80 x2
     # AssertionError: 1536 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_cuda_half leaked 1536 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_cuda_half')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_cuda_half')
 
     # 2.7_cu90
     # 3.6_cu80 x2
     # 3.6_cu90
     # 3.6_cu92
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_ignore_index_cuda_double leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_double')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_double')
 
     # 3.6_cu80 x2
     # 3.6_cu90
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_ignore_index_cuda_float leaked -3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_float')
 
     # 3.6_cu90
     # AssertionError: 3584 not less than or equal to 1e-05 : test_nn.TestNN.test_NLLLoss_2d_weights_cuda_double leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_half')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_ignore_index_cuda_half')
 
     # 3.6_cu80
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_sum_reduction_cuda_double leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_double')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_double')
 
     # 3.6_cu80
     # AssertionError: 2560 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_sum_reduction_cuda_float leaked 2560 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_float')
 
     # 3.7_cu92
     # AssertionError: 1536 not less than or equal to 1e-05 : test_nn.TestNN.test_NLLLoss_2d_weights_cuda_half leaked 1536 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_weights_cuda_half')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_weights_cuda_half')
 
     # 3.6_cu80
     # AssertionError: 1536 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_2d_sum_reduction_cuda_half leaked 1536 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_half')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_sum_reduction_cuda_half')
 
     # 2.7_cu92
     # AssertionError: __main__.TestNN.test_NLLLoss_2d_weights_cuda_float leaked 2560 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_2d_weights_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_2d_weights_cuda_float')
 
     # 3.5_cu80 x2
     # 3.6_cu90
     # AssertionError: 1536 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_dim_is_3_cuda_double leaked 1536 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_dim_is_3_cuda_double')
+    #tests_to_skip+=('TestNN and test_NLLLoss_dim_is_3_cuda_double')
 
     # 3.6_cu80
     # AssertionError: 1536 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_dim_is_3_sum_reduction_cuda_float leaked 1536 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_dim_is_3_sum_reduction_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_dim_is_3_sum_reduction_cuda_float')
 
     # 3.6_cu80
     # 3.7_cu80 x2
     # AssertionError: 1536 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_dim_is_3_sum_reduction_cuda_half leaked 1536 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_dim_is_3_sum_reduction_cuda_half')
+    #tests_to_skip+=('TestNN and test_NLLLoss_dim_is_3_sum_reduction_cuda_half')
 
     # 3.5_cu80
     # 3.7_cu80 x2
     # AssertionError: 10752 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_cuda_double leaked 10752 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_cuda_double')
+    #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_cuda_double')
 
     # 3.5_cu80
     # 3.7_cu80 --10752 x2
     # AssertionError: 5120 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_cuda_float leaked -5120 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_cuda_float')
 
     # 3.5_cu80
     # 3.5 cu90
     # AssertionError: 3584 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_cuda_half leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_cuda_half')
+    #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_cuda_half')
 
     # 3.5_cu90
     # AssertionError: 10752 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_sum_reduction_cuda_double leaked 10752 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_sum_reduction_cuda_double')
+    #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_sum_reduction_cuda_double')
 
     # 3.5_cu90
     # AssertionError: 5120 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_sum_reduction_cuda_float leaked -5120 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_sum_reduction_cuda_float')
+    #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_sum_reduction_cuda_float')
 
     # 3.7_cu90
     # AssertionError: 1024 not less than or equal to 1e-05 : __main__.TestJit.test_fuse_last_device_cuda leaked 1024 bytes CUDA memory on device 1
