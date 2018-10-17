@@ -49,10 +49,6 @@ echo "$(date) :: Starting tests for $package_type package for python$py_ver and 
 # those
 tests_to_skip=()
 
-# TODO temporary line to fix next days nightlies, but should be removed when
-# issue is fixed
-tests_to_skip+=('TestDTypeInfo')
-
 #
 # Entire file exclusions
 ##############################################################################
@@ -62,6 +58,10 @@ entire_file_exclusions=("-x")
 # here and then manually run it later. Note that this is only because this
 # entire_fil_exclusions flag is only passed to the pytest run
 entire_file_exclusions+=("cpp_extensions")
+
+# TODO temporary line to fix next days nightlies, but should be removed when
+# issue is fixed
+entire_file_exclusions+=('type_info')
 
 if [[ "$cuda_ver" == 'cpu' ]]; then
     # test/test_cuda.py exits early if the installed torch is not built with
