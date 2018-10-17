@@ -3,8 +3,13 @@
 set -ex
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+# Function to retry functions that sometimes timeout or have flaky failures
+retry () {
+    $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
+}
+
 # TODO move this into the Docker images
-yum install -y zip openssl
+retry yum install -y zip openssl
 
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. This may
