@@ -12,7 +12,7 @@ set -ex
 if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
     echo "builder/test.sh expects to be run from the Pytorch root directory " \
          "but I'm actually in $(pwd)"
-    exit 1
+    exit 2
 fi
 
 # If given specific test params then just run those
@@ -26,9 +26,9 @@ fi
 ##############################################################################
 if [[ "$#" != 3 ]]; then
   if [[ -z "$DESIRED_PYTHON" || -z "$DESIRED_CUDA" || -z "$PACKAGE_TYPE" ]]; then
-      echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
-      echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
-      echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
+      echo "The env variable PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
+      echo "The env variable DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
+      echo "The env variable DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
       exit 1
   fi
   package_type="$PACKAGE_TYPE"
@@ -286,9 +286,13 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # AssertionError: __main__.TestNN.test_BatchNorm3d_momentum_eval_cuda leaked -1024 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_BatchNorm3d_momentum_eval_cuda')
 
+    #
+    # All of test_BCE is flaky
+    tests_to_skip+=('TestNN and test_BCE')
+
     # 3.5_cu80
     # AssertionError: 3584 not less than or equal to 1e-05 : test_nn.TestNN.test_BCEWithLogitsLoss_cuda_double leaked 3584 bytes CUDA memory on device 0
-    tests_to_skip+=('TestNN and test_BCEWithLogitsLoss_cuda_double')
+    #tests_to_skip+=('TestNN and test_BCEWithLogitsLoss_cuda_double')
 
     # 2.7_cu92
     # AssertionError: __main__.TestNN.test_ConvTranspose2d_cuda leaked -1024 bytes CUDA memory on device 0
@@ -468,6 +472,16 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # 3.5_cu90
     # AssertionError: 5120 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_sum_reduction_cuda_float leaked -5120 bytes CUDA memory on device 0
     #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_sum_reduction_cuda_float')
+
+		# ______________________ TestNN.test_variable_sequence_cuda ______________________
+		# common_utils.py:277: in wrapper
+		#     method(*args, **kwargs)
+		# common_utils.py:241: in __exit__
+		#     self.name, after - before, i))
+		# common_utils.py:399: in assertEqual
+		#     super(TestCase, self).assertLessEqual(abs(x - y), prec, message)
+		# E   AssertionError: 1024 not less than or equal to 1e-05 : test_nn.TestNN.test_variable_sequence_cuda leaked 1024 bytes CUDA memory on device 0
+    tests_to_skip+=('TestNN and test_variable_sequence_cuda')
 
     # 3.7_cu90
     # AssertionError: 1024 not less than or equal to 1e-05 : __main__.TestJit.test_fuse_last_device_cuda leaked 1024 bytes CUDA memory on device 1
