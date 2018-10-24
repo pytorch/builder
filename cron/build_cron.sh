@@ -41,6 +41,10 @@ else
     fi
 fi
 
+# Clear out old logs. When we re-run jobs (after patching a change) then old
+# logs should be removed to avoid confusion.
+rm -rf "$FAILED_LOG_DIR" || true
+rm -rf "$SUCCEEDED_LOG_DIR" || true
 mkdir -p "$FAILED_LOG_DIR"
 mkdir -p "$SUCCEEDED_LOG_DIR"
 log_root="$today/logs/master"
