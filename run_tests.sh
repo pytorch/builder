@@ -15,6 +15,9 @@ if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
     exit 2
 fi
 
+# TODO move all test-only needed packages here
+pip install hypothesis || true
+
 # If given specific test params then just run those
 if [[ -n "$RUN_TEST_PARAMS" ]]; then
     echo "$(date) :: Calling user-command $(pwd)/test/run_test.py ${RUN_TEST_PARAMS[@]}"
