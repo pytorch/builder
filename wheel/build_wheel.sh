@@ -146,7 +146,6 @@ export MACOSX_DEPLOYMENT_TARGET=10.10
 
 conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
 pip install -r "${pytorch_rootdir}/requirements.txt" || true
-pip install pytest || true
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
@@ -167,17 +166,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
 
     # Only one binary is built, so it's safe to just specify the whl directory
     pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir" --no-dependencies -v
-
-    # Check that OpenBlas is not linked to
-    all_dylibs=($(find "${tmp_conda}/envs/${tmp_env_name}/lib/python${desired_python}/site-packages/torch/" -name '*.dylib'))
-    for dylib in "${all_dylibs[@]}"; do
-        if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
-            echo "BUILD ERROR!!"
-            echo "Found openblas as a dependency of $dylib"
-            echo "Full dependencies is: $(otool -L $dylib)"
-            exit 1
-        fi
-    done
 
     # Run the tests
     echo "$(date) :: Running tests"

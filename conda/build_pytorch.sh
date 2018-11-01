@@ -294,7 +294,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     test_env="env_$folder_tag"
     conda create -yn "$test_env" python="$py_ver"
     source activate "$test_env"
-    conda install -y numpy>=1.11 mkl>=2018 cffi ninja future six pytest
 
     # Extract the package for testing
     ls -lah "$output_folder"
