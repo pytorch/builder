@@ -329,7 +329,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     done
 
     # Run the tests
-    "$curpip" install pytest
     echo "$(date) :: Running tests"
     pushd "$pytorch_rootdir"
     LD_LIBRARY_PATH=/usr/local/nvidia/lib64 \

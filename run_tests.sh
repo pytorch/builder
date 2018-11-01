@@ -2,8 +2,9 @@
 
 # Essentially runs pytorch/test/run_test.py, but keeps track of which tests to
 # skip in a centralized place.
-# Except for a few tests, this entire file is a giant TODO. Why are these tests
-# failing?
+#
+# TODO Except for a few tests, this entire file is a giant TODO. Why are these
+# tests # failing?
 # TODO deal with Windows
 
 set -ex
@@ -14,12 +15,6 @@ if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
          "but I'm actually in $(pwd)"
     exit 2
 fi
-
-# TODO enable tests? maybe?
-exit 0
-
-# TODO move all test-only needed packages here
-pip install hypothesis || true
 
 # If given specific test params then just run those
 if [[ -n "$RUN_TEST_PARAMS" ]]; then
@@ -32,10 +27,11 @@ fi
 ##############################################################################
 if [[ "$#" != 3 ]]; then
   if [[ -z "$DESIRED_PYTHON" || -z "$DESIRED_CUDA" || -z "$PACKAGE_TYPE" ]]; then
-      echo "The env variable PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
-      echo "The env variable DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
-      echo "The env variable DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
-      exit 1
+    echo "USAGE: run_tests.sh  PACKAGE_TYPE  DESIRED_PYTHON  DESIRED_CUDA"
+    echo "The env variable PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
+    echo "The env variable DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
+    echo "The env variable DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
+    exit 1
   fi
   package_type="$PACKAGE_TYPE"
   py_ver="$DESIRED_PYTHON"
@@ -46,8 +42,76 @@ else
   cuda_ver="$3"
 fi
 
-echo "$(date) :: Starting tests for $package_type package for python$py_ver and $cuda_ver"
+# Environment initialization
+if [[ "$package_type" == conda ]]; then
+    conda install -y cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six
+else
+    pip install -r requirements.txt || true
+    pip install hypothesis protobuf pytest setuptools || true
+    if [[ "$(python --version)" == *3.7.* ]]; then
+        pip install numpy==1.15 || true
+    else
+        pip install numpy==1.11 || ture
+    fi
+fi
 
+
+##############################################################################
+# Smoke tests
+##############################################################################
+pushd /
+echo "Smoke testing imports"
+python -c 'import torch'
+python -c 'from caffe2.python import core'
+
+# Test that MKL is there
+if [[ "$(uname)" == 'Darwin' && "$package_type" == *wheel ]]; then
+    echo 'Not checking for MKL on Darwin wheel packages'
+else
+    echo "Checking that MKL is available"
+    python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
+fi
+
+# Test that CUDA builds are setup correctly
+if [[ "$cuda_ver" != 'cpu' ]]; then
+    # Test CUDA archs
+    echo "Checking that CUDA archs are setup correctly"
+    timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
+
+    # These have to run after CUDA is initialized
+    echo "Checking that magma is available"
+    python -c 'import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)'
+    echo "Checking that CuDNN is available"
+    python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
+fi
+
+# Check that OpenBlas is not linked to on Macs
+if [[ "$(uname)" == 'Darwin' ]]; then
+    echo "Checking the OpenBLAS is not linked to"
+    all_dylibs=($(find "$(python -c 'from setuptools import distutils; print(distutils.sysconfig.get_python_lib())')"/torch -name '*.dylib'))
+    for dylib in "${all_dylibs[@]}"; do
+        if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
+            echo "Found openblas as a dependency of $dylib"
+            echo "Full dependencies is: $(otool -L $dylib)"
+            exit 1
+        fi
+    done
+fi
+
+popd
+
+# TODO re-enable the other tests after the nightlies are moved to CI. This is
+# because the binaries keep breaking, often from additional tests, that aren't
+# real problems. Once these are on circleci and a smoke-binary-build is added
+# to PRs then this should stop happening and these can be re-enabled.
+echo "Not running unit tests. Hopefully these problems are caught by CI"
+exit 0
+
+
+##############################################################################
+# Running unit tests (except not right now)
+##############################################################################
+echo "$(date) :: Starting tests for $package_type package for python$py_ver and $cuda_ver"
 
 # We keep track of exact tests to skip, as otherwise we would be hardly running
 # any tests. But b/c of issues working with pytest/normal-python-test/ and b/c
