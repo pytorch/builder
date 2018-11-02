@@ -159,6 +159,7 @@ if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
 fi
 
 # nightlies_package_folder()
+#     USAGE: nightlies_package_folder $package_type $cuda_version
 #   Function from (package_type, CUDA/cpu ver) -> where packages should be
 #   stored. OS does not factor since the folders will be on different machines
 #   and won't overlap
@@ -168,13 +169,17 @@ nightlies_package_folder () {
     echo "${today}/$1/$2/"
 }
 
-# (FAILED|SUCCEEDED)_LOG_DIR
+# (RUNNING|FAILED|SUCCEEDED)_LOG_DIR
 #   Absolute path to folders that store final logs. Initially these folders
-#   should be empty. When a build fails, it's log should be moved to
-#   FAILED_LOG_DIR, thus tracking failures/succeeded builds and also keeping
-#   logs in a convenient place.
+#   should be empty. Logs are written out to RUNNING_LOG_DIR. When a build
+#   fails, it's log should be moved to FAILED_LOG_DIR, and similarily for
+#   succeeded builds.
+export RUNNING_LOG_DIR="${today}/logs"
 export FAILED_LOG_DIR="${today}/logs/failed"
 export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
+
+# Log s3 directory, must not end in a /
+export LOGS_S3_DIR="nightly_logs/$NIGHTLIES_DATE"
 
 # DAYS_TO_KEEP
 #   How many days to keep around for clean.sh. Build folders older than this

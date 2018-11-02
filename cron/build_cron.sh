@@ -148,15 +148,32 @@ Nightly jobs failed. Failed jobs are: ${failed_jobs[@]}"
     fi
 fi
 
-# Upload the working binaries
+# Upload the working binaries and all of the logs
 # Only upload automatically on the current day, not on manual re-runs of past
 # days
 if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
+
+    # Upload successful binaries
     succeeded_jobs=($(ls $SUCCEEDED_LOG_DIR))
     echo "Uploading all of these succesful jobs\n: $succeeded_jobs"
     "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" ${succeeded_jobs[@]} > "${log_root}/upload.log" 2>&1
     ret="$?"
     if [[ "$first_ret" == 0 ]]; then
+        echo "FAILED upload.sh"
+        first_ret="$ret"
+    fi
+
+    # Upload the logs
+    "${NIGHTLIES_BUILDER_ROOT}/cron/upload_logs.sh"
+    ret="$?"
+    if [[ "$first_ret" == 0 ]]; then
+        echo "FAILED upload_logs.sh"
+        first_ret="$ret"
+    fi
+    "${NIGHTLIES_BUILDER_ROOT}/cron/update_hud.sh"
+    ret="$?"
+    if [[ "$first_ret" == 0 ]]; then
+        echo "FAILED update_hud.sh"
         first_ret="$ret"
     fi
 fi
@@ -166,6 +183,7 @@ fi
 "${NIGHTLIES_BUILDER_ROOT}/cron/clean.sh" > "${log_root}/clean.sh" 2>&1
 ret="$?"
 if [[ "$first_ret" == 0 ]]; then
+    echo "FAILED clean.sh"
     first_ret="$ret"
 fi
 
