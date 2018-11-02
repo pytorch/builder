@@ -179,7 +179,11 @@ export FAILED_LOG_DIR="${today}/logs/failed"
 export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
 
 # Log s3 directory, must not end in a /
-export LOGS_S3_DIR="nightly_logs/$NIGHTLIES_DATE"
+if [[ "$(uname)" == 'Darwin' ]]; then
+    export LOGS_S3_DIR="nightly_logs/macos/$NIGHTLIES_DATE"
+else
+    export LOGS_S3_DIR="nightly_logs/linux/$NIGHTLIES_DATE"
+fi
 
 # DAYS_TO_KEEP
 #   How many days to keep around for clean.sh. Build folders older than this
