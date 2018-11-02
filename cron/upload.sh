@@ -7,7 +7,7 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 
 # Upload all nightly packages.
 # This has two use cases:
-# In the regular nightlies use-case this script is passed all the succesfull
+# In the regular nightlies use-case this script is passed all the successful
 # logs
 #   ./cron/upload.sh conda_2.7_cpu.log manywheel_2.7mu_cu80.log ...
 # and only those corresponding packages are uploaded.
@@ -131,9 +131,9 @@ else
             # some of which may have failed tests. We need to find the exact
             # python version that succeeded to upload.
             # We need to match - or _ after the python version to avoid
-            # matching cp27mu when we're trying to mach cp27m. TODO this will
-            # only work when the name in both conda and wheel packages does
-            # follow the python version with a - or _
+            # matching cp27mu when we're trying to mach cp27m.
+            # N.B. this will only work when the name in both conda and wheel
+            # packages does follow the python version with a - or _
             set +e
             unset pkg
             pkg="$(ls $pkg_dir | grep $py_ver[-_])"

@@ -96,9 +96,9 @@ for config in "${all_configs[@]}"; do
   # logs/succeeded/ . When the build is over, we check if that file has been
   # written and if so move the log to logs/succeeded/ ; otherwise the build has
   # failed and logs are moved to logs/failed/
-  log_name="${today}/logs/$build_tag.log"
-  failed_log_loc="${today}/logs/failed/$build_tag.log"
-  succeeded_log_loc="${today}/logs/succeeded/$build_tag.log"
+  log_name="${RUNNING_LOG_DIR}/${build_tag}.log"
+  failed_log_loc="${FAILED_LOG_DIR}/${build_tag}.log"
+  succeeded_log_loc="${SUCCEEDED_LOG_DIR}/${build_tag}.log"
   rm -f "$failed_log_loc"
   rm -f "$succeeded_log_loc"
 
