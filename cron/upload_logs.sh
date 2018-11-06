@@ -5,6 +5,12 @@ echo "upload_logs.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
+# Source the credentials if given
+if [[ -x "$PYTORCH_CREDENTIALS_FILE" ]]; then
+    source "$PYTORCH_CREDENTIALS_FILE"
+fi
+export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
+
 # Uploads all of the logs
 # N.B. do NOT include the master logs, as there may be secrets in those
 

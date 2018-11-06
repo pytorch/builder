@@ -24,6 +24,11 @@ if [[ -z "$PYTORCH_CREDENTIALS_FILE" ]]; then
     fi
 fi
 
+# Location of the temporary miniconda that is downloaded to install conda-build
+# and aws to upload finished packages TODO this is messy to install this in
+# upload.sh and later use it in upload_logs.sh
+CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
+
 # NIGHTLIES_FOLDER
 # N.B. this is also defined in cron_start.sh
 #   An arbitrary root folder to store all nightlies folders, each of which is a

@@ -158,21 +158,21 @@ if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
     echo "Uploading all of these succesful jobs\n: $succeeded_jobs"
     "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" ${succeeded_jobs[@]} > "${log_root}/upload.log" 2>&1
     ret="$?"
-    if [[ "$first_ret" == 0 ]]; then
+    if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
         echo "FAILED upload.sh"
         first_ret="$ret"
     fi
 
     # Upload the logs
-    "${NIGHTLIES_BUILDER_ROOT}/cron/upload_logs.sh"
+    "${NIGHTLIES_BUILDER_ROOT}/cron/upload_logs.sh" > "${log_root}/upload_logs.log" 2>&1
     ret="$?"
-    if [[ "$first_ret" == 0 ]]; then
+    if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
         echo "FAILED upload_logs.sh"
         first_ret="$ret"
     fi
-    "${NIGHTLIES_BUILDER_ROOT}/cron/update_hud.sh"
+    "${NIGHTLIES_BUILDER_ROOT}/cron/update_hud.sh" > "${log_root}/update_hud.log" 2>&1
     ret="$?"
-    if [[ "$first_ret" == 0 ]]; then
+    if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
         echo "FAILED update_hud.sh"
         first_ret="$ret"
     fi
@@ -182,7 +182,7 @@ fi
 # out of memory
 "${NIGHTLIES_BUILDER_ROOT}/cron/clean.sh" > "${log_root}/clean.sh" 2>&1
 ret="$?"
-if [[ "$first_ret" == 0 ]]; then
+if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
     echo "FAILED clean.sh"
     first_ret="$ret"
 fi
