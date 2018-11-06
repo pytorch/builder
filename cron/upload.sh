@@ -52,7 +52,6 @@ anaconda upload -h >/dev/null
 ret2="$?"
 set -e
 if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
-    tmp_conda="${today}/miniconda"
     miniconda_sh="${today}/miniconda.sh"
     if [[ "$(uname)" == 'Darwin' ]]; then
         curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
@@ -60,9 +59,9 @@ if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
         curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o "$miniconda_sh"
     fi
     chmod +x "$miniconda_sh" && \
-        "$miniconda_sh" -b -p "$tmp_conda" && \
+        "$miniconda_sh" -b -p "$CONDA_UPLOADER_INSTALLATION" && \
         rm "$miniconda_sh"
-    export PATH="$tmp_conda/bin:$PATH"
+    export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
 
     # Install aws and anaconda client
     pip install awscli
