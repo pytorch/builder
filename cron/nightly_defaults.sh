@@ -7,28 +7,6 @@ set -ex
 
 echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 
-# List of people to email when things go wrong. This is passed directly to
-# `mail -t`
-export NIGHTLIES_EMAIL_LIST='hellemn@fb.com'
-
-# PYTORCH_CREDENTIALS_FILE
-#   A bash file that exports credentials needed to upload to aws and anaconda.
-#   Needed variables are PYTORCH_ANACONDA_USERNAME, PYTORCH_ANACONDA_PASSWORD,
-#   AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY. Or it can just export the AWS
-#   keys and then prepend a logged-in conda installation to the path.
-if [[ -z "$PYTORCH_CREDENTIALS_FILE" ]]; then
-    if [[ "$(uname)" == 'Darwin' ]]; then
-        export PYTORCH_CREDENTIALS_FILE='/Users/administrator/nightlies/credentials.sh'
-    else
-        export PYTORCH_CREDENTIALS_FILE='/private/home/hellemn/nightly_credentials.sh'
-    fi
-fi
-
-# Location of the temporary miniconda that is downloaded to install conda-build
-# and aws to upload finished packages TODO this is messy to install this in
-# upload.sh and later use it in upload_logs.sh
-CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
-
 # NIGHTLIES_FOLDER
 # N.B. this is also defined in cron_start.sh
 #   An arbitrary root folder to store all nightlies folders, each of which is a
@@ -69,6 +47,35 @@ fi
 # packages as well as logs for the day
 export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
 mkdir -p "$today" || true
+
+
+##############################################################################
+# Add new configuration variables below this line. 'today' should always be
+# defined ASAP to avoid weird errors
+##############################################################################
+
+
+# List of people to email when things go wrong. This is passed directly to
+# `mail -t`
+export NIGHTLIES_EMAIL_LIST='hellemn@fb.com'
+
+# PYTORCH_CREDENTIALS_FILE
+#   A bash file that exports credentials needed to upload to aws and anaconda.
+#   Needed variables are PYTORCH_ANACONDA_USERNAME, PYTORCH_ANACONDA_PASSWORD,
+#   AWS_ACCESS_KEY_ID, and AWS_SECRET_ACCESS_KEY. Or it can just export the AWS
+#   keys and then prepend a logged-in conda installation to the path.
+if [[ -z "$PYTORCH_CREDENTIALS_FILE" ]]; then
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        export PYTORCH_CREDENTIALS_FILE='/Users/administrator/nightlies/credentials.sh'
+    else
+        export PYTORCH_CREDENTIALS_FILE='/private/home/hellemn/nightly_credentials.sh'
+    fi
+fi
+
+# Location of the temporary miniconda that is downloaded to install conda-build
+# and aws to upload finished packages TODO this is messy to install this in
+# upload.sh and later use it in upload_logs.sh
+CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
 
 # N.B. BUILDER_REPO and BUILDER_BRANCH are both set in cron_start.sh, as that
 # is the script that actually clones the builder repo that /this/ script is

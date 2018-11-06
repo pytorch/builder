@@ -12,6 +12,11 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 #   ./cron/upload.sh conda_2.7_cpu.log manywheel_2.7mu_cu80.log ...
 # and only those corresponding packages are uploaded.
 # Otherwise, if given no parameters this will upload all packages.
+#
+# In both use cases, this will upload all of the logs. There is no flag to
+# control this. If you are manually calling this function then you are probably
+# overwriting some binaries in the cloud, so the corresponding logs should be
+# updated to reflect the new visible binaries.
 
 upload_it () {
     pkg_type="$1"
@@ -63,11 +68,21 @@ if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
         rm "$miniconda_sh"
     export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
 
+    # Create an env to ensure that a Python exists
+    conda create -yn upload_eng python=3.6
+    source activate upload_eng
+
     # Install aws and anaconda client
     pip install awscli
     conda install -y anaconda-client
     yes | anaconda login --username "$PYTORCH_ANACONDA_USERNAME" --password "$PYTORCH_ANACONDA_PASSWORD"
 fi
+
+
+# Upload all of the logs
+##############################################################################
+"${NIGHTLIES_BUILDER_ROOT}/cron/upload_logs.sh"
+
 
 # Loop through all packages to upload
 ##############################################################################
