@@ -153,7 +153,7 @@ fi
 # days
 if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
 
-    # Upload successful binaries
+    # Upload successful binaries and all of the logs
     succeeded_jobs=($(ls $SUCCEEDED_LOG_DIR))
     echo "Uploading all of these succesful jobs\n: $succeeded_jobs"
     "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" ${succeeded_jobs[@]} > "${log_root}/upload.log" 2>&1
@@ -163,13 +163,8 @@ if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
         first_ret="$ret"
     fi
 
-    # Upload the logs
-    "${NIGHTLIES_BUILDER_ROOT}/cron/upload_logs.sh" > "${log_root}/upload_logs.log" 2>&1
-    ret="$?"
-    if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
-        echo "FAILED upload_logs.sh"
-        first_ret="$ret"
-    fi
+    # Update the HUD. N.B. if there was a problem during upload then this won't
+    # catch it
     "${NIGHTLIES_BUILDER_ROOT}/cron/update_hud.sh" > "${log_root}/update_hud.log" 2>&1
     ret="$?"
     if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
