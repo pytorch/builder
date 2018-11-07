@@ -156,6 +156,9 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
     echo "export BUILD_PYTHONLESS=${building_pythonless}"
 
+    # TODO improve avx512 detection instead of disabling all of fbgemm
+    echo "export NO_FBGEMM=1"
+
     echo "cd /"
 
     # Instal mkldnn
