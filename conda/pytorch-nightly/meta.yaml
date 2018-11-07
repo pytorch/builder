@@ -38,6 +38,8 @@ build:
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
     - DEVELOPER_DIR
+    - DEBUG
+    - NO_FBGEMM
   # Features go here
 
 test:
