@@ -26,7 +26,7 @@ if %ERRORLEVEL% GEQ 8 exit 1
 REM ========== This one comes from visual studio 2017
 set "VC_VER=141"
 
-for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -version [15^,16^) -property installationPath`) do (
+for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [15^,16^) -property installationPath`) do (
     if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
         set "VS15VCVARSALL=%%i\VC\Auxiliary\Build\vcvarsall.bat"
         goto :eof

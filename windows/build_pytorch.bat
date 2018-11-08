@@ -48,7 +48,7 @@ setlocal EnableDelayedExpansion
 FOR %%v IN (%DESIRED_PYTHON%) DO (
     set PYTHON_VERSION_STR=%%v
     set PYTHON_VERSION_STR=!PYTHON_VERSION_STR:.=!
-    conda ::ove -n py!PYTHON_VERSION_STR! --all -y || rmdir %CONDA_HOME%\envs\py!PYTHON_VERSION_STR! /s
+    conda remove -n py!PYTHON_VERSION_STR! --all -y || rmdir %CONDA_HOME%\envs\py!PYTHON_VERSION_STR! /s
     conda create -n py!PYTHON_VERSION_STR! -y -q numpy>=1.11 mkl>=2018 cffi pyyaml boto3 cmake ninja typing python=%%v
 )
 endlocal
