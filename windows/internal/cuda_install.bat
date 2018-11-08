@@ -77,7 +77,7 @@ exit /b 1
 set "CUDA_PREFIX=cuda%CUDA_VERSION%"
 
 IF NOT EXIST "%SRC_DIR%\temp_build\NvToolsExt.7z" (
-    curl -k -L https://drive.google.com/uc?export=download&id=0B-X0-FlSGfCYclUyTWROZVlLT2s --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
+    curl -k -L https://www.dropbox.com/s/9mcolalfdj4n979/NvToolsExt.7z?dl=1 --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
     if errorlevel 1 exit /b 1
 )
 
