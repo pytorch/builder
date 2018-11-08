@@ -46,13 +46,15 @@ mkdir -p "$today" || true
 # is made to the builder repo, so we re-clone the latest builder repo, and then
 # call /that/ repo's build_cron.sh. We keep this script instead of cloning this
 # in the crontab itself for ease of debugging.
-pushd "$today"
-rm -rf builder
-git clone "https://github.com/${BUILDER_REPO}/builder.git"
-pushd builder
-git checkout "$BUILDER_BRANCH"
-popd
-popd
+if [[ ! -d "$today/builder" ]]; then
+    pushd "$today"
+    rm -rf builder
+    git clone "https://github.com/${BUILDER_REPO}/builder.git"
+    pushd builder
+    git checkout "$BUILDER_BRANCH"
+    popd
+    popd
+fi
 
 # Now call the build_cron.sh of the new pytorch/builder, which is more recent
 # than the repo that this script exists in

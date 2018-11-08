@@ -40,6 +40,7 @@ build:
     - DEVELOPER_DIR
     - DEBUG
     - NO_FBGEMM
+    - USE_MKLDNN
   # Features go here
 
 test:
