@@ -17,7 +17,14 @@ for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio
         goto vswhere
     )
 )
-    
+
+:vswhere
+
+IF "%VS15VCVARSALL%"=="" (
+    echo Visual Studio 2017 C++ BuildTools is required to compile PyTorch on Windows
+    exit /b 1
+)
+
 call "%VS15VCVARSALL%" x86_amd64
 for /f "usebackq tokens=*" %%i in (`where link.exe`) do move "%%i" "%%i.bak"
 
