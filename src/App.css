@@ -1,0 +1,169 @@
+th {
+  text-align: left;
+  white-space: nowrap;
+}
+
+thead th {
+  vertical-align: bottom;
+}
+
+td {
+  white-space: nowrap;
+}
+
+.left-cell {
+  padding-right: 1em;
+  text-align: right;
+}
+
+.right-cell {
+  padding-left: 1em;
+}
+
+.icon {
+  text-decoration: none;
+  padding-left:2px;
+  padding-right:2px;
+}
+
+.buildHistoryTable {
+  border-collapse: collapse;
+}
+
+.buildHistoryTable td {
+  border: 0;
+}
+
+.buildHistoryTable th {
+  border: 0;
+}
+
+.buildHistoryTable tr:hover {
+  background: #CCC;
+}
+
+.icon-cell:hover {
+  background: #EEE;
+}
+
+.ralign {
+  text-align: right;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+tfoot {
+  border-top: 1px solid #CCC;
+}
+
+tbody td:last-child {
+  padding-bottom: 0.2em;
+}
+
+tbody th:last-child {
+  padding-bottom: 0.2em;
+}
+
+tfoot td {
+  padding-top: 0.2em;
+}
+
+.disconnected {
+  background-color: #F5D76E;
+}
+
+/* Not a fan... */
+th.rotate {
+  height: 180px; /* ugh */
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+th.rotate > div {
+  transform:
+    translate(10px, 155px) /* ugh */
+    rotate(315deg);
+  width: 20px;
+}
+
+th { vertical-align: top; }
+td { vertical-align: top; }
+
+code a { color: #AAA; }
+
+.menu li { display: inline; margin-right: 1em; }
+
+@keyframes flickerAnimation {
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+@-o-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+@-moz-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+@-webkit-keyframes flickerAnimation{
+  0%   { opacity:1; }
+  50%  { opacity:0; }
+  100% { opacity:1; }
+}
+.animate-flicker {
+   -webkit-animation: flickerAnimation 1s infinite;
+   -moz-animation: flickerAnimation 1s infinite;
+   -o-animation: flickerAnimation 1s infinite;
+    animation: flickerAnimation 1s infinite;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.bar-number {
+  padding-right: 2px;
+  font-family: sans-serif;
+  text-align: right;
+  font-size: 0.7em;
+  vertical-align: center;
+}
+
+
+.rc-tooltip {
+  position: absolute;
+  z-index: 1070;
+  display: block;
+  visibility: visible;
+  font-size: 12px;
+}
+
+.rc-tooltip-hidden {
+  display: none;
+}
+
+.rc-tooltip-placement-rightTop {
+  padding: 19px 0 0 0;
+}
+
+.rc-tooltip-inner {
+  padding: 2px 2px;
+  color: #fff;
+  text-align: left;
+  text-decoration: none;
+  background-color: #333;
+  width: 200px;
+}
+
+.stale {
+  background-color: #EEE;
+}
+
+.suspect-duration {
+  color: #DDA;
+}
