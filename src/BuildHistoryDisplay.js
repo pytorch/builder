@@ -84,7 +84,7 @@ export default class BuildHistoryDisplay extends Component {
         dateToBuilds[datebuild.timestamp] = datebuild.subBuilds.map((build) => {
             return {
                 'date': datebuild.timestamp,
-                'logUrl': logUrlOfJenkinsName(build.jobName, toYYYYmmdd(datebuild.timestamp, '')),
+                'logUrl': logUrlOfJenkinsName(build.jobName, toYYYYmmdd(datebuild.timestamp, '_')),
                 'result': build.result
             };
         });
