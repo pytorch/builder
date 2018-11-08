@@ -152,7 +152,8 @@ export default class BuildHistoryDisplay extends Component {
     function result_icon(result) {
       if (result === 'SUCCESS') return <span role="img" style={{color:"blue"}} aria-label="passed">0</span>;
       if (result === 'FAILURE') return <span role="img" style={{color:"red"}} aria-label="failed">X</span>;
-      if (result === 'UNKNOWN') return <span role="img" style={{color:"gray"}} aria-label="cancelled">?</span>;
+      if (result === 'ABORTED') return <span role="img" style={{color:"gray"}} aria-label="cancelled">.</span>;
+      if (result === 'UNKNOWN') return <span role="img" style={{color:"gray"}} aria-label="in progress">?</span>;
       return result;
     }
 

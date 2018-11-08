@@ -13,7 +13,7 @@
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.1"
   },
-  "homepage": "https://ezyang.github.io/pytorch-ci-hud",
+  "homepage": "https://pytorch.org/builder",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
