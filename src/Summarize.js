@@ -3,6 +3,9 @@ export function summarize_job(job) {
 }
 
 export function summarize_date(timestamp) {
+  if (typeof(timestamp) == typeof('str')) {
+      timestamp = parseInt(timestamp);
+  }
   const date = new Date(timestamp);
   const today = new Date();
   if (today.toLocaleDateString() === date.toLocaleDateString()) {
@@ -10,6 +13,19 @@ export function summarize_date(timestamp) {
   } else {
     return date.toLocaleString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
   }
+}
+
+// https://stackoverflow.com/questions/23593052/format-javascript-date-to-yyyy-mm-dd
+export function toYYYYmmdd(timestamp, delimiter) {
+    var d = new Date(timestamp);
+    var month = '' + (d.getMonth() + 1);
+    var day = '' + d.getDate();
+    var year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join(delimiter);
 }
 
 // https://stackoverflow.com/questions/6312993/javascript-seconds-to-time-string-with-format-hhmmss
