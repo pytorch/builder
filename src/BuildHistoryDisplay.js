@@ -84,17 +84,18 @@ export default class BuildHistoryDisplay extends Component {
         dateToBuilds[datebuild.timestamp] = datebuild.subBuilds.map((build) => {
             return {
                 'date': datebuild.timestamp,
+                'name': build.jobName,
                 'logUrl': logUrlOfJenkinsName(build.jobName, toYYYYmmdd(datebuild.timestamp, '_')),
                 'result': build.result
             };
+        }).sort(function(a, b) {
+            return a.name > b.name ? 1 : -1; 
         });
     });
     this.setState({'dateToBuilds': dateToBuilds});
 	}
 
   render() {
-    console.log('render() this.state is:');
-    console.log(this.state);
 
     function result_icon(result) {
       if (result === 'SUCCESS') return <span role="img" style={{color:"blue"}} aria-label="passed">0</span>;
@@ -117,7 +118,7 @@ export default class BuildHistoryDisplay extends Component {
         return <Tooltip overlay={build.logUrl}
                       mouseLeaveDelay={0}
                       placement="rightTop"
-                      destroyTooltipOnHide={true}><td key={'hello'} className="icon-cell" style={{textAlign: "right", fontFamily: "sans-serif", padding: 0}}>{cell}</td></Tooltip>;
+                      destroyTooltipOnHide={true}><td key={build.name} className="icon-cell" style={{textAlign: "right", fontFamily: "sans-serif", padding: 0}}>{cell}</td></Tooltip>;
       });
 
       return (
