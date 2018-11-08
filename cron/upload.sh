@@ -57,6 +57,8 @@ anaconda upload -h >/dev/null
 ret2="$?"
 set -e
 if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
+    # TODO it'd be better to check for the existance of this and to source it
+    rm -rf "$CONDA_UPLOADER_INSTALLATION"
     miniconda_sh="${today}/miniconda.sh"
     if [[ "$(uname)" == 'Darwin' ]]; then
         curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
