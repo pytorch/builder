@@ -34,13 +34,6 @@ jobs:
 
   steps:
   - task: BatchScript@1
-    displayName: 'Find VS 2017'
-    inputs:
-      filename: 'windows/internal/check_deps.bat'
-
-      modifyEnvironment: true
-
-  - task: BatchScript@1
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -100,13 +93,6 @@ jobs:
     vmImage: 'vs2017-win2016'
 
   steps:
-  - task: BatchScript@1
-    displayName: 'Find VS 2017'
-    inputs:
-      filename: 'windows/internal/check_deps.bat'
-
-      modifyEnvironment: true
-
   - task: BatchScript@1
     displayName: 'Environment fix'
     inputs:
@@ -185,7 +171,7 @@ jobs:
       PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
 
 - job: 'Windows_CUDA90_Wheels_Build'
-  timeoutInMinutes: 6
+  timeoutInMinutes: 0
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.wheels.enabled'], 'true'))
   variables:
@@ -227,13 +213,6 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    displayName: 'Find VS 2017'
-    inputs:
-      filename: 'windows/internal/check_deps.bat'
-
-      modifyEnvironment: true
-
-  - task: BatchScript@1
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -259,7 +238,7 @@ jobs:
       modifyEnvironment: false
 
 - job: 'Windows_CUDA90_Conda_Build'
-  timeoutInMinutes: 6
+  timeoutInMinutes: 0
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   cancelTimeoutInMinutes: 5
   variables:
@@ -300,13 +279,6 @@ jobs:
     displayName: 'Install CUDA'
     inputs:
       filename: 'windows/internal/cuda_install.bat'
-
-      modifyEnvironment: true
-
-  - task: BatchScript@1
-    displayName: 'Find VS 2017'
-    inputs:
-      filename: 'windows/internal/check_deps.bat'
 
       modifyEnvironment: true
 
