@@ -1,6 +1,6 @@
 @echo off
 
-curl -k https://aka.ms/vs/15/release/vs_buildtools.exe --output vs_BuildTools.exe
+curl -k -L https://aka.ms/vs/15/release/vs_buildtools.exe --output vs_BuildTools.exe
 echo https://aka.ms/vs/15/release/channel > VisualStudio.chman
 mkdir vs2017
 start /wait .\vs_buildtools.exe --nocache --norestart --quiet --wait
