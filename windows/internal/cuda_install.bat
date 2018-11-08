@@ -84,8 +84,10 @@ IF NOT EXIST "%SRC_DIR%\temp_build\NvToolsExt.7z" (
 echo Installing CUDA toolkit...
 
 7z x %CUDA_SETUP_FILE% -o"%SRC_DIR%\temp_build\cuda"
-tree "%SRC_DIR%\temp_build"
-start /wait "%SRC_DIR%\temp_build\cuda\setup.exe" -s %NVCC_PACKAGE% cublas_%CUDA_VERSION_STR% cublas_dev_%CUDA_VERSION_STR% cudart_%CUDA_VERSION_STR% curand_%CUDA_VERSION_STR% curand_dev_%CUDA_VERSION_STR% cusparse_%CUDA_VERSION_STR% cusparse_dev_%CUDA_VERSION_STR% nvrtc_%CUDA_VERSION_STR% nvrtc_dev_%CUDA_VERSION_STR% cufft_%CUDA_VERSION_STR% cufft_dev_%CUDA_VERSION_STR%
+pushd "%SRC_DIR%\temp_build\cuda"
+dir
+start /wait setup.exe -s %NVCC_PACKAGE% cublas_%CUDA_VERSION_STR% cublas_dev_%CUDA_VERSION_STR% cudart_%CUDA_VERSION_STR% curand_%CUDA_VERSION_STR% curand_dev_%CUDA_VERSION_STR% cusparse_%CUDA_VERSION_STR% cusparse_dev_%CUDA_VERSION_STR% nvrtc_%CUDA_VERSION_STR% nvrtc_dev_%CUDA_VERSION_STR% cufft_%CUDA_VERSION_STR% cufft_dev_%CUDA_VERSION_STR%
+popd
 echo Installing VS integration...
 xcopy /Y "%SRC_DIR%\temp_build\cuda\_vs\*.*" "c:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\BuildCustomizations"
 

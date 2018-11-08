@@ -146,7 +146,7 @@ jobs:
       modifyEnvironment: false
 
 - job: 'Linux_CPU_Conda_Build'
-  timeoutInMinutes: 6
+  timeoutInMinutes: 0
   cancelTimeoutInMinutes: 5
   condition: and(and(eq(variables['build.cpu.enabled'], 'true'), eq(variables['build.linux.enabled'], 'true')), eq(variables['build.conda.enabled'], 'true'))
   variables:
@@ -259,7 +259,7 @@ jobs:
       modifyEnvironment: false
 
 - job: 'Windows_CUDA90_Conda_Build'
-  timeoutInMinutes: 10
+  timeoutInMinutes: 6
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   cancelTimeoutInMinutes: 5
   variables:
