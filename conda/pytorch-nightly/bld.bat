@@ -44,7 +44,10 @@ if NOT "%build_with_cuda%" == "" (
         set MAGMA_HOME=%cd%\magma_cuda%CUDA_VERSION%_release
     )
 
-    set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\\tmp_bin\\nvcc
+    IF "%USE_SCCACHE%" == "1" (
+        set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\\tmp_bin\\nvcc
+    )
+
     set "PATH=%CUDA_BIN_PATH%;%PATH%"
 
     if "%CUDA_VERSION%" == "80" (
