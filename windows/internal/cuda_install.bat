@@ -114,3 +114,6 @@ set "NVTOOLSEXT_PATH=%ProgramFiles%\NVIDIA Corporation\NvToolsExt\"
 
 echo Cleaning temp files
 rd /s /q "%SRC_DIR%\temp_build"
+
+echo Using VS2015 as NVCC compiler
+set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
