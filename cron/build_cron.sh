@@ -162,15 +162,6 @@ if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
         echo "FAILED upload.sh"
         first_ret="$ret"
     fi
-
-    # Update the HUD. N.B. if there was a problem during upload then this won't
-    # catch it
-    "${NIGHTLIES_BUILDER_ROOT}/cron/update_hud.sh" > "${log_root}/update_hud.log" 2>&1
-    ret="$?"
-    if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
-        echo "FAILED update_hud.sh"
-        first_ret="$ret"
-    fi
 fi
 
 # Regardless of failures, clean up the old build folders so that we don't run

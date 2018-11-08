@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# DEPRECATED
+# This is no longer used as the hud was replaced with a react app.
+
 # Creates an updated table of all jobs for this machine of format
 # | status | build_name | link_binary | link_logs | size_mb | duration |
 # Then appends the table to the log list for the day
