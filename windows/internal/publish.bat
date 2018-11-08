@@ -3,7 +3,13 @@
 set SRC_DIR=%~dp0
 pushd %SRC_DIR%
 
-set PUBLISH_BRANCH=%PACKAGE%_%DESIRED_PYTHON%
+if NOT "%CUDA_VERSION%" == "cpu" (
+    set PACKAGE_SUFFIX=_cuda%CUDA_VERSION%
+) else (
+    set PACKAGE_SUFFIX=
+)
+
+set PUBLISH_BRANCH=%PACKAGE%_%DESIRED_PYTHON%%PACKAGE_SUFFIX%
 
 git clone %ARTIFACT_REPO_URL% > nul 2>&1
 
