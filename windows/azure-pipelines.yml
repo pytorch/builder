@@ -188,7 +188,7 @@ jobs:
       MAX_JOBS: 2
       PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
 
-- job: 'Windows_CUDA9.0_Wheels_Build'
+- job: 'Windows_CUDA90_Wheels_Build'
   timeoutInMinutes: 0
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.wheels.enabled'], 'true'))
@@ -266,7 +266,7 @@ jobs:
 
       modifyEnvironment: false
 
-- job: 'Windows_CUDA9.0_Conda_Build'
+- job: 'Windows_CUDA90_Conda_Build'
   timeoutInMinutes: 0
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   cancelTimeoutInMinutes: 5
