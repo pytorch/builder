@@ -1,4 +1,4 @@
-@echo on
+@echo off
 
 set SRC_DIR=%~dp0\..
 
