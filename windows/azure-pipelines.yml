@@ -7,7 +7,7 @@ variables:
   build.linux.enabled: false
   build.cpu.enabled: false
   build.cuda.enabled: true
-  build.wheels.enabled: true
+  build.wheels.enabled: false
   build.conda.enabled: true
   use.sccache: 0
 
