@@ -99,6 +99,19 @@ RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.2.13-1%2Bcuda9.2_x86_64.txz 
     rm -rf nccl_2.2.13-1+cuda9.2_x86_64* && \
     ldconfig
 
+# mkldnn
+RUN git clone https://github.com/intel/mkl-dnn.git && \
+    pushd mkl-dnn/scripts && \
+    ./prepare_mkl.sh && \
+    popd && \
+    pushd mkl-dnn && \
+    mkdir -p build && \
+    pushd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mkl-dnn && \
+    make install && \
+    popd && \
+    popd && \
+    rm -rf mkl-dnn
 
 # prune static libs
 ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
