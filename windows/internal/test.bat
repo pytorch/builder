@@ -18,7 +18,19 @@ echo "Checking that MKL is available"
 python -c "import torch; exit(0 if torch.backends.mkl.is_available() else 1)"
 if ERRORLEVEL 1 exit /b 1
 
-if NOT "%CUDA_PREFIX%" == "cpu" (
+setlocal EnableDelayedExpansion
+set NVIDIA_GPU_EXISTS=0
+for /F "delims=" %%i in ('wmic path win32_VideoController get name') do (
+    set GPUS=%%i
+    if not "x!GPUS:NVIDIA=!" == "x!GPUS!" (
+        SET NVIDIA_GPU_EXISTS=1
+        goto gpu_check_end
+    )
+)
+:gpu_check_end
+endlocal & set NVIDIA_GPU_EXISTS=!NVIDIA_GPU_EXISTS!
+
+if NOT "%CUDA_PREFIX%" == "cpu" if "%NVIDIA_GPU_EXISTS%" == "1" (
     python -c "import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)"
     if ERRORLEVEL 1 exit /b 1
 
