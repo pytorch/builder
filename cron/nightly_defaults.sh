@@ -216,10 +216,14 @@ if [[ "$DAYS_TO_KEEP" < '1' ]]; then
 fi
 
 # PYTORCH_NIGHTLIES_TIMEOUT
-#   Timeout in seconds. Condas builds often take up to 2 hours 20 minutes, so
-#   the default is set to (2 * 60 + 20 + 40 [buffer]) * 60 == 10800 seconds
+#   Timeout in seconds. 
+#   When full testing is enabled, condas builds often take up to 2 hours 20
+#   minutes, so the default is set to (2 * 60 + 20 + 40 [buffer]) * 60 == 10800
+#   seconds.
+#   When only smoke testing is enabled, condas builds only take up to about an
+#   hour, so the default is set to (60 + 20 [buffer]) * 60 == 4800 seconds.
 if [[ -z "$PYTORCH_NIGHTLIES_TIMEOUT" ]]; then
-    export PYTORCH_NIGHTLIES_TIMEOUT=10800
+    export PYTORCH_NIGHTLIES_TIMEOUT=4800
 fi
 
 # PORTABLE_TIMEOUT
