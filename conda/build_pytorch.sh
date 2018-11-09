@@ -137,7 +137,7 @@ if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
     MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
 if [[ -z "$WIN_PACKAGE_WORK_DIR" ]]; then
-    WIN_PACKAGE_WORK_DIR="${USERPROFILE}\\tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
+    WIN_PACKAGE_WORK_DIR="$(echo $(pwd -W) | tr '/' '\\')\\tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
 
 # Clone the Pytorch repo
