@@ -30,5 +30,5 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
 
     # Upload the html file back up
     # Note the lack of a / b/c duplicate / do cause problems in s3
-    aws s3 cp './torch_nightly.html' "${s3_dir}torch_nightly.html"  --acl public-read
+    aws s3 cp './torch_nightly.html' "${s3_dir}torch_nightly.html"  --acl public-read --cache-control 'no-cache'
 done
