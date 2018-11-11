@@ -194,7 +194,7 @@ jobs:
         DESIRED_PYTHON: 3.7
 
   pool:
-    name: 'default'
+    name: 'Default'
     # vmImage: 'vs2015-win2012r2'
 
   steps:
@@ -269,7 +269,7 @@ jobs:
         DESIRED_PYTHON: 3.7
 
   pool:
-    name: 'default'
+    name: 'Default'
     # vmImage: 'vs2015-win2012r2'
 
   steps:
