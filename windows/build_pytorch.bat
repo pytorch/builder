@@ -1,5 +1,6 @@
 @echo off
 
+IF NOT "%CUDA_VERSION%" == "" IF NOT "%PYTORCH_BUILD_VERSION%" == "" if NOT "%PYTORCH_BUILD_NUMBER%" == "" goto env_end
 if "%~1"=="" goto arg_error
 if "%~2"=="" goto arg_error
 if "%~3"=="" goto arg_error
@@ -18,6 +19,8 @@ exit /b 1
 set CUDA_VERSION=%~1
 set PYTORCH_BUILD_VERSION=%~2
 set PYTORCH_BUILD_NUMBER=%~3
+
+:env_end
 
 if NOT "%CUDA_VERSION%" == "cpu" (
     set CUDA_PREFIX=cuda%CUDA_VERSION%

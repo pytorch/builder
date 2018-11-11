@@ -40,6 +40,7 @@ build:
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
     - DEVELOPER_DIR
+    - USE_SCCACHE #[win]
   # Features go here
 
 test:
