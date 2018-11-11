@@ -30,12 +30,15 @@ setlocal EnableDelayedExpansion
 SET TempPath="%MyPath:;=";"%"
 SET var=
 FOR %%a IN (%TempPath%) DO (
-    IF exist %%~sa (
+    IF EXIST %%~sa (
         SET "var=!var!;%%~sa"
     )
 )
 
 set "TempPath=!var:~1!"
 endlocal & set "PATH=%TempPath%"
+
+:: Shorten current directory too
+FOR %%A IN (.) DO CD "%%~sA"
 
 :: other things added by install_activate.bat at package build time
