@@ -79,6 +79,7 @@ pip uninstall -y ninja
 
 IF "%USE_SCCACHE%" == "1" (
     taskkill /im sccache.exe /f /t || ver > nul
+    taskkill /im nvcc.exe /f /t || ver > nul
 )
 
 if NOT "%build_with_cuda%" == "" (

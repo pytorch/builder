@@ -32,6 +32,7 @@ IF NOT ERRORLEVEL 0 exit /b 1
 
 if "%CXX%"=="sccache cl" (
     taskkill /im sccache.exe /f /t || ver > nul
+    taskkill /im nvcc.exe /f /t || ver > nul
 )
 
 cd ..
