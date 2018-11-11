@@ -6,9 +6,9 @@ variables:
   pytorch.repo: pytorch
   build.linux.enabled: false
   build.cpu.enabled: false
-  build.cuda.enabled: true
+  build.cuda.enabled: false
   build.wheels.enabled: false
-  build.conda.enabled: true
+  build.conda.enabled: false
   use.sccache: 0
 
 jobs:
@@ -182,10 +182,10 @@ jobs:
     matrix:
       PY3.5:
         DESIRED_PYTHON: 3.5
-      # PY3.6:
-      #   DESIRED_PYTHON: 3.6
-      # PY3.7:
-      #   DESIRED_PYTHON: 3.7
+      PY3.6:
+        DESIRED_PYTHON: 3.6
+      PY3.7:
+        DESIRED_PYTHON: 3.7
 
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -252,10 +252,10 @@ jobs:
     matrix:
       PY3.5:
         DESIRED_PYTHON: 3.5
-      # PY3.6:
-      #   DESIRED_PYTHON: 3.6
-      # PY3.7:
-      #   DESIRED_PYTHON: 3.7
+      PY3.6:
+        DESIRED_PYTHON: 3.6
+      PY3.7:
+        DESIRED_PYTHON: 3.7
 
   pool:
     vmImage: 'vs2015-win2012r2'
