@@ -221,9 +221,14 @@ fi
 #   minutes, so the default is set to (2 * 60 + 20 + 40 [buffer]) * 60 == 10800
 #   seconds.
 #   When only smoke testing is enabled, condas builds only take up to about an
-#   hour, so the default is set to (60 + 20 [buffer]) * 60 == 4800 seconds.
+#   hour, so the default is set to (60 + 20 [buffer]) * 60 == 4800 seconds. On
+#   Mac, they can still take up to 2 hours.
 if [[ -z "$PYTORCH_NIGHTLIES_TIMEOUT" ]]; then
-    export PYTORCH_NIGHTLIES_TIMEOUT=4800
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        export PYTORCH_NIGHTLIES_TIMEOUT=9600
+    else
+        export PYTORCH_NIGHTLIES_TIMEOUT=4800
+    fi
 fi
 
 # PORTABLE_TIMEOUT
