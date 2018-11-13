@@ -28,7 +28,7 @@ for /F "delims=" %%i in ('wmic path win32_VideoController get name') do (
     )
 )
 :gpu_check_end
-endlocal & set NVIDIA_GPU_EXISTS=!NVIDIA_GPU_EXISTS!
+endlocal & set NVIDIA_GPU_EXISTS=%NVIDIA_GPU_EXISTS%
 
 if NOT "%CUDA_PREFIX%" == "cpu" if "%NVIDIA_GPU_EXISTS%" == "1" (
     python -c "import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)"
