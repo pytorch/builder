@@ -40,7 +40,11 @@ if [[ -z "$NIGHTLIES_DATE" ]]; then
         export NIGHTLIES_DATE="$_existing_nightlies_date"
     else
         export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
+        export NIGHTLIES_DATE_COMPACT="$(date +%Y%m%d)"
     fi
+fi
+if [[ -z "$NIGHTLIES_DATE_COMPACT" ]]; then
+    export NIGHTLIES_DATE_COMPACT="${NIGHTLIES_DATE:0:4}${NIGHTLIES_DATE:5:2}${NIGHTLIES_DATE:8:2}"
 fi
 
 # Used in lots of places as the root dir to store all conda/wheel/manywheel
@@ -124,12 +128,12 @@ if [[ ! -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
 fi
 
 # PYTORCH_BUILD_VERSION
-#   This is the version string, e.g. 0.4.1 , that will be used as the
-#   pip/conda version, OR the word 'nightly', which signals all the
-#   downstream scripts to use the current date as the version number (plus
-#   other changes). This is NOT the conda build string.
+#   The actual version string. Used in conda like
+#       pytorch-nightly==1.0.0.dev20180908
+#   or in manylinux like
+#       torch_nightly-1.0.0.dev20180908-cp27-cp27m-linux_x86_64.whl
 if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    export PYTORCH_BUILD_VERSION="1.0.0.dev$(date +%Y%m%d)"
+    export PYTORCH_BUILD_VERSION="1.0.0.dev$NIGHTLIES_DATE_COMPACT"
 fi
 
 # PYTORCH_BUILD_NUMBER
@@ -196,6 +200,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 else
     export LOGS_S3_DIR="nightly_logs/linux/$NIGHTLIES_DATE"
 fi
+export BINARY_SIZES_S3_DIR="nightly_logs/binary_sizes"
 
 # DAYS_TO_KEEP
 #   How many days to keep around for clean.sh. Build folders older than this
