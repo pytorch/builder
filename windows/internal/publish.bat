@@ -11,7 +11,13 @@ if NOT "%CUDA_VERSION%" == "cpu" (
 
 set PUBLISH_BRANCH=%PACKAGE%_%DESIRED_PYTHON%%PACKAGE_SUFFIX%
 
-git clone %ARTIFACT_REPO_URL% > nul 2>&1
+git clone %ARTIFACT_REPO_URL% -b %PUBLISH_BRANCH% --single-branch > nul 2>&1
+
+IF ERRORLEVEL 1 (
+    echo Branch %PUBLISH_BRANCH% not exist, falling back to master
+    set NO_BRANCH=1
+    git clone %ARTIFACT_REPO_URL% -b master --single-branch > nul 2>&1
+)
 
 IF ERRORLEVEL 1 (
     echo Clone failed
@@ -21,9 +27,7 @@ IF ERRORLEVEL 1 (
 cd pytorch_builder
 attrib -s -h -r . /s /d
 
-git checkout %PUBLISH_BRANCH%
-
-IF ERRORLEVEL 1 (
+IF "%NO_BRANCH%" == "1" (
     :: Empty if not exist
     rd /s /q .
 ) ELSE (
