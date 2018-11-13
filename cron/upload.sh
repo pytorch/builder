@@ -40,24 +40,47 @@ upload_it () {
 
 # Set-up tools we need to upload
 ##############################################################################
+# This needs both 'aws' and 'anaconda-client' with proper credentials for each.
+# The function check_if_uploaders_installed below will echo text if one of
+# these is not installed (but doesn't check credentials). If we need to install
+# one, then we first try to add $CONDA_UPLOADER_INSTALLATION to the path and
+# then check again. If the tools still don't work then we remove the old
+# CONDA_UPLOADER_ISNTALLATION and install a new one. Any further failures will
+# exit later in the script.
+# aws and anaconda-client will always be installed into the 'upload_env' conda
+# environment
+
 # Source the credentials if given
 if [[ -x "$PYTORCH_CREDENTIALS_FILE" ]]; then
     source "$PYTORCH_CREDENTIALS_FILE"
 fi
 
-# This needs both 'aws' and 'anaconda-client', so if a conda installation is
-# not active then we download a new one and install what we need
+# This function is used to determine if both 'aws' and 'anaconda-client' are
+# installed. N.B. this does not check if credentials are valid.
+function check_if_uploaders_installed() {
+    conda --version
+    if [[ "$?" != 0 ]]; then
+        echo "conda is not installed"
+    fi
+    aws --version
+    if [[ "$?" != 0 ]]; then
+        echo "aws is not installed"
+    fi
+    anaconda upload -h >/dev/null
+    if [[ "$?" != 0 ]]; then
+        echo "anaconda-client is not installed"
+    fi
+}
+
+# First try to source CONDA_UPLOADER_INSTALLATION. This should trigger in the
+# case of manual re-runs.
+if [[ -d "$CONDA_UPLOADER_INSTALLATION" && -n "$(check_if_uploaders_installed)" ]]; then
+    export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
+    source activate upload_env || true
+fi
+
 # Download miniconda so that we can install aws and anaconda-client on it
-set +e
-conda --version
-ret="$?"
-aws --version
-ret1="$?"
-anaconda upload -h >/dev/null
-ret2="$?"
-set -e
-if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
-    # TODO it'd be better to check for the existance of this and to source it
+if [[ -n "$(check_if_uploaders_installed)" ]]; then
     rm -rf "$CONDA_UPLOADER_INSTALLATION"
     miniconda_sh="${today}/miniconda.sh"
     if [[ "$(uname)" == 'Darwin' ]]; then
@@ -71,8 +94,8 @@ if [[ "$ret" -ne 0 || "$ret1" -ne 0 || "$ret2" -ne 0 ]]; then
     export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
 
     # Create an env to ensure that a Python exists
-    conda create -yn upload_eng python=3.6
-    source activate upload_eng
+    conda create -yn upload_env python=3.6
+    source activate upload_env
 
     # Install aws and anaconda client
     pip install awscli
@@ -86,9 +109,8 @@ fi
 "${NIGHTLIES_BUILDER_ROOT}/cron/upload_logs.sh"
 
 
-# Loop through all packages to upload
+# Upload all [passed in] packages
 ##############################################################################
-# If given package types, then only upload those package types
 packages_to_upload=()
 if [[ "$#" -eq 0 ]]; then
     # If not given any specific packages to upload, then upload everything that
@@ -168,4 +190,9 @@ else
 fi
 
 # Update wheel htmls
-"${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"
+if [[ -n "$uploaded_a_wheel" ]]; then
+    "${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"
+fi
+
+# Update the binary size list
+"${NIGHTLIES_BUILDER_ROOT}/cron/upload_binary_sizes.sh"
