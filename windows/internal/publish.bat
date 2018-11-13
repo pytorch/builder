@@ -49,7 +49,7 @@ git checkout --orphan %PUBLISH_BRANCH%
 git remote add origin %ARTIFACT_REPO_URL%
 git add .
 git commit -m "Update artifacts"
-git push origin %PUBLISH_BRANCH%% -f
+git push origin %PUBLISH_BRANCH%% -f > nul 2>&1
 
 popd
 
