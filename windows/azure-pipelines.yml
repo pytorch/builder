@@ -5,12 +5,14 @@ variables:
   pytorch.branch: master # override the default of build.version
   pytorch.repo: pytorch
   build.linux.enabled: false
-  build.cpu.enabled: false
+  build.cpu.enabled: true
   build.cuda.enabled: true
   build.wheels.enabled: true
   build.conda.enabled: true
-  use.sccache: 1
-  self.hosted.agent: true
+  use.sccache.cpu: 0
+  use.sccache.cuda: 1
+  self.hosted.agent.cpu: false
+  self.hosted.agent.cuda: true
 
 jobs:
 - job: 'Windows_CPU_Wheels_Build'
@@ -20,6 +22,7 @@ jobs:
   variables:
     PACKAGE: wheels
     CUDA_VERSION: cpu
+    USE_SCCACHE: $(use.sccache.cpu)
   strategy:
     maxParallel: 10
     matrix:
@@ -35,7 +38,7 @@ jobs:
 
   steps:
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cpu'], 'false')
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -43,17 +46,12 @@ jobs:
       modifyEnvironment: false
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cpu'], 'false')
     displayName: 'Install 7Zip'
     inputs:
       filename: 'windows/internal/7z_install.bat'
 
       modifyEnvironment: true
-
-  - script: 'choco install -y 7Zip' # Not stable
-    condition: eq(variables['self.hosted.agent'], 'false')
-    displayName: 'Install 7Zip'
-    enabled: false
 
   - script: 'call windows/build_pytorch.bat %CUDA_VERSION% %PYTORCH_BUILD_VERSION% %PYTORCH_BUILD_NUMBER%'
     displayName: Build
@@ -82,6 +80,7 @@ jobs:
     CUDA_VERSION: cpu
     PYTORCH_REPO: pytorch
     TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
+    USE_SCCACHE: $(use.sccache.cpu)
 
   strategy:
     maxParallel: 10
@@ -98,7 +97,7 @@ jobs:
 
   steps:
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cpu'], 'false')
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -106,7 +105,7 @@ jobs:
       modifyEnvironment: false
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cpu'], 'false')
     displayName: 'Install 7Zip'
     inputs:
       filename: 'windows/internal/7z_install.bat'
@@ -183,6 +182,7 @@ jobs:
   variables:
     PACKAGE: wheels
     CUDA_VERSION: 90
+    USE_SCCACHE: $(use.sccache.cuda)
   strategy:
     maxParallel: 10
     matrix:
@@ -195,11 +195,10 @@ jobs:
 
   pool:
     name: 'Default'
-    # vmImage: 'vs2015-win2012r2'
 
   steps:
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Install VS 2017'
     inputs:
       filename: 'windows/internal/vs_install.bat'
@@ -207,7 +206,7 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Install 7Zip'
     inputs:
       filename: 'windows/internal/7z_install.bat'
@@ -215,7 +214,7 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Install CUDA'
     inputs:
       filename: 'windows/internal/cuda_install.bat'
@@ -223,7 +222,7 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -232,8 +231,6 @@ jobs:
 
   - script: 'call windows/build_pytorch.bat %CUDA_VERSION% %PYTORCH_BUILD_VERSION% %PYTORCH_BUILD_NUMBER%'
     displayName: Build
-    # env:
-    #   MAX_JOBS: 2
 
   - task: PublishTestResults@2 # No test results to publish
     inputs:
@@ -257,6 +254,7 @@ jobs:
     CUDA_VERSION: 90
     PYTORCH_REPO: pytorch
     TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
+    USE_SCCACHE: $(use.sccache.cuda)
 
   strategy:
     maxParallel: 10
@@ -270,11 +268,10 @@ jobs:
 
   pool:
     name: 'Default'
-    # vmImage: 'vs2015-win2012r2'
 
   steps:
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Install VS 2017'
     inputs:
       filename: 'windows/internal/vs_install.bat'
@@ -282,7 +279,7 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Install 7Zip'
     inputs:
       filename: 'windows/internal/7z_install.bat'
@@ -290,7 +287,7 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Install CUDA'
     inputs:
       filename: 'windows/internal/cuda_install.bat'
@@ -298,7 +295,7 @@ jobs:
       modifyEnvironment: true
 
   - task: BatchScript@1
-    condition: eq(variables['self.hosted.agent'], 'false')
+    condition: eq(variables['self.hosted.agent.cuda'], 'false')
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -313,7 +310,6 @@ jobs:
   - bash: './conda/build_pytorch.sh $CUDA_VERSION $PYTORCH_BUILD_VERSION $PYTORCH_BUILD_NUMBER'
     displayName: 'Build'
     env:
-      # MAX_JOBS: 2
       PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   - task: PublishTestResults@2
