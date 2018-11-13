@@ -1,7 +1,5 @@
 import React, { Fragment } from 'react';
 import './App.css';
-import ComputerDisplay from './ComputerDisplay.js';
-import QueueDisplay from './QueueDisplay.js';
 import BuildHistoryDisplay from './BuildHistoryDisplay.js';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
@@ -18,15 +16,14 @@ const App = () => (
 
 const Home = () => (
   <div>
-    <QueueDisplay interval={1000} />
-    <ComputerDisplay interval={1000} />
+    <BuildHistoryDisplay interval={60000}/>
   </div>
 );
 
 const Build = ({ match }) => {
   // Uhhh, am I really supposed to rob window.location here?
   const query = new URLSearchParams(window.location.search);
-  return <BuildHistoryDisplay interval={60000} job='pytorch-master' mode={query.get('mode')} />
+  return <BuildHistoryDisplay interval={60000} />
 };
 
 const BuildRoute = ({ match }) => (

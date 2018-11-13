@@ -3,8 +3,8 @@ export function summarize_job(job) {
 }
 
 export function summarize_date(timestamp) {
-  if (typeof(timestamp) == typeof('str')) {
-      timestamp = parseInt(timestamp);
+  if (typeof(timestamp) === typeof('str')) {
+      timestamp = parseInt(timestamp, 10);
   }
   const date = new Date(timestamp);
   const today = new Date();

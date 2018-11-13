@@ -1,9 +1,6 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import jenkins from './Jenkins.js';
-import AsOf from './AsOf.js';
 import { summarize_date, toYYYYmmdd } from './Summarize.js';
-import * as d3 from 'd3v4';
-import parse_duration from 'parse-duration';
 import Tooltip from 'rc-tooltip';
 import axios from 'axios';
 
