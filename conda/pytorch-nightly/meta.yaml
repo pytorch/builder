@@ -9,6 +9,8 @@ requirements:
   build:
     - cmake
     - {{ compiler('c') }} # [win]
+
+  host:
     - python
     - numpy 1.11.*
     - setuptools
@@ -40,6 +42,7 @@ build:
     - DEVELOPER_DIR
     - DEBUG
     - NO_FBGEMM
+    - USE_SCCACHE #[win]
   # Features go here
 
 test:
