@@ -58,15 +58,15 @@ fi
 # This function is used to determine if both 'aws' and 'anaconda-client' are
 # installed. N.B. this does not check if credentials are valid.
 function check_if_uploaders_installed() {
-    conda --version
+    conda --version >/dev/null 2>&1
     if [[ "$?" != 0 ]]; then
         echo "conda is not installed"
     fi
-    aws --version
+    aws --version >/dev/null 2>&1
     if [[ "$?" != 0 ]]; then
         echo "aws is not installed"
     fi
-    anaconda upload -h >/dev/null
+    anaconda upload -h >/dev/null 2>&1
     if [[ "$?" != 0 ]]; then
         echo "anaconda-client is not installed"
     fi
@@ -94,7 +94,7 @@ if [[ -n "$(check_if_uploaders_installed)" ]]; then
     export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
 
     # Create an env to ensure that a Python exists
-    conda create -yn upload_env python=3.6
+    conda create -qyn upload_env python=3.6
     source activate upload_env
 
     # Install aws and anaconda client
