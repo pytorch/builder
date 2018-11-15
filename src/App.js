@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import './App.css';
 import BuildHistoryDisplay from './BuildHistoryDisplay.js';
+import BinarySizeDisplay from './BinarySizeDisplay.js';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 const App = () => (
@@ -9,7 +10,9 @@ const App = () => (
       <header className="App-header">
         <h1 className="App-title"><Link to="/">Pytorch nightly builds HUD</Link> (<a href="https://github.com/pytorch/builder/tree/gh-pages">GitHub</a>)</h1>
       </header>
-      <Route path="/" component={BuildRoute} />
+      <Route path="/" component={Home} />
+      <Route path="/build" component={BuildRoute} />
+      <Route path="/sizes" component={Sizes} />
     </div>
   </Router>
 );
@@ -17,6 +20,7 @@ const App = () => (
 const Home = () => (
   <div>
     <BuildHistoryDisplay interval={60000}/>
+    <BinarySizeDisplay interval={60000}/>
   </div>
 );
 
@@ -31,6 +35,12 @@ const BuildRoute = ({ match }) => (
     <Route exact path={match.url} component={Build} />
     <Route path={`${match.url}/:segment`} component={BuildRoute} />
   </Fragment>
+);
+
+const Sizes = () => (
+  <div>
+    <BinarySizeDisplay interval={60000}/>
+  </div>
 );
 
 export default App;
