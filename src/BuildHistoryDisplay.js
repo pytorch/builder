@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import jenkins from './Jenkins.js';
 import { summarize_date } from './Summarize.js';
-import { objFromJobName } from './Utils.js';
+import { allJobNames, objFromJobName } from './Utils.js';
 import Tooltip from 'rc-tooltip';
 
 
@@ -45,42 +45,60 @@ export default class BuildHistoryDisplay extends Component {
     var i;
     for (i = 0; i < data.builds.length; ++i) {
         let datebuild = data.builds[i];
-        dateToBuilds[datebuild.timestamp] = datebuild.subBuilds.map((build) => {
-            return objFromJobName(build.jobName, {
+
+        // Create a map like {'jobName': buildObj ... }
+        let jobNameToBuildObj = {};
+        var build_idx;
+        for (build_idx = 0; build_idx < datebuild.subBuilds.length; ++build_idx) {
+            let build = datebuild.subBuilds[build_idx];
+            let buildObj = objFromJobName(build.jobName, {
                 'timestamp': datebuild.timestamp,
                 'result': build.result
             });
-        }).sort(function(a, b) {
-            return a.name > b.name ? 1 : -1; 
-        });
+            jobNameToBuildObj[buildObj.jobName] = buildObj;
+        };
+
+        // Create a map like {'date': {'jobName': buildObj ... } ... }
+        dateToBuilds[datebuild.timestamp] = jobNameToBuildObj;
     }
+
     this.setState({'dateToBuilds': dateToBuilds});
 	}
 
   render() {
 
     function result_icon(result) {
-      if (result === 'SUCCESS') return <span role="img" style={{color:"blue"}} aria-label="passed">0</span>;
-      if (result === 'FAILURE') return <span role="img" style={{color:"red"}} aria-label="failed">X</span>;
-      if (result === 'ABORTED') return <span role="img" style={{color:"gray"}} aria-label="cancelled">.</span>;
-      if (result === 'UNKNOWN') return <span role="img" style={{color:"gray"}} aria-label="in progress">?</span>;
+      if (result === 'SUCCESS') return <span role="img" style={{color:"blue"}} aria-label="passed">0_</span>;
+      if (result === 'FAILURE') return <span role="img" style={{color:"red"}} aria-label="failed">X_</span>;
+      if (result === 'ABORTED') return <span role="img" style={{color:"gray"}} aria-label="cancelled">._</span>;
+      if (result === 'UNKNOWN') return <span role="img" style={{color:"gray"}} aria-label="in progress">?_</span>;
       return result;
     }
 
     const rows = Object.keys(this.state.dateToBuilds).map((timestamp) => {
+      let jobNameToBuildObj = this.state.dateToBuilds[timestamp];
 
-      const status_cols = this.state.dateToBuilds[timestamp].map((build) => {
-        let cell = <a href={build.logUrl}
+      const status_cols = allJobNames.map((jobName) => {
+        // If there's not a result for this job (if the build failed) then
+        // create a default obj)
+        let buildObj = {};
+        if (jobName in jobNameToBuildObj) {
+          buildObj = jobNameToBuildObj[jobName];
+        } else {
+          buildObj = objFromJobName(jobName, {'timestamp': timestamp, 'result': 'UNKNOWN'});
+        }
+
+        let cell = <a href={buildObj.logUrl}
                   className="icon"
                   target="_blank"
-                  alt={build.logUrl(timestamp)}>
-                 {result_icon(build.extraParams.result)}
+                  alt={buildObj.logUrl(timestamp)}>
+                 {result_icon(buildObj.extraParams.result)}
                </a>;
 
-        return <Tooltip overlay={build.logUrl(timestamp)}
+        return <Tooltip overlay={buildObj.jobName}
                       mouseLeaveDelay={0}
                       placement="rightTop"
-                      destroyTooltipOnHide={true}><td key={build.name} className="icon-cell" style={{textAlign: "right", fontFamily: "sans-serif", padding: 0}}>{cell}</td></Tooltip>;
+                      destroyTooltipOnHide={true}><td key={buildObj.name} className="icon-cell" style={{textAlign: "right", fontFamily: "sans-serif", padding: 0}}>{cell}</td></Tooltip>;
       });
 
       return (

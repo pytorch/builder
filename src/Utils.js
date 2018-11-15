@@ -56,7 +56,6 @@ export async function get_request(url, options) {
   var r;
   await axios.get(url, { params: options })
   .then(response => {
-    console.log("response: ", response);
     r = response;
   })
   .catch(error => {

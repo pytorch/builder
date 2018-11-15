@@ -6,7 +6,6 @@ export function summarize_date(timestamp) {
   if (typeof(timestamp) === typeof('str')) {
       timestamp = parseInt(timestamp, 10);
   }
-  console.log('timestamp in summarize:: ', timestamp);
   const date = new Date(timestamp);
   const today = new Date();
   if (today.toLocaleDateString() === date.toLocaleDateString()) {

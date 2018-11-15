@@ -29,7 +29,6 @@ export default class BinarySizeDisplay extends Component {
     let dateToBuilds = {};
 
     dates.map(async (date) => {
-        console.log('date:: ', date);
         // the 2018_11_14.json contains an array of objects with keys [os, pkg, py, cu, size]
         //let sizeObjs = await get_request('http://download.pytorch.org/nightly_logs/binary_sizes/' + date + '.json');
         let sizeObjs = await get_request('https://s3.amazonaws.com/pytorch/nightly_logs/binary_sizes/' + date + '.json');
@@ -56,7 +55,7 @@ export default class BinarySizeDisplay extends Component {
 
   render() {
 
-    const rows = Object.keys(this.state.dateToBuilds).map((yyyy_mm_dd) => {
+    const rows = Object.keys(this.state.dateToBuilds).sort().reverse().map((yyyy_mm_dd) => {
       let jobNameToBuildObj = this.state.dateToBuilds[yyyy_mm_dd];
       const status_cols = allJobNames.map((jobName) => {
         // If there's not a result for this job (if the build failed) then
@@ -75,7 +74,7 @@ export default class BinarySizeDisplay extends Component {
                   {formatBytes(buildObj.extraParams.size)}_
                </a>;
 
-        return <Tooltip overlay={buildObj.logUrl(yyyy_mm_dd)}
+        return <Tooltip overlay={buildObj.jobName}
                       mouseLeaveDelay={0}
                       placement="rightTop"
                       destroyTooltipOnHide={true}><td key={buildObj.jobName} className="icon-cell" style={{textAlign: "right", fontFamily: "sans-serif", padding: 0}}>{cell}</td></Tooltip>;
