@@ -99,6 +99,8 @@ for config in "${all_configs[@]}"; do
   log_name="${RUNNING_LOG_DIR}/${build_tag}.log"
   failed_log_loc="${FAILED_LOG_DIR}/${build_tag}.log"
   succeeded_log_loc="${SUCCEEDED_LOG_DIR}/${build_tag}.log"
+  mkdir -p "$FAILED_LOG_DIR" || true
+  mkdir -p "$SUCCEEDED_LOG_DIR" || true
   rm -f "$failed_log_loc"
   rm -f "$succeeded_log_loc"
 

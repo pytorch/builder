@@ -25,7 +25,7 @@ upload_it () {
 
     if [[ "$pkg_type" == 'conda' ]]; then
         echo "Uploading $pkg to anaconda"
-        anaconda upload "$pkg" -u pytorch --label main --force
+        anaconda upload "$pkg" -u pytorch --label main --force --no-progress
     elif [[ "$pkg_type" == 'libtorch' ]]; then
         s3_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}${cuda_ver}/"
         echo "Uploading $pkg to $s3_dir"
