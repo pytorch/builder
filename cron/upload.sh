@@ -122,7 +122,7 @@ if [[ "$#" -eq 0 ]]; then
     for pkg_type in "${_ALL_PKG_TYPES[@]}"; do
         for cuda_ver in "${_ALL_CUDA_VERSIONS[@]}"; do
             pkg_dir="$(nightlies_package_folder $pkg_type $cuda_ver)"
-            if [[ ! -d "$pkg_dir" ]]; then
+            if [[ ! -d "$pkg_dir" || -z "$(ls $pkg_dir)" ]]; then
                 continue
             fi
             for pkg in $pkg_dir/*; do
