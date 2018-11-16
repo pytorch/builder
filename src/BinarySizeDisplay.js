@@ -67,11 +67,11 @@ export default class BinarySizeDisplay extends Component {
           buildObj = objFromJobName(jobName, {'size': -1});
         }
 
-        // The underscore is a hacky way to keep the numbers apart
         let cell = <a href={buildObj.logUrl(yyyy_mm_dd)}
+                  class="icon"
                   target="_blank"
                   >
-                  {formatBytes(buildObj.extraParams.size)}_
+                  &nbsp;{formatBytes(buildObj.extraParams.size)}&nbsp;
                </a>;
 
         return <Tooltip overlay={buildObj.jobName}

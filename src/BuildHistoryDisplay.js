@@ -68,10 +68,10 @@ export default class BuildHistoryDisplay extends Component {
   render() {
 
     function result_icon(result) {
-      if (result === 'SUCCESS') return <span role="img" style={{color:"blue"}} aria-label="passed">0_</span>;
-      if (result === 'FAILURE') return <span role="img" style={{color:"red"}} aria-label="failed">X_</span>;
-      if (result === 'ABORTED') return <span role="img" style={{color:"gray"}} aria-label="cancelled">._</span>;
-      if (result === 'UNKNOWN') return <span role="img" style={{color:"gray"}} aria-label="in progress">?_</span>;
+      if (result === 'SUCCESS') return <span role="img" style={{color:"blue"}} aria-label="passed">0</span>;
+      if (result === 'FAILURE') return <span role="img" style={{color:"red"}} aria-label="failed">X</span>;
+      if (result === 'ABORTED') return <span role="img" style={{color:"gray"}} aria-label="cancelled">.</span>;
+      if (result === 'UNKNOWN') return <span role="img" style={{color:"gray"}} aria-label="in progress">?</span>;
       return result;
     }
 
@@ -88,11 +88,11 @@ export default class BuildHistoryDisplay extends Component {
           buildObj = objFromJobName(jobName, {'timestamp': timestamp, 'result': 'UNKNOWN'});
         }
 
-        let cell = <a href={buildObj.logUrl}
+        let cell = <a href={buildObj.logUrl(timestamp)}
                   className="icon"
                   target="_blank"
                   alt={buildObj.logUrl(timestamp)}>
-                 {result_icon(buildObj.extraParams.result)}
+                 &nbsp;{result_icon(buildObj.extraParams.result)}&nbsp;
                </a>;
 
         return <Tooltip overlay={buildObj.jobName}
