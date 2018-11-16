@@ -87,11 +87,12 @@ export default class BuildHistoryDisplay extends Component {
         } else {
           buildObj = objFromJobName(jobName, {'timestamp': timestamp, 'result': 'UNKNOWN'});
         }
+        let logUrl = buildObj.logUrl(timestamp);
 
-        let cell = <a href={buildObj.logUrl(timestamp)}
+        let cell = <a href={logUrl}
                   className="icon"
                   target="_blank"
-                  alt={buildObj.logUrl(timestamp)}>
+                  alt={logUrl}>
                  &nbsp;{result_icon(buildObj.extraParams.result)}&nbsp;
                </a>;
 
@@ -118,7 +119,7 @@ export default class BuildHistoryDisplay extends Component {
           <thead>
             <tr>
               <th className="left-cell">Date</th>
-              {allJobNames.map((job) => { return <th class="rotate" ><div>{job}</div></th>; })}
+              {allJobNames.map((job) => { return <th className="rotate" ><div>{job}</div></th>; })}
             </tr>
           </thead>
           <tbody>{rows}</tbody>

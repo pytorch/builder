@@ -1,24 +1,9 @@
 import axios from 'axios';
+import { toYYYYmmdd } from './Summarize.js';
 
 const LOG_URL_PREFIX = 'https://download.pytorch.org/nightly_logs/';
 const WHEEL_URL_PREFIX = 'https://download.pytorch.org/whl/nightly/';
 const WHEEL_NAME_PREFIX = 'torch_nightly-1.0.0.dev';
-
-// https://stackoverflow.com/questions/23593052/format-javascript-date-to-yyyy-mm-dd
-export function toYYYYmmdd(timestamp, delimiter) {
-    if (typeof(timestamp) === typeof('str')) {
-        timestamp = parseInt(timestamp, 10);
-    }
-    var d = new Date(timestamp);
-    var month = '' + (d.getMonth() + 1);
-    var day = '' + d.getDate();
-    var year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join(delimiter);
-}
 
 
 export function objFromOsPkgPyCu(obj, extraParams) {

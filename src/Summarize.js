@@ -2,16 +2,23 @@ export function summarize_job(job) {
   return job.replace(/^pytorch-/, '').replace(/-trigger$/, '').replace(/^private\//, '').replace(/^ccache-cleanup-/, '');
 }
 
-export function summarize_date(timestamp) {
-  if (typeof(timestamp) === typeof('str')) {
-      timestamp = parseInt(timestamp, 10);
+export function summarize_date(date) {
+  // If a string, assume that it's a timestamp (seconds from epoc)
+  if (typeof(date) === typeof('str')) {
+      date = parseInt(date, 10);
   }
-  const date = new Date(timestamp);
-  const today = new Date();
-  if (today.toLocaleDateString() === date.toLocaleDateString()) {
-    return date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+  var d;
+  // If an int, assume that it's a timestamp
+  if (typeof(date) === typeof(5)) {
+      d = new Date(date);
   } else {
-    return date.toLocaleString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
+      d = date;
+  }
+  const today = new Date();
+  if (today.toLocaleDateString() === d.toLocaleDateString()) {
+    return d.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+  } else {
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', weekday: 'short' });
   }
 }
 
@@ -42,4 +49,28 @@ export function summarize_ago(timestamp) {
   const date = new Date(timestamp);
   const today = new Date();
   return seconds2time(Math.floor((today - date) / 1000));
+}
+
+// https://stackoverflow.com/questions/23593052/format-javascript-date-to-yyyy-mm-dd
+export function toYYYYmmdd(date, delimiter) {
+    // If a string, assume that it's a timestamp (seconds from epoc)
+    if (typeof(date) === typeof('str')) {
+        date = parseInt(date, 10);
+    }
+    var d;
+    // If an int, assume that it's a timestamp
+    if (typeof(date) === typeof(5)) {
+        d = new Date(date);
+    } else {
+        d = date;
+    }
+
+    var month = '' + (d.getUTCMonth() + 1);
+    var day = '' + d.getUTCDate();
+    var year = d.getUTCFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join(delimiter);
 }
