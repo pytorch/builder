@@ -118,7 +118,7 @@ export default class BuildHistoryDisplay extends Component {
           <thead>
             <tr>
               <th className="left-cell">Date</th>
-              <th>Status</th>
+              {allJobNames.map((job) => { return <th class="rotate" ><div>{job}</div></th>; })}
             </tr>
           </thead>
           <tbody>{rows}</tbody>

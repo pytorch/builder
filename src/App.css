@@ -85,7 +85,7 @@ th.rotate > div {
   transform:
     translate(10px, 155px) /* ugh */
     rotate(315deg);
-  width: 20px;
+  width: 30px;
 }
 
 th { vertical-align: top; }
