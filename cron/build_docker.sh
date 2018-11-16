@@ -161,10 +161,6 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
     echo "cd /"
 
-    # Instal mkldnn
-    # TODO this is expensive and should be moved into the Docker images themselves
-    # echo '/remote/install_mkldnn.sh'
-
     # Run the build script
     echo "$build_script"
 

@@ -200,7 +200,8 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 else
     export LOGS_S3_DIR="nightly_logs/linux/$NIGHTLIES_DATE"
 fi
-export BINARY_SIZES_S3_DIR="nightly_logs/binary_sizes"
+# The location of the binary_sizes dir in s3 is hardcoded into
+# upload_binary_sizes.sh
 
 # DAYS_TO_KEEP
 #   How many days to keep around for clean.sh. Build folders older than this
