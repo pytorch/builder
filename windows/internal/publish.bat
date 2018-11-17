@@ -21,7 +21,7 @@ IF ERRORLEVEL 1 (
 
 IF ERRORLEVEL 1 (
     echo Clone failed
-    exit /b 1
+    goto err
 )
 
 cd pytorch_builder
@@ -49,11 +49,32 @@ git checkout --orphan %PUBLISH_BRANCH%
 git remote add origin %ARTIFACT_REPO_URL%
 git add .
 git commit -m "Update artifacts"
+
+:push
+
+if "%RETRY_TIMES%" == "" (
+    set /a RETRY_TIMES=3
+) else (
+    set /a RETRY_TIMES=%RETRY_TIMES%-1
+)
+
 git push origin %PUBLISH_BRANCH%% -f > nul 2>&1
+
+IF ERRORLEVEL 1 (
+    echo Git push retry times remaining: %RETRY_TIMES%
+    IF %RETRY_TIMES% EQU 0 (
+        echo Push failed
+        goto err
+    )
+    goto push
+)
 
 popd
 
-IF ERRORLEVEL 1 (
-    echo Push failed
-    exit /b 1
-)
+exit /b 0
+
+:err
+
+popd
+
+exit /b 1

@@ -32,6 +32,9 @@ jobs:
         DESIRED_PYTHON: 3.6
       PY3.7:
         DESIRED_PYTHON: 3.7
+      LIBTORCH:
+        DESIRED_PYTHON: 3
+        BUILD_PYTHONLESS: 1
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -192,9 +195,12 @@ jobs:
         DESIRED_PYTHON: 3.6
       PY3.7:
         DESIRED_PYTHON: 3.7
+      LIBTORCH:
+        DESIRED_PYTHON: 3
+        BUILD_PYTHONLESS: 1
 
   pool:
-    name: 'Default'
+    name: 'pytorch'
 
   steps:
   - task: BatchScript@1
@@ -267,7 +273,7 @@ jobs:
         DESIRED_PYTHON: 3.7
 
   pool:
-    name: 'Default'
+    name: 'pytorch'
 
   steps:
   - task: BatchScript@1
