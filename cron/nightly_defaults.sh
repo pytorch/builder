@@ -61,7 +61,9 @@ mkdir -p "$today" || true
 
 # List of people to email when things go wrong. This is passed directly to
 # `mail -t`
-export NIGHTLIES_EMAIL_LIST='hellemn@fb.com'
+if [[ -z "$NIGHTLIES_EMAIL_LIST" ]]; then
+    export NIGHTLIES_EMAIL_LIST='hellemn@fb.com'
+fi
 
 # PYTORCH_CREDENTIALS_FILE
 #   A bash file that exports credentials needed to upload to aws and anaconda.
@@ -79,7 +81,9 @@ fi
 # Location of the temporary miniconda that is downloaded to install conda-build
 # and aws to upload finished packages TODO this is messy to install this in
 # upload.sh and later use it in upload_logs.sh
-CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
+if [[ -z "$CONDA_UPLOADER_INSTALLATION" ]]; then
+    export CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
+fi
 
 # N.B. BUILDER_REPO and BUILDER_BRANCH are both set in cron_start.sh, as that
 # is the script that actually clones the builder repo that /this/ script is
@@ -87,7 +91,9 @@ CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
 export NIGHTLIES_BUILDER_ROOT="$(cd $(dirname $0)/.. && pwd)"
 
 # The shared pytorch repo to be used by all builds
-export NIGHTLIES_PYTORCH_ROOT="${today}/pytorch"
+if [[ -z "$NIGHTLIES_PYTORCH_ROOT" ]]; then
+    export NIGHTLIES_PYTORCH_ROOT="${today}/pytorch"
+fi
 
 # PYTORCH_REPO
 #   The Github org/user whose fork of Pytorch to check out (git clone
@@ -190,15 +196,23 @@ nightlies_package_folder () {
 #   should be empty. Logs are written out to RUNNING_LOG_DIR. When a build
 #   fails, it's log should be moved to FAILED_LOG_DIR, and similarily for
 #   succeeded builds.
-export RUNNING_LOG_DIR="${today}/logs"
-export FAILED_LOG_DIR="${today}/logs/failed"
-export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
+if [[ -z "$RUNNING_LOG_DIR" ]]; then
+    export RUNNING_LOG_DIR="${today}/logs"
+fi
+if [[ -z "$FAILED_LOG_DIR" ]]; then
+    export FAILED_LOG_DIR="${today}/logs/failed"
+fi
+if [[ -z "$SUCCEEDED_LOG_DIR" ]]; then
+    export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
+fi
 
 # Log s3 directory, must not end in a /
-if [[ "$(uname)" == 'Darwin' ]]; then
-    export LOGS_S3_DIR="nightly_logs/macos/$NIGHTLIES_DATE"
-else
-    export LOGS_S3_DIR="nightly_logs/linux/$NIGHTLIES_DATE"
+if [[ -z "$LOGS_S3_DIR" ]]; then
+    if [[ "$(uname)" == 'Darwin' ]]; then
+        export LOGS_S3_DIR="nightly_logs/macos/$NIGHTLIES_DATE"
+    else
+        export LOGS_S3_DIR="nightly_logs/linux/$NIGHTLIES_DATE"
+    fi
 fi
 # The location of the binary_sizes dir in s3 is hardcoded into
 # upload_binary_sizes.sh
@@ -235,6 +249,11 @@ if [[ -z "$PYTORCH_NIGHTLIES_TIMEOUT" ]]; then
     else
         export PYTORCH_NIGHTLIES_TIMEOUT=4800
     fi
+fi
+if [[ -z "$PYTORCH_NIGHTLIES_LIBTORCH_TIMEOUT" ]]; then
+    # The libtorch job actually runs for several cpu/cuda versions in sequence
+    # and so takes a long time
+    export PYTORCH_NIGHTLIES_LIBTORCH_TIMEOUT=10800
 fi
 
 # PORTABLE_TIMEOUT

@@ -111,6 +111,13 @@ for config in "${all_configs[@]}"; do
       build_script="${NIGHTLIES_BUILDER_ROOT}/cron/build_docker.sh"
   fi
 
+  # Swap timeout out for libtorch
+  if [[ "$package_type" == libtorch ]]; then
+      _timeout="$PYTORCH_NIGHTLIES_LIBTORCH_TIMEOUT"
+  else
+      _timeout="$PYTORCH_NIGHTLIES_TIMEOUT"
+  fi
+
   set +x
   echo
   echo "##############################"
@@ -124,7 +131,7 @@ for config in "${all_configs[@]}"; do
       DESIRED_PYTHON="$py_ver" \
       DESIRED_CUDA="$cuda_ver" \
       ON_SUCCESS_WRITE_ME="$succeeded_log_loc" \
-      $PORTABLE_TIMEOUT "$PYTORCH_NIGHTLIES_TIMEOUT" \
+      $PORTABLE_TIMEOUT "$_timeout" \
           "$build_script" > "$log_name" 2>&1
   ret="$?"
   duration="$SECONDS"
