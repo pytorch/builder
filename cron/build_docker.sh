@@ -89,6 +89,9 @@ if [[ -n "$ON_SUCCESS_WRITE_ME" ]]; then
     success_basename="$(basename $ON_SUCCESS_WRITE_ME)"
 fi
 
+# Pull a fresh copy of the docker image
+docker pull "$docker_image"
+
 # Build up Docker Arguments
 ##############################################################################
 docker_args=""
