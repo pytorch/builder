@@ -82,6 +82,14 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     rm -rf tmp_cudnn && \
     ldconfig
 
+# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.3.7-1+cuda9.0_x86_64.txz && \
+    mv nccl_2.3.7-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.3.7-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.3.7-1+cuda9.0_x86_64* && \
+    ldconfig
+
 # install CUDA 9.2 in the same container
 RUN wget -q https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda_9.2.148_396.37_linux && \
     chmod +x cuda_9.2.148_396.37_linux && \
@@ -105,6 +113,14 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     cp -a cuda/lib64/* /usr/local/cuda/lib64/ && \
     cd .. && \
     rm -rf tmp_cudnn && \
+    ldconfig
+
+# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.2_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.3.7-1+cuda9.2_x86_64.txz && \
+    mv nccl_2.3.7-1+cuda9.2_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.3.7-1+cuda9.2_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.3.7-1+cuda9.2_x86_64* && \
     ldconfig
 
 # prune static libs

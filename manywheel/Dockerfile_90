@@ -74,6 +74,14 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     rm -rf tmp_cudnn && \
     ldconfig
 
+# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.3.7-1+cuda9.0_x86_64.txz && \
+    mv nccl_2.3.7-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.3.7-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.3.7-1+cuda9.0_x86_64* && \
+    ldconfig
+
 # magma
 RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.3.0.tar.gz && \
     tar -xvf magma-2.3.0.tar.gz && \
