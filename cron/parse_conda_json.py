@@ -16,16 +16,19 @@ with open(inputfile, 'rb') as jsonfile:
 
     # conda search returns format {'pytorch-nightly': [{key:val}...]}
     pkg_name = list(rawdata.keys())[0]
+    print('parse_conda_json.py:: Parsing package {}'.format(pkg_name))
 
     # Loop through versions found, keeping only 'build', and size
     # size is in bytes
     for result in rawdata[pkg_name]:
         size = result['size']
-
         # 'build' is of the form 'py2.7_cuda8.0.61_cudnn7.1.2_0'
+        build = result['build']
+
+        print('parse_conda_json.py:: Size of {} is {}'.format(build, size))
+
         # Since all Python versions are always 3 digits, it is safe to extract
         # the CUDA version based on index alone.
-        build = result['build']
         py_ver = build[2:5]
         cu_ver = ('cu' + build[10] + build[12]) if 'cuda' in build else 'cpu'
 

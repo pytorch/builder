@@ -33,7 +33,7 @@ touch "$binary_sizes_log"
 # This is read from `conda search`. 
 conda_platforms=('linux-64' 'osx-64')
 conda_pkg_names=('pytorch-nightly' 'pytorch-nightly-cpu')
-tmp_json="$_conda_search.json"
+tmp_json="_conda_search.json"
 for pkg_name in "${conda_pkg_names[@]}"; do
     for platform in "${conda_platforms[@]}"; do
 
