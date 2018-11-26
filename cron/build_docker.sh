@@ -40,9 +40,6 @@ mkdir -p "$host_package_dir" || true
 # This is the name of the package dir dockerside
 docker_package_dir="/host_machine_pkgs"
 
-# Move to today's workspace folder
-mkdir -p "$today" || true
-
 # Map cuda/python/storage dirs for conda or manywheel
 python_nodot="${desired_python:0:1}${desired_python:2:1}"
 if [[ "$desired_cuda" == 'cpu' ]]; then
