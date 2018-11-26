@@ -105,7 +105,7 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     )
     call %CUDA_PREFIX%.bat
     IF ERRORLEVEL 1 exit /b 1
-    call internal\test.bat
+    IF "%BUILD_PYTHONLESS%" == "" call internal\test.bat
     IF ERRORLEVEL 1 exit /b 1
     @endlocal
 )

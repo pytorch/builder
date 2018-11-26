@@ -25,8 +25,38 @@ if "%CXX%"=="sccache cl" (
     sccache --zero-stats
 )
 
+
+if "%BUILD_PYTHONLESS%" == "" goto pytorch else goto libtorch
+
+:libtorch
+set VARIANT=shared-with-deps
+
+mkdir libtorch
+set "INSTALL_DIR=%CD%\libtorch"
+mkdir libtorch\lib
+copy /Y torch\lib\*.dll libtorch\lib\
+
+mkdir build
+pushd build
+python ../tools/build_libtorch.py
+popd
+
+IF ERRORLEVEL 1 exit /b 1
+IF NOT ERRORLEVEL 0 exit /b 1
+
+move /Y libtorch\bin\*.dll libtorch\lib\
+
+7z a -tzip libtorch-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
+
+mkdir ..\output\%CUDA_PREFIX%
+copy /Y libtorch-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
+
+goto build_end
+
+:pytorch
 pip wheel -e . --wheel-dir ../output/%CUDA_PREFIX%
 
+:build_end
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
 
