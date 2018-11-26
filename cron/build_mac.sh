@@ -48,14 +48,14 @@ cp -R "$NIGHTLIES_BUILDER_ROOT" "$workdir"
 ##############################################################################
 if [[ "$package_type" == 'conda' ]]; then
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '_' '-')"
-    "${workdir}/builder/conda/build_pytorch.sh"
+    "${workdir}/builder/conda/build_pytorch.sh" cpu "$PYTORCH_BUILD_VERSION" "$PYTORCH_BUILD_NUMBER"
     ret="$?"
 else
     if [[ "$package_type" == 'libtorch' ]]; then
         export BUILD_PYTHONLESS=1
     fi
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
-    "${workdir}/builder/wheel/build_wheel.sh"
+    "${workdir}/builder/wheel/build_wheel.sh" "$desired_python" "$PYTORCH_BUILD_VERSION" "$PYTORCH_BUILD_NUMBER"
     ret="$?"
 fi
 
