@@ -49,7 +49,9 @@ fi
 
 # Used in lots of places as the root dir to store all conda/wheel/manywheel
 # packages as well as logs for the day
-export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
+if [[ -z "$today" ]]; then
+    export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
+fi
 mkdir -p "$today" || true
 
 
