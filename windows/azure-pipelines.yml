@@ -63,6 +63,7 @@ jobs:
   - task: AmazonWebServices.aws-vsts-tools.S3Upload.S3Upload@1
     displayName: 'Upload artifacts to S3'
     inputs:
+      awsCredentials: 'Pytorch S3 bucket'
       bucketName: 'pytorch'
       sourceFolder: 'windows/output/cpu'
       globExpressions: '*.whl'
