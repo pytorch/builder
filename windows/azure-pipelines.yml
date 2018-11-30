@@ -67,12 +67,9 @@ jobs:
       testRunTitle: 'Publish test results'
     enabled: false
 
-  - task: BatchScript@1
-    displayName: 'Upload artifacts'
-    inputs:
-      filename: 'windows/internal/publish.bat'
-
-      modifyEnvironment: false
+  - template: templates/upload_to_s3.yml
+    parameters:
+      cuVer: 'cpu'
 
 - job: 'Windows_CPU_Conda_Build'
   timeoutInMinutes: 0
@@ -244,12 +241,10 @@ jobs:
       testRunTitle: 'Publish test results'
     enabled: false
 
-  - task: BatchScript@1
-    displayName: 'Upload artifacts'
-    inputs:
-      filename: 'windows/internal/publish.bat'
-
-      modifyEnvironment: false
+  - template: templates/upload_to_s3.yml
+    parameters:
+      cuVer: 'cu90'
+      cudaVer: 'cuda90'
 
 - job: 'Windows_CUDA90_Conda_Build'
   timeoutInMinutes: 0
