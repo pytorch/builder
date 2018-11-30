@@ -11,12 +11,12 @@ if NOT "%CUDA_VERSION%" == "cpu" (
 
 set PUBLISH_BRANCH=%PACKAGE%_%DESIRED_PYTHON%%PACKAGE_SUFFIX%
 
-git clone %ARTIFACT_REPO_URL% -b %PUBLISH_BRANCH% --single-branch > nul 2>&1
+git clone %ARTIFACT_REPO_URL% -b %PUBLISH_BRANCH% --single-branch >nul 2>&1
 
 IF ERRORLEVEL 1 (
     echo Branch %PUBLISH_BRANCH% not exist, falling back to master
     set NO_BRANCH=1
-    git clone %ARTIFACT_REPO_URL% -b master --single-branch > nul 2>&1
+    git clone %ARTIFACT_REPO_URL% -b master --single-branch >nul 2>&1
 )
 
 IF ERRORLEVEL 1 (
@@ -27,16 +27,8 @@ IF ERRORLEVEL 1 (
 cd pytorch_builder
 attrib -s -h -r . /s /d
 
-IF "%NO_BRANCH%" == "1" (
-    :: Empty if not exist
-    rd /s /q .
-) ELSE (
-    :: Otherwise update it
-    rmdir /s /q .git
-)
-
-:: Reset errorlevel
-ver >nul
+:: Empty repo
+rd /s /q . || ver >nul
 
 IF NOT EXIST %PACKAGE% mkdir %PACKAGE%
 
@@ -53,19 +45,23 @@ git commit -m "Update artifacts"
 :push
 
 if "%RETRY_TIMES%" == "" (
-    set /a RETRY_TIMES=3
+    set /a RETRY_TIMES=10
+    set /a SLEEP_TIME=2
 ) else (
     set /a RETRY_TIMES=%RETRY_TIMES%-1
+    set /a SLEEP_TIME=%SLEEP_TIME%*2
 )
 
 git push origin %PUBLISH_BRANCH%% -f > nul 2>&1
 
 IF ERRORLEVEL 1 (
     echo Git push retry times remaining: %RETRY_TIMES%
+    echo Sleep time: %SLEEP_TIME% seconds
     IF %RETRY_TIMES% EQU 0 (
         echo Push failed
         goto err
     )
+    waitfor SomethingThatIsNeverHappening /t %SLEEP_TIME% 2>nul || ver >nul
     goto push
 )
 

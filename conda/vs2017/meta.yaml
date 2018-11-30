@@ -9,6 +9,8 @@ package:
 
 build:
   skip: True  [not win]
+  script_env:
+    - VSDEVCMD_ARGS # [win]
 
 outputs:
   - name: vs{{ vsyear }}_{{ cross_compiler_target_platform }}

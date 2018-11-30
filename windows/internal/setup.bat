@@ -10,8 +10,13 @@ if NOT "%DISTUTILS_USE_SDK%"==""  echo DISTUTILS_USE_SDK=%DISTUTILS_USE_SDK%
 
 set SRC_DIR=%~dp0\..
 
-call "%VS15VCVARSALL%" x64
-call "%VS15VCVARSALL%" x86_amd64
+IF "%VSDEVCMD_ARGS%" == "" (
+    call "%VS15VCVARSALL%" x64
+    call "%VS15VCVARSALL%" x86_amd64
+) ELSE (
+    call "%VS15VCVARSALL%" x64 %VSDEVCMD_ARGS%
+    call "%VS15VCVARSALL%" x86_amd64 %VSDEVCMD_ARGS%
+)
 
 pushd %SRC_DIR%
 
@@ -46,10 +51,11 @@ IF NOT ERRORLEVEL 0 exit /b 1
 
 move /Y libtorch\bin\*.dll libtorch\lib\
 
-7z a -tzip libtorch-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
+7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
 
 mkdir ..\output\%CUDA_PREFIX%
-copy /Y libtorch-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
+copy /Y libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
+copy /Y libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\libtorch-win-%VARIANT%-latest.zip
 
 goto build_end
 

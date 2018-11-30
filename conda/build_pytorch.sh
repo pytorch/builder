@@ -149,6 +149,10 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     mkdir -p "$WIN_PACKAGE_WORK_DIR" || true
     pytorch_rootdir="$(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch"
     git config --system core.longpaths true
+    # The jobs are seperated on Windows, so we don't need to clone again.
+    if [[ -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
+        cp -R "$NIGHTLIES_PYTORCH_ROOT" "$WIN_PACKAGE_WORK_DIR"
+    fi
 elif [[ -d '/pytorch' ]]; then
     pytorch_rootdir='/pytorch'
 else
@@ -186,7 +190,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     curl -k https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
     "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
     pushd $tmp_conda
-    export PATH="$(pwd):$(pwd)/Scripts:$PATH"
+    export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     echo $PATH
     popd
     conda install -y conda-build
@@ -265,10 +269,11 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # We need to build the compiler activation scripts first on Windows
     if [[ "$OSTYPE" == "msys" ]]; then
-        conda build -c "$ANACONDA_USER" \
-                     --no-anaconda-upload \
-                     --output-folder "$output_folder" \
-                     vs2017
+        time VSDEVCMD_ARGS=${VSDEVCMD_ARGS[@]} \
+             conda build -c "$ANACONDA_USER" \
+                         --no-anaconda-upload \
+                         --output-folder "$output_folder" \
+                         vs2017
     fi
 
     # Output the meta.yaml for easy debugging

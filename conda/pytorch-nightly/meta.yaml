@@ -42,7 +42,7 @@ build:
     - DEVELOPER_DIR
     - DEBUG
     - NO_FBGEMM
-    - USE_SCCACHE #[win]
+    - USE_SCCACHE # [win]
   # Features go here
 
 test:
