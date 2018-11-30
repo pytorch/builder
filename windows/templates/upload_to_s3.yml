@@ -13,3 +13,14 @@ steps:
       targetFolder: 'whl/nightly/${{ parameters.cuVer }}/'
       fileAcl: 'public read'
       flattenFolders: 'true'
+
+  - task: AmazonWebServices.aws-vsts-tools.S3Upload.S3Upload@1
+    displayName: 'Upload ${{ parameters.cuVer }} libtorch to S3'
+    inputs:
+      awsCredentials: 'Pytorch S3 bucket'
+      bucketName: 'pytorch'
+      sourceFolder: 'windows/output/${{ parameters.cudaVer }}'
+      globExpressions: '*.zip'
+      targetFolder: 'libtorch/nightly/${{ parameters.cuVer }}/'
+      fileAcl: 'public read'
+      flattenFolders: 'true'
