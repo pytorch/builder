@@ -36,7 +36,7 @@ IF "%CUDA_PATH_V8_0%"=="" (
         set "CUDA_PATH=%CUDA_PATH_V8_0%"
         set "PATH=%CUDA_PATH_V8_0%\bin;%PATH%"
         set CMAKE_GENERATOR=Visual Studio 14 2015 Win64
-        set "CUDA_HOST_COMPILER=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
+        set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
     )
 )
 
