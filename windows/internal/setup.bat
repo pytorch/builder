@@ -51,10 +51,11 @@ IF NOT ERRORLEVEL 0 exit /b 1
 
 move /Y libtorch\bin\*.dll libtorch\lib\
 
-7z a -tzip libtorch-%VARIANT%-latest.zip libtorch\*
+7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
 
 mkdir ..\output\%CUDA_PREFIX%
-copy /Y libtorch-%VARIANT%-latest.zip ..\output\%CUDA_PREFIX%\
+copy /Y libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
+copy /Y libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\libtorch-win-%VARIANT%-latest.zip
 
 goto build_end
 
