@@ -68,3 +68,5 @@ conda/torchvision-src
 wheel/pytorch-src
 wheel/torchvision-src
 torch_nightly.html
+
+node_modules

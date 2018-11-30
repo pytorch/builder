@@ -54,6 +54,7 @@ copy /Y libtorch-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
 goto build_end
 
 :pytorch
+:: This stores in e.g. D:/_work/1/s/windows/output/cpu
 pip wheel -e . --wheel-dir ../output/%CUDA_PREFIX%
 
 :build_end
