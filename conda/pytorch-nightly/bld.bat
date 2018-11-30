@@ -55,7 +55,7 @@ if NOT "%build_with_cuda%" == "" (
 
     if "%CUDA_VERSION%" == "80" (
         :: Only if you use Ninja with CUDA 8
-        set "CUDA_HOST_COMPILER=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
+        set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
     )
 )
 

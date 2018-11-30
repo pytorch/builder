@@ -74,6 +74,14 @@ else
     python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
 fi
 
+if [[ "$OSTYPE" == "msys" ]]; then
+    GPUS=$(wmic path win32_VideoController get name)
+    if [[ ! "$GPUS" == *NVIDIA* ]]; then
+        echo "Skip CUDA tests for machines without a Nvidia GPU card"
+        exit 0
+    fi
+fi
+
 # Test that CUDA builds are setup correctly
 if [[ "$cuda_ver" != 'cpu' ]]; then
     # Test CUDA archs

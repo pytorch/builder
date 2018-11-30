@@ -1,5 +1,8 @@
 @echo off
 
+:: This script parses args, installs required libraries (miniconda, MKL,
+:: Magma), and then delegates to cpu.bat, cuda80.bat, etc.
+
 IF NOT "%CUDA_VERSION%" == "" IF NOT "%PYTORCH_BUILD_VERSION%" == "" if NOT "%PYTORCH_BUILD_NUMBER%" == "" goto env_end
 if "%~1"=="" goto arg_error
 if "%~2"=="" goto arg_error
@@ -47,6 +50,7 @@ IF ERRORLEVEL 1 exit /b 1
 set "ORIG_PATH=%PATH%"
 set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
+:: Create a new conda environment
 setlocal EnableDelayedExpansion
 FOR %%v IN (%DESIRED_PYTHON%) DO (
     set PYTHON_VERSION_STR=%%v
@@ -64,8 +68,8 @@ curl https://s3.amazonaws.com/ossci-windows/mkl_2018.2.185.7z -k -O
 set CMAKE_INCLUDE_PATH=%cd%\\mkl\\include
 set LIB=%cd%\\mkl\\lib;%LIB%
 
+:: Download MAGMA Files on CUDA builds
 if NOT "%CUDA_VERSION%" == "cpu" (
-    :: Download MAGMA Files
     rmdir /s /q magma_%CUDA_PREFIX%_release
     del magma_%CUDA_PREFIX%_release.7z
     curl -k https://s3.amazonaws.com/ossci-windows/magma_%CUDA_PREFIX%_release_mkl_2018.2.185.7z -o magma_%CUDA_PREFIX%_release.7z

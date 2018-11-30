@@ -1,9 +1,9 @@
 
 variables:
-  pytorch.build.version: 1.0
-  pytorch.build.number: 1
-  pytorch.branch: master # override the default of build.version
-  pytorch.repo: pytorch
+  # pytorch.build.version: '1.0'
+  # pytorch.build.number: 1
+  # pytorch.branch: master
+  # pytorch.repo: pytorch
   build.linux.enabled: false
   build.cpu.enabled: true
   build.cuda.enabled: true
@@ -37,11 +37,20 @@ jobs:
         BUILD_PYTHONLESS: 1
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'win1803'
 
   steps:
   - task: BatchScript@1
     condition: eq(variables['self.hosted.agent.cpu'], 'false')
+    displayName: 'Install VS 2017'
+    inputs:
+      filename: 'windows/internal/vs_install.bat'
+
+      modifyEnvironment: true
+
+  - task: BatchScript@1
+    condition: eq(variables['self.hosted.agent.cpu'], 'false')
+    enabled: false
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -53,6 +62,13 @@ jobs:
     displayName: 'Install 7Zip'
     inputs:
       filename: 'windows/internal/7z_install.bat'
+
+      modifyEnvironment: true
+
+  - task: BatchScript@1
+    displayName: 'Setup nightly variables'
+    inputs:
+      filename: 'windows/internal/nightly_defaults.bat'
 
       modifyEnvironment: true
 
@@ -67,12 +83,9 @@ jobs:
       testRunTitle: 'Publish test results'
     enabled: false
 
-  - task: BatchScript@1
-    displayName: 'Upload artifacts'
-    inputs:
-      filename: 'windows/internal/publish.bat'
-
-      modifyEnvironment: false
+  - template: templates/upload_to_s3.yml
+    parameters:
+      cuVer: 'cpu'
 
 - job: 'Windows_CPU_Conda_Build'
   timeoutInMinutes: 0
@@ -81,8 +94,6 @@ jobs:
   variables:
     PACKAGE: conda
     CUDA_VERSION: cpu
-    PYTORCH_REPO: pytorch
-    TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
     USE_SCCACHE: $(use.sccache.cpu)
 
   strategy:
@@ -96,11 +107,20 @@ jobs:
         DESIRED_PYTHON: 3.7
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'win1803'
 
   steps:
   - task: BatchScript@1
     condition: eq(variables['self.hosted.agent.cpu'], 'false')
+    displayName: 'Install VS 2017'
+    inputs:
+      filename: 'windows/internal/vs_install.bat'
+
+      modifyEnvironment: true
+
+  - task: BatchScript@1
+    condition: eq(variables['self.hosted.agent.cpu'], 'false')
+    enabled: false
     displayName: 'Environment fix'
     inputs:
       filename: 'windows/internal/env_fix.bat'
@@ -115,7 +135,14 @@ jobs:
 
       modifyEnvironment: true
 
-  - script: 'mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
+  - task: BatchScript@1
+    displayName: 'Setup nightly variables'
+    inputs:
+      filename: 'windows/internal/nightly_defaults.bat'
+
+      modifyEnvironment: true
+
+  - script: 'if not exist %PYTORCH_FINAL_PACKAGE_DIR% mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
     displayName: 'Create final package directory'
     env:
       PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
@@ -146,7 +173,6 @@ jobs:
   variables:
     PACKAGE: conda
     CUDA_VERSION: cpu
-    PYTORCH_REPO: pytorch
     TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
 
   strategy:
@@ -178,26 +204,55 @@ jobs:
       MAX_JOBS: 2
       PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
 
-- job: 'Windows_CUDA90_Wheels_Build'
+- job: 'Windows_CUDA_Wheels_Build'
   timeoutInMinutes: 0
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.wheels.enabled'], 'true'))
   variables:
     PACKAGE: wheels
-    CUDA_VERSION: 90
     USE_SCCACHE: $(use.sccache.cuda)
   strategy:
     maxParallel: 10
     matrix:
-      PY3.5:
+      PY3.5_90:
         DESIRED_PYTHON: 3.5
-      PY3.6:
+        CUDA_VERSION: 90
+      PY3.6_90:
         DESIRED_PYTHON: 3.6
-      PY3.7:
+        CUDA_VERSION: 90
+      PY3.7_90:
         DESIRED_PYTHON: 3.7
-      LIBTORCH:
+        CUDA_VERSION: 90
+      LIBTORCH_90:
         DESIRED_PYTHON: 3
         BUILD_PYTHONLESS: 1
+        CUDA_VERSION: 90
+      # PY3.5_80:
+      #   DESIRED_PYTHON: 3.5
+      #   CUDA_VERSION: 80
+      # PY3.6_80:
+      #   DESIRED_PYTHON: 3.6
+      #   CUDA_VERSION: 80
+      # PY3.7_80:
+      #   DESIRED_PYTHON: 3.7
+      #   CUDA_VERSION: 80
+      # LIBTORCH_80:
+      #   DESIRED_PYTHON: 3
+      #   BUILD_PYTHONLESS: 1
+      #   CUDA_VERSION: 80
+      # PY3.5_92:
+      #   DESIRED_PYTHON: 3.5
+      #   CUDA_VERSION: 92
+      # PY3.6_92:
+      #   DESIRED_PYTHON: 3.6
+      #   CUDA_VERSION: 92
+      # PY3.7_92:
+      #   DESIRED_PYTHON: 3.7
+      #   CUDA_VERSION: 92
+      # LIBTORCH_92:
+      #   DESIRED_PYTHON: 3
+      #   BUILD_PYTHONLESS: 1
+      #   CUDA_VERSION: 92
 
   pool:
     name: 'pytorch'
@@ -234,6 +289,13 @@ jobs:
       filename: 'windows/internal/env_fix.bat'
 
       modifyEnvironment: false
+
+  - task: BatchScript@1
+    displayName: 'Setup nightly variables'
+    inputs:
+      filename: 'windows/internal/nightly_defaults.bat'
+
+      modifyEnvironment: true
 
   - script: 'call windows/build_pytorch.bat %CUDA_VERSION% %PYTORCH_BUILD_VERSION% %PYTORCH_BUILD_NUMBER%'
     displayName: Build
@@ -244,33 +306,49 @@ jobs:
       testRunTitle: 'Publish test results'
     enabled: false
 
-  - task: BatchScript@1
-    displayName: 'Upload artifacts'
-    inputs:
-      filename: 'windows/internal/publish.bat'
+  - template: templates/upload_to_s3.yml
+    parameters:
+      cuVer: 'cu90'
+      cudaVer: 'cuda90'
 
-      modifyEnvironment: false
-
-- job: 'Windows_CUDA90_Conda_Build'
+- job: 'Windows_CUDA_Conda_Build'
   timeoutInMinutes: 0
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   cancelTimeoutInMinutes: 5
   variables:
     PACKAGE: conda
-    CUDA_VERSION: 90
-    PYTORCH_REPO: pytorch
-    TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
     USE_SCCACHE: $(use.sccache.cuda)
 
   strategy:
     maxParallel: 10
     matrix:
-      PY3.5:
+      PY3.5_90:
         DESIRED_PYTHON: 3.5
-      PY3.6:
+        CUDA_VERSION: 90
+      PY3.6_90:
         DESIRED_PYTHON: 3.6
-      PY3.7:
+        CUDA_VERSION: 90
+      PY3.7_90:
         DESIRED_PYTHON: 3.7
+        CUDA_VERSION: 90
+      # PY3.5_80:
+      #   DESIRED_PYTHON: 3.5
+      #   CUDA_VERSION: 80
+      # PY3.6_80:
+      #   DESIRED_PYTHON: 3.6
+      #   CUDA_VERSION: 80
+      # PY3.7_80:
+      #   DESIRED_PYTHON: 3.7
+      #   CUDA_VERSION: 80
+      # PY3.5_92:
+      #   DESIRED_PYTHON: 3.5
+      #   CUDA_VERSION: 92
+      # PY3.6_92:
+      #   DESIRED_PYTHON: 3.6
+      #   CUDA_VERSION: 92
+      # PY3.7_92:
+      #   DESIRED_PYTHON: 3.7
+      #   CUDA_VERSION: 92
 
   pool:
     name: 'pytorch'
@@ -308,7 +386,14 @@ jobs:
 
       modifyEnvironment: false
 
-  - script: 'mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
+  - task: BatchScript@1
+    displayName: 'Setup nightly variables'
+    inputs:
+      filename: 'windows/internal/nightly_defaults.bat'
+
+      modifyEnvironment: true
+
+  - script: 'if not exist %PYTORCH_FINAL_PACKAGE_DIR% mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
     displayName: 'Create final package directory'
     env:
       PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
