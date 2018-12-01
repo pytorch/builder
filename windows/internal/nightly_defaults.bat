@@ -101,11 +101,7 @@ if exist "%NIGHTLIES_PYTORCH_ROOT%" ( goto clone_end ) else ( goto clone_start )
 git clone --recursive "https://github.com/%PYTORCH_REPO%/pytorch.git" "%NIGHTLIES_PYTORCH_ROOT%"
 pushd "%NIGHTLIES_PYTORCH_ROOT%"
 
-<<<<<<< HEAD
-if  "%PYTORCH_BRANCH%" == "latest" goto latest_start else goto latest_end 
-=======
 if "%PYTORCH_BRANCH%" == "latest" ( goto latest_start ) else ( goto latest_end )
->>>>>>> 3a941f0... Fix if-else
 
 :latest_start
 
