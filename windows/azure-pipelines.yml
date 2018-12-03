@@ -93,6 +93,7 @@ jobs:
   - template: templates/upload_to_s3.yml
     parameters:
       cuVer: 'cpu'
+      cudaVer: 'cpu'
 
 - job: 'Windows_CPU_Conda_Build'
   timeoutInMinutes: 0
