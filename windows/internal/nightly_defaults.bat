@@ -25,7 +25,7 @@ if "%NIGHTLIES_FOLDER%" == "" set "NIGHTLIES_FOLDER=%SRC_DIR%"
 ::   the current date.
 
 
-if "%NIGHTLIES_DATE%" == "" goto date_start else goto date_end
+if "%NIGHTLIES_DATE%" == "" ( goto date_start ) else ( goto date_end )
 
 :date_start
 
@@ -94,14 +94,14 @@ if "%PYTORCH_REPO%" == "" set PYTORCH_REPO=pytorch
 if "%PYTORCH_BRANCH%" == "" set PYTORCH_BRANCH=latest
 
 :: Clone the requested pytorch checkout
-if exist "%NIGHTLIES_PYTORCH_ROOT%" goto clone_end else goto clone_start
+if exist "%NIGHTLIES_PYTORCH_ROOT%" ( goto clone_end ) else ( goto clone_start )
 
 :clone_start
 
 git clone --recursive "https://github.com/%PYTORCH_REPO%/pytorch.git" "%NIGHTLIES_PYTORCH_ROOT%"
 pushd "%NIGHTLIES_PYTORCH_ROOT%"
 
-if  "%PYTORCH_BRANCH%" == "latest" goto latest_start else goto latest_end 
+if "%PYTORCH_BRANCH%" == "latest" ( goto latest_start ) else ( goto latest_end )
 
 :latest_start
 

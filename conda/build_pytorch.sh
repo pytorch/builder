@@ -193,7 +193,9 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     echo $PATH
     popd
-    conda install -y conda-build
+    # We have to skip 3.17 because of the following bug.
+    # https://github.com/conda/conda-build/issues/3285
+    conda install -y "conda-build<3.17.0"
 fi
 
 cd "$SOURCE_DIR"
