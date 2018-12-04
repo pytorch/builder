@@ -17,7 +17,7 @@ exit /b 1
 pushd %today%
 
 :: Install anaconda client
-set "CONDA_HOME=%CONDA_UPLOADER_INSTALLATION%\conda"
+set "CONDA_HOME=%CONDA_UPLOADER_INSTALLATION%"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
 rmdir /s /q "%CONDA_HOME%"
