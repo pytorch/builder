@@ -24,7 +24,6 @@ jobs:
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cpu.enabled'], 'true'), eq(variables['build.wheels.enabled'], 'true'))
   variables:
-    PACKAGE: wheels
     CUDA_VERSION: cpu
     USE_SCCACHE: $(use.sccache.cpu)
   strategy:
@@ -100,10 +99,13 @@ jobs:
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cpu.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   variables:
-    PACKAGE: conda
-    CUDA_VERSION: cpu
-    USE_SCCACHE: $(use.sccache.cpu)
-    PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
+  - group: pjh5_anaconda_token
+  - name: CUDA_VERSION
+    value: cpu
+  - name: USE_SCCACHE
+    value: $(use.sccache.cpu)
+  - name: PYTORCH_FINAL_PACKAGE_DIR
+    value: '$(Build.Repository.LocalPath)\windows\output'
 
   strategy:
     maxParallel: 10
@@ -179,7 +181,6 @@ jobs:
   cancelTimeoutInMinutes: 5
   condition: and(and(eq(variables['build.cpu.enabled'], 'true'), eq(variables['build.linux.enabled'], 'true')), eq(variables['build.conda.enabled'], 'true'))
   variables:
-    PACKAGE: conda
     CUDA_VERSION: cpu
     TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
     PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
@@ -218,7 +219,6 @@ jobs:
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.wheels.enabled'], 'true'))
   variables:
-    PACKAGE: wheels
     USE_SCCACHE: $(use.sccache.cuda)
   strategy:
     maxParallel: 10
@@ -341,9 +341,11 @@ jobs:
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   cancelTimeoutInMinutes: 5
   variables:
-    PACKAGE: conda
-    USE_SCCACHE: $(use.sccache.cuda)
-    PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
+  - group: pjh5_anaconda_token
+  - name: USE_SCCACHE
+    value: $(use.sccache.cuda)
+  - name: PYTORCH_FINAL_PACKAGE_DIR
+    value: '$(Build.Repository.LocalPath)\windows\output'
 
   strategy:
     maxParallel: 10
