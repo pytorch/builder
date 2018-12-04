@@ -103,6 +103,7 @@ jobs:
     PACKAGE: conda
     CUDA_VERSION: cpu
     USE_SCCACHE: $(use.sccache.cpu)
+    PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   strategy:
     maxParallel: 10
@@ -155,14 +156,11 @@ jobs:
 
   - script: 'if not exist %PYTORCH_FINAL_PACKAGE_DIR% mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
     displayName: 'Create final package directory'
-    env:
-      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   - bash: './conda/build_pytorch.sh $CUDA_VERSION $PYTORCH_BUILD_VERSION $PYTORCH_BUILD_NUMBER'
     displayName: 'Build'
     env:
       MAX_JOBS: 2
-      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   - task: PublishTestResults@2
     inputs:
@@ -170,12 +168,11 @@ jobs:
       testRunTitle: 'Publish test results'
     enabled: false
 
-  - task: BatchScript@1
-    displayName: 'Upload artifacts'
-    inputs:
-      filename: 'windows/internal/publish.bat'
-
-      modifyEnvironment: false
+  - script: 'call windows/internal/upload.bat'
+    displayName: 'Upload packages to Anaconda Cloud'
+    env:
+      PYTORCH_ANACONDA_USERNAME: $(pjh5_conda_username)
+      PYTORCH_ANACONDA_PASSWORD: $(pjh5_conda_password)
 
 - job: 'Linux_CPU_Conda_Build'
   timeoutInMinutes: 0
@@ -185,6 +182,7 @@ jobs:
     PACKAGE: conda
     CUDA_VERSION: cpu
     TORCH_CONDA_BUILD_FOLDER: pytorch-nightly
+    PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
 
   strategy:
     maxParallel: 10
@@ -209,14 +207,11 @@ jobs:
 
   - script: 'mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
     displayName: 'Create final package directory'
-    env:
-      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
 
   - bash: './conda/build_pytorch.sh $CUDA_VERSION $PYTORCH_BUILD_VERSION $PYTORCH_BUILD_NUMBER'
     displayName: 'Build'
     env:
       MAX_JOBS: 2
-      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)/output'
 
 - job: 'Windows_CUDA_Wheels_Build'
   timeoutInMinutes: 0
@@ -348,6 +343,7 @@ jobs:
   variables:
     PACKAGE: conda
     USE_SCCACHE: $(use.sccache.cuda)
+    PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   strategy:
     maxParallel: 10
@@ -437,13 +433,9 @@ jobs:
 
   - script: 'if not exist %PYTORCH_FINAL_PACKAGE_DIR% mkdir %PYTORCH_FINAL_PACKAGE_DIR%'
     displayName: 'Create final package directory'
-    env:
-      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   - bash: './conda/build_pytorch.sh $CUDA_VERSION $PYTORCH_BUILD_VERSION $PYTORCH_BUILD_NUMBER'
     displayName: 'Build'
-    env:
-      PYTORCH_FINAL_PACKAGE_DIR: '$(Build.Repository.LocalPath)\windows\output'
 
   - task: PublishTestResults@2
     inputs:
@@ -451,9 +443,8 @@ jobs:
       testRunTitle: 'Publish test results'
     enabled: false
 
-  - task: BatchScript@1
-    displayName: 'Upload artifacts'
-    inputs:
-      filename: 'windows/internal/publish.bat'
-
-      modifyEnvironment: false
+  - script: 'call windows/internal/upload.bat'
+    displayName: 'Upload packages to Anaconda Cloud'
+    env:
+      PYTORCH_ANACONDA_USERNAME: $(pjh5_conda_username)
+      PYTORCH_ANACONDA_PASSWORD: $(pjh5_conda_password)
