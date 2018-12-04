@@ -3,6 +3,8 @@
 IF "%CONDA_UPLOADER_INSTALLATION%" == "" goto precheck_fail
 IF "%PYTORCH_FINAL_PACKAGE_DIR%" == "" goto precheck_fail
 IF "%today%" == "" goto precheck_fail
+IF "%PYTORCH_ANACONDA_USERNAME%" == "" goto precheck_fail
+IF "%PYTORCH_ANACONDA_PASSWORD%" == "" goto precheck_fail
 
 goto precheck_pass
 
@@ -10,6 +12,7 @@ goto precheck_pass
 
 echo Please run nightly_defaults.bat first.
 echo And remember to set `PYTORCH_FINAL_PACKAGE_DIR`
+echo Finally, don't forget to set anaconda tokens
 exit /b 1
 
 :precheck_pass
