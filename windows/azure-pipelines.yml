@@ -99,7 +99,7 @@ jobs:
   cancelTimeoutInMinutes: 5
   condition: and(eq(variables['build.cpu.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   variables:
-  - group: pjh5_anaconda_token
+  - group: peterjc_anaconda_token
   - name: CUDA_VERSION
     value: cpu
   - name: USE_SCCACHE
@@ -173,8 +173,8 @@ jobs:
   - script: 'call windows/internal/upload.bat'
     displayName: 'Upload packages to Anaconda Cloud'
     env:
-      PYTORCH_ANACONDA_USERNAME: $(pjh5_conda_username)
-      PYTORCH_ANACONDA_PASSWORD: $(pjh5_conda_password)
+      PYTORCH_ANACONDA_USERNAME: $(peterjc_conda_username)
+      PYTORCH_ANACONDA_PASSWORD: $(peterjc_conda_password)
 
 - job: 'Linux_CPU_Conda_Build'
   timeoutInMinutes: 0
@@ -341,7 +341,7 @@ jobs:
   condition: and(eq(variables['build.cuda.enabled'], 'true'), eq(variables['build.conda.enabled'], 'true'))
   cancelTimeoutInMinutes: 5
   variables:
-  - group: pjh5_anaconda_token
+  - group: peterjc_anaconda_token
   - name: USE_SCCACHE
     value: $(use.sccache.cuda)
   - name: PYTORCH_FINAL_PACKAGE_DIR
@@ -448,5 +448,5 @@ jobs:
   - script: 'call windows/internal/upload.bat'
     displayName: 'Upload packages to Anaconda Cloud'
     env:
-      PYTORCH_ANACONDA_USERNAME: $(pjh5_conda_username)
-      PYTORCH_ANACONDA_PASSWORD: $(pjh5_conda_password)
+      PYTORCH_ANACONDA_USERNAME: $(peterjc_conda_username)
+      PYTORCH_ANACONDA_PASSWORD: $(peterjc_conda_password)
