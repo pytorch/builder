@@ -50,7 +50,7 @@ echo Not running unit tests. Hopefully these problems are caught by CI
 goto test_end
 
 cd pytorch\test
-python run_test.py -v -pt
+python run_test.py -v -pt -x c10d distributed thd_distributed
 
 if ERRORLEVEL 1 exit /b 1
 

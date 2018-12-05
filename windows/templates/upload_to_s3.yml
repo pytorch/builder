@@ -11,7 +11,7 @@ steps:
       sourceFolder: 'windows/output/${{ parameters.cudaVer }}'
       globExpressions: '*.whl'
       targetFolder: 'whl/nightly/${{ parameters.cuVer }}/'
-      fileAcl: 'public-read'
+      filesAcl: 'public-read'
       flattenFolders: 'true'
 
   - task: AmazonWebServices.aws-vsts-tools.S3Upload.S3Upload@1
@@ -22,5 +22,5 @@ steps:
       sourceFolder: 'windows/output/${{ parameters.cudaVer }}'
       globExpressions: '*.zip'
       targetFolder: 'libtorch/nightly/${{ parameters.cuVer }}/'
-      fileAcl: 'public-read'
+      filesAcl: 'public-read'
       flattenFolders: 'true'
