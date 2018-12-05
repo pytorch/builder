@@ -67,7 +67,7 @@ if "%PYTORCH_CREDENTIALS_FILE%" == "" set PYTORCH_CREDENTIALS_FILE=/c/Users/admi
 :: Location of the temporary miniconda that is downloaded to install conda-build
 :: and aws to upload finished packages TODO this is messy to install this in
 :: upload.sh and later use it in upload_logs.sh
-if "%CONDA_UPLOADER_INSTALLATION%" == "" set "CONDA_UPLOADER_INSTALLATION=%today%/miniconda"
+if "%CONDA_UPLOADER_INSTALLATION%" == "" set "CONDA_UPLOADER_INSTALLATION=%today%\miniconda"
 
 :: N.B. BUILDER_REPO and BUILDER_BRANCH are both set in cron_start.sh, as that
 :: is the script that actually clones the builder repo that /this/ script is

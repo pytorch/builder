@@ -11,11 +11,11 @@ git clone https://github.com/%PYTORCH_REPO%/pytorch
 
 cd pytorch
 
-IF "%PYTORCH_BRANCH%" == "latest" goto latest_start else goto latest_end
+IF "%PYTORCH_BRANCH%" == "latest" ( goto latest_start ) else ( goto latest_end )
 
 :latest_start
 
-if "%NIGHTLIES_DATE%" == "" goto date_start else goto date_end
+if "%NIGHTLIES_DATE%" == "" ( goto date_start ) else ( goto date_end )
 
 :date_start
 

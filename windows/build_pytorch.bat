@@ -72,7 +72,7 @@ set LIB=%cd%\\mkl\\lib;%LIB%
 if NOT "%CUDA_VERSION%" == "cpu" (
     rmdir /s /q magma_%CUDA_PREFIX%_release
     del magma_%CUDA_PREFIX%_release.7z
-    curl -k https://s3.amazonaws.com/ossci-windows/magma_%CUDA_PREFIX%_release_mkl_2018.2.185.7z -o magma_%CUDA_PREFIX%_release.7z
+    curl -k https://s3.amazonaws.com/ossci-windows/magma_2.4.0_%CUDA_PREFIX%_release.7z -o magma_%CUDA_PREFIX%_release.7z
     7z x -aoa magma_%CUDA_PREFIX%_release.7z -omagma_%CUDA_PREFIX%_release
 )
 
@@ -100,11 +100,7 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     @setlocal
     :: Set Flags
     if NOT "%CUDA_VERSION%"=="cpu" (
-        if NOT "%CUDA_VERSION%"=="92" (
-            set MAGMA_HOME=%cd%\\magma_%CUDA_PREFIX%_release
-        ) else (
-            set MAGMA_HOME=%cd%\\magma_%CUDA_PREFIX%_release\magma_cuda92\magma\install
-        )
+        set MAGMA_HOME=%cd%\\magma_%CUDA_PREFIX%_release
         set CUDNN_VERSION=7
     )
     call %CUDA_PREFIX%.bat

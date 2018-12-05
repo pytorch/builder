@@ -151,7 +151,7 @@ if [[ "$cuda_ver" == 'cpu' ]]; then
     entire_file_exclusions+=("nccl")
 fi
 
-if [[ "$(uname)" == 'Darwin' ]]; then
+if [[ "$(uname)" == 'Darwin' || "$OSTYPE" == "msys" ]]; then
     # pytest on Mac doesn't like the exits in these files
     entire_file_exclusions+=('c10d')
     entire_file_exclusions+=('distributed')
