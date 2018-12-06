@@ -43,14 +43,16 @@ else
 fi
 echo $TORCH_CUDA_ARCH_LIST
 
+cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
+
 # Package directories
-WHEELHOUSE_DIR="wheelhouse${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
-LIBTORCH_HOUSE_DIR="libtorch_house${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
+WHEELHOUSE_DIR="wheelhouse$cuda_version_nodot"
+LIBTORCH_HOUSE_DIR="libtorch_house$cuda_version_nodot"
 if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
     if [[ -z "$BUILD_PYTHONLESS" ]]; then
-        PYTORCH_FINAL_PACKAGE_DIR="/remote/wheelhouse${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
+        PYTORCH_FINAL_PACKAGE_DIR="/remote/wheelhouse$cuda_version_nodot"
     else
-        PYTORCH_FINAL_PACKAGE_DIR="/remote/libtorch_house${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
+        PYTORCH_FINAL_PACKAGE_DIR="/remote/libtorch_house$cuda_version_nodot"
     fi
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
@@ -88,19 +90,19 @@ DEPS_SONAME=(
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
-elif [[ $CUDA_VERSION == "9.2" ]]; then
+elif [[ $CUDA_VERSION == "10.0" ]]; then
 DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.9.2"
+    "/usr/local/cuda/lib64/libcudart.so.10.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.9.2"
+    "/usr/local/cuda/lib64/libnvrtc.so.10.0"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
     "/usr/lib64/libgomp.so.1"
 )
 
 DEPS_SONAME=(
-    "libcudart.so.9.2"
+    "libcudart.so.10.0"
     "libnvToolsExt.so.1"
-    "libnvrtc.so.9.2"
+    "libnvrtc.so.10.0"
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
@@ -110,7 +112,8 @@ else
 fi
 
 # builder/test.sh requires DESIRED_CUDA to know what tests to exclude
-export DESIRED_CUDA="${CUDA_VERSION:0:1}${CUDA_VERSION:2:1}"
+export DESIRED_CUDA="$cuda_version_nodot"
+
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 source $SCRIPTPATH/build_common.sh

@@ -21,8 +21,7 @@ cd remote
 export TORCH_CONDA_BUILD_FOLDER=pytorch-1.0.0
 export PYTORCH_REPO=pytorch
 export PYTORCH_BRANCH=v1.0
-./build_pytorch.sh 80 1.0 1
-./build_pytorch.sh 80 0.4.0 1 # cuda 8.0 pytorch 1.0.0 build_number 1
+./build_pytorch.sh 100 1.0 1 # cuda 10.0 pytorch 1.0.0 build_number 1
 ./build_vision.sh
 ```
 

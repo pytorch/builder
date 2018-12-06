@@ -125,7 +125,15 @@ else
     # Switch desired_cuda to be M.m to be consistent with other scripts in
     # pytorch/builder
     cuda_nodot="$desired_cuda"
-    desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
+
+    if [[ ${#cuda_nodot} -eq 2 ]]; then
+	desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
+    elif [[ ${#cuda_nodot} -eq 3 ]]; then
+	desired_cuda="${desired_cuda:0:2}.${desired_cuda:2:1}"
+    else
+	echo "unknown cuda version $cuda_nodot"
+	exit 1
+    fi
 fi
 
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
