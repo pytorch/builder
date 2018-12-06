@@ -29,7 +29,7 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     build_number=0
 fi
 if [[ -z "$build_version" ]]; then
-    build_version=0.4.1
+    build_version=1.0.0
 fi
 if [[ -z "$build_number" ]]; then
     build_number=1
