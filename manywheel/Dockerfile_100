@@ -73,6 +73,7 @@ RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda10.0_x86_64.txz 
     ldconfig
 
 # magma
+RUN yum install -y cmake3 # update cmake to >= 3.12.2 without rebuilding entire docker
 RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.4.0.tar.gz && \
     tar -xvf magma-2.4.0.tar.gz && \
     cd magma-2.4.0 && \
