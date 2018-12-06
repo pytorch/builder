@@ -90,19 +90,19 @@ RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.0_x86_64.txz &
     rm -rf nccl_2.3.7-1+cuda9.0_x86_64* && \
     ldconfig
 
-# install CUDA 9.2 in the same container
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda_9.2.148_396.37_linux && \
-    chmod +x cuda_9.2.148_396.37_linux && \
-    ./cuda_9.2.148_396.37_linux --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_9.2.148_396.37_linux
+# install CUDA 10.0 in the same container
+RUN wget -q https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux && \
+    chmod +x cuda_10.0.130_410.48_linux && \
+    ./cuda_10.0.130_410.48_linux --silent --no-opengl-libs --toolkit && \
+    rm -f cuda_10.0.130_410.48_linux
 
-# install CUDA 9.2 CuDNN
+# install CUDA 10.0 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.1.5-1+cuda9.2_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.1.5-1+cuda9.2_amd64.deb && \
-    ar -x libcudnn7-dev_7.4.1.5-1+cuda9.2_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.4.1.5-1+cuda9.2_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb && \
+    ar -x libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
+    ar -x libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -116,11 +116,11 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     ldconfig
 
 # NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.2_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.3.7-1+cuda9.2_x86_64.txz && \
-    mv nccl_2.3.7-1+cuda9.2_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.3.7-1+cuda9.2_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.3.7-1+cuda9.2_x86_64* && \
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda10.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.3.7-1+cuda10.0_x86_64.txz && \
+    mv nccl_2.3.7-1+cuda10.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.3.7-1+cuda10.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.3.7-1+cuda10.0_x86_64* && \
     ldconfig
 
 # prune static libs
@@ -137,10 +137,10 @@ ARG CUDA_LIB_DIR="/usr/local/cuda-9.0/lib64"
 RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | \
     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
-ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
-ARG CUDA_ROOT="/usr/local/cuda-9.2"
-ARG CUDA_LIB_DIR="/usr/local/cuda-9.2/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | \
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+ARG CUDA_ROOT="/usr/local/cuda-10.0"
+ARG CUDA_LIB_DIR="/usr/local/cuda-10.0/lib64"
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | grep -v "metis" | \
     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
 

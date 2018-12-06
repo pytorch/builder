@@ -18,8 +18,11 @@ docker push soumith/conda-cuda
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
 cd remote
-./build_pytorch.sh 80 0.4.0 1 # cuda 8.0 pytorch 0.4.0 build_number 1
-./build_pytorch.sh 80 nightly 1 # cuda 8.0 pytorch nightly build_number 1
+export TORCH_CONDA_BUILD_FOLDER=pytorch-1.0.0
+export PYTORCH_REPO=pytorch
+export PYTORCH_BRANCH=v1.0
+./build_pytorch.sh 80 1.0 1
+./build_pytorch.sh 80 0.4.0 1 # cuda 8.0 pytorch 1.0.0 build_number 1
 ./build_vision.sh
 ```
 
@@ -36,6 +39,6 @@ export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/
 git clone https://github.com/pytorch/builder
 cd builder/conda
 conda install -y conda-build
-. ./switch_cuda_version.sh 9.0
-conda build magma-cuda90-2.3.0
+. ./switch_cuda_version.sh 10.0
+conda build magma-cuda100-2.4.0
 ```
