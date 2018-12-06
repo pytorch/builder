@@ -10,6 +10,7 @@ if "%NO_CUDA%" == "" (
     set desired_cuda=%CUDA_VERSION:~0,-1%.%CUDA_VERSION:~-1,1%
 ) else (
     set build_with_cuda=
+    set USE_CUDA=0
 )
 
 if "%build_with_cuda%" == "" goto cuda_flags_end
@@ -20,6 +21,7 @@ set TORCH_CUDA_ARCH_LIST=3.5;5.0+PTX
 if "%desired_cuda%" == "8.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1
 if "%desired_cuda%" == "9.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;7.0
 if "%desired_cuda%" == "9.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0
+if "%desired_cuda%" == "10.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 
 :cuda_flags_end
@@ -39,13 +41,9 @@ IF "%USE_SCCACHE%" == "1" (
 )
 
 if NOT "%build_with_cuda%" == "" (
-    curl https://s3.amazonaws.com/ossci-windows/magma_cuda%CUDA_VERSION%_release_mkl_2018.2.185.7z -k -O
-    7z x -aoa magma_cuda%CUDA_VERSION%_release_mkl_2018.2.185.7z -omagma_cuda%CUDA_VERSION%_release
-    if "%CUDA_VERSION%" == "92" (
-        set MAGMA_HOME=%cd%\magma_cuda92_release\magma_cuda92\magma\install
-    ) else (
-        set MAGMA_HOME=%cd%\magma_cuda%CUDA_VERSION%_release
-    )
+    curl https://s3.amazonaws.com/ossci-windows/magma_2.4.0_cuda%CUDA_VERSION%_release.7z -k -O
+    7z x -aoa magma_2.4.0_cuda%CUDA_VERSION%_release.7z -omagma_cuda%CUDA_VERSION%_release
+    set MAGMA_HOME=%cd%\magma_cuda%CUDA_VERSION%_release
 
     IF "%USE_SCCACHE%" == "1" (
         set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\tmp_bin\nvcc
