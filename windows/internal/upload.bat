@@ -51,9 +51,40 @@ IF ERRORLEVEL 1 (
 
 echo yes | anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%"
 
+set PYTORCH_FINAL_PACKAGE=
 :: Upload all the packages under `PYTORCH_FINAL_PACKAGE_DIR`
 FOR /F "delims=" %%i IN ('where /R %PYTORCH_FINAL_PACKAGE_DIR% *pytorch*.tar.bz2') DO (
-    echo Uploading %%i to Anaconda Cloud
-    anaconda upload "%%i" -u pytorch --label main --force --no-progress
-    IF ERRORLEVEL 1 echo Upload %%i failed
+    set "PYTORCH_FINAL_PACKAGE=%%i"
+)
+
+IF "%PYTORCH_FINAL_PACKAGE%" == "" (
+    echo No package to upload
+    exit /b 0
+)
+
+:upload
+
+if "%RETRY_TIMES%" == "" (
+    set /a RETRY_TIMES=10
+    set /a SLEEP_TIME=2
+) else (
+    set /a RETRY_TIMES=%RETRY_TIMES%-1
+    set /a SLEEP_TIME=%SLEEP_TIME%*2
+)
+
+echo Uploading %PYTORCH_FINAL_PACKAGE% to Anaconda Cloud
+anaconda upload "%PYTORCH_FINAL_PACKAGE%" -u pytorch --label main --force --no-progress
+
+IF ERRORLEVEL 1 (
+    echo Anaconda upload retry times remaining: %RETRY_TIMES%
+    echo Sleep time: %SLEEP_TIME% seconds
+    IF %RETRY_TIMES% EQU 0 (
+        echo Upload failed
+        exit /b 1
+    )
+    waitfor SomethingThatIsNeverHappening /t %SLEEP_TIME% 2>nul || ver >nul
+    goto upload
+) ELSE (
+    set RETRY_TIMES=
+    set SLEEP_TIME=
 )
