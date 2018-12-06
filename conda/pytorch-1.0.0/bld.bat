@@ -89,7 +89,7 @@ if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cufftw64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
 
     copy "%CUDA_BIN_PATH%\cudnn64_%CUDNN_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\nvrtc64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
+    copy "%CUDA_BIN_PATH%\nvrtc64_%CUDA_VERSION%*.dll*" %SP_DIR%\torch\lib
     copy "%CUDA_BIN_PATH%\nvrtc-builtins64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
 
     copy "C:\Program Files\NVIDIA Corporation\NvToolsExt\bin\x64\nvToolsExt64_1.dll*" %SP_DIR%\torch\lib
