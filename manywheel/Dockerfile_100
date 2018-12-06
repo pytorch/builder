@@ -39,19 +39,19 @@ RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
 RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
 RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 
-# install CUDA 9.2 in the same container
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda_9.2.148_396.37_linux && \
-    chmod +x cuda_9.2.148_396.37_linux && \
-    ./cuda_9.2.148_396.37_linux --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_9.2.148_396.37_linux
+# install CUDA 10.0 in the same container
+RUN wget -q https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux && \
+    chmod +x cuda_10.0.130_410.48_linux && \
+    ./cuda_10.0.130_410.48_linux --silent --no-opengl-libs --toolkit && \
+    rm -f cuda_10.0.130_410.48_linux
 
-# install CUDA 9.2 CuDNN
+# install CUDA 10.0 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.1.5-1+cuda9.2_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.1.5-1+cuda9.2_amd64.deb && \
-    ar -x libcudnn7-dev_7.4.1.5-1+cuda9.2_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.4.1.5-1+cuda9.2_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb && \
+    ar -x libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
+    ar -x libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -65,29 +65,21 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     ldconfig
 
 # NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.2_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.3.7-1+cuda9.2_x86_64.txz && \
-    mv nccl_2.3.7-1+cuda9.2_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.3.7-1+cuda9.2_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.3.7-1+cuda9.2_x86_64* && \
+RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda10.0_x86_64.txz && \
+    tar --no-same-owner -xvf nccl_2.3.7-1+cuda10.0_x86_64.txz && \
+    mv nccl_2.3.7-1+cuda10.0_x86_64/include/* /usr/local/cuda/include/ && \
+    cp -P nccl_2.3.7-1+cuda10.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
+    rm -rf nccl_2.3.7-1+cuda10.0_x86_64* && \
     ldconfig
 
 # magma
-RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.3.0.tar.gz && \
-    tar -xvf magma-2.3.0.tar.gz && \
-    cd magma-2.3.0 && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.3.0/cmakelists.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.3.0/thread_queue.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.3.0/magma_cparict_tools.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.3.0/magma_dparict_tools.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.3.0/magma_sparict_tools.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.3.0/magma_zparict_tools.patch && \
+RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.4.0.tar.gz && \
+    tar -xvf magma-2.4.0.tar.gz && \
+    cd magma-2.4.0 && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.4.0/cmakelists.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.4.0/thread_queue.patch && \
     patch <cmakelists.patch && \
     patch -p0 <thread_queue.patch && \
-    patch -p0 <magma_cparict_tools.patch && \
-    patch -p0 <magma_dparict_tools.patch && \
-    patch -p0 <magma_sparict_tools.patch && \
-    patch -p0 <magma_zparict_tools.patch && \
     mkdir build && \
     cd build && \
     cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX && \
@@ -106,8 +98,8 @@ RUN git clone https://github.com/NixOS/patchelf && \
     cd .. && \
     rm -rf patchelf
 
-ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
-ARG CUDA_ROOT="/usr/local/cuda-9.2"
-ARG CUDA_LIB_DIR="/usr/local/cuda-9.2/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | \
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+ARG CUDA_ROOT="/usr/local/cuda-10.0"
+ARG CUDA_LIB_DIR="/usr/local/cuda-10.0/lib64"
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | grep -v "metis" | \
     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
