@@ -17,7 +17,7 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 #
 #   DESIRED_CUDAS
 #     All CUDA versions to build for including 'cpu', separated by commas, in
-#     format 'cpu' or 'cu80' or 'cu92' etc. e.g. 'cpu,cu80,cu90' or 'cu90,cu92'
+#     format 'cpu' or 'cu80' or 'cu100' etc. e.g. 'cpu,cu80,cu90' or 'cu90,cu100'
 #     . This can also just be the word 'all', which will expand to all
 #     supported cpu/CUDA versions.
 
@@ -57,10 +57,10 @@ mkdir -p "$log_root"
 # conda jobs and gpu jobs take longer
 #
 # The jobs is the combination of all:
-# manywheel X [2.7m 2.7mu 3.5m 3.6m 3.7m] X [cpu cu80 cu90 cu92]
-# conda     X [2.7        3.5  3.6  3.7 ] X [cpu cu80 cu90 cu92]
+# manywheel X [2.7m 2.7mu 3.5m 3.6m 3.7m] X [cpu cu80 cu90 cu100]
+# conda     X [2.7        3.5  3.6  3.7 ] X [cpu cu80 cu90 cu100]
 # wheel     X [2.7        3.5  3.6  3.7 ] X [cpu               ]
-# libtorch  X [2.7m                     ] X [cpu cu80 cu90 cu92] (linux)
+# libtorch  X [2.7m                     ] X [cpu cu80 cu90 cu100] (linux)
 # libtorch  X [2.7                      ] X [cpu               ] (mac)
 #
 # cpu builds ~ 15 minutes. gpu builds > 1 hr
@@ -71,7 +71,7 @@ if [[ "$which_worker" == 0 ]]; then
         'manywheel 2.7m cpu,cu80,cu90'
         'manywheel 2.7mu cpu,cu80,cu90'
         'manywheel 3.5m cpu,cu80,cu90'
-        'manywheel 2.7m,2.7mu,3.5m cu92'
+        'manywheel 2.7m,2.7mu,3.5m cu100'
         'libtorch 2.7m cpu,cu80'
     )
 elif [[ "$which_worker" == 1 ]]; then
@@ -81,7 +81,7 @@ elif [[ "$which_worker" == 1 ]]; then
         'manywheel 3.6m cpu,cu80,cu90'
         'manywheel 3.7m cpu,cu80,cu90'
         'conda 2.7 cpu,cu80,cu90'
-        'manywheel 3.6m,3.7m cu92  -- conda 2.7 cu92'
+        'manywheel 3.6m,3.7m cu100  -- conda 2.7 cu100'
         'libtorch 2.7m cu90'
     )
 elif [[ "$which_worker" == 2 ]]; then
@@ -90,8 +90,8 @@ elif [[ "$which_worker" == 2 ]]; then
         'conda 3.5 cpu,cu80,cu90'
         'conda 3.6 cpu,cu80,cu90'
         'conda 3.7 cpu,cu80,cu90'
-        'conda 3.5,3.6,3.7 cu92'
-        'libtorch 2.7m cu92'
+        'conda 3.5,3.6,3.7 cu100'
+        'libtorch 2.7m cu100'
     )
 elif [[ "$which_worker" == 'mac' ]]; then
     # wheel all
