@@ -45,7 +45,7 @@ python_nodot="${desired_python:0:1}${desired_python:2:1}"
 if [[ "$desired_cuda" == 'cpu' ]]; then
     build_for_cpu=1
 else
-    cuda_nodot="${desired_cuda:2:2}"
+    cuda_nodot="${desired_cuda:2}"
 fi
 if [[ "$package_type" == 'conda' ]]; then
     export TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '_' '-')"

@@ -17,7 +17,7 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 #
 #   DESIRED_CUDAS
 #     All CUDA versions to build for including 'cpu', separated by commas, in
-#     format 'cpu' or 'cu80' or 'cu92' etc. e.g. 'cpu,cu80,cu90' or 'cu90,cu92'
+#     format 'cpu' or 'cu80' or 'cu100' etc. e.g. 'cpu,cu80,cu90' or 'cu90,cu100'
 #     . This can also just be the word 'all', which will expand to all
 #     supported cpu/CUDA versions.
 
@@ -56,7 +56,7 @@ while [[ $# -gt 0 ]]; do
       fi
     fi
     if [[ "${all_cuda[0]}" == 'all' ]]; then
-        all_cuda=('cpu' 'cu80' 'cu90' 'cu92')
+        all_cuda=('cpu' 'cu80' 'cu90' 'cu100')
     fi
     for py_ver in "${all_pythons[@]}"; do
       for cuda_ver in "${all_cuda[@]}"; do
