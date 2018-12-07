@@ -54,7 +54,7 @@ fname_with_sha256() {
 
 DEPS_LIST=()
 if [[ -n "$build_with_cuda" ]]; then
-    cuda_majmin="${CUDA_VERSION:0:3}"
+    cuda_majmin="$(echo $CUDA_VERSION | cut -f1,2 -d'.')"
     DEPS_LIST+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
     DEPS_LIST+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
