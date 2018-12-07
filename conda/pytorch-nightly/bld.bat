@@ -21,7 +21,7 @@ set TORCH_CUDA_ARCH_LIST=3.5;5.0+PTX
 if "%desired_cuda%" == "8.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1
 if "%desired_cuda%" == "9.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;7.0
 if "%desired_cuda%" == "9.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0
-if "%desired_cuda%" == "10.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0
+if "%desired_cuda%" == "10.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 
 :cuda_flags_end
@@ -89,7 +89,7 @@ if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cufftw64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
 
     copy "%CUDA_BIN_PATH%\cudnn64_%CUDNN_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\nvrtc64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
+    copy "%CUDA_BIN_PATH%\nvrtc64_%CUDA_VERSION%*.dll*" %SP_DIR%\torch\lib
     copy "%CUDA_BIN_PATH%\nvrtc-builtins64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
 
     copy "C:\Program Files\NVIDIA Corporation\NvToolsExt\bin\x64\nvToolsExt64_1.dll*" %SP_DIR%\torch\lib
