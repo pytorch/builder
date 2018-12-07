@@ -18,10 +18,11 @@ docker push soumith/conda-cuda
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
 cd remote
+export PYTORCH_FINAL_PACKAGE_DIR="/remote"
 export TORCH_CONDA_BUILD_FOLDER=pytorch-1.0.0
 export PYTORCH_REPO=pytorch
-export PYTORCH_BRANCH=v1.0
-./build_pytorch.sh 100 1.0 1 # cuda 10.0 pytorch 1.0.0 build_number 1
+export PYTORCH_BRANCH=v1.0.0
+./build_pytorch.sh 100 1.0.0 1 # cuda 10.0 pytorch 1.0.0 build_number 1
 ./build_vision.sh
 ```
 
