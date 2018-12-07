@@ -137,11 +137,11 @@ ARG CUDA_LIB_DIR="/usr/local/cuda-9.0/lib64"
 RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | \
     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
-ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
-ARG CUDA_ROOT="/usr/local/cuda-10.0"
-ARG CUDA_LIB_DIR="/usr/local/cuda-10.0/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | grep -v "metis" | \
-    xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+# ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+# ARG CUDA_ROOT="/usr/local/cuda-10.0"
+# ARG CUDA_LIB_DIR="/usr/local/cuda-10.0/lib64"
+# RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | grep -v "metis" | \
+#     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
 
 # Anaconda
@@ -150,5 +150,5 @@ RUN wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.s
     ./Miniconda2-latest-Linux-x86_64.sh -b -p /opt/conda && \
     rm Miniconda2-latest-Linux-x86_64.sh
 ENV PATH /opt/conda/bin:$PATH
-RUN conda install -y conda-build anaconda-client git ninja
+RUN conda install -y conda-build=3.16 anaconda-client git ninja
 RUN conda remove -y --force patchelf
