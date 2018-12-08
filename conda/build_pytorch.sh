@@ -243,7 +243,11 @@ if [[ -n "$cpu_only" ]]; then
     $portable_sed "/magma-cuda.*/d" "$meta_yaml"
     # on Linux, rename the package pytorch-nightly-cpu, because it's cpu build
     if [[ "$(uname)" != 'Darwin' ]]; then
-        $portable_sed "s/name: pytorch-nightly/name: pytorch-nightly-cpu/" "$meta_yaml"
+	if [[ "$build_folder" == 'pytorch-nightly' ]]; then
+            $portable_sed "s/name: pytorch-nightly/name: pytorch-nightly-cpu/" "$meta_yaml"
+	else
+	    $portable_sed "s/name: pytorch/name: pytorch-cpu/" "$meta_yaml" # release
+	fi
     fi
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
@@ -258,7 +262,7 @@ else
 
     # Add the feature for this cuda version on nightly builds
     # the feature tracking is added for non-default CUDA builds. Currently the default CUDA build is CUDA 9.0
-    if [[ "$build_folder" == 'pytorch-nightly' && "$desired_cuda" != '9.0' ]]; then
+    if [[ "$desired_cuda" != '9.0' ]]; then
         # The '# Features go here' must exactly match the meta.yaml
         add_before '# Features go here' 'features:' "$meta_yaml"
         add_before '# Features go here' "  - cuda$cuda_nodot" "$meta_yaml"
