@@ -63,6 +63,9 @@ IF ERRORLEVEL 1 (
     )
     waitfor SomethingThatIsNeverHappening /t %SLEEP_TIME% 2>nul || ver >nul
     goto push
+) ELSE (
+    set RETRY_TIMES=
+    set SLEEP_TIME=
 )
 
 popd
