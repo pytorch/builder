@@ -1,20 +1,16 @@
 package:
   name: torchvision
-  version: "{{ environ.get('PYTORCH_VISION_BUILD_VERSION') }}"
+  version: 0.2.1
 
 source:
-   path: ../torchvision-src
+ git_rev: v0.2.1
+ git_url: https://github.com/pytorch/vision.git
+   
 
 requirements:
   build:
     - python
-    - numpy 1.11.*
     - setuptools
-    - pillow >=4.1.1
-    - pytorch >=0.4
-    - six
-    - pyyaml
-
 
   run:
     - python
@@ -24,8 +20,9 @@ requirements:
     - six
 
 build:
-  number: {{ environ.get('PYTORCH_VISION_BUILD_NUMBER') }}
-  script: python setup.py install
+  number: 2
+  noarch: python
+  script: python setup.py install --single-version-externally-managed --record=record.txt
 
 test:
    imports:
@@ -37,3 +34,4 @@ about:
   home: https://github.com/pytorch/vision
   license: BSD
   license_file: LICENSE
+  summary: 'image and video datasets and models for torch deep learning'
