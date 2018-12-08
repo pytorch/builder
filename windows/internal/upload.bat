@@ -49,7 +49,11 @@ IF ERRORLEVEL 1 (
     exit /b 1
 )
 
-echo yes | anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%"
+bash -c "yes | anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%""
+IF ERRORLEVEL 1 (
+    echo Anaconda client login failed
+    exit /b 1
+)
 
 set PYTORCH_FINAL_PACKAGE=
 :: Upload all the packages under `PYTORCH_FINAL_PACKAGE_DIR`
