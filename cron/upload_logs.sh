@@ -20,7 +20,7 @@ source "${SOURCE_DIR}/nightly_defaults.sh"
 # Uploads all of the logs
 # N.B. do NOT include the master logs, as there are secrets in those
 
-pushd "$today/logs"
+pushd "$NIGHTLIES_FOLDER/logs"
 all_logs=($(find . -name '*.log' -not -path '*master*'))
 for log in "${all_logs[@]}"; do
     echo "Copying $log to s3://pytorch/$LOGS_S3_DIR/"

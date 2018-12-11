@@ -22,17 +22,11 @@ echo "clean.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 source "${SOURCE_DIR}/nightly_defaults.sh"
 
-# Only run the clean on the current day, not on manual re-runs of past days
-if [[ "$NIGHTLIES_DATE" != "$(date +%Y_%m_%d)" ]]; then
-    echo "Not running clean.sh script"
-    exit 0
-fi
-
 # Define a remove function that will work on both Mac and Linux
-if [[ "$(uname)" == 'Darwin' ]]; then
+if [[ "$(uname)" == Darwin ]]; then
     remove_dir () {
         # Don't accidentally delete the nightlies folder
-        if [[ "$1" == 'nightlies' ]]; then
+        if [[ "$1" == nightlies ]]; then
             echo "If you really really want to delete the entire nightlies folder"
             echo "then you'll have to delete this message."
             exit 1
@@ -49,7 +43,7 @@ else
     # dockers all run as root.
     remove_dir  () {
         # Don't accidentally delete the nightlies folder
-        if [[ "$1" == 'nightlies' ]]; then
+        if [[ "$1" == nightlies ]]; then
             echo "If you really really want to delete the entire nightlies folder"
             echo "then you'll have to delete this message."
             exit 1
@@ -66,8 +60,8 @@ if [[ "$#" -gt 0 ]]; then
         if [[ "${cur_dir:0:1}" == '/' ]]; then
             remove_dir "$cur_dir"
         else
-            # Assume that all dirs are in the NIGHTLIES_FOLDER
-            remove_dir "${NIGHTLIES_FOLDER}/${cur_dir}"
+            # Assume that all dirs are in the NIGHTLIES_ROOT_FOLDER
+            remove_dir "${NIGHTLIES_ROOT_FOLDER}/${cur_dir}"
         fi
         shift
     done
@@ -84,7 +78,7 @@ fi
 
 # Loop through the nightlies folder deleting all date like objects
 any_removal_failed=0
-for build_dir in "$NIGHTLIES_FOLDER"/*; do
+for build_dir in "$NIGHTLIES_ROOT_FOLDER"/*; do
     cur_date="$(basename $build_dir)"
     if [[ "$cur_date" < "$cutoff_date" || "$cur_date" == "$cutoff_date" ]]; then
         echo "DELETING BUILD_FOLDER $build_dir !!"
@@ -112,7 +106,7 @@ for build_dir in "$NIGHTLIES_FOLDER"/*; do
 done
 
 # Purge all dockers
-if [[ "$(uname)" != 'Darwin' ]]; then
+if [[ "$(uname)" != Darwin ]]; then
     docker ps -aq | xargs -I {} docker rm {} --force
     yes | docker system prune
 fi
