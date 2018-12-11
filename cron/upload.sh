@@ -38,12 +38,16 @@ upload_it () {
     fi
 }
 
+# Location of the temporary miniconda that is downloaded to install conda-build
+# and aws to upload finished packages
+conda_uploader_root="${NIGHTLIES_FOLDER}/miniconda"
+
 # Set-up tools we need to upload
 ##############################################################################
 # This needs both 'aws' and 'anaconda-client' with proper credentials for each.
 # The function check_if_uploaders_installed below will echo text if one of
 # these is not installed (but doesn't check credentials). If we need to install
-# one, then we first try to add $CONDA_UPLOADER_INSTALLATION to the path and
+# one, then we first try to add $conda_uploader_root to the path and
 # then check again. If the tools still don't work then we remove the old
 # CONDA_UPLOADER_ISNTALLATION and install a new one. Any further failures will
 # exit later in the script.
@@ -72,26 +76,26 @@ function check_if_uploaders_installed() {
     fi
 }
 
-# First try to source CONDA_UPLOADER_INSTALLATION. This should trigger in the
+# First try to source conda_uploader_root. This should trigger in the
 # case of manual re-runs.
-if [[ -d "$CONDA_UPLOADER_INSTALLATION" && -n "$(check_if_uploaders_installed)" ]]; then
-    export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
+if [[ -d "$conda_uploader_root" && -n "$(check_if_uploaders_installed)" ]]; then
+    export PATH="$conda_uploader_root/bin:$PATH"
     source activate upload_env || true
 fi
 
 # Download miniconda so that we can install aws and anaconda-client on it
 if [[ -n "$(check_if_uploaders_installed)" ]]; then
-    rm -rf "$CONDA_UPLOADER_INSTALLATION"
-    miniconda_sh="${today}/miniconda.sh"
+    rm -rf "$conda_uploader_root"
+    miniconda_sh="${NIGHTLIES_FOLDER}/miniconda.sh"
     if [[ "$(uname)" == 'Darwin' ]]; then
         curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
     else
         curl https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -o "$miniconda_sh"
     fi
     chmod +x "$miniconda_sh" && \
-        "$miniconda_sh" -b -p "$CONDA_UPLOADER_INSTALLATION" && \
+        "$miniconda_sh" -b -p "$conda_uploader_root" && \
         rm "$miniconda_sh"
-    export PATH="$CONDA_UPLOADER_INSTALLATION/bin:$PATH"
+    export PATH="$conda_uploader_root/bin:$PATH"
 
     # Create an env to ensure that a Python exists
     conda create -qyn upload_env python=3.6

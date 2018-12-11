@@ -24,20 +24,22 @@ if [[ -z "$BUILDER_BRANCH" ]]; then
     export BUILDER_BRANCH='master'
 fi
 
-# N.B. NIGHTLIES_FOLDER and NIGHTLIES_DATE are also set in nightly_defaults.sh
+# N.B. NIGHTLIES_ROOT_FOLDER and NIGHTLIES_DATE are also set in nightly_defaults.sh
 # and should be kept the same in both places
-if [[ -z "$NIGHTLIES_FOLDER" ]]; then
+if [[ -z "$NIGHTLIES_ROOT_FOLDER" ]]; then
     if [[ "$(uname)" == 'Darwin' ]]; then
-        export NIGHTLIES_FOLDER='/Users/administrator/nightlies'
+        export NIGHTLIES_ROOT_FOLDER='/Users/administrator/nightlies'
     else
-        export NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
+        export NIGHTLIES_ROOT_FOLDER='/scratch/hellemn/nightlies'
     fi
 fi
 if [[ -z "$NIGHTLIES_DATE" ]]; then
     export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
 fi
-export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
-mkdir -p "$today" || true
+if [[ -z "$NIGHTLIES_FOLDER" ]]; then
+    export NIGHTLIES_FOLDER="$NIGHTLIES_ROOT_FOLDER/$NIGHTLIES_DATE"
+fi
+mkdir -p "$NIGHTLIES_FOLDER" || true
 
 
 # Clone the requested builder checkout
@@ -46,14 +48,16 @@ mkdir -p "$today" || true
 # is made to the builder repo, so we re-clone the latest builder repo, and then
 # call /that/ repo's build_cron.sh. We keep this script instead of cloning this
 # in the crontab itself for ease of debugging.
-pushd "$today"
-rm -rf builder
-git clone "https://github.com/${BUILDER_REPO}/builder.git"
-pushd builder
-git checkout "$BUILDER_BRANCH"
-popd
-popd
+if [[ ! -d "$NIGHTLIES_FOLDER/builder" ]]; then
+    pushd "$NIGHTLIES_FOLDER"
+    rm -rf builder
+    git clone "https://github.com/${BUILDER_REPO}/builder.git"
+    pushd builder
+    git checkout "$BUILDER_BRANCH"
+    popd
+    popd
+fi
 
 # Now call the build_cron.sh of the new pytorch/builder, which is more recent
 # than the repo that this script exists in
-"${today}/builder/cron/build_cron.sh" "$@"
+"${NIGHTLIES_FOLDER}/builder/cron/build_cron.sh" "$@"

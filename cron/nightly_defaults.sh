@@ -7,18 +7,18 @@ set -ex
 
 echo "nightly_defaults.sh at $(pwd) starting at $(date) on $(uname -a) with pid $$"
 
-# NIGHTLIES_FOLDER
+# NIGHTLIES_ROOT_FOLDER
 # N.B. this is also defined in cron_start.sh
 #   An arbitrary root folder to store all nightlies folders, each of which is a
 #   parent level date folder with separate subdirs for logs, wheels, conda
 #   packages, etc. This should be kept the same across all scripts called in a
 #   cron job, so it only has a default value in the top-most script
 #   build_cron.sh to avoid the default values from diverging.
-if [[ -z "$NIGHTLIES_FOLDER" ]]; then
+if [[ -z "$NIGHTLIES_ROOT_FOLDER" ]]; then
     if [[ "$(uname)" == 'Darwin' ]]; then
-        export NIGHTLIES_FOLDER='/Users/administrator/nightlies/'
+        export NIGHTLIES_ROOT_FOLDER='/Users/administrator/nightlies/'
     else
-        export NIGHTLIES_FOLDER='/scratch/hellemn/nightlies'
+        export NIGHTLIES_ROOT_FOLDER='/scratch/hellemn/nightlies'
     fi
 fi
 
@@ -40,23 +40,19 @@ if [[ -z "$NIGHTLIES_DATE" ]]; then
         export NIGHTLIES_DATE="$_existing_nightlies_date"
     else
         export NIGHTLIES_DATE="$(date +%Y_%m_%d)"
-        export NIGHTLIES_DATE_COMPACT="$(date +%Y%m%d)"
     fi
-fi
-if [[ -z "$NIGHTLIES_DATE_COMPACT" ]]; then
-    export NIGHTLIES_DATE_COMPACT="${NIGHTLIES_DATE:0:4}${NIGHTLIES_DATE:5:2}${NIGHTLIES_DATE:8:2}"
 fi
 
 # Used in lots of places as the root dir to store all conda/wheel/manywheel
 # packages as well as logs for the day
-if [[ -z "$today" ]]; then
-    export today="$NIGHTLIES_FOLDER/$NIGHTLIES_DATE"
+if [[ -z "$NIGHTLIES_FOLDER" ]]; then
+    export NIGHTLIES_FOLDER="$NIGHTLIES_ROOT_FOLDER/$NIGHTLIES_DATE"
 fi
-mkdir -p "$today" || true
+mkdir -p "$NIGHTLIES_FOLDER" || true
 
 
 ##############################################################################
-# Add new configuration variables below this line. 'today' should always be
+# Add new configuration variables below this line. 'NIGHTLIES_FOLDER' should always be
 # defined ASAP to avoid weird errors
 ##############################################################################
 
@@ -80,13 +76,6 @@ if [[ -z "$PYTORCH_CREDENTIALS_FILE" ]]; then
     fi
 fi
 
-# Location of the temporary miniconda that is downloaded to install conda-build
-# and aws to upload finished packages TODO this is messy to install this in
-# upload.sh and later use it in upload_logs.sh
-if [[ -z "$CONDA_UPLOADER_INSTALLATION" ]]; then
-    export CONDA_UPLOADER_INSTALLATION="${today}/miniconda"
-fi
-
 # N.B. BUILDER_REPO and BUILDER_BRANCH are both set in cron_start.sh, as that
 # is the script that actually clones the builder repo that /this/ script is
 # running from.
@@ -94,7 +83,7 @@ export NIGHTLIES_BUILDER_ROOT="$(cd $(dirname $0)/.. && pwd)"
 
 # The shared pytorch repo to be used by all builds
 if [[ -z "$NIGHTLIES_PYTORCH_ROOT" ]]; then
-    export NIGHTLIES_PYTORCH_ROOT="${today}/pytorch"
+    export NIGHTLIES_PYTORCH_ROOT="${NIGHTLIES_FOLDER}/pytorch"
 fi
 
 # PYTORCH_REPO
@@ -141,7 +130,7 @@ fi
 #   or in manylinux like
 #       torch_nightly-1.0.0.dev20180908-cp27-cp27m-linux_x86_64.whl
 if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    export PYTORCH_BUILD_VERSION="1.0.0.dev$NIGHTLIES_DATE_COMPACT"
+    export PYTORCH_BUILD_VERSION="1.0.0.dev$(echo $NIGHTLIES_DATE | tr -d '_-')"
 fi
 
 # PYTORCH_BUILD_NUMBER
@@ -160,7 +149,9 @@ fi
 
 # The nightly builds use their own versioning logic, so we override whatever
 # logic is in setup.py or other scripts
-export OVERRIDE_PACKAGE_VERSION="$PYTORCH_BUILD_VERSION"
+if [[ -z "$OVERRIDE_PACKAGE_VERSION" ]]; then
+    export OVERRIDE_PACKAGE_VERSION="$PYTORCH_BUILD_VERSION"
+fi
 
 # Build folder for conda builds to use
 if [[ -z "$TORCH_CONDA_BUILD_FOLDER" ]]; then
@@ -190,7 +181,7 @@ fi
 #   N.B. PYTORCH_FINAL_PACKAGE_DIR is not a constant, and is not set here. This
 #   should be set by build_docker or build_mac according to this function.
 nightlies_package_folder () {
-    echo "${today}/$1/$2/"
+    echo "${NIGHTLIES_FOLDER}/$1/$2/"
 }
 
 # (RUNNING|FAILED|SUCCEEDED)_LOG_DIR
@@ -199,18 +190,18 @@ nightlies_package_folder () {
 #   fails, it's log should be moved to FAILED_LOG_DIR, and similarily for
 #   succeeded builds.
 if [[ -z "$RUNNING_LOG_DIR" ]]; then
-    export RUNNING_LOG_DIR="${today}/logs"
+    export RUNNING_LOG_DIR="${NIGHTLIES_FOLDER}/logs"
 fi
 if [[ -z "$FAILED_LOG_DIR" ]]; then
-    export FAILED_LOG_DIR="${today}/logs/failed"
+    export FAILED_LOG_DIR="${NIGHTLIES_FOLDER}/logs/failed"
 fi
 if [[ -z "$SUCCEEDED_LOG_DIR" ]]; then
-    export SUCCEEDED_LOG_DIR="${today}/logs/succeeded"
+    export SUCCEEDED_LOG_DIR="${NIGHTLIES_FOLDER}/logs/succeeded"
 fi
 
 # Log s3 directory, must not end in a /
 if [[ -z "$LOGS_S3_DIR" ]]; then
-    if [[ "$(uname)" == 'Darwin' ]]; then
+    if [[ "$(uname)" == Darwin ]]; then
         export LOGS_S3_DIR="nightly_logs/macos/$NIGHTLIES_DATE"
     else
         export LOGS_S3_DIR="nightly_logs/linux/$NIGHTLIES_DATE"
@@ -224,7 +215,7 @@ fi
 #   will be purged at the end of cron jobs. '1' means to keep only the current
 #   day. Values less than 1 are not allowed. The default is 5.
 if [[ -z "$DAYS_TO_KEEP" ]]; then
-    if [[ "$(uname)" == 'Darwin' ]]; then
+    if [[ "$(uname)" == Darwin ]]; then
         # Mac machines have less memory
         export DAYS_TO_KEEP=3
     else
@@ -233,7 +224,7 @@ if [[ -z "$DAYS_TO_KEEP" ]]; then
 fi
 if [[ "$DAYS_TO_KEEP" < '1' ]]; then
     echo "DAYS_TO_KEEP cannot be less than 1."
-    echo "A value of 1 means to only keep the build for today"
+    echo "A value of 1 means to only keep the build for NIGHTLIES_FOLDER"
     exit 1
 fi
 
@@ -255,7 +246,7 @@ fi
 if [[ -z "$PYTORCH_NIGHTLIES_LIBTORCH_TIMEOUT" ]]; then
     # The libtorch job actually runs for several cpu/cuda versions in sequence
     # and so takes a long time
-    export PYTORCH_NIGHTLIES_LIBTORCH_TIMEOUT=10800
+    export PYTORCH_NIGHTLIES_LIBTORCH_TIMEOUT=15800
 fi
 
 # PORTABLE_TIMEOUT

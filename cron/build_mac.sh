@@ -32,7 +32,7 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR"
 
 # Setup a workdir
 ##############################################################################
-workdir="${today}/wheel_build_dirs/${package_type}_${desired_python}"
+workdir="${NIGHTLIES_FOLDER}/wheel_build_dirs/${package_type}_${desired_python}"
 export MAC_PACKAGE_WORK_DIR="$workdir"
 rm -rf "$workdir"
 mkdir -p "$workdir"
