@@ -167,7 +167,7 @@ fi
 # Regardless of failures, clean up the old build folders so that we don't run
 # out of memory
 # Only run the clean on the current day, not on manual re-runs of past days
-if [[ "$NIGHTLIES_FOLDER" == "$NIGHTLIES_DATE" ]]; then
+if [[ "$(basename $NIGHTLIES_FOLDER)" == "$NIGHTLIES_DATE" ]]; then
     "${NIGHTLIES_BUILDER_ROOT}/cron/clean.sh" > "${log_root}/clean.sh" 2>&1
     ret="$?"
     if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
