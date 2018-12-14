@@ -58,7 +58,7 @@ rm -f "$tmp_json"
 
 ##############################################################################
 # Collect wheel binary sizes
-cuda_versions=("cpu" "cu80" "cu90" "cu92")
+cuda_versions=("cpu" "cu80" "cu90" "cu100")
 for cu_ver in "${cuda_versions[@]}"; do
 
     # Read the info from s3
