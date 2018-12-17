@@ -9,7 +9,7 @@ set -ex
 
 # Upload for all CUDA/cpu versions if not given one to use
 if [[ -z "$CUDA_VERSIONS" ]]; then
-    export CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu92')
+    export CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu100')
 fi
 
 if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then

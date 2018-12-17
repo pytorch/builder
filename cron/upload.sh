@@ -195,7 +195,7 @@ fi
 
 # Update wheel htmls
 if [[ -n "$uploaded_a_wheel" ]]; then
-    "${NIGHTLIES_BUILDER_ROOT}/update_s3_htmls.sh"
+    "${NIGHTLIES_BUILDER_ROOT}/cron/update_s3_htmls.sh"
 fi
 
 # Update the binary size list
