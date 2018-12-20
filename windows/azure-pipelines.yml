@@ -236,28 +236,28 @@ jobs:
         DESIRED_PYTHON: 3
         BUILD_PYTHONLESS: 1
         CUDA_VERSION: 90
-      # PY3.5_80:
-      #   DESIRED_PYTHON: 3.5
-      #   CUDA_VERSION: 80
-      # PY3.6_80:
-      #   DESIRED_PYTHON: 3.6
-      #   CUDA_VERSION: 80
-      # PY3.7_80:
-      #   DESIRED_PYTHON: 3.7
-      #   CUDA_VERSION: 80
+      PY3.5_80:
+        DESIRED_PYTHON: 3.5
+        CUDA_VERSION: 80
+      PY3.6_80:
+        DESIRED_PYTHON: 3.6
+        CUDA_VERSION: 80
+      PY3.7_80:
+        DESIRED_PYTHON: 3.7
+        CUDA_VERSION: 80
       LIBTORCH_80:
         DESIRED_PYTHON: 3
         BUILD_PYTHONLESS: 1
         CUDA_VERSION: 80
-      # PY3.5_100:
-      #   DESIRED_PYTHON: 3.5
-      #   CUDA_VERSION: 100
-      # PY3.6_100:
-      #   DESIRED_PYTHON: 3.6
-      #   CUDA_VERSION: 100
-      # PY3.7_100:
-      #   DESIRED_PYTHON: 3.7
-      #   CUDA_VERSION: 100
+      PY3.5_100:
+        DESIRED_PYTHON: 3.5
+        CUDA_VERSION: 100
+      PY3.6_100:
+        DESIRED_PYTHON: 3.6
+        CUDA_VERSION: 100
+      PY3.7_100:
+        DESIRED_PYTHON: 3.7
+        CUDA_VERSION: 100
       LIBTORCH_100:
         DESIRED_PYTHON: 3
         BUILD_PYTHONLESS: 1
@@ -346,24 +346,24 @@ jobs:
       PY3.7_90:
         DESIRED_PYTHON: 3.7
         CUDA_VERSION: 90
-      # PY3.5_80:
-      #   DESIRED_PYTHON: 3.5
-      #   CUDA_VERSION: 80
-      # PY3.6_80:
-      #   DESIRED_PYTHON: 3.6
-      #   CUDA_VERSION: 80
-      # PY3.7_80:
-      #   DESIRED_PYTHON: 3.7
-      #   CUDA_VERSION: 80
-      # PY3.5_100:
-      #   DESIRED_PYTHON: 3.5
-      #   CUDA_VERSION: 100
-      # PY3.6_100:
-      #   DESIRED_PYTHON: 3.6
-      #   CUDA_VERSION: 100
-      # PY3.7_100:
-      #   DESIRED_PYTHON: 3.7
-      #   CUDA_VERSION: 100
+      PY3.5_80:
+        DESIRED_PYTHON: 3.5
+        CUDA_VERSION: 80
+      PY3.6_80:
+        DESIRED_PYTHON: 3.6
+        CUDA_VERSION: 80
+      PY3.7_80:
+        DESIRED_PYTHON: 3.7
+        CUDA_VERSION: 80
+      PY3.5_100:
+        DESIRED_PYTHON: 3.5
+        CUDA_VERSION: 100
+      PY3.6_100:
+        DESIRED_PYTHON: 3.6
+        CUDA_VERSION: 100
+      PY3.7_100:
+        DESIRED_PYTHON: 3.7
+        CUDA_VERSION: 100
 
   pool:
     name: 'pytorch'
