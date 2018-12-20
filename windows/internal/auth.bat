@@ -14,7 +14,7 @@ if "%RETRY_TIMES%" == "" (
     set /a SLEEP_TIME=%SLEEP_TIME%*2
 )
 
-curl -u %VSTS_AUTH% https://dev.azure.com/pytorch
+curl -so NUL -w "%%{http_code}" -u %VSTS_AUTH% https://dev.azure.com/pytorch
 
 IF ERRORLEVEL 1 (
     echo Auth retry times remaining: %RETRY_TIMES%
