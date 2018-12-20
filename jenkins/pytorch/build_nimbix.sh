@@ -55,7 +55,7 @@ if [ "$OS" == "LINUX" ]; then
     echo "Linux release:"
     lsb_release -a || true
 else
-    echo "Processor info"    
+    echo "Processor info"
     sysctl -n machdep.cpu.brand_string
 fi
 
@@ -133,7 +133,7 @@ if [ "$OS" == "LINUX" ]; then
     echo "nvcc: $(which nvcc)"
 
     if [ "$ARCH" == "ppc64le" ]; then
-        # cuDNN libraries need to be downloaded from NVDIA and 
+        # cuDNN libraries need to be downloaded from NVDIA and
         # requires user registration.
         # ppc64le builds assume to have all cuDNN libraries installed
         # if they are not installed then exit and fix the problem
@@ -330,6 +330,14 @@ conda install -y pillow
 time python setup.py install
 popd
 
+echo "Installing torchtext at branch master"
+rm -rf text
+git clone https://github.com/pytorch/text --quiet
+pushd text
+conda install -y pillow
+time python setup.py install
+popd
+
 echo "ALL CHECKS PASSED"
 
 if [ "$OS" == "LINUX" ]; then
@@ -344,6 +352,9 @@ if [ "$OS" == "LINUX" ]; then
             # cp torchvision docs
             rm -rf source/torchvision
             cp -r ../vision/docs/source source/torchvision
+            # cp torchtext docs
+            rm -rf source/torchtext
+            cp -r ../text/docs/source source/torchtext
             # Make sure it is uninstalled!
             pip uninstall -y sphinx_rtd_theme || true
             pip uninstall -y sphinx_rtd_theme || true
