@@ -43,16 +43,17 @@ IF ERRORLEVEL 1 (
 set "ORIG_PATH=%PATH%"
 set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
-REM conda install -y anaconda-client
-pip install git+https://github.com/mjscosta/anaconda-client.git@log_more_meaningfull_errors
-IF ERRORLEVEL 1 (
-    echo Anaconda client installation failed
-    exit /b 1
-)
+conda install -y anaconda-client
 
 bash -c "yes | anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%""
 IF ERRORLEVEL 1 (
     echo Anaconda client login failed
+    exit /b 1
+)
+
+pip install git+https://github.com/mjscosta/anaconda-client.git@log_more_meaningfull_errors
+IF ERRORLEVEL 1 (
+    echo Anaconda client installation failed
     exit /b 1
 )
 
