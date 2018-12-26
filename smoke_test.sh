@@ -95,8 +95,8 @@ fi
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   mkdir tmp_libtorch
   pushd tmp_libtorch
-  curl -o libtorch.zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
-  unzip -q libtorch.zip
+  curl -o libtorch "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
+  unzip -q libtorch
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   if [[ "$DESIRED_CUDA" == 'cpu' || "$DESIRED_CUDA" == 'cu90' ]]; then
     conda install -yq -c pytorch "$package_name_and_version"
@@ -138,7 +138,6 @@ fi
 #  - Print out all the dependencies
 #  - (Mac) check that there is no openblas dependency
 #  - Check that there are no protobuf symbols
-set +x
 if [[ "$(uname)" == 'Darwin' ]]; then
   all_dylibs=($(find "$pyroot/envs/test/lib/python${DESIRED_PYTHON}/site-packages/torch/" -name '*.dylib'))
   for dylib in "${all_dylibs[@]}"; do
