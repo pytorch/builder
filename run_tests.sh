@@ -62,9 +62,7 @@ fi
 pushd /
 echo "Smoke testing imports"
 python -c 'import torch'
-if [[ "$OSTYPE" != "msys" ]]; then
-    python -c 'from caffe2.python import core'
-fi
+python -c 'from caffe2.python import core'
 
 # Test that MKL is there
 if [[ "$(uname)" == 'Darwin' && "$package_type" == *wheel ]]; then

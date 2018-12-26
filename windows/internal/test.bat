@@ -5,7 +5,7 @@ pushd %SRC_DIR%
 
 set PYTHON_VERSION=%PYTHON_PREFIX:py=cp%
 
-pip install pytest coverage hypothesis protobuf
+pip install future pytest coverage hypothesis protobuf
 
 for /F "delims=" %%i in ('where /R %SRC_DIR%\output\%CUDA_PREFIX% torch*%PYTHON_VERSION%*.whl') do pip install "%%i"
 
@@ -13,6 +13,10 @@ if ERRORLEVEL 1 exit /b 1
 
 echo Smoke testing imports
 python -c "import torch"
+if ERRORLEVEL 1 exit /b 1
+
+python -c "from caffe2.python import core"
+if ERRORLEVEL 1 exit /b 1
 
 echo "Checking that MKL is available"
 python -c "import torch; exit(0 if torch.backends.mkl.is_available() else 1)"

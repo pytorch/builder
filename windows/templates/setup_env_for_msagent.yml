@@ -1,0 +1,26 @@
+parameters:
+   msagent: false
+
+steps:
+- ${{ if eq(parameters.msagent, 'true') }}:
+  - task: BatchScript@1
+    displayName: 'Install VS 2017'
+    inputs:
+      filename: 'windows/internal/vs_install.bat'
+
+      modifyEnvironment: true
+
+  - task: BatchScript@1
+    enabled: false
+    displayName: 'Environment fix'
+    inputs:
+      filename: 'windows/internal/env_fix.bat'
+
+      modifyEnvironment: false
+
+  - task: BatchScript@1
+    displayName: 'Install 7Zip'
+    inputs:
+      filename: 'windows/internal/7z_install.bat'
+
+      modifyEnvironment: true

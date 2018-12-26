@@ -72,6 +72,7 @@ IF "%USE_SCCACHE%" == "1" (
 pip install ninja
 
 python setup.py install
+if errorlevel 1 exit /b 1
 
 pip uninstall -y ninja
 
@@ -96,3 +97,5 @@ if NOT "%build_with_cuda%" == "" (
     copy "C:\Windows\System32\nvcuda.dll" %SP_DIR%\torch\lib
     copy "C:\Windows\System32\nvfatbinaryloader.dll" %SP_DIR%\torch\lib
 )
+
+exit /b 0

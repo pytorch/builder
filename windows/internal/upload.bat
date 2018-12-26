@@ -43,7 +43,8 @@ IF ERRORLEVEL 1 (
 set "ORIG_PATH=%PATH%"
 set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
-conda install -y anaconda-client
+REM conda install -y anaconda-client
+pip install git+https://github.com/peterjc123/anaconda-client.git@log_more_meaningfull_errors
 IF ERRORLEVEL 1 (
     echo Anaconda client installation failed
     exit /b 1
