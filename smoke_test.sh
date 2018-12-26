@@ -9,6 +9,15 @@ if [[ "$DATE" == 'today' ]]; then
     DATE="$(date +%Y%m%d)"
 fi
 
+# Helper variables for logging
+date_under="${DATE:1:4}_${DATE:4:2}_${DATE:6:2}"
+if [[ "$(uname)" == 'Darwin' ]]; then
+  macos_or_linux='macos'
+else
+  macos_or_linux='linux'
+fi
+log_url="https://download.pytorch.org/nightly_logs/$macos_or_linux/$date_under/${PACKAGE_TYPE}_${DESIRED_PYTHON}_${DESIRED_CUDA}.log"
+
 # DESIRED_PYTHON is in format 2.7m?u?
 # DESIRED_CUDA is in format cu80 (or 'cpu')
 
@@ -76,7 +85,12 @@ which python
 if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   conda search -c pytorch "$package_name"
 else
-  curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
+  if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+    s3_dir='libtorch'
+  else
+    s3_dir='whl'
+  fi
+  curl "https://download.pytorch.org/$s3_dir/nightly/$DESIRED_CUDA/torch_nightly.html" -v
 fi
 
 # Install the package for the requested date
@@ -88,7 +102,7 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   fi
 else
   pip install "$package_name_and_version" \
-      -f "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" \
+      -f "https://download.pytorch.org/$s3_dir/nightly/$DESIRED_CUDA/torch_nightly.html" \
       --no-cache-dir \
       --no-index \
       -v
@@ -115,6 +129,12 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     echo "The full package is $(conda list torch)"
     exit 1
   fi
+fi
+
+if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+  echo "For libtorch we only test that the download works"
+  echo "The logfile for this run can be found at $log_url"
+  exit 0
 fi
 
 # Quick smoke test that it works
@@ -191,8 +211,4 @@ else
 fi
 
 # Echo the location of the logs
-if [[ "$(uname)" == 'Darwin' ]]; then
-  echo "The logfile for this run can be found at https://download.pytorch.org/nightly_logs/macos/${DATE:1:4}_${DATE:4:2}_${DATE:6:2}"/${PACKAGE_TYPE}_${DESIRED_PYTHON}_cpu.log"
-else
-  echo "The logfile for this run can be found at https://download.pytorch.org/nightly_logs/linux/${DATE:1:4}_${DATE:4:2}_${DATE:6:2}"/${PACKAGE_TYPE}_${DESIRED_PYTHON}_${DESIRED_CUDA}.log"
-fi
+echo "The logfile for this run can be found at $log_url"
