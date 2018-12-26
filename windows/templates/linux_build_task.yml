@@ -1,5 +1,5 @@
 parameters:
-  msagent: ''
+  msagent: true
   enabled: false
 
 jobs:
