@@ -16,6 +16,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 else
   macos_or_linux='linux'
 fi
+# Note that all the libtorch jobs share the same log
 log_url="https://download.pytorch.org/nightly_logs/$macos_or_linux/$date_under/${PACKAGE_TYPE}_${DESIRED_PYTHON}_${DESIRED_CUDA}.log"
 
 # DESIRED_PYTHON is in format 2.7m?u?
@@ -36,7 +37,9 @@ py_dot="${DESIRED_PYTHON:0:3}"
 py_long="cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}-cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2}"
 
 # Determine package name
-if [[ "$PACKAGE_TYPE" == *wheel ]]; then
+if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+  package_name="libtorch-$LIBTORCH_VARIANT-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
+elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
   package_name='torch-nightly'
 elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
   package_name='pytorch-nightly-cpu'
@@ -84,17 +87,17 @@ pip --version
 which python
 if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   conda search -c pytorch "$package_name"
-else
-  if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-    s3_dir='libtorch'
-  else
-    s3_dir='whl'
-  fi
-  curl "https://download.pytorch.org/$s3_dir/nightly/$DESIRED_CUDA/torch_nightly.html" -v
+elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
+  curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
 fi
 
 # Install the package for the requested date
-if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
+if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+  mkdir tmp_libtorch
+  pushd tmp_libtorch
+  curl -o libtorch.zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
+  unzip -q libtorch.zip
+elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   if [[ "$DESIRED_CUDA" == 'cpu' || "$DESIRED_CUDA" == 'cu90' ]]; then
     conda install -yq -c pytorch "$package_name_and_version"
   else
@@ -102,7 +105,7 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   fi
 else
   pip install "$package_name_and_version" \
-      -f "https://download.pytorch.org/$s3_dir/nightly/$DESIRED_CUDA/torch_nightly.html" \
+      -f "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" \
       --no-cache-dir \
       --no-index \
       -v
@@ -131,6 +134,55 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   fi
 fi
 
+# Loop through all shared libraries and
+#  - Print out all the dependencies
+#  - (Mac) check that there is no openblas dependency
+#  - Check that there are no protobuf symbols
+set +x
+if [[ "$(uname)" == 'Darwin' ]]; then
+  all_dylibs=($(find "$pyroot/envs/test/lib/python${DESIRED_PYTHON}/site-packages/torch/" -name '*.dylib'))
+  for dylib in "${all_dylibs[@]}"; do
+    echo "All dependencies of $dylib are $(otool -L $dylib) with rpath $(otool -l $dylib | grep LC_RPATH -A2)"
+
+    # Check that OpenBlas is not linked to on Macs
+    echo "Checking the OpenBLAS is not linked to"
+    if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
+      echo "ERROR: Found openblas as a dependency of $dylib"
+      echo "Full dependencies is: $(otool -L $dylib)"
+      exit 1
+    fi
+
+    # Check for protobuf symbols
+    #proto_symbols="$(nm $dylib | grep protobuf)" || true
+    #if [[ -n "$proto_symbols" ]]; then
+    #  echo "ERROR: Detected protobuf symbols in $dylib"
+    #  echo "Symbols are $proto_symbols"
+    #  exit 1
+    #fi
+  done
+else 
+  if [[ "$PACKAGE_TYPE" == libtorch ]]; then
+    all_libs=($(find . -name '*.so'))
+  elif [[ "$PACKAGE_TYPE" == conda ]]; then
+    all_libs=($(find "/opt/conda/envs/test/lib/python${py_dot}/site-packages/torch/" -name '*.so'))
+  else
+    all_libs=($(find "/opt/python/${py_long}/lib/python${py_dot}/site-packages/torch/" -name '*.so'))
+  fi
+
+  for lib in "${all_libs[@]}"; do
+    echo "All dependencies of $lib are $(ldd $lib) with runpath $(objdump -p $lib | grep RUNPATH)"
+
+    # Check for protobuf symbols
+    #proto_symbols=$(nm $lib | grep protobuf) || true
+    #if [[ -n "$proto_symbols" ]]; then
+    #  echo "ERROR: Detected protobuf symbols in $lib"
+    #  echo "Symbols are $proto_symbols"
+    #  exit 1
+    #fi
+  done
+fi
+
+# For libtorch testing is done.
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "For libtorch we only test that the download works"
   echo "The logfile for this run can be found at $log_url"
@@ -162,52 +214,6 @@ if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
 
   echo "Checking that CuDNN is available"
   python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
-fi
-
-# Loop through all shared libraries and
-#  - Print out all the dependencies
-#  - (Mac) check that there is no openblas dependency
-#  - Check that there are no protobuf symbols
-set +x
-if [[ "$(uname)" == 'Darwin' ]]; then
-  all_dylibs=($(find "$pyroot/envs/test/lib/python${DESIRED_PYTHON}/site-packages/torch/" -name '*.dylib'))
-  for dylib in "${all_dylibs[@]}"; do
-    echo "All dependencies of $dylib are $(otool -L $dylib) with rpath $(otool -l $dylib | grep LC_RPATH -A2)"
-
-    # Check that OpenBlas is not linked to on Macs
-    echo "Checking the OpenBLAS is not linked to"
-    if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
-      echo "ERROR: Found openblas as a dependency of $dylib"
-      echo "Full dependencies is: $(otool -L $dylib)"
-      exit 1
-    fi
-
-    # Check for protobuf symbols
-    #proto_symbols="$(nm $dylib | grep protobuf)" || true
-    #if [[ -n "$proto_symbols" ]]; then
-    #  echo "ERROR: Detected protobuf symbols in $dylib"
-    #  echo "Symbols are $proto_symbols"
-    #  exit 1
-    #fi
-  done
-else 
-  if [[ "$PACKAGE_TYPE" == conda ]]; then
-    all_libs=($(find "/opt/conda/envs/test/lib/python${py_dot}/site-packages/torch/" -name '*.so'))
-  else
-    all_libs=($(find "/opt/python/${py_long}/lib/python${py_dot}/site-packages/torch/" -name '*.so'))
-  fi
-
-  for lib in "${all_libs[@]}"; do
-    echo "All dependencies of $lib are $(ldd $lib) with runpath $(objdump -p $lib | grep RUNPATH)"
-
-    # Check for protobuf symbols
-    #proto_symbols=$(nm $lib | grep protobuf) || true
-    #if [[ -n "$proto_symbols" ]]; then
-    #  echo "ERROR: Detected protobuf symbols in $lib"
-    #  echo "Symbols are $proto_symbols"
-    #  exit 1
-    #fi
-  done
 fi
 
 # Echo the location of the logs
