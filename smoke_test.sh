@@ -36,18 +36,22 @@ else
 fi
 package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
 
-# Install Anaconda if we're on Mac
-if [[ "$(uname)" == 'Darwin' ]]; then
-  rm -rf ${TMPDIR}/anaconda
-  curl -o ${TMPDIR}/anaconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-  /bin/bash ${TMPDIR}/anaconda.sh -b -p ${TMPDIR}/anaconda
-  rm -f ${TMPDIR}/anaconda.sh
-  export PATH="${TMPDIR}/anaconda/bin:${PATH}"
-  source ${TMPDIR}/anaconda/bin/activate
-fi
-
 # Switch to the desired python
 if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
+  # Install Anaconda if we're on Mac
+  if [[ "$(uname)" == 'Darwin' ]]; then
+    pyroot="${TMPDIR}/anaconda"
+    rm -rf "$pyroot"
+    curl -o ${TMPDIR}/anaconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+    /bin/bash ${TMPDIR}/anaconda.sh -b -p ${TMPDIR}/anaconda
+    rm -f ${TMPDIR}/anaconda.sh
+    export PATH="$pyroot/bin:${PATH}"
+    source $pyroot/bin/activate
+  else
+    pyroot="/opt/conda"
+  fi
+
+  # Create a conda env
   conda create -yn test python="$DESIRED_PYTHON" && source activate test
   conda install -yq future numpy protobuf six
 else
@@ -146,7 +150,7 @@ fi
 #  - Check that there are no protobuf symbols
 set +x
 if [[ "$(uname)" == 'Darwin' ]]; then
-  all_dylibs=($(find "/opt/conda/envs/test/lib/python${DESIRED_PYTHON}/site-packages/torch/" -name '*.dylib'))
+  all_dylibs=($(find "$pyroot/envs/test/lib/python${DESIRED_PYTHON}/site-packages/torch/" -name '*.dylib'))
   for dylib in "${all_dylibs[@]}"; do
     echo "All dependencies of $dylib are $(otool -L $dylib) with rpath $(otool -l $dylib | grep LC_RPATH -A2)"
 
