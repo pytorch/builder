@@ -16,6 +16,11 @@ if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
     exit 2
 fi
 
+# Allow master skip of all tests
+if [[ -n "SKIP_ALL_TESTS" ]]; then
+    exit 0
+fi
+
 # If given specific test params then just run those
 if [[ -n "$RUN_TEST_PARAMS" ]]; then
     echo "$(date) :: Calling user-command $(pwd)/test/run_test.py ${RUN_TEST_PARAMS[@]}"

@@ -62,8 +62,6 @@ else
     if [[ "$package_type" == 'libtorch' ]]; then
         building_pythonless=1
     fi
-
-    building_manywheels=1
     if [[ "$desired_python" == '2.7mu' ]]; then
         desired_python='cp27-cp27mu'
     else
