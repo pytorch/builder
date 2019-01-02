@@ -188,7 +188,6 @@ if [[ "$(uname)" == 'Darwin' ]]; then
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
     export PATH="$tmp_conda/bin:$PATH"
-    echo $PATH
     conda install -y conda-build
 elif [[ "$OSTYPE" == "msys" ]]; then
     export tmp_conda="${WIN_PACKAGE_WORK_DIR}\\conda"
@@ -199,7 +198,6 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
-    echo $PATH
     popd
     # We have to skip 3.17 because of the following bug.
     # https://github.com/conda/conda-build/issues/3285

@@ -118,7 +118,6 @@ chmod +x "$miniconda_sh" && \
     "$miniconda_sh" -b -p "$tmp_conda" && \
     rm "$miniconda_sh"
 export PATH="$tmp_conda/bin:$PATH"
-echo $PATH
 conda create -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
