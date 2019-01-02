@@ -17,7 +17,7 @@ if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
 fi
 
 # Allow master skip of all tests
-if [[ -n "SKIP_ALL_TESTS" ]]; then
+if [[ -n "$SKIP_ALL_TESTS" ]]; then
     exit 0
 fi
 
