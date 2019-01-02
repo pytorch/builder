@@ -10,7 +10,7 @@ if [[ "$DATE" == 'today' ]]; then
 fi
 
 # Helper variables for logging
-date_under="${DATE:1:4}_${DATE:4:2}_${DATE:6:2}"
+date_under="${DATE:0:4}_${DATE:4:2}_${DATE:6:2}"
 if [[ "$(uname)" == 'Darwin' ]]; then
   macos_or_linux='macos'
 else
