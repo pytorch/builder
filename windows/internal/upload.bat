@@ -50,7 +50,8 @@ IF ERRORLEVEL 1 (
     exit /b 1
 )
 
-bash -c "yes | anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%""
+REM bash -c "yes | anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%""
+anaconda login --username "%PYTORCH_ANACONDA_USERNAME%" --password "%PYTORCH_ANACONDA_PASSWORD%"
 IF ERRORLEVEL 1 (
     echo Anaconda client login failed
     exit /b 1
