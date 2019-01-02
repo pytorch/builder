@@ -96,8 +96,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   mkdir tmp_libtorch
   pushd tmp_libtorch
   curl -o libtorch "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
-  ls -lah
-  unzip -q libtorch.zip
+  unzip -q libtorch
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   if [[ "$DESIRED_CUDA" == 'cpu' || "$DESIRED_CUDA" == 'cu90' ]]; then
     conda install -yq -c pytorch "$package_name_and_version"
