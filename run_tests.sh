@@ -28,6 +28,11 @@ if [[ -n "$RUN_TEST_PARAMS" ]]; then
     exit 0
 fi
 
+# Function to retry functions that sometimes timeout or have flaky failures
+retry () {
+    $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
+}
+
 # Parameters
 ##############################################################################
 if [[ "$#" != 3 ]]; then
@@ -49,14 +54,14 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda ]]; then
-    conda install -y cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six
+    retry conda install -y cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six
 else
-    pip install -r requirements.txt || true
-    pip install hypothesis protobuf pytest setuptools || true
+    retry pip install -r requirements.txt || true
+    retry pip install hypothesis protobuf pytest setuptools || true
     if [[ "$(python --version)" == *3.7.* ]]; then
-        pip install numpy==1.15 || true
+        retry pip install numpy==1.15 || true
     else
-        pip install numpy==1.11 || ture
+        retry pip install numpy==1.11 || ture
     fi
 fi
 

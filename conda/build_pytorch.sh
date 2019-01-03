@@ -54,6 +54,10 @@ add_before() {
   $portable_sed 's@( *)'"${1}@"'\1'"${2}\\"$'\n''\1'"${1}@" $3
 }
 
+# Function to retry functions that sometimes timeout or have flaky failures
+retry () {
+    $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
+}
 
 # Parse arguments and determmine version
 ###########################################################
@@ -183,12 +187,12 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_sh"
-    curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+    retry curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
     chmod +x "$miniconda_sh" && \
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
     export PATH="$tmp_conda/bin:$PATH"
-    conda install -y conda-build
+    retry conda install -y conda-build
 elif [[ "$OSTYPE" == "msys" ]]; then
     export tmp_conda="${WIN_PACKAGE_WORK_DIR}\\conda"
     export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
@@ -312,7 +316,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Create a new environment to test in
     # TODO these reqs are hardcoded for pytorch-nightly
     test_env="env_$folder_tag"
-    conda create -yn "$test_env" python="$py_ver"
+    retry conda create -yn "$test_env" python="$py_ver"
     source activate "$test_env"
 
     # Extract the package for testing
