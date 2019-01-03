@@ -80,11 +80,11 @@ OLD_PATH=$PATH
 for PYDIR in "${python_installations[@]}"; do
     export PATH=$PYDIR/bin:$OLD_PATH
     python setup.py clean
-    pip install -r requirements.txt
+    retry pip install -r requirements.txt
     if [[ $PYDIR  == "/opt/python/cp37-cp37m" ]]; then
-        pip install numpy==1.15
+        retry pip install numpy==1.15
     else
-        pip install numpy==1.11
+        retry pip install numpy==1.11
     fi
     echo "Calling setup.py bdist at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \

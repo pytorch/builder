@@ -4,6 +4,11 @@ set -ex
 # environment that will be teared down after execution is finishes, so it will
 # probably mess up what environment it runs in
 
+# Function to retry functions that sometimes timeout or have flaky failures
+retry () {
+    $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
+}
+
 # Use today's date if none is given
 if [[ "$DATE" == 'today' ]]; then
     DATE="$(date +%Y%m%d)"
@@ -54,7 +59,7 @@ if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
   if [[ "$(uname)" == 'Darwin' ]]; then
     pyroot="${TMPDIR}/anaconda"
     rm -rf "$pyroot"
-    curl -o ${TMPDIR}/anaconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+    retry curl -o ${TMPDIR}/anaconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
     /bin/bash ${TMPDIR}/anaconda.sh -b -p ${TMPDIR}/anaconda
     rm -f ${TMPDIR}/anaconda.sh
     export PATH="$pyroot/bin:${PATH}"
@@ -65,10 +70,10 @@ if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
 
   # Create a conda env
   conda create -yn test python="$DESIRED_PYTHON" && source activate test
-  conda install -yq future numpy protobuf six
+  retry conda install -yq future numpy protobuf six
 else
   export PATH=/opt/python/${py_long}/bin:$PATH
-  pip install future numpy protobuf six
+  retry pip install future numpy protobuf six
 fi
 
 # Switch to the desired CUDA if using the conda-cuda Docker image
@@ -88,23 +93,23 @@ which python
 if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   conda search -c pytorch "$package_name"
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
-  curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
+  retry curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
 fi
 
 # Install the package for the requested date
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   mkdir tmp_libtorch
   pushd tmp_libtorch
-  curl -o libtorch_zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
+  retry curl -o libtorch_zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
   unzip -q libtorch_zip
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   if [[ "$DESIRED_CUDA" == 'cpu' || "$DESIRED_CUDA" == 'cu90' ]]; then
-    conda install -yq -c pytorch "$package_name_and_version"
+    retry conda install -yq -c pytorch "$package_name_and_version"
   else
-    conda install -yq -c pytorch "cuda${DESIRED_CUDA:2}" "$package_name_and_version"
+    retry conda install -yq -c pytorch "cuda${DESIRED_CUDA:2}" "$package_name_and_version"
   fi
 else
-  pip install "$package_name_and_version" \
+  retry pip install "$package_name_and_version" \
       -f "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" \
       --no-cache-dir \
       --no-index \
