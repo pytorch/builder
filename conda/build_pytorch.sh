@@ -320,7 +320,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     built_package="$(find $output_folder/ -name '*pytorch*.tar.bz2')"
 
     # Copy the built package to the host machine for persistence before testing
-    if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" && -d "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+    if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+        mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
         cp "$built_package" "$PYTORCH_FINAL_PACKAGE_DIR/"
     fi
 

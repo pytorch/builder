@@ -288,13 +288,14 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     rm -rf tmp
 done
 
-# Copy wheels to host machine for persistence before testing. This expects
-# '/remote' to be mounted on the host and for the host to expect packages to
-# appear here.
-if [[ -n "$BUILD_PYTHONLESS" ]]; then
-    cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
-else
-    cp /$WHEELHOUSE_DIR/torch*.whl "$PYTORCH_FINAL_PACKAGE_DIR"
+# Copy wheels to host machine for persistence before testing
+if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+    mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
+    if [[ -n "$BUILD_PYTHONLESS" ]]; then
+        cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
+    else
+        cp /$WHEELHOUSE_DIR/torch*.whl "$PYTORCH_FINAL_PACKAGE_DIR"
+    fi
 fi
 
 # remove stuff before testing
