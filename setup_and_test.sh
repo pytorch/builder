@@ -29,10 +29,13 @@ else
   echo "This script does not handle $PACKAGE_TYPE packages"
   exit 1
 fi
+pip uninstall torch || true
+pip uninstall torch || true
 
 # Install package
 #############################################################################
-package="$(ls $PYTORCH_FINAL_PACKAGE_DIR)"
+package="$PYTORCH_FINAL_PACKAGE_DIR/$(ls $PYTORCH_FINAL_PACKAGE_DIR)"
+pip uninstall "$package" || true
 if [[ "$PACKAGE_TYPE" == manywheel ]]; then
   pip install $package
 else
