@@ -23,7 +23,7 @@ if [[ "$PACKAGE_TYPE" == manywheel ]]; then
   export PATH="/opt/python/$DESIRED_PYTHON/bin:$PATH"
 elif [[ "$PACKAGE_TYPE" == conda ]]; then
   source deactivate || true
-  conda create -yn "setuptest$py_nodot" python=$py_nodot
+  conda create -yn "setuptest$py_nodot" python=$PYVER_SHORT
   source activate "setuptest$py_nodot"
 else
   echo "This script does not handle $PACKAGE_TYPE packages"
