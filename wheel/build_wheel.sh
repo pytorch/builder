@@ -16,6 +16,12 @@ SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 #     installation and pytorch checkout. If the pytorch checkout already exists
 #     then it will not be overwritten.
 
+# Function to retry functions that sometimes timeout or have flaky failures
+retry () {
+    $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
+}
+
+# Parameters
 if [[ -n "$DESIRED_PYTHON" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
     desired_python="$DESIRED_PYTHON"
     build_version="$PYTORCH_BUILD_VERSION"
@@ -27,7 +33,6 @@ else
         echo "Python version should be in format 'M.m'"
         exit 1
     fi
-
     desired_python=$1
     build_version=$2
     build_number=$3
@@ -113,7 +118,7 @@ tmp_env_name="wheel_py$python_nodot"
 miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
 rm -rf "$tmp_conda"
 rm -f "$miniconda_sh"
-curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+retry curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
 chmod +x "$miniconda_sh" && \
     "$miniconda_sh" -b -p "$tmp_conda" && \
     rm "$miniconda_sh"
@@ -143,8 +148,8 @@ popd
 export TH_BINARY_BUILD=1
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
-conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
-pip install -r "${pytorch_rootdir}/requirements.txt" || true
+retry conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
+retry pip install -r "${pytorch_rootdir}/requirements.txt" || true
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
