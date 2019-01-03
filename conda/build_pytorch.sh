@@ -77,6 +77,7 @@ else
     build_version="$2"
     build_number="$3"
 fi
+desired_cuda="$(echo $desired_cuda | tr -d cuda. )"
 echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
