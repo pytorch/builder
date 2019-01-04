@@ -9,7 +9,7 @@ retry () {
 }
 
 # TODO move this into the Docker images
-retry yum install -yq zip openssl
+retry yum install -q -y zip openssl
 
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
