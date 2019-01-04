@@ -12,11 +12,12 @@ retry () {
 retry yum install -y zip openssl
 
 # We use the package name to test the package by passing this to 'pip install'
-# This is the env variable that setup.py uses to name the package. This may
-# be incorrect if pip 'normalizes' the name first, e.g. by changing all - to _
+# This is the env variable that setup.py uses to name the package. Note that
+# pip 'normalizes' the name first by changing all - to _
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
 fi
+TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
 echo "Expecting the built wheels to all be called '$TORCH_PACKAGE_NAME'"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
@@ -39,6 +40,20 @@ export PYTORCH_BUILD_NUMBER=$build_number
 
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
+
+# If given a python version like 3.6m or 2.7mu, convert this to the format we
+# expect. The binary CI jobs pass in python versions like this; they also only
+# ever pass one python version, so we assume that DESIRED_PYTHON is not a list
+# in this case
+if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
+    if [[ "$DESIRED_PYTHON" == '2.7mu' ]]; then
+      DESIRED_PYTHON='cp27-cp27mu'
+    else
+      python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
+      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
+    fi
+fi
+
 
 # Build for given Python versions, or for all in /opt/python if none given
 if [[ -z "$DESIRED_PYTHON" ]]; then
