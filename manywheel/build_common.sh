@@ -9,7 +9,7 @@ retry () {
 }
 
 # TODO move this into the Docker images
-retry yum install -y zip openssl
+retry yum install -yq zip openssl
 
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
@@ -95,11 +95,11 @@ OLD_PATH=$PATH
 for PYDIR in "${python_installations[@]}"; do
     export PATH=$PYDIR/bin:$OLD_PATH
     python setup.py clean
-    retry pip install -r requirements.txt
+    retry pip install -qr requirements.txt
     if [[ $PYDIR  == "/opt/python/cp37-cp37m" ]]; then
-        retry pip install numpy==1.15
+        retry pip install -q numpy==1.15
     else
-        retry pip install numpy==1.11
+        retry pip install -q numpy==1.11
     fi
     echo "Calling setup.py bdist at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \

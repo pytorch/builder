@@ -118,7 +118,7 @@ tmp_env_name="wheel_py$python_nodot"
 miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
 rm -rf "$tmp_conda"
 rm -f "$miniconda_sh"
-retry curl https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+retry curl -sS https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
 chmod +x "$miniconda_sh" && \
     "$miniconda_sh" -b -p "$tmp_conda" && \
     rm "$miniconda_sh"
@@ -148,8 +148,8 @@ popd
 export TH_BINARY_BUILD=1
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
-retry conda install -y cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
-retry pip install -r "${pytorch_rootdir}/requirements.txt" || true
+retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja
+retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
