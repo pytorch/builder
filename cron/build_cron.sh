@@ -155,7 +155,7 @@ if [[ "$NIGHTLIES_DATE" == "$(date +%Y_%m_%d)" ]]; then
 
     # Upload successful binaries and all of the logs
     succeeded_jobs=($(ls $SUCCEEDED_LOG_DIR))
-    echo "Uploading all of these succesful jobs\n: $succeeded_jobs"
+    echo "Uploading all of these succesful jobs\n: ${succeeded_jobs[@]}"
     "${NIGHTLIES_BUILDER_ROOT}/cron/upload.sh" ${succeeded_jobs[@]} > "${log_root}/upload.log" 2>&1
     ret="$?"
     if [[ "$ret" != 0 && "$first_ret" == 0 ]]; then
