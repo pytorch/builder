@@ -137,13 +137,25 @@ popd
 # real problems. Once these are on circleci and a smoke-binary-build is added
 # to PRs then this should stop happening and these can be re-enabled.
 echo "Not running unit tests. Hopefully these problems are caught by CI"
-exit 0
+# exit 0
 
 
 ##############################################################################
 # Running unit tests (except not right now)
 ##############################################################################
 echo "$(date) :: Starting tests for $package_type package for python$py_ver and $cuda_ver"
+
+if [[ "$OSTYPE" == "msys" ]]; then
+    echo
+    echo "$(date) :: Calling 'python test/run_test.py -v'"
+
+    python test/run_test.py -v
+
+    echo
+    echo "$(date) :: Finished 'python test/run_test.py -v'"
+
+    exit 0
+fi
 
 # We keep track of exact tests to skip, as otherwise we would be hardly running
 # any tests. But b/c of issues working with pytest/normal-python-test/ and b/c
