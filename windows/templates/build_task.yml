@@ -8,7 +8,7 @@ parameters:
   cudaEnabled: true
   condaEnabled: true
   wheelsEnabled: true
-  override: false
+  override: true
 
 jobs:
 - job: 'Windows_${{ parameters.spec }}_${{ parameters.package }}_Build'
@@ -26,13 +26,15 @@ jobs:
   variables:
     - ${{ if eq(parameters.override, 'true') }}:
       - name: PYTORCH_BUILD_VERSION
-        value: '1.0.0'
+        value: '1.0.1'
       - name: PYTORCH_BUILD_NUMBER
         value: 1
       - name: PYTORCH_REPO
         value: 'pytorch'
       - name: PYTORCH_BRANCH
-        value: 'v1.0.0'
+        value: '743fdbdb192dd0f07d51d6f94f8b47984484b54f'
+      - name: TORCH_CONDA_BUILD_FOLDER
+        value: 'pytorch-1.0.1'
     - ${{ if eq(parameters.msagent, 'true') }}:
       - name: USE_SCCACHE
         value: 0
@@ -110,7 +112,7 @@ jobs:
     ${{ if eq(parameters.msagent, 'true') }}:
       vmImage: 'win1803'
     ${{ if eq(parameters.msagent, 'false') }}:
-      name: 'pytorch'
+      name: 'release'
 
   steps:
   - checkout: self
@@ -120,7 +122,7 @@ jobs:
     parameters:
       msagent: ${{ parameters.msagent }}
 
-  - template: setup_nightly_variables.yml
+  # - template: setup_nightly_variables.yml
 
   - ${{ if eq(parameters.package, 'Wheels') }}:
     - template: build_wheels.yml
@@ -136,21 +138,24 @@ jobs:
     - template: publish_test_results.yml
       parameters:
         msagent: ${{ parameters.msagent }}
-
-  - ${{ if and(eq(parameters.package, 'Wheels'), eq(parameters.spec, 'CPU')) }}:
-    - template: upload_to_s3.yml
+    - template: publish_packages.yml
       parameters:
-        cuVer: '$(CUDA_VERSION)'
-        cudaVer: '$(CUDA_VERSION)'
+        package: ${{ parameters.package }}
 
-  - ${{ if and(eq(parameters.package, 'Wheels'), ne(parameters.spec, 'CPU')) }}:
-    - template: upload_to_s3.yml
-      parameters:
-        cuVer: 'cu$(CUDA_VERSION)'
-        cudaVer: 'cuda$(CUDA_VERSION)'
+  # - ${{ if and(eq(parameters.package, 'Wheels'), eq(parameters.spec, 'CPU')) }}:
+  #   - template: upload_to_s3.yml
+  #     parameters:
+  #       cuVer: '$(CUDA_VERSION)'
+  #       cudaVer: '$(CUDA_VERSION)'
 
-  - ${{ if eq(parameters.package, 'Conda') }}:
-    - template: upload_to_conda.yml
-      parameters:
-        user: $(peterjc_conda_username)
-        pass: $(peterjc_conda_password)
+  # - ${{ if and(eq(parameters.package, 'Wheels'), ne(parameters.spec, 'CPU')) }}:
+  #   - template: upload_to_s3.yml
+  #     parameters:
+  #       cuVer: 'cu$(CUDA_VERSION)'
+  #       cudaVer: 'cuda$(CUDA_VERSION)'
+
+  # - ${{ if eq(parameters.package, 'Conda') }}:
+  #   - template: upload_to_conda.yml
+  #     parameters:
+  #       user: $(peterjc_conda_username)
+  #       pass: $(peterjc_conda_password)
