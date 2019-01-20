@@ -16,7 +16,7 @@ jobs:
   parameters:
     package: 'Conda'
     spec: 'CPU'
-    msagent: true
+    msagent: false
 
 - template: templates/build_task.yml
   parameters:
