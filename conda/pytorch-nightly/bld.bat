@@ -69,12 +69,12 @@ IF "%USE_SCCACHE%" == "1" (
 )
 
 
-pip install ninja
+REM pip install ninja
 
 python setup.py install
 if errorlevel 1 exit /b 1
 
-pip uninstall -y ninja
+REM pip uninstall -y ninja
 
 IF "%USE_SCCACHE%" == "1" (
     taskkill /im sccache.exe /f /t || ver > nul
