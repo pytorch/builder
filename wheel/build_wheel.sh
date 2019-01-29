@@ -38,13 +38,6 @@ else
     build_number=$3
 fi
 
-# Try to ensure that no other Python installation interferes with this build
-if which conda
-then
-    echo "Please remove Conda from your PATH / DYLD_LIBRARY_PATH completely"
-    exit 1
-fi
-
 echo "Building for Python: $desired_python Version: $build_version Build: $build_number"
 echo "This is for OSX. There is no CUDA/CUDNN"
 python_nodot="${desired_python:0:1}${desired_python:2:1}"
@@ -111,21 +104,10 @@ wheel_filename_gen="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}
 wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-none-${mac_version}.whl"
 
 ###########################################################
-# Install a fresh miniconda with a fresh env
-
-tmp_conda="${MAC_PACKAGE_WORK_DIR}/conda"
+# Install into a fresh env
 tmp_env_name="wheel_py$python_nodot"
-miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
-rm -rf "$tmp_conda"
-rm -f "$miniconda_sh"
-retry curl -sS https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
-chmod +x "$miniconda_sh" && \
-    "$miniconda_sh" -b -p "$tmp_conda" && \
-    rm "$miniconda_sh"
-export PATH="$tmp_conda/bin:$PATH"
 conda create -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
-
 
 # Have a separate Pytorch repo clone
 if [[ ! -d "$pytorch_rootdir" ]]; then
@@ -206,5 +188,3 @@ fi
 # if PYTORCH_FINAL_PACKAGE_DIR isn't specified
 source deactivate
 conda env remove -yn "$tmp_env_name"
-rm -rf "$pytorch_rootdir"
-rm -rf "$tmp_conda"
