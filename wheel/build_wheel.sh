@@ -38,13 +38,6 @@ else
     build_number=$3
 fi
 
-# Try to ensure that no other Python installation interferes with this build
-if which conda
-then
-    echo "Please remove Conda from your PATH / DYLD_LIBRARY_PATH completely"
-    exit 1
-fi
-
 echo "Building for Python: $desired_python Version: $build_version Build: $build_number"
 echo "This is for OSX. There is no CUDA/CUDNN"
 python_nodot="${desired_python:0:1}${desired_python:2:1}"
