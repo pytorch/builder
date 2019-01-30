@@ -142,7 +142,11 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         # from one of the wheels
         ANY_WHEEL=$(ls /tmp/$WHEELHOUSE_DIR/torch*.whl | head -n1)
         unzip -d any_wheel $ANY_WHEEL
-        cp -r any_wheel/torch/include libtorch/
+        if [[ -d any_wheel/torch/include ]]; then
+            cp -r any_wheel/torch/include libtorch/
+        else
+            cp -r any_wheel/torch/lib/include libtorch/
+        fi
         cp -r any_wheel/torch/share/cmake libtorch/share/
         rm -rf any_wheel
 
