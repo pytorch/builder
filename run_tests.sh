@@ -58,13 +58,16 @@ if [[ "$package_type" == conda ]]; then
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
-    if [[ "$(python --version)" == *3.7.* ]]; then
+    if [[ "$(python --version 2>&1)" == *3.7.* ]]; then
         retry pip install -q numpy==1.15 || true
     else
         retry pip install -q numpy==1.11 || ture
     fi
 fi
 
+echo "Testing with:"
+pip freeze
+conda list || true
 
 ##############################################################################
 # Smoke tests
