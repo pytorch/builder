@@ -54,7 +54,7 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda ]]; then
-    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six
+    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
