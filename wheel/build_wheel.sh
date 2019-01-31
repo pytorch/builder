@@ -172,7 +172,11 @@ else
     # for now, the headers for the libtorch package will just be
     # copied in from the wheel
     unzip -d any_wheel "$whl_tmp_dir/$wheel_filename_gen"
-    cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
+    if [[ -d $(pwd)/any_wheel/torch/include ]]; then
+        cp -r "$(pwd)/any_wheel/torch/include" "$(pwd)/libtorch/"
+    else
+        cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
+    fi
     cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
     rm -rf "$(pwd)/any_wheel"
 
