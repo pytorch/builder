@@ -8,7 +8,6 @@ source:
 requirements:
   build:
     - cmake
-    - ninja # [win]
     - {{ compiler('c') }} # [win]
 
   host:
