@@ -40,41 +40,40 @@ IF "%USE_SCCACHE%" == "1" (
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
 )
 
-if NOT "%build_with_cuda%" == "" (
-    curl https://s3.amazonaws.com/ossci-windows/magma_2.4.0_cuda%CUDA_VERSION%_release.7z -k -O
-    7z x -aoa magma_2.4.0_cuda%CUDA_VERSION%_release.7z -omagma_cuda%CUDA_VERSION%_release
-    set MAGMA_HOME=%cd%\magma_cuda%CUDA_VERSION%_release
+IF "%build_with_cuda%" == "" goto cuda_end
 
-    IF "%USE_SCCACHE%" == "1" (
-        set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\tmp_bin\nvcc
-    )
+curl https://s3.amazonaws.com/ossci-windows/magma_2.4.0_cuda%CUDA_VERSION%_release.7z -k -O
+7z x -aoa magma_2.4.0_cuda%CUDA_VERSION%_release.7z -omagma_cuda%CUDA_VERSION%_release
+set MAGMA_HOME=%cd%\magma_cuda%CUDA_VERSION%_release
 
-    set "PATH=%CUDA_BIN_PATH%;%PATH%"
-
-    if "%CUDA_VERSION%" == "80" (
-        :: Only if you use Ninja with CUDA 8
-        set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
-    )
+IF "%USE_SCCACHE%" == "1" (
+    set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\tmp_bin\nvcc
 )
+
+set "PATH=%CUDA_BIN_PATH%;%PATH%"
+
+if "%CUDA_VERSION%" == "80" (
+    :: Only if you use Ninja with CUDA 8
+    set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
+)
+
+:cuda_end
 
 set CMAKE_GENERATOR=Ninja
 
-IF "%USE_SCCACHE%" == "1" (
-    sccache --stop-server
-    sccache --start-server
-    sccache --zero-stats
+IF NOT "%USE_SCCACHE%" == "1" goto sccache_end
 
-    set CC=sccache cl
-    set CXX=sccache cl
-)
+sccache --stop-server
+sccache --start-server
+sccache --zero-stats
 
+set CC=sccache cl
+set CXX=sccache cl
 
-REM pip install ninja
+:sccache_end
 
 python setup.py install
 if errorlevel 1 exit /b 1
-
-REM pip uninstall -y ninja
 
 IF "%USE_SCCACHE%" == "1" (
     taskkill /im sccache.exe /f /t || ver > nul
