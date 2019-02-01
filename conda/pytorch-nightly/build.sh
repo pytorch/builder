@@ -7,12 +7,19 @@ export TH_BINARY_BUILD=1
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 
+# Why do we disable Ninja when ninja is included in the meta.yaml? Well, using
+# ninja in the conda builds leads to a system python2.7 library being called
+# which leads to ascii decode errors when building third_party/onnx. Is the
+# ninja n this conda env being picked up? We still need ninja in the meta.yaml
+# for cpp_tests I believe though. TODO figure out what's going on here and fix
+# it. It would be nice to use ninja in the builds of the conda binaries as well
+export USE_NINJA=OFF
+
 # MacOS build is simple, and will not be for CUDA
 if [[ "$OSTYPE" == "darwin"* ]]; then
     MACOSX_DEPLOYMENT_TARGET=10.9 \
         CXX=clang++ \
         CC=clang \
-        USE_NINJA=OFF \
         python setup.py install
     exit 0
 fi
