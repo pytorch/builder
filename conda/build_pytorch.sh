@@ -301,6 +301,13 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo 'Finalized meta.yaml is'
     cat "$meta_yaml"
 
+    # Create a build env. Conda-build should already use a separate one, but
+    # this lets us install an up-to-date conda-build
+    build_env="env_${folder_tag}_build"
+    retry conda create -yqn "$build_env" python="$py_ver"
+    source activate "$build_env"
+    retry conda install -yq conda-build
+
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
@@ -316,6 +323,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      --output-folder "$output_folder" \
                      --no-test \
                      "$build_folder"
+    source deactivate
     echo "Finished conda-build at $(date)"
 
     # Create a new environment to test in
