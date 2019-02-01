@@ -12,6 +12,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     MACOSX_DEPLOYMENT_TARGET=10.9 \
         CXX=clang++ \
         CC=clang \
+        USE_NINJA=OFF \
         python setup.py install
     exit 0
 fi
