@@ -40,5 +40,5 @@ git clone https://github.com/pytorch/builder
 cd builder/conda
 conda install -y conda-build
 . ./switch_cuda_version.sh 10.0
-conda build magma-cuda100-2.4.0
+conda build magma-cuda100-2.5.0
 ```
