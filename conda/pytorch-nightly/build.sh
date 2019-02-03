@@ -3,7 +3,7 @@ set -ex
 
 export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$PREFIX
-export TH_BINARY_BUILD=1
+export TH_BINARY_BUILD=1 # links CPU BLAS libraries thrice in a row (was needed for some MKL static linkage)
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 
@@ -41,10 +41,12 @@ if [[ -n "$build_with_cuda" ]]; then
     fi
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
     export NCCL_ROOT_DIR=/usr/local/cuda
-    export USE_STATIC_CUDNN=1
-    export USE_STATIC_NCCL=1
-    export ATEN_STATIC_CUDA=1
-    export USE_CUDA_STATIC_LINK=1
+    export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)
+    export USE_STATIC_NCCL=1  # links nccl statically (driven by tools/setup_helpers/nccl.py, some of the NCCL cmake files such as FindNCCL.cmake and gloo/FindNCCL.cmake)
+
+    # not needed if using conda's cudatoolkit package. Uncomment to statically link a new CUDA version that's not available in conda yet
+    # export ATEN_STATIC_CUDA=1 # links ATen / libcaffe2_gpu.so with static CUDA libs, also sets up special cufft linkage
+    # export USE_CUDA_STATIC_LINK=1 # links libcaffe2_gpu.so with static CUDA libs. Likely both these flags can be de-duplicated
 fi
 
 fname_with_sha256() {
@@ -61,13 +63,14 @@ fname_with_sha256() {
 }
 
 DEPS_LIST=()
-if [[ -n "$build_with_cuda" ]]; then
-    cuda_majmin="$(echo $CUDA_VERSION | cut -f1,2 -d'.')"
-    DEPS_LIST+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
-    DEPS_LIST+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
-    DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
-    DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc-builtins.so")
-fi
+# not needed if using conda's cudatoolkit package. Uncomment to statically link a new CUDA version that's not available in conda yet
+# if [[ -n "$build_with_cuda" ]]; then
+#     cuda_majmin="$(echo $CUDA_VERSION | cut -f1,2 -d'.')"
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc-builtins.so")
+# fi
 
 
 # install

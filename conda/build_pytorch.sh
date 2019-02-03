@@ -242,7 +242,6 @@ build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
     export NO_CUDA=1
     export CUDA_VERSION="0.0"
-    export CUDA_VERSION_MAJMIN="0.0"
     export CUDNN_VERSION="0.0"
     if [[ "$OSTYPE" != "darwin"* ]]; then
         build_string_suffix="cpu_${build_string_suffix}"
@@ -262,20 +261,24 @@ else
     # sets CUDA_VERSION and CUDNN_VERSION
     echo "Switching to CUDA version $desired_cuda"
     . ./switch_cuda_version.sh "$desired_cuda"
-    export CUDA_VERSION_MAJMIN="$desired_cuda"
+    # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
+    # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
+    if [[ "$desired_cuda" == "10.0" ]]; then
+       export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=10.0,<10.1"
+    elif [[ "$desired_cuda" == "9.0" ]]; then
+	export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=9.0,<9.1"
+    elif [[ "$desired_cuda" == "8.0" ]]; then
+	export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=8.0,<8.1"
+    else
+	echo "unhandled desired_cuda: $desired_cuda"
+    fi
+
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
     if [[ "$desired_cuda" == '9.2' ]]; then
         # ATen tests can't build with CUDA 9.2 and the old compiler used here
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
     fi
 
-    # Add the feature for this cuda version on nightly builds
-    # the feature tracking is added for non-default CUDA builds. Currently the default CUDA build is CUDA 9.0
-    if [[ "$desired_cuda" != '9.0' ]]; then
-        # The '# Features go here' must exactly match the meta.yaml
-        add_before '# Features go here' 'features:' "$meta_yaml"
-        add_before '# Features go here' "  - cuda$cuda_nodot" "$meta_yaml"
-    fi
 fi
 
 # Loop through all Python versions to build a package for each

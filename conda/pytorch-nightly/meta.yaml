@@ -28,6 +28,7 @@ requirements:
     - mkl >=2018
     - cffi
     - ninja
+    - {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }} # [not osx]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
@@ -43,7 +44,6 @@ build:
     - DEBUG
     - NO_FBGEMM
     - USE_SCCACHE # [win]
-  # Features go here
 
 test:
  imports:

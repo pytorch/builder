@@ -28,7 +28,7 @@ requirements:
     - mkl >=2018
     - cffi
     - ninja
-    - cudatoolkit =={{ environ.get('CUDA_VERSION_MAJMIN') }} # [not osx]
+    - {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }} # [not osx]
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
@@ -36,7 +36,6 @@ build:
   string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
   script_env:
     - CUDA_VERSION
-    - CUDA_VERSION_MAJMIN
     - CUDNN_VERSION
     - NO_CUDA
     - CMAKE_ARGS
@@ -45,7 +44,6 @@ build:
     - DEBUG
     - NO_FBGEMM
     - USE_SCCACHE # [win]
-  # Features go here
 
 test:
  imports:
