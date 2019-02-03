@@ -37,6 +37,7 @@ build:
   script_env:
     - CUDA_VERSION
     - CUDNN_VERSION
+    - CONDA_CUDATOOLKIT_CONSTRAINT
     - NO_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS

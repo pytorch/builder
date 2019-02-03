@@ -271,6 +271,7 @@ else
 	export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=8.0,<8.1"
     else
 	echo "unhandled desired_cuda: $desired_cuda"
+	exit 1
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
