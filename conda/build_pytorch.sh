@@ -242,6 +242,7 @@ build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
     export NO_CUDA=1
     export CUDA_VERSION="0.0"
+    export CUDA_VERSION_MAJMIN="0.0"
     export CUDNN_VERSION="0.0"
     if [[ "$OSTYPE" != "darwin"* ]]; then
         build_string_suffix="cpu_${build_string_suffix}"
@@ -261,6 +262,7 @@ else
     # sets CUDA_VERSION and CUDNN_VERSION
     echo "Switching to CUDA version $desired_cuda"
     . ./switch_cuda_version.sh "$desired_cuda"
+    export CUDA_VERSION_MAJMIN="$desired_cuda"
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
     if [[ "$desired_cuda" == '9.2' ]]; then
         # ATen tests can't build with CUDA 9.2 and the old compiler used here
