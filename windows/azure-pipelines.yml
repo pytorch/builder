@@ -10,7 +10,7 @@ jobs:
   parameters:
     package: 'Wheels'
     spec: 'CPU'
-    msagent: true
+    msagent: false
 
 - template: templates/build_task.yml
   parameters:
