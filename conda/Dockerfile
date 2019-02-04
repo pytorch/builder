@@ -66,10 +66,10 @@ RUN wget -q https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/2/cuda_9.
 # install CUDA 9.0 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.1.5-1+cuda9.0_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.1.5-1+cuda9.0_amd64.deb && \
-    ar -x libcudnn7-dev_7.4.1.5-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.4.1.5-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.2.24-1+cuda9.0_amd64.deb && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.2.24-1+cuda9.0_amd64.deb && \
+    ar -x libcudnn7-dev_7.4.2.24-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
+    ar -x libcudnn7_7.4.2.24-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -99,10 +99,10 @@ RUN wget -q https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers
 # install CUDA 10.0 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb && \
-    ar -x libcudnn7-dev_7.4.1.5-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.4.1.5-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.2.24-1+cuda10.0_amd64.deb && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.2.24-1+cuda10.0_amd64.deb && \
+    ar -x libcudnn7-dev_7.4.2.24-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
+    ar -x libcudnn7_7.4.2.24-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -123,26 +123,64 @@ RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda10.0_x86_64.txz 
     rm -rf nccl_2.3.7-1+cuda10.0_x86_64* && \
     ldconfig
 
-# prune static libs
-ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
-ARG CUDA_ROOT="/usr/local/cuda-8.0"
+#####################################################################################
+# CUDA 8.0 prune static libs
+#####################################################################################
+ARG NVPRUNE="/usr/local/cuda-8.0/bin/nvprune"
 ARG CUDA_LIB_DIR="/usr/local/cuda-8.0/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" \
-    | xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}" && \
-    $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_20 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
 
-ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
-ARG CUDA_ROOT="/usr/local/cuda-9.0"
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
+ARG GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
+
+# all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" \
+    | xargs -I {} bash -c \
+    "echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+
+# prune CuDNN and CuBLAS
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_device.a -o $CUDA_LIB_DIR/libcublas_device.a
+
+#####################################################################################
+# CUDA 9.0 prune static libs
+#####################################################################################
+ARG NVPRUNE="/usr/local/cuda-9.0/bin/nvprune"
 ARG CUDA_LIB_DIR="/usr/local/cuda-9.0/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | \
-    xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
-# ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
-# ARG CUDA_ROOT="/usr/local/cuda-10.0"
-# ARG CUDA_LIB_DIR="/usr/local/cuda-10.0/lib64"
-# RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "cusolver" | grep -v "culibos" | grep -v "cudart" | grep -v "metis" | \
-#     xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70"
+ARG GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70"
 
+# all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" \
+    | xargs -I {} bash -c \
+    "echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+
+# prune CuDNN and CuBLAS
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_device.a -o $CUDA_LIB_DIR/libcublas_device.a
+
+#####################################################################################
+# CUDA 10.0 prune static libs
+#####################################################################################
+ARG NVPRUNE="/usr/local/cuda-10.0/bin/nvprune"
+ARG CUDA_LIB_DIR="/usr/local/cuda-10.0/lib64"
+
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+ARG GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+
+# all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
+# curand cannot be pruned, as there's a bug in 10.0 + curand_static + nvprune. Filed with nvidia at 2460767
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" | grep -v "metis" | grep -v "curand" \
+    | xargs -I {} bash -c \
+    "echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+
+# prune CuDNN and CuBLAS
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
+
+#################################################################################################
 
 # Anaconda
 RUN wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
