@@ -264,11 +264,11 @@ else
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
     if [[ "$desired_cuda" == "10.0" ]]; then
-       export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=10.0,<10.1"
+       export CONDA_CUDATOOLKIT_CONSTRAINT=">=10.0,<10.1"
     elif [[ "$desired_cuda" == "9.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=9.0,<9.1"
+	export CONDA_CUDATOOLKIT_CONSTRAINT=">=9.0,<9.1"
     elif [[ "$desired_cuda" == "8.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT="cudatoolkit >=8.0,<8.1"
+	export CONDA_CUDATOOLKIT_CONSTRAINT=">=8.0,<8.1"
     else
 	echo "unhandled desired_cuda: $desired_cuda"
 	exit 1

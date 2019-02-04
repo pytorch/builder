@@ -52,9 +52,20 @@ else
   cuda_ver="$3"
 fi
 
+# cu80, cu90, cu100, cpu
+if [[ ${#cuda_ver} -eq 4 ]]; then
+    cuda_ver_majmin="${cuda_ver:2:1}.${cuda_ver:3:1}"
+elif [[ ${#cuda_ver} -eq 5 ]]; then
+    cuda_ver_majmin="${cuda_ver:2:2}.${cuda_ver:4:1}"
+fi
+
+
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing
+    if [[ "$cuda_ver" != 'cpu' ]]; then
+	retry conda install -yq cudatoolkit=$cuda_ver_majmin
+    fi
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
