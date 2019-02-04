@@ -61,12 +61,12 @@ RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.2.13-1%2Bcuda8.0_x86_64.txz 
 RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.3.0.tar.gz && \
     tar -xvf magma-2.3.0.tar.gz && \
     cd magma-2.3.0 && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.3.0/cmakelists.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.3.0/thread_queue.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.3.0/magma_cparict_tools.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.3.0/magma_dparict_tools.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.3.0/magma_sparict_tools.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda80-2.3.0/magma_zparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/old/magma-cuda80-2.3.0/cmakelists.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/old/magma-cuda80-2.3.0/thread_queue.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/old/magma-cuda80-2.3.0/magma_cparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/old/magma-cuda80-2.3.0/magma_dparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/old/magma-cuda80-2.3.0/magma_sparict_tools.patch && \
+    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/old/magma-cuda80-2.3.0/magma_zparict_tools.patch && \
     patch <cmakelists.patch && \
     patch -p0 <thread_queue.patch && \
     patch -p0 <magma_cparict_tools.patch && \
@@ -91,10 +91,21 @@ RUN git clone https://github.com/NixOS/patchelf && \
     cd .. && \
     rm -rf patchelf
 
-# prune static libs
-ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
-ARG CUDA_ROOT="/usr/local/cuda-8.0"
+#####################################################################################
+# CUDA 8.0 prune static libs
+#####################################################################################
+ARG NVPRUNE="/usr/local/cuda-8.0/bin/nvprune"
 ARG CUDA_LIB_DIR="/usr/local/cuda-8.0/lib64"
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" \
-    | xargs -I {} bash -c "echo {} && $CUDA_ROOT/bin/nvprune $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}" && \
-    $CUDA_ROOT/bin/nvprune $GENCODE -gencode code=compute_20 $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+
+ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
+ARG GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61"
+
+# all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" \
+    | xargs -I {} bash -c \
+    "echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+
+# prune CuDNN and CuBLAS
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
+RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_device.a -o $CUDA_LIB_DIR/libcublas_device.a

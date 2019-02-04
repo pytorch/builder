@@ -18,6 +18,14 @@ nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda92
 Then run:
 
 ```
+export PYTORCH_REPO=pytorch
+export PYTORCH_BRANCH=v1.0.1
+export PYTORCH_BUILD_VERSION=1.0.1
+export PYTORCH_BUILD_NUMBER=1
+export TORCH_CONDA_BUILD_FOLDER=pytorch
+export TORCH_PACKAGE_NAME=torch
+export PIP_UPLOAD_FOLDER=""
+export NIGHTLIES_ROOT_FOLDER="/private/home/soumith/local/builder/binaries_v1.0.1"
 ./remote/build.sh
 ```
 
