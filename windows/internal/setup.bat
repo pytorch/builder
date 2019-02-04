@@ -37,9 +37,11 @@ if "%BUILD_PYTHONLESS%" == "" goto pytorch else goto libtorch
 set VARIANT=shared-with-deps
 
 mkdir libtorch
-REM set "INSTALL_DIR=%CD%\libtorch"
+mkdir libtorch\bin
+mkdir libtorch\cmake
+mkdir libtorch\include
 mkdir libtorch\lib
-copy /Y torch\lib\*.dll libtorch\lib\
+mkdir libtorch\share
 
 mkdir build
 pushd build
@@ -49,7 +51,12 @@ popd
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
 
-move /Y torch\lib\tmp_install\*.* libtorch\
+move /Y torch\bin\*.* libtorch\bin\
+move /Y torch\cmake\*.* libtorch\cmake\
+move /Y torch\include\*.* libtorch\include\
+move /Y torch\lib\*.* libtorch\lib\
+move /Y torch\share\*.* libtorch\share\
+
 move /Y libtorch\bin\*.dll libtorch\lib\
 
 7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
