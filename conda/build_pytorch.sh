@@ -26,13 +26,6 @@ set -ex
 #     installation and pytorch checkout. If the pytorch checkout already exists
 #     then it will not be overwritten.
 
-# Defined a portable sed that should work on both mac and linux
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  portable_sed="sed -E -i ''"
-else
-  portable_sed='sed --regexp-extended -i'
-fi
-
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
@@ -220,36 +213,36 @@ echo "Using conda-build folder $build_folder"
 build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
     export NO_CUDA=1
+    export CONDA_CUDATOOLKIT_CONSTRAINT=""
+    export MAGMA_PACKAGE=""
     export CUDA_VERSION="0.0"
     export CUDNN_VERSION="0.0"
     if [[ "$OSTYPE" != "darwin"* ]]; then
         build_string_suffix="cpu_${build_string_suffix}"
     fi
-    # remove the line magma-cuda*, because cpu build doesn't need magma
-    $portable_sed "/magma-cuda.*/d" "$meta_yaml"
     # on Linux, rename the package pytorch-nightly-cpu, because it's cpu build
     if [[ "$(uname)" != 'Darwin' ]]; then
-	if [[ "$build_folder" == 'pytorch-nightly' ]]; then
-            $portable_sed "s/name: pytorch-nightly/name: pytorch-nightly-cpu/" "$meta_yaml"
-	else
-	    $portable_sed "s/name: pytorch/name: pytorch-cpu/" "$meta_yaml" # release
-	fi
+	export PYTORCH_PACKAGE_SUFFIX="-cpu" # used in name: pytorch part of meta.yaml
+    else
+	export PYTORCH_PACKAGE_SUFFIX=""
     fi
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
     # sets CUDA_VERSION and CUDNN_VERSION
+    export PYTORCH_PACKAGE_SUFFIX="" # no -cpu suffix because it's regular cuda build
     echo "Switching to CUDA version $desired_cuda"
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
     if [[ "$desired_cuda" == "10.0" ]]; then
-       export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
+	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
+	export MAGMA_PACKAGE="    - magma-cuda100 # [not osx and not win]"
     elif [[ "$desired_cuda" == "9.0" ]]; then
 	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
+	export MAGMA_PACKAGE="    - magma-cuda90 # [not osx and not win]"
     elif [[ "$desired_cuda" == "8.0" ]]; then
 	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=8.0,<8.1 # [not osx]"
-    elif [[ -n "$cpu_only" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT=""
+	export MAGMA_PACKAGE="    - magma-cuda80 # [not osx and not win]"
     else
 	echo "unhandled desired_cuda: $desired_cuda"
 	exit 1

@@ -1,5 +1,5 @@
 package:
-  name: pytorch-nightly
+  name: pytorch-nightly{{ environ.get('PYTORCH_PACKAGE_SUFFIX') }}
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
@@ -20,7 +20,7 @@ requirements:
     - mkl-include
     - typing
     - ninja
-    - magma-cuda{{ environ.get('PYTORCH_MAGMA_CUDA_VERSION') }} # [not osx and not win]
+{{ environ.get('MAGMA_PACKAGE') }}
 
   run:
     - python
@@ -37,6 +37,7 @@ build:
   script_env:
     - CUDA_VERSION
     - CUDNN_VERSION
+    - CONDA_CUDATOOLKIT_CONSTRAINT
     - NO_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS

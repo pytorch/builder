@@ -1,5 +1,5 @@
 package:
-  name: pytorch
+  name: pytorch{{ environ.get('PYTORCH_PACKAGE_SUFFIX') }}
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
@@ -20,7 +20,7 @@ requirements:
     - mkl-include
     - typing
     - ninja
-    - magma-cuda{{ environ.get('PYTORCH_MAGMA_CUDA_VERSION') }} # [not osx and not win]
+{{ environ.get('MAGMA_PACKAGE') }}
 
   run:
     - python
