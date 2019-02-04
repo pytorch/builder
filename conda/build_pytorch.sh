@@ -33,27 +33,6 @@ else
   portable_sed='sed --regexp-extended -i'
 fi
 
-# add_before <some marker> <some insertion> <in this file>
-# essentially replaces
-#
-#    <some marker>
-#
-# with
-#
-#    <some insertion>
-#    <some marker>
-#
-# ( *)     captured spaces before match == the indentation in the meta.yaml
-# ${1}     the marker to insert before
-# '\1'     captured whitespace == correct indentation
-# ${2}     the string to insert
-# \\"$'\n' escaped newline
-# '\1'      captured whitespace == correct indentation
-# ${1}     put the marker back
-add_before() {
-  $portable_sed 's@( *)'"${1}@"'\1'"${2}\\"$'\n''\1'"${1}@" $3
-}
-
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
@@ -264,11 +243,13 @@ else
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
     if [[ "$desired_cuda" == "10.0" ]]; then
-       export CONDA_CUDATOOLKIT_CONSTRAINT=">=10.0,<10.1"
+       export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
     elif [[ "$desired_cuda" == "9.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT=">=9.0,<9.1"
+	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
     elif [[ "$desired_cuda" == "8.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT=">=8.0,<8.1"
+	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=8.0,<8.1 # [not osx]"
+    elif [[ -n "$cpu_only" ]]; then
+	export CONDA_CUDATOOLKIT_CONSTRAINT=""
     else
 	echo "unhandled desired_cuda: $desired_cuda"
 	exit 1
