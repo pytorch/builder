@@ -1,6 +1,5 @@
 @echo off
 
-set PYTORCH_BINARY_BUILD=1
 set TH_BINARY_BUILD=1
 set PYTORCH_BUILD_VERSION=%PKG_VERSION%
 set PYTORCH_BUILD_NUMBER=%PKG_BUILDNUM%
@@ -81,18 +80,8 @@ IF "%USE_SCCACHE%" == "1" (
 )
 
 if NOT "%build_with_cuda%" == "" (
-    copy "%CUDA_BIN_PATH%\cusparse64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\cublas64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\cudart64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\curand64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\cufft64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\cufftw64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
-
     copy "%CUDA_BIN_PATH%\cudnn64_%CUDNN_VERSION%.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\nvrtc64_%CUDA_VERSION%*.dll*" %SP_DIR%\torch\lib
-    copy "%CUDA_BIN_PATH%\nvrtc-builtins64_%CUDA_VERSION%.dll*" %SP_DIR%\torch\lib
 
-    copy "C:\Program Files\NVIDIA Corporation\NvToolsExt\bin\x64\nvToolsExt64_1.dll*" %SP_DIR%\torch\lib
     copy "C:\Windows\System32\nvcuda.dll" %SP_DIR%\torch\lib
     copy "C:\Windows\System32\nvfatbinaryloader.dll" %SP_DIR%\torch\lib
 )
