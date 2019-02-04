@@ -210,7 +210,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     popd
     # We have to skip 3.17 because of the following bug.
     # https://github.com/conda/conda-build/issues/3285
-    conda install -yq conda-build
+    retry conda install -yq conda-build
 fi
 
 cd "$SOURCE_DIR"
