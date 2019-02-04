@@ -42,6 +42,7 @@ mkdir libtorch\cmake
 mkdir libtorch\include
 mkdir libtorch\lib
 mkdir libtorch\share
+mkdir libtorch\test
 
 mkdir build
 pushd build
@@ -56,6 +57,7 @@ move /Y torch\cmake\*.* libtorch\cmake\
 move /Y torch\include\*.* libtorch\include\
 move /Y torch\lib\*.* libtorch\lib\
 move /Y torch\share\*.* libtorch\share\
+move /Y torch\test\*.* libtorch\test\
 
 move /Y libtorch\bin\*.dll libtorch\lib\
 
