@@ -1,6 +1,0 @@
-if [[ -d env3 ]]; then {
-    source env3/bin/activate
-} else {
-    source env2/bin/activate
-} fi
-
