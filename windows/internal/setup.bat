@@ -12,10 +12,8 @@ set SRC_DIR=%~dp0\..
 
 IF "%VSDEVCMD_ARGS%" == "" (
     call "%VS15VCVARSALL%" x64
-    call "%VS15VCVARSALL%" x86_amd64
 ) ELSE (
     call "%VS15VCVARSALL%" x64 %VSDEVCMD_ARGS%
-    call "%VS15VCVARSALL%" x86_amd64 %VSDEVCMD_ARGS%
 )
 
 pushd %SRC_DIR%
@@ -54,9 +52,9 @@ IF NOT ERRORLEVEL 0 exit /b 1
 
 move /Y torch\bin\*.* libtorch\bin\
 move /Y torch\cmake\*.* libtorch\cmake\
-move /Y torch\include\*.* libtorch\include\
+robocopy /move /e torch\include\ libtorch\include\
 move /Y torch\lib\*.* libtorch\lib\
-move /Y torch\share\*.* libtorch\share\
+robocopy /move /e torch\share\ libtorch\share\
 move /Y torch\test\*.* libtorch\test\
 
 move /Y libtorch\bin\*.dll libtorch\lib\
