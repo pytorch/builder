@@ -10,6 +10,4 @@ copy "%CUDA_PATH%\bin\nvrtc64_%CUDA_VERSION%*.dll*" pytorch\torch\lib
 copy "%CUDA_PATH%\bin\nvrtc-builtins64_%CUDA_VERSION%.dll*" pytorch\torch\lib
 
 copy "C:\Program Files\NVIDIA Corporation\NvToolsExt\bin\x64\nvToolsExt64_1.dll*" pytorch\torch\lib
-copy "C:\Windows\System32\nvcuda.dll" pytorch\torch\lib
-copy "C:\Windows\System32\nvfatbinaryloader.dll" pytorch\torch\lib
 copy "%CONDA_LIB_PATH%\libiomp*5md.dll" pytorch\torch\lib
