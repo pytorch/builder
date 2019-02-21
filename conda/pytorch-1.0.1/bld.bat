@@ -81,7 +81,4 @@ IF "%USE_SCCACHE%" == "1" (
 
 if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cudnn64_%CUDNN_VERSION%.dll*" %SP_DIR%\torch\lib
-
-    copy "C:\Windows\System32\nvcuda.dll" %SP_DIR%\torch\lib
-    copy "C:\Windows\System32\nvfatbinaryloader.dll" %SP_DIR%\torch\lib
 )
