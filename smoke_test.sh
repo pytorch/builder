@@ -133,9 +133,8 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
       echo "The installed package is built for CUDA:: $(conda list torch)"
       exit 1
     fi
-  elif [[ -z "$(conda list torch | grep -o cudnn)" ]]; then
-    echo "The installed package doesn't seem to be built for CUDA"
-    echo "We expect a cudnn version in the build string"
+  elif [[ -z "$(conda list torch | grep -o cuda$cuda_dot)" ]]; then
+    echo "The installed package doesn't seem to be built for CUDA $cuda_dot"
     echo "The full package is $(conda list torch)"
     exit 1
   fi
