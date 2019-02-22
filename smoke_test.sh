@@ -81,7 +81,8 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   rm -rf /usr/local/cuda || true
   if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
     ln -s "/usr/local/cuda-${cuda_dot}" /usr/local/cuda
-    export CUDA_VERSION=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev)
+    export CUDA_VERSION=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev) # 10.0.130
+    export CUDA_VERSION_SHORT=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev | cut -f1,2 -d".") # 10.0
     export CUDNN_VERSION=$(ls /usr/local/cuda/lib64/libcudnn.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev)
   fi
 fi
@@ -103,10 +104,10 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   retry curl -o libtorch_zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
   unzip -q libtorch_zip
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
-  if [[ "$DESIRED_CUDA" == 'cpu' || "$DESIRED_CUDA" == 'cu90' ]]; then
+  if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
     retry conda install -yq -c pytorch "$package_name_and_version"
   else
-    retry conda install -yq -c pytorch "cuda${DESIRED_CUDA:2}" "$package_name_and_version"
+    retry conda install -yq -c pytorch "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
 else
   retry pip install "$package_name_and_version" \
