@@ -181,6 +181,7 @@ else
     rm -rf "$(pwd)/any_wheel"
 
     echo $PYTORCH_BUILD_VERSION > libtorch/build-version
+    echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
     zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
     cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip"  \

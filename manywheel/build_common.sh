@@ -151,6 +151,7 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         rm -rf any_wheel
 
         echo $PYTORCH_BUILD_VERSION > libtorch/build-version
+        echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
         mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
         zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
