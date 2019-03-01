@@ -59,9 +59,7 @@ move /Y torch\test\*.* libtorch\test\
 
 move /Y libtorch\bin\*.dll libtorch\lib\
 
-pushd pytorch
-git rev-parse HEAD > ..\libtorch\build-hash
-popd
+git rev-parse HEAD > libtorch\build-hash
 
 7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
 
