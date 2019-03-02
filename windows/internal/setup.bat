@@ -59,6 +59,8 @@ move /Y torch\test\*.* libtorch\test\
 
 move /Y libtorch\bin\*.dll libtorch\lib\
 
+git rev-parse HEAD > libtorch\build-hash
+
 7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
 
 mkdir ..\output\%CUDA_PREFIX%
