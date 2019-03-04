@@ -69,10 +69,16 @@ set CMAKE_INCLUDE_PATH=%cd%\\mkl\\include
 set LIB=%cd%\\mkl\\lib;%LIB%
 
 :: Download MAGMA Files on CUDA builds
+IF "%CUDA_VERSION%" == "80" (
+    set MAGMA_VERSION=2.4.0
+) ELSE (
+    set MAGMA_VERSION=2.5.0
+)
+
 if NOT "%CUDA_VERSION%" == "cpu" (
     rmdir /s /q magma_%CUDA_PREFIX%_release
     del magma_%CUDA_PREFIX%_release.7z
-    curl -k https://s3.amazonaws.com/ossci-windows/magma_2.4.0_%CUDA_PREFIX%_release.7z -o magma_%CUDA_PREFIX%_release.7z
+    curl -k https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_%CUDA_PREFIX%_release.7z -o magma_%CUDA_PREFIX%_release.7z
     7z x -aoa magma_%CUDA_PREFIX%_release.7z -omagma_%CUDA_PREFIX%_release
 )
 
