@@ -43,7 +43,16 @@ py_long="cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}-cp${DESIRED_PYTHON:0:1}${D
 
 # Determine package name
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-  package_name="libtorch-$LIBTORCH_VARIANT-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
+  if [[ "$(uname)" == Darwin ]]; then
+    libtorch_variant='macos'
+  elif [[ -z "$LIBTORCH_VARIANT" ]]; then
+    echo "No libtorch variant given. This smoke test does not know which zip"
+    echo "to download."
+    exit 1
+  else
+    libtorch_variant="$LIBTORCH_VARIANT"
+  fi
+  package_name="libtorch-$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
   package_name='torch-nightly'
 elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
