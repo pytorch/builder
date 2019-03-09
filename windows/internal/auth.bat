@@ -14,9 +14,11 @@ if "%RETRY_TIMES%" == "" (
     set /a SLEEP_TIME=%SLEEP_TIME%*2
 )
 
-curl -so NUL -w "%%{http_code}" -u %VSTS_AUTH% https://dev.azure.com/pytorch
+for /f "usebackq tokens=*" %%i in (`curl -so NUL -w "%%{http_code}" -u %VSTS_AUTH% https://dev.azure.com/pytorch`) do (
+    set STATUS_CODE=%%i
+)
 
-IF ERRORLEVEL 1 (
+IF NOT "%STATUS_CODE%" == "200" (
     echo Auth retry times remaining: %RETRY_TIMES%
     echo Sleep time: %SLEEP_TIME% seconds
     IF %RETRY_TIMES% EQU 0 (
@@ -39,5 +41,6 @@ powershell -c "Write-Warning 'Login Attempt Failed'"
 
 set RETRY_TIMES=
 set SLEEP_TIME=
+set STATUS_CODE=
 
 exit /b 0
