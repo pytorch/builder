@@ -166,8 +166,9 @@ else
     python ../tools/build_libtorch.py
     popd
 
-    mkdir -p libtorch/{lib,bin,include,share}
+    mkdir -p libtorch/{lib,bin,include,share/spec}
     cp -r "$(pwd)/build/lib" "$(pwd)/libtorch/"
+    cp "$(pwd)/build/aten/src/ATen/Declarations.yaml" "$(pwd)/libtorch/share/spec/"
 
     # for now, the headers for the libtorch package will just be
     # copied in from the wheel
