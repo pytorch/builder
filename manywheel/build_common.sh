@@ -288,12 +288,8 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     if [[ -e $record_file ]]; then
         echo "Generating new record file $record_file"
         rm -f $record_file
-        # generate records for torch folder
-        find torch -type f | while read fname; do
-            echo $(make_wheel_record $fname) >>$record_file
-        done
-        # generate records for torch-[version]-dist-info folder
-        find torch*dist-info -type f | while read fname; do
+        # generate records for folders in wheel
+        find * -type f | while read fname; do
             echo $(make_wheel_record $fname) >>$record_file
         done
     fi
