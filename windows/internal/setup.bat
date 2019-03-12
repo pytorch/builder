@@ -61,13 +61,13 @@ move /Y libtorch\bin\*.dll libtorch\lib\
 
 git rev-parse HEAD > libtorch\build-hash
 
-7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
-
 IF "%DEBUG%" == "" (
     set LIBTORCH_PREFIX=libtorch-win-%VARIANT%
 ) ELSE (
     set LIBTORCH_PREFIX=libtorch-win-%VARIANT%-debug
 )
+
+7z a -tzip %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
 
 mkdir ..\output\%CUDA_PREFIX%
 copy /Y %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
