@@ -62,6 +62,11 @@ jobs:
           DESIRED_PYTHON: 3
           CUDA_VERSION: cpu
           BUILD_PYTHONLESS: 1
+        LIBTORCH_DEBUG:
+          DESIRED_PYTHON: 3
+          CUDA_VERSION: cpu
+          BUILD_PYTHONLESS: 1
+          DEBUG: 1
       ${{ if ne(parameters.spec, 'CPU') }}:
         PY3.5_90:
           DESIRED_PYTHON: 3.5
@@ -95,14 +100,29 @@ jobs:
           DESIRED_PYTHON: 3
           BUILD_PYTHONLESS: 1
           CUDA_VERSION: 80
+        LIBTORCH_80_DEBUG:
+          DESIRED_PYTHON: 3
+          BUILD_PYTHONLESS: 1
+          CUDA_VERSION: 80
+          DEBUG: 1
         LIBTORCH_90:
           DESIRED_PYTHON: 3
           BUILD_PYTHONLESS: 1
           CUDA_VERSION: 90
+        LIBTORCH_90_DEBUG:
+          DESIRED_PYTHON: 3
+          BUILD_PYTHONLESS: 1
+          CUDA_VERSION: 90
+          DEBUG: 1
         LIBTORCH_100:
           DESIRED_PYTHON: 3
           BUILD_PYTHONLESS: 1
           CUDA_VERSION: 100
+        LIBTORCH_100_DEBUG:
+          DESIRED_PYTHON: 3
+          BUILD_PYTHONLESS: 1
+          CUDA_VERSION: 100
+          DEBUG: 1
 
   pool:
     ${{ if eq(parameters.msagent, 'true') }}:

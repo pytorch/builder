@@ -63,9 +63,15 @@ git rev-parse HEAD > libtorch\build-hash
 
 7z a -tzip libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip libtorch\*
 
+IF "%DEBUG%" == "" (
+    set LIBTORCH_PREFIX=libtorch-win-%VARIANT%
+) ELSE (
+    set LIBTORCH_PREFIX=libtorch-win-%VARIANT%-debug
+)
+
 mkdir ..\output\%CUDA_PREFIX%
-copy /Y libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
-copy /Y libtorch-win-%VARIANT%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\libtorch-win-%VARIANT%-latest.zip
+copy /Y %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\
+copy /Y %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip ..\output\%CUDA_PREFIX%\%LIBTORCH_PREFIX%-latest.zip
 
 goto build_end
 
