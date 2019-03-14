@@ -75,11 +75,17 @@ IF "%CUDA_VERSION%" == "80" (
     set MAGMA_VERSION=2.5.0
 )
 
+if "%DEBUG%" == "1" (
+    set BUILD_TYPE=debug
+) ELSE (
+    set BUILD_TYPE=release
+)
+
 if NOT "%CUDA_VERSION%" == "cpu" (
-    rmdir /s /q magma_%CUDA_PREFIX%_release
-    del magma_%CUDA_PREFIX%_release.7z
-    curl -k https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_%CUDA_PREFIX%_release.7z -o magma_%CUDA_PREFIX%_release.7z
-    7z x -aoa magma_%CUDA_PREFIX%_release.7z -omagma_%CUDA_PREFIX%_release
+    rmdir /s /q magma_%CUDA_PREFIX%_%BUILD_TYPE%
+    del magma_%CUDA_PREFIX%_%BUILD_TYPE%.7z
+    curl -k https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_%CUDA_PREFIX%_%BUILD_TYPE%.7z -o magma_%CUDA_PREFIX%_%BUILD_TYPE%.7z
+    7z x -aoa magma_%CUDA_PREFIX%_%BUILD_TYPE%.7z -omagma_%CUDA_PREFIX%_%BUILD_TYPE%
 )
 
 :: Install sccache
@@ -106,7 +112,7 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     @setlocal
     :: Set Flags
     if NOT "%CUDA_VERSION%"=="cpu" (
-        set MAGMA_HOME=%cd%\\magma_%CUDA_PREFIX%_release
+        set MAGMA_HOME=%cd%\\magma_%CUDA_PREFIX%_%BUILD_TYPE%
         set CUDNN_VERSION=7
     )
     call %CUDA_PREFIX%.bat
