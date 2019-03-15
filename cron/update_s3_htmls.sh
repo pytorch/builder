@@ -12,8 +12,8 @@ if [[ -z "$CUDA_VERSIONS" ]]; then
     export CUDA_VERSIONS=('cpu' 'cu80' 'cu90' 'cu100')
 fi
 
-if [[ -z "$PIP_UPLOAD_FOLDER" ]]; then
-    export PIP_UPLOAD_FOLDER='nightly/'
+if [[ -z "$HTML_NAME" ]]; then
+    export HTML_NAME='torch_nightly.html'
 fi
 
 for cuda_ver in "${CUDA_VERSIONS[@]}"; do
@@ -22,13 +22,13 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     # Pull all existing whls in this directory and turn them into html links
     # N.B. we use the .dev as a hacky way to exclude all wheels with old
     # 'yyyy.mm.dd' versions
-    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.dev20\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./torch_nightly.html
+    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./$HTML_NAME
 
     # Check your work every once in a while
-    echo 'Setting torch_nightly.html to:'
-    cat ./torch_nightly.html
+    echo "Setting $HTML_NAME to:"
+    cat ./$HTML_NAME
 
     # Upload the html file back up
     # Note the lack of a / b/c duplicate / do cause problems in s3
-    aws s3 cp './torch_nightly.html' "${s3_dir}torch_nightly.html"  --acl public-read --cache-control 'no-cache,no-store,must-revalidate'
+    aws s3 cp ./$HTML_NAME "${s3_dir}$HTML_NAME"  --acl public-read --cache-control 'no-cache,no-store,must-revalidate'
 done
