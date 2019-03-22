@@ -16,8 +16,8 @@ requirements:
     - setuptools
     - pyyaml
     - cffi
-    - mkl >=2018
-    - mkl-include
+    - mkl 2019.1
+    - mkl-include 2019.1
     - typing
     - ninja
 {{ environ.get('MAGMA_PACKAGE') }}
