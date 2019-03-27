@@ -46,6 +46,12 @@ ls -1 wheelhouse_manylinux/*.whl | awk '{print("mv "$1 " " $1)}' | sed 's/-linux
 twine upload wheelhouse_manylinux/*.whl
 ```
 
+Generate stable.html with URLs:
+
+```
+HTML_NAME=torch_stable.html cron/update_s3_htmls.sh
+```
+
 ## Building Docker image
 
 Run
