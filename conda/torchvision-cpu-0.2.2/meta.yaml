@@ -18,10 +18,9 @@ requirements:
     - numpy >=1.11
     - pytorch-cpu >=1.0.0
     - six
-    - tqdm >=4.19.9
 
 build:
-  number: 2
+  number: 3
   noarch: python
   script: python setup.py install --single-version-externally-managed --record=record.txt
 
