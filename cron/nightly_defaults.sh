@@ -130,7 +130,7 @@ fi
 #   or in manylinux like
 #       torch_nightly-1.0.0.dev20180908-cp27-cp27m-linux_x86_64.whl
 if [[ -z "$PYTORCH_BUILD_VERSION" ]]; then
-    export PYTORCH_BUILD_VERSION="1.0.0.dev$(echo $NIGHTLIES_DATE | tr -d '_-')"
+    export PYTORCH_BUILD_VERSION="1.0.1.dev$(echo $NIGHTLIES_DATE | tr -d '_-')"
 fi
 
 # PYTORCH_BUILD_NUMBER
