@@ -26,15 +26,15 @@ jobs:
   variables:
     - ${{ if eq(parameters.override, 'true') }}:
       - name: PYTORCH_BUILD_VERSION
-        value: '1.0.1'
+        value: '1.1.0'
       - name: PYTORCH_BUILD_NUMBER
         value: 1
       - name: PYTORCH_REPO
         value: 'pytorch'
       - name: PYTORCH_BRANCH
-        value: '743fdbdb192dd0f07d51d6f94f8b47984484b54f'
+        value: 'v1.1.0'
       - name: TORCH_CONDA_BUILD_FOLDER
-        value: 'pytorch-1.0.1'
+        value: 'pytorch-1.1.0'
     - ${{ if eq(parameters.msagent, 'true') }}:
       - name: USE_SCCACHE
         value: 0
@@ -122,7 +122,7 @@ jobs:
     parameters:
       msagent: ${{ parameters.msagent }}
 
-  # - template: setup_nightly_variables.yml
+  - template: setup_nightly_variables.yml
 
   - ${{ if eq(parameters.package, 'Wheels') }}:
     - template: build_wheels.yml
@@ -142,20 +142,29 @@ jobs:
       parameters:
         package: ${{ parameters.package }}
 
-  # - ${{ if and(eq(parameters.package, 'Wheels'), eq(parameters.spec, 'CPU')) }}:
-  #   - template: upload_to_s3.yml
-  #     parameters:
-  #       cuVer: '$(CUDA_VERSION)'
-  #       cudaVer: '$(CUDA_VERSION)'
+  - ${{ if and(eq(parameters.package, 'Wheels'), eq(parameters.spec, 'CPU')) }}:
+    - template: upload_to_s3.yml
+      parameters:
+        cuVer: '$(CUDA_VERSION)'
+        cudaVer: '$(CUDA_VERSION)'
 
-  # - ${{ if and(eq(parameters.package, 'Wheels'), ne(parameters.spec, 'CPU')) }}:
-  #   - template: upload_to_s3.yml
-  #     parameters:
-  #       cuVer: 'cu$(CUDA_VERSION)'
-  #       cudaVer: 'cuda$(CUDA_VERSION)'
+  - ${{ if and(eq(parameters.package, 'Wheels'), ne(parameters.spec, 'CPU')) }}:
+    - template: upload_to_s3.yml
+      parameters:
+        cuVer: 'cu$(CUDA_VERSION)'
+        cudaVer: 'cuda$(CUDA_VERSION)'
 
-  # - ${{ if eq(parameters.package, 'Conda') }}:
-  #   - template: upload_to_conda.yml
+  - ${{ if eq(parameters.package, 'Conda') }}:
+    - template: upload_to_conda.yml
+      parameters:
+        user: $(peterjc_conda_username)
+        pass: $(peterjc_conda_password)
+
+  # If you want to upload binaries to Azure Git, please uncomment this section.
+  # - ${{ if or(eq(parameters.package, 'Wheels'), eq(parameters.package, 'Conda')) }}:
+  #   - template: publish_test_results.yml
   #     parameters:
-  #       user: $(peterjc_conda_username)
-  #       pass: $(peterjc_conda_password)
+  #       msagent: ${{ parameters.msagent }}
+  #   - template: publish_packages.yml
+  #     parameters:
+  #       package: ${{ parameters.package }}

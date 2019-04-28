@@ -35,9 +35,12 @@ if "%BUILD_PYTHONLESS%" == "" goto pytorch else goto libtorch
 set VARIANT=shared-with-deps
 
 mkdir libtorch
-set "INSTALL_DIR=%CD%\libtorch"
+mkdir libtorch\bin
+mkdir libtorch\cmake
+mkdir libtorch\include
 mkdir libtorch\lib
-copy /Y torch\lib\*.dll libtorch\lib\
+mkdir libtorch\share
+mkdir libtorch\test
 
 mkdir build
 pushd build

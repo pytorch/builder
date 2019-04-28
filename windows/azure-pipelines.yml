@@ -18,11 +18,11 @@ jobs:
     spec: 'CPU'
     msagent: false
 
-# - template: templates/build_task.yml
-#   parameters:
-#     package: 'Wheels'
-#     spec: 'CUDA'
-#     msagent: false
+- template: templates/build_task.yml
+  parameters:
+    package: 'Wheels'
+    spec: 'CUDA'
+    msagent: false
 
 - template: templates/build_task.yml
   parameters:
