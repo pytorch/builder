@@ -138,9 +138,6 @@ jobs:
     - template: publish_test_results.yml
       parameters:
         msagent: ${{ parameters.msagent }}
-    - template: publish_packages.yml
-      parameters:
-        package: ${{ parameters.package }}
 
   - ${{ if and(eq(parameters.package, 'Wheels'), eq(parameters.spec, 'CPU')) }}:
     - template: upload_to_s3.yml
