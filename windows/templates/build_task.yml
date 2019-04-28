@@ -112,7 +112,7 @@ jobs:
     ${{ if eq(parameters.msagent, 'true') }}:
       vmImage: 'win1803'
     ${{ if eq(parameters.msagent, 'false') }}:
-      name: 'release'
+      name: 'pytorch'
 
   steps:
   - checkout: self
