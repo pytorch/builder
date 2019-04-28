@@ -8,7 +8,7 @@ parameters:
   cudaEnabled: true
   condaEnabled: true
   wheelsEnabled: true
-  override: true
+  override: false
 
 jobs:
 - job: 'Windows_${{ parameters.spec }}_${{ parameters.package }}_Build'
