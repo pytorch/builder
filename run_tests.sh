@@ -62,7 +62,7 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
-    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing
+    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml
     if [[ "$cuda_ver" != 'cpu' ]]; then
 	retry conda install -yq cudatoolkit=$cuda_ver_majmin
     fi
