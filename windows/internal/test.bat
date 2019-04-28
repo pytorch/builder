@@ -48,11 +48,10 @@ if NOT "%CUDA_PREFIX%" == "cpu" if "%NVIDIA_GPU_EXISTS%" == "1" (
     if ERRORLEVEL 1 exit /b 1
 )
 
-REM echo Not running unit tests. Hopefully these problems are caught by CI
-REM goto test_end
+echo Not running unit tests. Hopefully these problems are caught by CI
+goto test_end
 
 cd pytorch\test
-REM python run_test.py -v -pt -x c10d distributed thd_distributed
 python run_test.py -v
 
 if ERRORLEVEL 1 exit /b 1
