@@ -1,0 +1,64 @@
+package:
+  name: pytorch{{ environ.get('PYTORCH_PACKAGE_SUFFIX') }}
+  version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+source:
+  path: "{{ environ.get('PYTORCH_GITHUB_ROOT_DIR') }}"
+
+requirements:
+  build:
+    - cmake
+    - {{ compiler('c') }} # [win]
+
+  host:
+    - python
+    - numpy 1.11.*
+    - setuptools
+    - pyyaml
+    - cffi
+    - mkl >=2018
+    - mkl-include
+    - typing
+    - ninja
+{{ environ.get('MAGMA_PACKAGE') }}
+
+  run:
+    - python
+    - numpy >=1.11
+    - mkl >=2018
+    - cffi
+    - ninja
+{{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+
+build:
+  number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
+  detect_binary_files_with_prefix: False
+  string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
+  script_env:
+    - CUDA_VERSION
+    - CUDNN_VERSION
+    - CONDA_CUDATOOLKIT_CONSTRAINT
+    - NO_CUDA
+    - CMAKE_ARGS
+    - EXTRA_CAFFE2_CMAKE_FLAGS
+    - DEVELOPER_DIR
+    - DEBUG
+    - NO_FBGEMM
+    - USE_SCCACHE # [win]
+
+test:
+ imports:
+    - torch
+ source_files:
+   - test
+ commands:
+   - OMP_NUM_THREADS=4 python ./test/run_test.py || true # [not win]
+   - python ./test/run_test.py # [win]
+
+
+about:
+  home: http://pytorch.org/
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.
