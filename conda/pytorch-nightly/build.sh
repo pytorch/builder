@@ -112,13 +112,14 @@ done
 # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib and conda/lib
 find $SP_DIR/torch -name "*.so*" -maxdepth 1 -type f | while read sofile; do
     echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../..'
-    patchelf --set-rpath '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../..' $sofile
+    patchelf --set-rpath --force-rpath '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../..' \
+             $sofile
     patchelf --print-rpath $sofile
 done
 
 # set RPATH of lib/ files to $ORIGIN and conda/lib
 find $SP_DIR/torch/lib -name "*.so*" -maxdepth 1 -type f | while read sofile; do
-    echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../../..'
-    patchelf --set-rpath '$ORIGIN:$ORIGIN/lib:$ORIGIN/../../../..' $sofile
+    echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/../../../..'
+    patchelf --set-rpath --force-rpath '$ORIGIN:$ORIGIN/../../../..' $sofile
     patchelf --print-rpath $sofile
 done
