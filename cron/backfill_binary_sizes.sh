@@ -10,7 +10,7 @@ set -ex
 # 2019_01_01 format.
 # You should make sure that end date is actually after start date, and that
 # both are in underscore format
-START_DATE="2019_01_01"
+START_DATE="2019_04_22"
 END_DATE="$(date +%Y_%m_%d)"
 
 # The upload_binary_sizes script needs to construct the entire Pytorch binary
