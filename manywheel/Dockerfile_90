@@ -1,4 +1,4 @@
-FROM nvidia/cuda:8.0-devel-centos7
+FROM nvidia/cuda:9.0-devel-centos7
 
 # MKL
 RUN mkdir -p /opt/intel/lib
@@ -58,10 +58,10 @@ RUN wget -q https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/2/cuda_9.
 # install CUDA 9.0 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.4.2.24-1+cuda9.0_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.4.2.24-1+cuda9.0_amd64.deb && \
-    ar -x libcudnn7-dev_7.4.2.24-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.4.2.24-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.5.1.10-1+cuda9.0_amd64.deb && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.5.1.10-1+cuda9.0_amd64.deb && \
+    ar -x libcudnn7-dev_7.5.1.10-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
+    ar -x libcudnn7_7.5.1.10-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -72,14 +72,6 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     cp -a cuda/lib64/* /usr/local/cuda/lib64/ && \
     cd .. && \
     rm -rf tmp_cudnn && \
-    ldconfig
-
-# NCCL2 license: https://docs.nvidia.com/deeplearning/sdk/nccl-sla/index.html
-RUN wget -q https://s3.amazonaws.com/pytorch/nccl_2.3.7-1%2Bcuda9.0_x86_64.txz && \
-    tar --no-same-owner -xvf nccl_2.3.7-1+cuda9.0_x86_64.txz && \
-    mv nccl_2.3.7-1+cuda9.0_x86_64/include/* /usr/local/cuda/include/ && \
-    cp -P nccl_2.3.7-1+cuda9.0_x86_64/lib/libnccl* /usr/local/cuda/lib64/ && \
-    rm -rf nccl_2.3.7-1+cuda9.0_x86_64* && \
     ldconfig
 
 # magma

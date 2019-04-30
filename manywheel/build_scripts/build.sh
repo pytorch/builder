@@ -73,11 +73,11 @@ curl-config --features
 rm -rf /usr/local/ssl
 
 # Install patchelf (latest with unreleased bug fixes)
-curl -sLOk https://nipy.bic.berkeley.edu/manylinux/patchelf-0.9njs2.tar.gz
-check_sha256sum patchelf-0.9njs2.tar.gz $PATCHELF_HASH
-tar -xzf patchelf-0.9njs2.tar.gz
-(cd patchelf-0.9njs2 && ./configure && make && make install)
-rm -rf patchelf-0.9njs2.tar.gz patchelf-0.9njs2
+curl -sLOk https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz
+# check_sha256sum patchelf-0.9njs2.tar.gz $PATCHELF_HASH
+tar -xzf patchelf-0.10.tar.gz
+(cd patchelf-0.10 && ./configure && make && make install)
+rm -rf patchelf-0.10.tar.gz patchelf-0.10
 
 # Install latest pypi release of auditwheel
 $PY36_BIN/pip install auditwheel
