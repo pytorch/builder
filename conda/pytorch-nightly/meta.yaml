@@ -28,6 +28,7 @@ requirements:
     - mkl >=2018
     - cffi
     - ninja
+    - future # [py2k]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
 
 build:
