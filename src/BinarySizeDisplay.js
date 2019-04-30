@@ -9,7 +9,7 @@ function formatBytes(bytes) {
 }
 
 // 1 am PST (I think?)
-const startDate = new Date(Date.UTC(2018, 9, 15, 8, 0, 0));
+const startDate = new Date(Date.UTC(2019, 3, 1, 8, 0, 0));
 let allDates = [];
 
 
@@ -39,7 +39,6 @@ export default class BinarySizeDisplay extends Component {
     let dateToBuilds = {};
 
     allDates.map(async (date) => {
-    //[].map(async (date)  => {
         let date_underscore = toYYYYmmdd(date, '_');
         // the 2018_11_14.json contains an array of objects with keys [os, pkg, py, cu, size]
         let sizeObjs = await get_request('https://s3.amazonaws.com/pytorch/nightly_logs/binary_sizes/' + date_underscore + '.json');
