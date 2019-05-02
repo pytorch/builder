@@ -85,6 +85,11 @@ conda_pkg_names=('pytorch-nightly' 'pytorch-nightly-cpu')
 tmp_json="_conda_search.json"
 for pkg_name in "${conda_pkg_names[@]}"; do
     for platform in "${conda_platforms[@]}"; do
+        # TODO This should really be rewritten in Python
+        if [[ "$pkg_name" == 'pytorch-nightly-cpu' && "$platform" == 'osx-64' ]]; then
+          # On MacOS they're all called pytorch-nightly, since they're all cpu
+          continue
+        fi
 
         # Read the info from conda-search
         touch "$tmp_json"
@@ -118,12 +123,14 @@ for cu_ver in "${cuda_versions[@]}"; do
     if [[ "$?" != 0 ]]; then
         set -e
         echo "ERROR: Could find no [many]wheels for $cu_ver"
-        failed_binary_queries+=("linux_and_macos [many]wheel $vu_ver")
+        failed_binary_queries+=("linux_and_macos [many]wheel $cu_ver")
         continue
     fi
     set -e
 
     # outputs is now a list of [size whl size whl...] as different elements
+    # set +x so the echo of sizes is readable
+    set +x
     for i in $(seq 0 2 $(( ${#outputs[@]} - 1 )) ); do
         whl="${outputs[$(( $i + 1 ))]}"
         size="${outputs[$i]}"
@@ -146,8 +153,10 @@ for cu_ver in "${cuda_versions[@]}"; do
         fi
 
         # Write to binary_sizes_log in log_name_form
+        echo "upload_binary_sizes.sh:: Size of $platform $pkg_type $py_ver $cu_ver is $size"
         echo "$platform $pkg_type $py_ver $cu_ver $size" >> "$binary_sizes_log"
     done
+    set -x
 done
 
 # Convert the file of '<platform> <log_name> <size>' into a json for easy
