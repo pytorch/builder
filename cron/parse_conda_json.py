@@ -21,29 +21,38 @@ with open(inputfile, 'rb') as jsonfile:
     # Loop through versions found, keeping only 'build', and size
     # size is in bytes
     for result in rawdata[pkg_name]:
+        # N.B. platform is queried as 'linux-64' but is stores as linux, and as
+        # 'osx-64' but stored as 'darwin'
+        plat = 'linux' if 'linux' in result['platform'] else 'macos'
         size = result['size']
-        # 'build' is of the form 'py2.7_cuda8.0.61_cudnn7.1.2_0' for cuda builds
-        # or 'py2.7_cpu_0' for cpu builds
-        build = result['build'].split('_')
-        assert len(build) == 3 or len(build) == 4, "Unexpected build string {}".format(build)
 
-        print('parse_conda_json.py:: Size of {} is {}'.format(build, size))
+        # 'build' is of the form
+        # linux CUDA builds: 'py2.7_cuda8.0.61_cudnn7.1.2_0'
+        # linux CPU builds:  'py2.7_cpu_0'
+        # MacOS builds:      'py2.7_0'
+        build = result['build'].split('_')
+
+        print('parse_conda_json.py:: Size of {} conda {} is {}'.format(plat, build, size))
+        if plat == 'macos':
+            # We expect a format like 'py2.7_0'
+            assert len(build) == 2, "Unexpected MacOS build string {}".format(build)
+        else:
+            # We expect a format like:
+            #   CUDA builds: 'py2.7_cuda8.0.61_cudnn7.1.2_0'
+            #   CPU builds:  'py2.7_cpu_0'
+            assert len(build) in (3,4), "Unexpected Linux build string {}".format(build)
 
         # Python versions are of form 'py#.#' , we discard the 'py'
         py_ver = build[0][2:]
 
         # CUDA versions are of the form 'cuda10.0.61', we replace 'cuda' with
         # 'cu' and keep only the major and minor values
-        if build[1] == 'cpu':
-            cu_ver = 'cpu'
-        else:
+        if build[1].startswith('cuda'):
             cu_ver = build[1][4:].split('.')
             assert len(cu_ver) == 3, "Unexpected cuda format {}".format(cu_ver)
             cu_ver = 'cu' + ''.join((cu_ver[0], cu_ver[1]))
-
-        # N.B. platform is queried as 'linux-64' but is stores as linux, and as
-        # 'osx-64' but stored as 'darwin'
-        plat = 'linux' if 'linux' in result['platform'] else 'macos'
+        else:
+            cu_ver = 'cpu'
 
         data.append((plat, py_ver, cu_ver, size))
 

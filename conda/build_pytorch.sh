@@ -106,12 +106,12 @@ else
     cuda_nodot="$desired_cuda"
 
     if [[ ${#cuda_nodot} -eq 2 ]]; then
-	desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
+        desired_cuda="${desired_cuda:0:1}.${desired_cuda:1:1}"
     elif [[ ${#cuda_nodot} -eq 3 ]]; then
-	desired_cuda="${desired_cuda:0:2}.${desired_cuda:2:1}"
+        desired_cuda="${desired_cuda:0:2}.${desired_cuda:2:1}"
     else
-	echo "unknown cuda version $cuda_nodot"
-	exit 1
+        echo "unknown cuda version $cuda_nodot"
+        exit 1
     fi
 fi
 
@@ -222,9 +222,9 @@ if [[ -n "$cpu_only" ]]; then
     fi
     # on Linux, rename the package pytorch-nightly-cpu, because it's cpu build
     if [[ "$(uname)" != 'Darwin' ]]; then
-	export PYTORCH_PACKAGE_SUFFIX="-cpu" # used in name: pytorch part of meta.yaml
+        export PYTORCH_PACKAGE_SUFFIX="-cpu" # used in name: pytorch part of meta.yaml
     else
-	export PYTORCH_PACKAGE_SUFFIX=""
+        export PYTORCH_PACKAGE_SUFFIX=""
     fi
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
@@ -235,17 +235,17 @@ else
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
     if [[ "$desired_cuda" == "10.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
-	export MAGMA_PACKAGE="    - magma-cuda100 # [not osx and not win]"
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
+        export MAGMA_PACKAGE="    - magma-cuda100 # [not osx and not win]"
     elif [[ "$desired_cuda" == "9.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
-	export MAGMA_PACKAGE="    - magma-cuda90 # [not osx and not win]"
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
+        export MAGMA_PACKAGE="    - magma-cuda90 # [not osx and not win]"
     elif [[ "$desired_cuda" == "8.0" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=8.0,<8.1 # [not osx]"
-	export MAGMA_PACKAGE="    - magma-cuda80 # [not osx and not win]"
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=8.0,<8.1 # [not osx]"
+        export MAGMA_PACKAGE="    - magma-cuda80 # [not osx and not win]"
     else
-	echo "unhandled desired_cuda: $desired_cuda"
-	exit 1
+        echo "unhandled desired_cuda: $desired_cuda"
+        exit 1
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
