@@ -82,7 +82,7 @@ if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
   retry conda install -yq future numpy protobuf six
 else
   export PATH=/opt/python/${py_long}/bin:$PATH
-  retry pip install future numpy protobuf six
+  retry pip install -q future numpy protobuf six
 fi
 
 # Switch to the desired CUDA if using the conda-cuda Docker image
