@@ -9,7 +9,7 @@
 #
 # This script needs a date to search for, and it also needs the full version
 # string for that date so it can query `conda search`. You need to either
-# 1. populate NIGHTLIES_DATE and PYTORCH_BUILD_VERSION
+# 1. populate DATE and PYTORCH_BUILD_VERSION
 # 2. Pass in the date and the version preamble. This script assumes that the
 #    version string follows 1.1.0.dev20190101 format; the version preamble is
 #    the '1.1.0.dev' part. The date should be given is 2019_01_01 format.
@@ -46,11 +46,11 @@ if [[ "$#" > 0 ]]; then
     target_date="$(echo $target_date | tr '-' '_')"
     target_version="${version_preamble}$(echo $target_date | tr -d _)"
 else
-    if [[ -z "$NIGHTLIES_DATE" || -z "$PYTORCH_BUILD_VERSION" ]]; then
-      echo "Requires variables NIGHTLIES_DATE and PYTORCH_BUILD_VERSION"
+    if [[ -z "$DATE" || -z "$PYTORCH_BUILD_VERSION" ]]; then
+      echo "Requires variables DATE and PYTORCH_BUILD_VERSION"
       exit 1
     fi
-    target_date="$NIGHTLIES_DATE"
+    target_date="$DATE"
     target_version="$PYTORCH_BUILD_VERSION"
 fi
 
