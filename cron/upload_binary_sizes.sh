@@ -51,6 +51,13 @@ else
       exit 1
     fi
     target_date="$DATE"
+
+    # The docs say that this takes an underscore date but people don't read
+    # docs, so if it's wrong then we fix it.
+    if [[ "${#target_date}" == 8 ]]; then
+      target_date="${target_date:0:4}_${target_date:4:2}_${target_date:6:2}"
+    fi
+    target_date="$(echo $target_date | tr '-' '_')"
     target_version="$PYTORCH_BUILD_VERSION"
 fi
 
