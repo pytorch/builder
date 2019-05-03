@@ -5,14 +5,13 @@
 # cpu versions and dates). This script populates those files by parsing conda
 # info output or from s3
 # Usage:
-#   collect_binary_sizes.sh [date pytorch_version_preamble
+#   collect_binary_sizes.sh [date]
 #
-# This script needs a date to search for, and it also needs the full version
-# string for that date so it can query `conda search`. You need to either
-# 1. populate DATE and PYTORCH_BUILD_VERSION
-# 2. Pass in the date and the version preamble. This script assumes that the
-#    version string follows 1.1.0.dev20190101 format; the version preamble is
-#    the '1.1.0.dev' part. The date should be given is 2019_01_01 format.
+# This script needs a date to search for, which is either the first parameter
+# or the variable $DATE
+# This script assumes that the version string follows 1.1.0.dev20190101 format;
+# specifically we construct the version as "*$DATE"
+# The date should be in 2019_01_01 format, with underscores.
 #
 # N.B. this assumes that there is one version for each date. If you upload
 #      1.1.0 *and* 1.2.0 binaries on the same date, then this will probably
@@ -29,36 +28,21 @@ echo "collect_binary_sizes.sh at $(pwd) starting at $(date) on $(uname -a) with 
 SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 # Parse parameters, clean parameters
-# Need a date and the full version string to use to query conda
 if [[ "$#" > 0 ]]; then
-    if [[ "$#" == 1 ]]; then
-      echo "You must specify the version preamble too"
-      exit 1
-    fi
     target_date="$1"
-    version_preamble="$2"
-
-    # The docs say that this takes an underscore date but people don't read
-    # docs, so if it's wrong then we fix it.
-    if [[ "${#target_date}" == 8 ]]; then
-      target_date="${target_date:0:4}_${target_date:4:2}_${target_date:6:2}"
-    fi
-    target_date="$(echo $target_date | tr '-' '_')"
-    target_version="${version_preamble}$(echo $target_date | tr -d _)"
-else
-    if [[ -z "$DATE" || -z "$PYTORCH_BUILD_VERSION" ]]; then
-      echo "Requires variables DATE and PYTORCH_BUILD_VERSION"
-      exit 1
-    fi
+elif [[ -n "$DATE" ]]; then
     target_date="$DATE"
+elif [[ -n "$NIGHTLIES_DATE" ]]; then
+    target_date="$NIGHTLIES_DATE"
+else
+    echo "Need a date in format 2019_01_01 as argument or in \$DATE"
+fi
 
-    # The docs say that this takes an underscore date but people don't read
-    # docs, so if it's wrong then we fix it.
-    if [[ "${#target_date}" == 8 ]]; then
-      target_date="${target_date:0:4}_${target_date:4:2}_${target_date:6:2}"
-    fi
-    target_date="$(echo $target_date | tr '-' '_')"
-    target_version="$PYTORCH_BUILD_VERSION"
+# The docs say that this takes an underscore date but people don't read
+# docs, so if it's wrong then we fix it.
+target_date="$(echo $target_date | tr '-' '_')"
+if [[ "${#target_date}" == 8 ]]; then
+  target_date="${target_date:0:4}_${target_date:4:2}_${target_date:6:2}"
 fi
 
 # First write lines of "$platform $pkg_type $py_ver $cu_ver $size" to a log,
@@ -87,6 +71,12 @@ failed_binary_queries=()
 ##############################################################################
 # Collect conda binary sizes
 # This is read from `conda search`. 
+
+# `conda search` takes a version string. We use *20190101 to catch
+# 1.0.0.dev20190101 or 1.1.0.dev20190101 etc. All the nightly binaries have
+# this general format of version string
+conda_search_version="*$(echo $target_date | tr -d _)"
+
 conda_platforms=('linux-64' 'osx-64')
 conda_pkg_names=('pytorch-nightly' 'pytorch-nightly-cpu')
 tmp_json="_conda_search.json"
@@ -102,7 +92,7 @@ for pkg_name in "${conda_pkg_names[@]}"; do
         touch "$tmp_json"
         set +e
         conda search -c pytorch --json --platform "$platform" \
-                "$pkg_name==$target_version" > "$tmp_json"
+                "$pkg_name==$conda_search_version" > "$tmp_json"
         if [[ "$?" != 0 ]]; then
             set -e
             echo "ERROR: Could not query conda for $platform"
@@ -120,13 +110,23 @@ rm -f "$tmp_json"
 
 ##############################################################################
 # Collect wheel binary sizes. These are read from s3
+aws_version="$(echo $target_date | tr -d _)"
 cuda_versions=("cpu" "cu90" "cu100")
 for cu_ver in "${cuda_versions[@]}"; do
 
     # Read the info from s3
     s3_dir="s3://pytorch/whl/nightly/${cu_ver}/"
+
+    # s3 ls output looks like lines of
+    # 2019-05-02 23:00:47   88928494 torch_nightly-1.1.0.dev20190503-cp36-none-macosx_10_7_x86_64.whl
+    # The grep command is
+    # --only-matching, only print out the string that matches
+    # \S* -- the numbers that should be the binary size, right before the
+    #        package name
+    # \S*$target_date\S*\.whl -- some string that ends in .whl that has the
+    #                            date we're looking for in it
     set +e
-    outputs=($(aws s3 ls "$s3_dir" | grep --only-matching "\S* \S*$target_version\S*\.whl"))
+    outputs=($(aws s3 ls "$s3_dir" | grep --only-matching "\S* \S*$aws_version\S*\.whl"))
     if [[ "$?" != 0 ]]; then
         set -e
         echo "ERROR: Could find no [many]wheels for $cu_ver"
