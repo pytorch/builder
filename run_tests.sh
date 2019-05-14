@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eux -o pipefail
 
 # Essentially runs pytorch/test/run_test.py, but keeps track of which tests to
 # skip in a centralized place.
@@ -6,8 +7,6 @@
 # TODO Except for a few tests, this entire file is a giant TODO. Why are these
 # tests # failing?
 # TODO deal with Windows
-
-set -ex
 
 # This script expects to be in the pytorch root folder
 if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
@@ -17,12 +16,12 @@ if [[ ! -d 'test' || ! -f 'test/run_test.py' ]]; then
 fi
 
 # Allow master skip of all tests
-if [[ -n "$SKIP_ALL_TESTS" ]]; then
+if [[ -n "${SKIP_ALL_TESTS:-}" ]]; then
     exit 0
 fi
 
 # If given specific test params then just run those
-if [[ -n "$RUN_TEST_PARAMS" ]]; then
+if [[ -n "${RUN_TEST_PARAMS:-}" ]]; then
     echo "$(date) :: Calling user-command $(pwd)/test/run_test.py ${RUN_TEST_PARAMS[@]}"
     python test/run_test.py ${RUN_TEST_PARAMS[@]}
     exit 0
@@ -36,7 +35,7 @@ retry () {
 # Parameters
 ##############################################################################
 if [[ "$#" != 3 ]]; then
-  if [[ -z "$DESIRED_PYTHON" || -z "$DESIRED_CUDA" || -z "$PACKAGE_TYPE" ]]; then
+  if [[ -z "${DESIRED_PYTHON:-}" || -z "${DESIRED_CUDA:-}" || -z "${PACKAGE_TYPE:-}" ]]; then
     echo "USAGE: run_tests.sh  PACKAGE_TYPE  DESIRED_PYTHON  DESIRED_CUDA"
     echo "The env variable PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
     echo "The env variable DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
@@ -83,6 +82,7 @@ conda list || true
 ##############################################################################
 # Smoke tests
 ##############################################################################
+# TODO use check_binary.sh, which requires making sure it runs on Windows
 pushd /
 echo "Smoke testing imports"
 python -c 'import torch'

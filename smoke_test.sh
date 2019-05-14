@@ -1,8 +1,14 @@
-set -ex
+#!/bin/bash
+set -eux -o pipefail
+SOURCE_DIR=$(cd $(dirname $0) && pwd)
 
 # This is meant to be run in either a docker image or in a Mac. This assumes an
 # environment that will be teared down after execution is finishes, so it will
-# probably mess up what environment it runs in
+# probably mess up what environment it runs in.
+
+# This is now only meant to be run in CircleCI, after calling the
+# .circleci/scripts/binary_populate_env.sh . You can call this manually if you
+# make sure all the needed variables are still populated.
 
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
@@ -10,22 +16,13 @@ retry () {
 }
 
 # Use today's date if none is given
-if [[ "$DATE" == 'today' ]]; then
+if [[ -z "${DATE:-}" || "${DATE:-}" == 'today' ]]; then
     DATE="$(date +%Y%m%d)"
 fi
 
-# Helper variables for logging
-date_under="${DATE:0:4}_${DATE:4:2}_${DATE:6:2}"
-if [[ "$(uname)" == 'Darwin' ]]; then
-  macos_or_linux='macos'
-else
-  macos_or_linux='linux'
-fi
-# Note that all the libtorch jobs share the same log
-log_url="https://download.pytorch.org/nightly_logs/$macos_or_linux/$date_under/${PACKAGE_TYPE}_${DESIRED_PYTHON}_${DESIRED_CUDA}.log"
-
 # DESIRED_PYTHON is in format 2.7m?u?
 # DESIRED_CUDA is in format cu80 (or 'cpu')
+# DESIRED_DEVTOOLSET should be either 'devtoolset3' or 'devtoolset7'
 
 # Generate M.m formats for CUDA and Python versions
 if [[ "$DESIRED_CUDA" != cpu ]]; then
@@ -45,7 +42,7 @@ py_long="cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}-cp${DESIRED_PYTHON:0:1}${D
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   if [[ "$(uname)" == Darwin ]]; then
     libtorch_variant='macos'
-  elif [[ -z "$LIBTORCH_VARIANT" ]]; then
+  elif [[ -z "${LIBTORCH_VARIANT:-}" ]]; then
     echo "No libtorch variant given. This smoke test does not know which zip"
     echo "to download."
     exit 1
@@ -64,21 +61,8 @@ package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
 
 # Switch to the desired python
 if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
-  # Install Anaconda if we're on Mac
-  if [[ "$(uname)" == 'Darwin' ]]; then
-    pyroot="${TMPDIR}/anaconda"
-    rm -rf "$pyroot"
-    retry curl -o ${TMPDIR}/anaconda.sh https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-    /bin/bash ${TMPDIR}/anaconda.sh -b -p ${TMPDIR}/anaconda
-    rm -f ${TMPDIR}/anaconda.sh
-    export PATH="$pyroot/bin:${PATH}"
-    source $pyroot/bin/activate
-  else
-    pyroot="/opt/conda"
-  fi
-
-  # Create a conda env
-  conda create -yn test python="$DESIRED_PYTHON" && source activate test
+  # Create a new conda env in conda, or on MacOS
+  conda create -yn test python="$py_dot" && source activate test
   retry conda install -yq future numpy protobuf six
 else
   export PATH=/opt/python/${py_long}/bin:$PATH
@@ -100,11 +84,12 @@ fi
 python --version
 pip --version
 which python
-if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
-  conda search -c pytorch "$package_name"
-elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
-  retry curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
-fi
+# If you are debugging packages not found then run these commands.
+#if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
+#  conda search -c pytorch "$package_name"
+#elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
+#  retry curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
+#fi
 
 # Install the package for the requested date
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
@@ -119,16 +104,23 @@ elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     retry conda install -yq -c pytorch "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
 else
+  if [[ "$DESIRED_DEVTOOLSET" == 'devtoolset7' ]]; then
+    pip_url="https://download.pytorch.org/whl/nightly/devtoolset7/$DESIRED_CUDA/torch_nightly.html"
+  else
+    pip_url="https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html"
+  fi
   retry pip install "$package_name_and_version" \
-      -f "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" \
+      -f "$pip_url" \
       --no-cache-dir \
       --no-index \
-      -v
+      -q
 fi
 
-# Check that conda didn't do something dumb
+# Check that all conda features are working
 if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
-  # Check that conda didn't change the Python version out from under us
+  # Check that conda didn't change the Python version out from under us. Conda
+  # will do this if it didn't find the requested package for the current Python
+  # version and if nothing else has been installed in the current env.
   if [[ -z "$(python --version 2>&1 | grep -o $py_dot)" ]]; then
     echo "The Python version has changed to $(python --version)"
     echo "Probably the package for the version we want does not exist"
@@ -149,86 +141,4 @@ if [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   fi
 fi
 
-# Loop through all shared libraries and
-#  - Print out all the dependencies
-#  - (Mac) check that there is no openblas dependency
-#  - Check that there are no protobuf symbols
-if [[ "$(uname)" == 'Darwin' ]]; then
-  all_dylibs=($(find "$pyroot/envs/test/lib/python${DESIRED_PYTHON}/site-packages/torch/" -name '*.dylib'))
-  for dylib in "${all_dylibs[@]}"; do
-    echo "All dependencies of $dylib are $(otool -L $dylib) with rpath $(otool -l $dylib | grep LC_RPATH -A2)"
-
-    # Check that OpenBlas is not linked to on Macs
-    echo "Checking the OpenBLAS is not linked to"
-    if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
-      echo "ERROR: Found openblas as a dependency of $dylib"
-      echo "Full dependencies is: $(otool -L $dylib)"
-      exit 1
-    fi
-
-    # Check for protobuf symbols
-    #proto_symbols="$(nm $dylib | grep protobuf)" || true
-    #if [[ -n "$proto_symbols" ]]; then
-    #  echo "ERROR: Detected protobuf symbols in $dylib"
-    #  echo "Symbols are $proto_symbols"
-    #  exit 1
-    #fi
-  done
-else 
-  if [[ "$PACKAGE_TYPE" == libtorch ]]; then
-    all_libs=($(find . -name '*.so'))
-  elif [[ "$PACKAGE_TYPE" == conda ]]; then
-    all_libs=($(find "/opt/conda/envs/test/lib/python${py_dot}/site-packages/torch/" -name '*.so'))
-  else
-    all_libs=($(find "/opt/python/${py_long}/lib/python${py_dot}/site-packages/torch/" -name '*.so'))
-  fi
-
-  for lib in "${all_libs[@]}"; do
-    echo "All dependencies of $lib are $(ldd $lib) with runpath $(objdump -p $lib | grep RUNPATH)"
-
-    # Check for protobuf symbols
-    #proto_symbols=$(nm $lib | grep protobuf) || true
-    #if [[ -n "$proto_symbols" ]]; then
-    #  echo "ERROR: Detected protobuf symbols in $lib"
-    #  echo "Symbols are $proto_symbols"
-    #  exit 1
-    #fi
-  done
-fi
-
-# For libtorch testing is done.
-if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-  echo "For libtorch we only test that the download works"
-  echo "The logfile for this run can be found at $log_url"
-  exit 0
-fi
-
-# Quick smoke test that it works
-echo "Smoke testing imports"
-python -c 'import torch'
-python -c 'from caffe2.python import core'
-
-# Test that MKL is there
-if [[ "$(uname)" == 'Darwin' && "$PACKAGE_TYPE" == wheel ]]; then
-  echo 'Not checking for MKL on Darwin wheel packages'
-else
-  echo "Checking that MKL is available"
-  python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
-fi
-
-# Test that CUDA builds are setup correctly
-if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
-  # Test CUDA archs
-  echo "Checking that CUDA archs are setup correctly"
-  timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
-
-  # These have to run after CUDA is initialized
-  echo "Checking that magma is available"
-  python -c 'import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)'
-
-  echo "Checking that CuDNN is available"
-  python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
-fi
-
-# Echo the location of the logs
-echo "The logfile for this run can be found at $log_url"
+"${SOURCE_DIR}/check_binary.sh"
