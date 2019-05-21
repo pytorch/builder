@@ -63,7 +63,7 @@ fi
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml
     if [[ "$cuda_ver" != 'cpu' ]]; then
-	retry conda install -yq cudatoolkit=$cuda_ver_majmin
+        retry conda install -yq cudatoolkit=$cuda_ver_majmin
     fi
 else
     retry pip install -qr requirements.txt || true
@@ -254,7 +254,7 @@ if [[ "$cuda_ver" != 'cpu' ]]; then
     #   File "<frozen importlib._bootstrap_external>", line 938, in create_module
     #   File "<frozen importlib._bootstrap>", line 222, in _call_with_frames_removed
     # ImportError: libcudnn.so.7: cannot open shared object file: No such file or directory
-		tests_to_skip+=('TestCppExtension and test_jit_cudnn_extension')
+    tests_to_skip+=('TestCppExtension and test_jit_cudnn_extension')
 
     #
     # TestCuda
@@ -313,41 +313,41 @@ if [[ "$cuda_ver" != 'cpu' ]]; then
     # AssertionError: 1605632 not less than or equal to 1e-05 : __main__.TestEndToEndHybridFrontendModels.test_vae_cuda leaked 1605632 bytes CUDA memory on device 0
     tests_to_skip+=('TestEndToEndHybridFrontendModels and test_vae_cuda')
 
-		# ________________________ TestNN.test_embedding_bag_cuda ________________________
-		# 
-		# self = <test_nn.TestNN testMethod=test_embedding_bag_cuda>
-		# dtype = torch.float32
-		# 
-		#     @unittest.skipIf(not TEST_CUDA, "CUDA unavailable")
-		#     @repeat_test_for_types(ALL_TENSORTYPES)
-		#     @skipIfRocm
-		#     def test_embedding_bag_cuda(self, dtype=torch.float):
-		#         self._test_EmbeddingBag(True, 'sum', False, dtype)
-		#         self._test_EmbeddingBag(True, 'mean', False, dtype)
-		#         self._test_EmbeddingBag(True, 'max', False, dtype)
-		#         if dtype != torch.half:
-		#             # torch.cuda.sparse.HalfTensor is not enabled.
-		#             self._test_EmbeddingBag(True, 'sum', True, dtype)
-		# >           self._test_EmbeddingBag(True, 'mean', True, dtype)
-		# 
-		# test_nn.py:2144:
-		# _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-		# test_nn.py:2062: in _test_EmbeddingBag
-		#     _test_vs_Embedding(N, D, B, L)
-		# test_nn.py:2059: in _test_vs_Embedding
-		#     self.assertEqual(es_weight_grad, e.weight.grad, needed_prec)
-		# common.py:373: in assertEqual
-		#     assertTensorsEqual(x, y)
-		# common.py:365: in assertTensorsEqual
-		#     self.assertLessEqual(max_err, prec, message)
-		# E   AssertionError: tensor(0.0000, device='cuda:0', dtype=torch.float32) not less than or equal to 2e-05 :
-		#  1 failed, 1202 passed, 19 skipped, 2 xfailed, 796 warnings in 1166.73 seconds =
-		# Traceback (most recent call last):
-		#   File "test/run_test.py", line 391, in <module>
-		#     main()
-		#   File "test/run_test.py", line 383, in main
-		#     raise RuntimeError(message)
-		tests_to_skip+=('TestNN and test_embedding_bag_cuda')
+    # ________________________ TestNN.test_embedding_bag_cuda ________________________
+    # 
+    # self = <test_nn.TestNN testMethod=test_embedding_bag_cuda>
+    # dtype = torch.float32
+    # 
+    #     @unittest.skipIf(not TEST_CUDA, "CUDA unavailable")
+    #     @repeat_test_for_types(ALL_TENSORTYPES)
+    #     @skipIfRocm
+    #     def test_embedding_bag_cuda(self, dtype=torch.float):
+    #         self._test_EmbeddingBag(True, 'sum', False, dtype)
+    #         self._test_EmbeddingBag(True, 'mean', False, dtype)
+    #         self._test_EmbeddingBag(True, 'max', False, dtype)
+    #         if dtype != torch.half:
+    #             # torch.cuda.sparse.HalfTensor is not enabled.
+    #             self._test_EmbeddingBag(True, 'sum', True, dtype)
+    # >           self._test_EmbeddingBag(True, 'mean', True, dtype)
+    # 
+    # test_nn.py:2144:
+    # _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+    # test_nn.py:2062: in _test_EmbeddingBag
+    #     _test_vs_Embedding(N, D, B, L)
+    # test_nn.py:2059: in _test_vs_Embedding
+    #     self.assertEqual(es_weight_grad, e.weight.grad, needed_prec)
+    # common.py:373: in assertEqual
+    #     assertTensorsEqual(x, y)
+    # common.py:365: in assertTensorsEqual
+    #     self.assertLessEqual(max_err, prec, message)
+    # E   AssertionError: tensor(0.0000, device='cuda:0', dtype=torch.float32) not less than or equal to 2e-05 :
+    #  1 failed, 1202 passed, 19 skipped, 2 xfailed, 796 warnings in 1166.73 seconds =
+    # Traceback (most recent call last):
+    #   File "test/run_test.py", line 391, in <module>
+    #     main()
+    #   File "test/run_test.py", line 383, in main
+    #     raise RuntimeError(message)
+    tests_to_skip+=('TestNN and test_embedding_bag_cuda')
 fi
 
 
@@ -362,19 +362,19 @@ fi
 # from conda as the conda job for Python 2.7. Yet, this only appears on the
 # conda jobs.
 if [[ "$package_type" == 'conda' && "$py_ver" == '2.7' ]]; then
-		# Traceback (most recent call last):
-		#   File "test_jit.py", line 6281, in test_wrong_return_type
-		#     @torch.jit.script
-		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/__init__.py", line 639, in script
-		#     graph = _jit_script_compile(ast, rcb)
-		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 80, in get_signature
-		#     return parse_type_line(type_line)
-		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 131, in parse_type_line
-		#     return arg_types, ann_to_type(ret_ann)
-		#   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 192, in ann_to_type
-		#     return TupleType([ann_to_type(a) for a in ann.__args__])
-		# TypeError: 'TupleInstance' object is not iterable
-		tests_to_skip+=('TestScript and test_wrong_return_type')
+    # Traceback (most recent call last):
+    #   File "test_jit.py", line 6281, in test_wrong_return_type
+    #     @torch.jit.script
+    #   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/__init__.py", line 639, in script
+    #     graph = _jit_script_compile(ast, rcb)
+    #   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 80, in get_signature
+    #     return parse_type_line(type_line)
+    #   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 131, in parse_type_line
+    #     return arg_types, ann_to_type(ret_ann)
+    #   File "/Users/administrator/nightlies/2018_09_30/wheel_build_dirs/conda_2.7/conda/envs/env_py2.7_0_20180930/lib/python2.7/site-packages/torch/jit/annotations.py", line 192, in ann_to_type
+    #     return TupleType([ann_to_type(a) for a in ann.__args__])
+    # TypeError: 'TupleInstance' object is not iterable
+    tests_to_skip+=('TestScript and test_wrong_return_type')
 fi
 
 # Lots of memory leaks on CUDA
@@ -575,14 +575,14 @@ if [[ "$package_type" == 'conda' && "$cuda_ver" != 'cpu' ]]; then
     # AssertionError: 5120 not less than or equal to 1e-05 : __main__.TestNN.test_NLLLoss_higher_dim_sum_reduction_cuda_float leaked -5120 bytes CUDA memory on device 0
     #tests_to_skip+=('TestNN and test_NLLLoss_higher_dim_sum_reduction_cuda_float')
 
-		# ______________________ TestNN.test_variable_sequence_cuda ______________________
-		# common_utils.py:277: in wrapper
-		#     method(*args, **kwargs)
-		# common_utils.py:241: in __exit__
-		#     self.name, after - before, i))
-		# common_utils.py:399: in assertEqual
-		#     super(TestCase, self).assertLessEqual(abs(x - y), prec, message)
-		# E   AssertionError: 1024 not less than or equal to 1e-05 : test_nn.TestNN.test_variable_sequence_cuda leaked 1024 bytes CUDA memory on device 0
+    # ______________________ TestNN.test_variable_sequence_cuda ______________________
+    # common_utils.py:277: in wrapper
+    #     method(*args, **kwargs)
+    # common_utils.py:241: in __exit__
+    #     self.name, after - before, i))
+    # common_utils.py:399: in assertEqual
+    #     super(TestCase, self).assertLessEqual(abs(x - y), prec, message)
+    # E   AssertionError: 1024 not less than or equal to 1e-05 : test_nn.TestNN.test_variable_sequence_cuda leaked 1024 bytes CUDA memory on device 0
     tests_to_skip+=('TestNN and test_variable_sequence_cuda')
 
     # 3.7_cu90
@@ -621,41 +621,41 @@ fi
 
 if [[ "$(uname)" == 'Darwin' && "$package_type" == 'conda' ]]; then
 
-		#
-		# TestDistBackend
+    #
+    # TestDistBackend
     # Seems like either most of the Mac builds get this error or none of them
     # do
-		#
+    #
 
-		# Traceback (most recent call last):
-		#   File "test_thd_distributed.py", line 1046, in wrapper
-		#     self._join_and_reduce(fn)
-		#   File "test_thd_distributed.py", line 1120, in _join_and_reduce
-		#     first_process.exitcode == SKIP_IF_SMALL_WORLDSIZE_EXIT_CODE
-		# AssertionError
-		tests_to_skip+=('TestDistBackend and test_reduce_group_max')
+    # Traceback (most recent call last):
+    #   File "test_thd_distributed.py", line 1046, in wrapper
+    #     self._join_and_reduce(fn)
+    #   File "test_thd_distributed.py", line 1120, in _join_and_reduce
+    #     first_process.exitcode == SKIP_IF_SMALL_WORLDSIZE_EXIT_CODE
+    # AssertionError
+    tests_to_skip+=('TestDistBackend and test_reduce_group_max')
 
-		# Traceback (most recent call last):
-		#   File "test_thd_distributed.py", line 1046, in wrapper
-		#     self._join_and_reduce(fn)
-		#   File "test_thd_distributed.py", line 1132, in _join_and_reduce
-		#     self.assertEqual(first_process.exitcode, 0)
-		#   File "/Users/administrator/nightlies/2018_10_01/wheel_build_dirs/conda_2.7/pytorch/test/common.py", line 397, in assertEqual
-		#     super(TestCase, self).assertLessEqual(abs(x - y), prec, message)
-		# AssertionError: 1 not less than or equal to 1e-05
-		tests_to_skip+=('TestDistBackend and test_isend')
-		tests_to_skip+=('TestDistBackend and test_reduce_group_min')
-		tests_to_skip+=('TestDistBackend and test_reduce_max')
-		tests_to_skip+=('TestDistBackend and test_reduce_min')
-		tests_to_skip+=('TestDistBackend and test_reduce_group_max')
-		tests_to_skip+=('TestDistBackend and test_reduce_group_min')
-		tests_to_skip+=('TestDistBackend and test_reduce_max')
-		tests_to_skip+=('TestDistBackend and test_reduce_min')
-		tests_to_skip+=('TestDistBackend and test_reduce_product')
-		tests_to_skip+=('TestDistBackend and test_reduce_sum')
-		tests_to_skip+=('TestDistBackend and test_scatter')
-		tests_to_skip+=('TestDistBackend and test_send_recv')
-		tests_to_skip+=('TestDistBackend and test_send_recv_any_source')
+    # Traceback (most recent call last):
+    #   File "test_thd_distributed.py", line 1046, in wrapper
+    #     self._join_and_reduce(fn)
+    #   File "test_thd_distributed.py", line 1132, in _join_and_reduce
+    #     self.assertEqual(first_process.exitcode, 0)
+    #   File "/Users/administrator/nightlies/2018_10_01/wheel_build_dirs/conda_2.7/pytorch/test/common.py", line 397, in assertEqual
+    #     super(TestCase, self).assertLessEqual(abs(x - y), prec, message)
+    # AssertionError: 1 not less than or equal to 1e-05
+    tests_to_skip+=('TestDistBackend and test_isend')
+    tests_to_skip+=('TestDistBackend and test_reduce_group_min')
+    tests_to_skip+=('TestDistBackend and test_reduce_max')
+    tests_to_skip+=('TestDistBackend and test_reduce_min')
+    tests_to_skip+=('TestDistBackend and test_reduce_group_max')
+    tests_to_skip+=('TestDistBackend and test_reduce_group_min')
+    tests_to_skip+=('TestDistBackend and test_reduce_max')
+    tests_to_skip+=('TestDistBackend and test_reduce_min')
+    tests_to_skip+=('TestDistBackend and test_reduce_product')
+    tests_to_skip+=('TestDistBackend and test_reduce_sum')
+    tests_to_skip+=('TestDistBackend and test_scatter')
+    tests_to_skip+=('TestDistBackend and test_send_recv')
+    tests_to_skip+=('TestDistBackend and test_send_recv_any_source')
 fi
 
 
