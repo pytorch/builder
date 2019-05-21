@@ -159,7 +159,7 @@ python -c 'from caffe2.python import core'
 ###############################################################################
 # Check for MKL
 ###############################################################################
-if [[ "$(uname)" != 'Darwin' || "$package_type" != *wheel ]]; then
+if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     echo "Checking that MKL is available"
     python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
 fi
