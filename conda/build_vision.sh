@@ -1,43 +1,53 @@
 #!/usr/bin/env bash
-. /remote/anaconda_token || true
+if [[ -x "/remote/anaconda_token" ]]; then
+    . /remote/anaconda_token || true
+fi
 
 set -e
-
-if [ -z "$ANACONDA_TOKEN" ]; then
-    echo "ANACONDA_TOKEN is unset. Please set it in your environment before running this script";
-    exit 1
-fi
 
 ANACONDA_USER=pytorch
 conda config --set anaconda_upload no
 
 set -e
-VISION_BUILD_VERSION="0.2.1"
-VISION_BUILD_NUMBER=1
+export TORCHVISION_BUILD_VERSION="0.3.0"
+export TORCHVISION_BUILD_NUMBER=1
+
 
 rm -rf torchvision-src
 git clone https://github.com/pytorch/vision torchvision-src
 pushd torchvision-src
-git checkout v$VISION_BUILD_VERSION
+git checkout v$TORCHVISION_BUILD_VERSION
 popd
 
-export PYTORCH_VISION_BUILD_VERSION=$VISION_BUILD_VERSION
-export PYTORCH_VISION_BUILD_NUMBER=$VISION_BUILD_NUMBER
+if [ "$#" -ne 1 ]; then
+    echo "Illegal number of parameters. Pass cuda version"
+    echo "CUDA version should be M.m with no dot, e.g. '8.0' or 'cpu'"
+    exit 1
+fi
+desired_cuda="$1"
 
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision-$VISION_BUILD_VERSION
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision-$VISION_BUILD_VERSION
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision-$VISION_BUILD_VERSION
-time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 torchvision-$VISION_BUILD_VERSION
+export TORCHVISION_PACKAGE_SUFFIX=""
+if [[ "$desired_cuda" == 'cpu' ]]; then
+    export CONDA_CUDATOOLKIT_CONSTRAINT=""
+    export CUDA_VERSION="None"
+    if [[ "$OSTYPE" != "darwin"* ]]; then
+        export TORCHVISION_PACKAGE_SUFFIX="-cpu"
+    fi
+else
+    . ./switch_cuda_version.sh $desired_cuda
+    if [[ "$desired_cuda" == "10.0" ]]; then
+	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
+    elif [[ "$desired_cuda" == "9.0" ]]; then
+	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
+    else
+	echo "unhandled desired_cuda: $desired_cuda"
+	exit 1
+    fi
+fi
 
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision-cpu-$VISION_BUILD_VERSION
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision-cpu-$VISION_BUILD_VERSION
-# time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision-cpu-$VISION_BUILD_VERSION
-time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 torchvision-cpu-$VISION_BUILD_VERSION
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 2.7 torchvision
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 torchvision
 
 set +e
-
-
-unset PYTORCH_BUILD_VERSION
-unset PYTORCH_BUILD_NUMBER
-unset PYTORCH_VISION_BUILD_VERSION
-unset PYTORCH_VISION_BUILD_NUMBER
