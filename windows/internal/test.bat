@@ -5,11 +5,18 @@ pushd %SRC_DIR%
 
 set PYTHON_VERSION=%PYTHON_PREFIX:py=cp%
 
-pip install future pytest coverage hypothesis protobuf
+if "%BUILD_VISION%" == "" (
+    pip install future pytest coverage hypothesis protobuf
+) ELSE (
+    pip install future pytest "pillow>=4.1.1"
+)
 
-for /F "delims=" %%i in ('where /R %SRC_DIR%\output\%CUDA_PREFIX% torch*%PYTHON_VERSION%*.whl') do pip install "%%i"
+
+for /F "delims=" %%i in ('where /R %SRC_DIR%\output\%CUDA_PREFIX% %MODULE_NAME%*%PYTHON_VERSION%*.whl') do pip install "%%i"
 
 if ERRORLEVEL 1 exit /b 1
+
+if NOT "%BUILD_VISION%" == "" goto smoke_test_end
 
 echo Smoke testing imports
 python -c "import torch"
@@ -47,12 +54,18 @@ if NOT "%CUDA_PREFIX%" == "cpu" if "%NVIDIA_GPU_EXISTS%" == "1" (
     python -c "import torch; exit(0 if torch.backends.cudnn.is_available() else 1)"
     if ERRORLEVEL 1 exit /b 1
 )
+:smoke_test_end
 
 echo Not running unit tests. Hopefully these problems are caught by CI
 goto test_end
 
-cd pytorch\test
-python run_test.py -v
+if "%BUILD_VISION%" == "" (
+    cd pytorch\test
+    python run_test.py -v
+) else (
+    cd vision
+    pytest .
+)
 
 if ERRORLEVEL 1 exit /b 1
 

@@ -9,6 +9,9 @@ source:
 
 requirements:
   build:
+    - {{ compiler('c') }} # [win]
+
+  host:
     - python
     - setuptools
     - pytorch{{ environ.get('TORCHVISION_PACKAGE_SUFFIX') }} >=1.1.0
@@ -25,7 +28,7 @@ requirements:
 build:
   number: {{ environ.get('TORCHVISION_BUILD_NUMBER') }}
   string: py{{py}}_cu{{ environ['CUDA_VERSION'] }}_{{environ.get('TORCHVISION_BUILD_NUMBER')}}
-  script: python setup.py install --single-version-externally-managed --record=record.txt
+  script: python setup.py install --single-version-externally-managed --record=record.txt # [not win]
   script_env:
     - CUDA_VERSION
 

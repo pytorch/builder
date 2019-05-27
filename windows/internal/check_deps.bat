@@ -7,11 +7,13 @@ IF NOT "%PROCESSOR_ARCHITECTURE%"=="AMD64" (
     exit /b 1
 )
 
-where /q cmake.exe
+IF "%BUILD_VISION%" == "" (
+    where /q cmake.exe
 
-IF ERRORLEVEL 1 (
-    echo CMake is required to compile PyTorch on Windows
-    exit /b 1
+    IF ERRORLEVEL 1 (
+        echo CMake is required to compile PyTorch on Windows
+        exit /b 1
+    )
 )
 
 IF NOT EXIST "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (

@@ -1,5 +1,5 @@
 @echo off
 
-cd pytorch
+cd %MODULE_NAME%
 python setup.py clean
 cd ..
