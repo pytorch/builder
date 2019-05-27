@@ -25,9 +25,7 @@ CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
 echo "CUDA $CUDA_VERSION Detected"
 
 export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
-if [[ $CUDA_VERSION == "8.0" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
-elif [[ $CUDA_VERSION == "9.0" ]]; then
+if [[ $CUDA_VERSION == "9.0" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
 elif [[ $CUDA_VERSION == "9.2" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
@@ -57,24 +55,7 @@ if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
-if [[ $CUDA_VERSION == "8.0" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.8.0.61"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.8.0.61"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/lib64/libgomp.so.1"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.8.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.8.0"
-    "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-
-elif [[ $CUDA_VERSION == "9.0" ]]; then
+if [[ $CUDA_VERSION == "9.0" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.9.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
