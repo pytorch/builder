@@ -3,9 +3,11 @@
 :: This script parses args, installs required libraries (miniconda, MKL,
 :: Magma), and then delegates to cpu.bat, cuda80.bat, etc.
 
-REM IF NOT "%CUDA_VERSION%" == "" goto env_end
+IF NOT "%CUDA_VERSION%" == "" IF NOT "%TORCHVISION_BUILD_VERSION%" == "" if NOT "%TORCHVISION_BUILD_NUMBER%" == "" goto env_end
 if "%~1"=="" goto arg_error
-if NOT "%~2"=="" goto arg_error
+if "%~2"=="" goto arg_error
+if "%~3"=="" goto arg_error
+if NOT "%~4"=="" goto arg_error
 goto arg_end
 
 :arg_error
@@ -18,8 +20,8 @@ exit /b 1
 :arg_end
 
 set CUDA_VERSION=%~1
-set TORCHVISION_BUILD_VERSION=0.3.0
-set TORCHVISION_BUILD_NUMBER=1
+set TORCHVISION_BUILD_VERSION=%~2
+set TORCHVISION_BUILD_NUMBER=%~3
 
 :env_end
 
