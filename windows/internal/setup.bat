@@ -19,7 +19,7 @@ IF "%VSDEVCMD_ARGS%" == "" (
 pushd %SRC_DIR%
 
 IF NOT exist "setup.py" (
-    cd pytorch
+    cd %MODULE_NAME%
 )
 
 if "%CXX%"=="sccache cl" (
@@ -77,7 +77,7 @@ goto build_end
 
 :pytorch
 :: This stores in e.g. D:/_work/1/s/windows/output/cpu
-pip wheel -e . --wheel-dir ../output/%CUDA_PREFIX%
+pip wheel -e . --no-deps --wheel-dir ../output/%CUDA_PREFIX%
 
 :build_end
 IF ERRORLEVEL 1 exit /b 1

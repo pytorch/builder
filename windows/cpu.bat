@@ -1,6 +1,12 @@
 @echo off
 
-IF NOT EXIST "setup.py" IF NOT EXIST "pytorch" (
+IF NOT "%BUILD_VISION%" == "" (
+    set MODULE_NAME=vision
+) ELSE (
+    set MODULE_NAME=pytorch
+)
+
+IF NOT EXIST "setup.py" IF NOT EXIST "%MODULE_NAME%" (
     call internal\clone.bat
     cd ..
     IF ERRORLEVEL 1 goto eof
@@ -17,11 +23,13 @@ echo Disabling CUDA
 set NO_CUDA=1
 set USE_CUDA=0
 
-call internal\check_opts.bat
-IF ERRORLEVEL 1 goto eof
+IF "%BUILD_VISION%" == "" (
+    call internal\check_opts.bat
+    IF ERRORLEVEL 1 goto eof
 
-call internal\copy_cpu.bat
-IF ERRORLEVEL 1 goto eof
+    call internal\copy_cpu.bat
+    IF ERRORLEVEL 1 goto eof
+)
 
 call internal\setup.bat
 IF ERRORLEVEL 1 goto eof
