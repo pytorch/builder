@@ -16,7 +16,7 @@ requirements:
     - setuptools
     - pyyaml
     - cffi
-    - mkl >=2018
+    - mkl >=2019
     - mkl-include
     - typing
     - ninja
