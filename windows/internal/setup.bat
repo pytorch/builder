@@ -40,6 +40,7 @@ mkdir libtorch\cmake
 mkdir libtorch\include
 mkdir libtorch\lib
 mkdir libtorch\share
+mkdir libtorch\share\spec
 mkdir libtorch\test
 
 mkdir build
@@ -50,6 +51,7 @@ popd
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
 
+move /Y build\aten\src\ATen\Declarations.yaml libtorch\share\spec\
 move /Y torch\bin\*.* libtorch\bin\
 move /Y torch\cmake\*.* libtorch\cmake\
 robocopy /move /e torch\include\ libtorch\include\

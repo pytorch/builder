@@ -135,8 +135,9 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         echo "Finished tools/build_libtorch.py at $(date)"
         popd
 
-        mkdir -p libtorch/{lib,bin,include,share}
+        mkdir -p libtorch/{lib,bin,include,share/spec}
         cp -r build/lib libtorch/
+        cp build/aten/src/ATen/Declarations.yaml libtorch/share/spec/
 
         # for now, the headers for the libtorch package will just be copied in
         # from one of the wheels
