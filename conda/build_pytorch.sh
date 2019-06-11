@@ -156,6 +156,9 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
 fi
 pushd "$pytorch_rootdir"
 git submodule update --init --recursive
+echo "Using Pytorch from "
+git --no-pager log --max-count 1
+exit 1
 popd
 
 # Windows builds need to install conda
