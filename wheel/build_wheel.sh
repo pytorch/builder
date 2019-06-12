@@ -123,7 +123,6 @@ pushd "$pytorch_rootdir"
 git submodule update --init --recursive
 echo "Using Pytorch from "
 git --no-pager log --max-count 1
-exit 1
 popd
 
 ##########################
