@@ -83,11 +83,8 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   fi
 
   # We also check that there are[not] cxx11 symbols in libtorch
-  # TODO libcaffe2.so will change names to libtorch.so in the near future.
-  # That's why this variable is libtorch. When the name changes this must
-  # change too.
-  echo "Checking that symbols in libcaffe2.so have the right gcc abi"
-  libtorch="${install_root}/lib/libcaffe2.so"
+  echo "Checking that symbols in libtorch.so have the right gcc abi"
+  libtorch="${install_root}/lib/libtorch.so"
   cxx11_symbols="$(nm "$libtorch" | c++filt | grep __cxx11 | wc -l)" || true
   if [[ "$(is_expected $cxx11_symbols)" != 1 ]]; then
     if [[ "$cxx11_symbols" == 0 ]]; then
