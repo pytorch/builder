@@ -136,7 +136,7 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
         popd
 
         mkdir -p libtorch/{lib,bin,include,share}
-        cp -r build/lib libtorch/
+        cp -r build/build/lib libtorch/
 
         # for now, the headers for the libtorch package will just be copied in
         # from one of the wheels
