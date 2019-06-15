@@ -127,7 +127,7 @@ popd
 ::       pytorch-nightly==1.0.0.dev20180908
 ::   or in manylinux like
 ::       torch_nightly-1.0.0.dev20180908-cp27-cp27m-linux_x86_64.whl
-if "%PYTORCH_BUILD_VERSION%" == "" set PYTORCH_BUILD_VERSION=1.1.0.dev%NIGHTLIES_DATE_COMPACT%
+if "%PYTORCH_BUILD_VERSION%" == "" set PYTORCH_BUILD_VERSION=1.2.0.dev%NIGHTLIES_DATE_COMPACT%
 
 :: PYTORCH_BUILD_NUMBER
 ::   This is usually the number 1. If more than one build is uploaded for the
