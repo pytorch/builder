@@ -5,7 +5,7 @@ pushd %SRC_DIR%
 
 set PYTHON_VERSION=%PYTHON_PREFIX:py=cp%
 
-if "%MODULE_NAME%" == "pytorch" )
+if "%MODULE_NAME%" == "pytorch" (
     set PKG_NAME=torch
 ) else (
     set PKG_NAME=torchvision
