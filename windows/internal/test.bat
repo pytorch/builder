@@ -5,6 +5,12 @@ pushd %SRC_DIR%
 
 set PYTHON_VERSION=%PYTHON_PREFIX:py=cp%
 
+if "%MODULE_NAME%" == "pytorch" )
+    set PKG_NAME=torch
+) else (
+    set PKG_NAME=torchvision
+)
+
 if "%BUILD_VISION%" == "" (
     pip install future pytest coverage hypothesis protobuf
 ) ELSE (
