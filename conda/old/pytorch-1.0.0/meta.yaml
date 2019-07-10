@@ -36,12 +36,12 @@ build:
   script_env:
     - CUDA_VERSION
     - CUDNN_VERSION
-    - NO_CUDA
+    - USE_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
     - DEVELOPER_DIR
     - DEBUG
-    - NO_FBGEMM
+    - USE_FBGEMM
     - USE_SCCACHE # [win]
   # Features go here
 

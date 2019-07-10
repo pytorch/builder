@@ -5,12 +5,11 @@ set TH_BINARY_BUILD=1
 set PYTORCH_BUILD_VERSION=%PKG_VERSION%
 set PYTORCH_BUILD_NUMBER=%PKG_BUILDNUM%
 
-if "%NO_CUDA%" == "" (
+if "%USE_CUDA%" == "0" (
+    set build_with_cuda=
+) else (
     set build_with_cuda=1
     set desired_cuda=%CUDA_VERSION:~0,-1%.%CUDA_VERSION:~-1,1%
-) else (
-    set build_with_cuda=
-    set USE_CUDA=0
 )
 
 if "%build_with_cuda%" == "" goto cuda_flags_end

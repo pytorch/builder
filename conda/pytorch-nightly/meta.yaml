@@ -39,12 +39,12 @@ build:
     - CUDA_VERSION
     - CUDNN_VERSION
     - CONDA_CUDATOOLKIT_CONSTRAINT
-    - NO_CUDA
+    - USE_CUDA
     - CMAKE_ARGS
     - EXTRA_CAFFE2_CMAKE_FLAGS
     - DEVELOPER_DIR
     - DEBUG
-    - NO_FBGEMM
+    - USE_FBGEMM
     - USE_SCCACHE # [win]
 
 test:
