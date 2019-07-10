@@ -20,7 +20,7 @@ IF ERRORLEVEL 1 goto eof
 REM Check for optional components
 
 echo Disabling CUDA
-set NO_CUDA=1
+set USE_CUDA=0
 set USE_CUDA=0
 
 IF "%BUILD_VISION%" == "" (

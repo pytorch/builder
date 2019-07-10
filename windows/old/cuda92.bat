@@ -13,18 +13,18 @@ IF ERRORLEVEL 1 goto eof
 
 REM Check for optional components
 
-set NO_CUDA=
+set USE_CUDA=
 set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
 
 IF "%NVTOOLSEXT_PATH%"=="" (
     echo NVTX ^(Visual Studio Extension ^for CUDA^) ^not installed, disabling CUDA
-    set NO_CUDA=1
+    set USE_CUDA=0
     goto optcheck
 )
 
 IF "%CUDA_PATH_V9_2%"=="" (
     echo CUDA 9.2 not found, disabling it
-    set NO_CUDA=1
+    set USE_CUDA=0
 ) ELSE (
     set TORCH_CUDA_ARCH_LIST=3.5;5.0+PTX;6.0;6.1;7.0
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all

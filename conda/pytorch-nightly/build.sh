@@ -25,7 +25,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 
-if [[ -z "$NO_CUDA" || "$NO_CUDA" == 0 ]]; then
+if [[ -z "$USE_CUDA" || "$USE_CUDA" == 1 ]]; then
     build_with_cuda=1
 fi
 if [[ -n "$build_with_cuda" ]]; then

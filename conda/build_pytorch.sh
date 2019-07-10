@@ -212,7 +212,7 @@ echo "Using conda-build folder $build_folder"
 ###########################################################
 build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
-    export NO_CUDA=1
+    export USE_CUDA=0
     export CONDA_CUDATOOLKIT_CONSTRAINT=""
     export MAGMA_PACKAGE=""
     export CUDA_VERSION="0.0"

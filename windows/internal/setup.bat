@@ -1,9 +1,9 @@
 @echo off
 
 echo The flags after configuring:
-echo NO_CUDA=%NO_CUDA%
+echo USE_CUDA=%USE_CUDA%
 echo CMAKE_GENERATOR=%CMAKE_GENERATOR%
-if "%NO_CUDA%"==""  echo CUDA_PATH=%CUDA_PATH%
+if "%USE_CUDA%"==""  echo CUDA_PATH=%CUDA_PATH%
 if NOT "%CC%"==""   echo CC=%CC%
 if NOT "%CXX%"==""  echo CXX=%CXX%
 if NOT "%DISTUTILS_USE_SDK%"==""  echo DISTUTILS_USE_SDK=%DISTUTILS_USE_SDK%

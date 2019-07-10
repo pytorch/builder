@@ -13,7 +13,7 @@ IF ERRORLEVEL 1 goto eof
 
 REM Check for optional components
 
-set NO_CUDA=
+set USE_CUDA=
 set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
 
 IF "%NVTOOLSEXT_PATH%"=="" (
