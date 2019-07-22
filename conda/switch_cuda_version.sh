@@ -1,3 +1,6 @@
+#!/bin/bash
+set -ex -o pipefail
+
 if [[ "$OSTYPE" == "msys" ]]; then
     CUDA_DIR="/c/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v$1"
 else
