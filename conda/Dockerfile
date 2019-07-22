@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-devel-centos7
+FROM nvidia/cuda:9.2-devel-centos7
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -23,29 +23,25 @@ RUN git clone https://github.com/NixOS/patchelf && \
     rm -rf patchelf
 
 
-# install CUDA 9.0 in the same container
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_384.81_linux-run && \
-    chmod +x cuda_9.0.176_384.81_linux-run && \
-    ./cuda_9.0.176_384.81_linux-run --silent --no-opengl-libs --toolkit && \
-    rm -f cuda_9.0.176_384.81_linux-run
+# install CUDA 9.2 in the same container
+RUN wget -q https://developer.nvidia.com/compute/cuda/9.2/Prod2/local_installers/cuda_9.2.148_396.37_linux -O setup && \
+    chmod +x setup && \
+    ./setup --silent --no-opengl-libs --toolkit && \
+    rm -f setup
 
-# patch 1, patch2
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/1/cuda_9.0.176.1_linux-run && \
-    chmod +x cuda_9.0.176.1_linux-run && \
-    ./cuda_9.0.176.1_linux-run -s --accept-eula && \
-    rm -f cuda_9.0.176.1_linux-run
-RUN wget -q https://developer.nvidia.com/compute/cuda/9.0/Prod/patches/2/cuda_9.0.176.2_linux-run && \
-    chmod +x cuda_9.0.176.2_linux-run && \
-    ./cuda_9.0.176.2_linux-run -s --accept-eula && \
-    rm -f cuda_9.0.176.2_linux-run
+# patch 1
+RUN wget -q https://developer.nvidia.com/compute/cuda/9.2/Prod2/patches/1/cuda_9.2.148.1_linux -O setup && \
+    chmod +x setup && \
+    ./setup -s --accept-eula && \
+    rm -f setup
 
-# install CUDA 9.0 CuDNN
+# install CUDA 9.2 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.5.1.10-1+cuda9.0_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.5.1.10-1+cuda9.0_amd64.deb && \
-    ar -x libcudnn7-dev_7.5.1.10-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.5.1.10-1+cuda9.0_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.6.1.34-1+cuda9.2_amd64.deb -O cudnn-dev.deb&& \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.6.1.34-1+cuda9.2_amd64.deb -O cudnn.deb && \
+    ar -x cudnn-dev.deb && tar -xvf data.tar.xz && \
+    ar -x cudnn.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -67,10 +63,10 @@ RUN wget -q https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers
 # install CUDA 10.0 CuDNN
 # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.5.1.10-1+cuda10.0_amd64.deb && \
-    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.5.1.10-1+cuda10.0_amd64.deb && \
-    ar -x libcudnn7-dev_7.5.1.10-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
-    ar -x libcudnn7_7.5.1.10-1+cuda10.0_amd64.deb && tar -xvf data.tar.xz && \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.6.1.34-1+cuda10.0_amd64.deb -O cudnn-dev.deb&& \
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.6.1.34-1+cuda10.0_amd64.deb -O cudnn.deb && \
+    ar -x cudnn-dev.deb && tar -xvf data.tar.xz && \
+    ar -x cudnn.deb && tar -xvf data.tar.xz && \
     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -92,10 +88,10 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
 # # install CUDA 10.1 CuDNN
 # # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
 # RUN mkdir tmp_cudnn && cd tmp_cudnn && \
-#     wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.5.1.10-1+cuda10.1_amd64.deb && \
-#     wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.5.1.10-1+cuda10.1_amd64.deb && \
-#     ar -x libcudnn7-dev_7.5.1.10-1+cuda10.1_amd64.deb && tar -xvf data.tar.xz && \
-#     ar -x libcudnn7_7.5.1.10-1+cuda10.1_amd64.deb && tar -xvf data.tar.xz && \
+#     wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.6.1.34-1+cuda10.1_amd64.deb -O cudnn-dev.deb&& \
+#     wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.6.1.34-1+cuda10.1_amd64.deb -O cudnn.deb && \
+#     ar -x cudnn-dev.deb && tar -xvf data.tar.xz && \
+#     ar -x cudnn.deb && tar -xvf data.tar.xz && \
 #     mkdir -p cuda/include && mkdir -p cuda/lib64 && \
 #     cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h && \
 #     cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64 && \
@@ -109,16 +105,16 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
 #     ldconfig
 
 #####################################################################################
-# CUDA 9.0 prune static libs
+# CUDA 9.2 prune static libs
 #####################################################################################
-ARG NVPRUNE="/usr/local/cuda-9.0/bin/nvprune"
-ARG CUDA_LIB_DIR="/usr/local/cuda-9.0/lib64"
+ARG NVPRUNE="/usr/local/cuda-9.2/bin/nvprune"
+ARG CUDA_LIB_DIR="/usr/local/cuda-9.2/lib64"
 
 ARG GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70"
 ARG GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70"
 
 # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
-RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas"  \
+RUN ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" | grep -v "cusolver" \
     | xargs -I {} bash -c \
     "echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
