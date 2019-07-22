@@ -71,6 +71,22 @@ DEPS_SONAME=(
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
+elif [[ $CUDA_VERSION == "9.2" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.9.2"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.9.2"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/lib64/libgomp.so.1"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.9.2"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.9.2"
+    "libnvrtc-builtins.so"
+    "libgomp.so.1"
+)
 elif [[ $CUDA_VERSION == "10.0" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.10.0"

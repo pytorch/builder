@@ -123,7 +123,7 @@ SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
     MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
-if [[ -z "$WIN_PACKAGE_WORK_DIR" ]]; then
+if [[ "$OSTYPE" == "msys" && -z "$WIN_PACKAGE_WORK_DIR" ]]; then
     WIN_PACKAGE_WORK_DIR="$(echo $(pwd -W) | tr '/' '\\')\\tmp_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
 
@@ -156,6 +156,8 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
 fi
 pushd "$pytorch_rootdir"
 git submodule update --init --recursive
+echo "Using Pytorch from "
+git --no-pager log --max-count 1
 popd
 
 # Windows builds need to install conda
@@ -237,6 +239,9 @@ else
     if [[ "$desired_cuda" == "10.0" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda100 # [not osx and not win]"
+    elif [[ "$desired_cuda" == "9.2" ]]; then
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.2,<9.3 # [not osx]"
+        export MAGMA_PACKAGE="    - magma-cuda92 # [not osx and not win]"
     elif [[ "$desired_cuda" == "9.0" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda90 # [not osx and not win]"
