@@ -8,11 +8,9 @@
 Run this command:
 
 ```
-nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda80:latest bash
-# OR
-nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda90:latest bash
-# OR
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda92:latest bash
+OR
+nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda100:latest bash
 ```
 
 Then run:
@@ -41,7 +39,7 @@ Upload the default cuda wheels to PyPI:
 
 ```
 mkdir wheelhouse_manylinux
-cp wheelhouse90/*.whl wheelhouse_manylinux/
+cp wheelhouse92/*.whl wheelhouse_manylinux/
 ls -1 wheelhouse_manylinux/*.whl | awk '{print("mv "$1 " " $1)}' | sed 's/-linux_/-manylinux1_/2' | bash
 twine upload wheelhouse_manylinux/*.whl
 ```
