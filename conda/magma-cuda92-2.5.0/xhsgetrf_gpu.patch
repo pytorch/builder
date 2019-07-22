@@ -1,0 +1,16 @@
+--- src/xhsgetrf_gpu.cpp    2019-01-02 19:18:33.000000000 +0000
++++ src/xhsgetrf_gpu.cpp    2019-02-01 22:15:43.104005269 +0000
+@@ -106,8 +106,11 @@
+     float c_one     = MAGMA_S_ONE;
+     float c_neg_one = MAGMA_S_NEG_ONE;
+     #if 1
+-    const magmaHalf h_one     = (magmaHalf) 1.0;
+-    const magmaHalf h_neg_one = (magmaHalf)-1.0;
++    __half_raw one_raw;
++    one_raw.x = 15360;
++    const magmaHalf h_one     = (magmaHalf) (one_raw);
++    one_raw.x = 15360 + 32768;
++    const magmaHalf h_neg_one = (magmaHalf) (one_raw);
+     //const magmaHalf h_one = approx_float_to_half(1.0);
+     //const magmaHalf h_neg_one = approx_float_to_half(-1.0);
+     #else
