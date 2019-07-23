@@ -111,7 +111,7 @@ rm -f "$tmp_json"
 ##############################################################################
 # Collect wheel binary sizes. These are read from s3
 aws_version="$(echo $target_date | tr -d _)"
-cuda_versions=("cpu" "cu90" "cu100")
+cuda_versions=("cpu" "cu92" "cu100")
 for cu_ver in "${cuda_versions[@]}"; do
 
     # Read the info from s3
