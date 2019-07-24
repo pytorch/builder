@@ -3,6 +3,17 @@
 set -ex
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+# Require only one python installation
+if [[ -z "$DESIRED_PYTHON" ]]; then
+    echo "Need to set DESIRED_PYTHON env variable"
+    exit 1
+fi
+if [[ -n "$BUILD_PYTHONLESS" && -z "$LIBTORCH_VARIANT" ]]; then
+    echo "BUILD_PYTHONLESS is set, so need LIBTORCH_VARIANT to also be set"
+    echo "LIBTORCH_VARIANT should be one of shared-with-deps shared-without-deps static-with-deps static-without-deps"
+    exit 1
+fi
+
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
@@ -41,6 +52,7 @@ export PYTORCH_BUILD_NUMBER=$build_number
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel:$CMAKE_INCLUDE_PATH"
 
+
 # If given a python version like 3.6m or 2.7mu, convert this to the format we
 # expect. The binary CI jobs pass in python versions like this; they also only
 # ever pass one python version, so we assume that DESIRED_PYTHON is not a list
@@ -53,30 +65,17 @@ if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
       DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
     fi
 fi
-
-
-# Build for given Python versions, or for all in /opt/python if none given
-if [[ -z "$DESIRED_PYTHON" ]]; then
-    pushd /opt/python
-    DESIRED_PYTHON=(*/)
-    popd
-fi
-python_installations=()
-for desired_py in "${DESIRED_PYTHON[@]}"; do
-    python_installations+=("/opt/python/$desired_py")
-    if [[ ! -d "/opt/python/$desired_py" ]]; then
-        echo "Error: Given Python $desired_py is not in /opt/python"
-        echo "All array elements of env variable DESIRED_PYTHON must be"
-        echo "valid Python installations under /opt/python"
-        exit 1
-    fi
-done
-echo "Will build for all Pythons versions: ${DESIRED_PYTHON[@]}"
+py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:1}"
+pydir="/opt/python/$DESIRED_PYTHON"
+export PATH="$pydir/bin:$PATH"
+echo "Will build for Python version: ${DESIRED_PYTHON} with ${python_installation}"
 
 mkdir -p /tmp/$WHEELHOUSE_DIR
-# clone pytorch source code
+
+# Clone pytorch source code
 pytorch_rootdir="/pytorch"
 if [[ ! -d "$pytorch_rootdir" ]]; then
+    # TODO probably safe to completely remove this
     git clone https://github.com/pytorch/pytorch $pytorch_rootdir
     pushd $pytorch_rootdir
     if ! git checkout v${PYTORCH_BUILD_VERSION}; then
@@ -88,76 +87,64 @@ fi
 git submodule update --init --recursive
 
 
-# ########################################################
-# # Compile wheels as well as libtorch
-# #######################################################
-OLD_PATH=$PATH
-for PYDIR in "${python_installations[@]}"; do
-    export PATH=$PYDIR/bin:$OLD_PATH
-    python setup.py clean
-    retry pip install -qr requirements.txt
-    if [[ $PYDIR  == "/opt/python/cp37-cp37m" ]]; then
-        retry pip install -q numpy==1.15
-    else
-        retry pip install -q numpy==1.11
-    fi
-    echo "Calling setup.py bdist at $(date)"
-    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-         python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
-    echo "Finished setup.py bdist at $(date)"
-done
-
-LIBTORCH_VARIANTS=(
-    shared-with-deps
-    shared-without-deps
-    static-with-deps
-    static-without-deps
-)
+########################################################
+# Compile wheels as well as libtorch
+#######################################################
+python setup.py clean
+retry pip install -qr requirements.txt
+if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
+    retry pip install -q numpy==1.15
+else
+    retry pip install -q numpy==1.11
+fi
+echo "Calling setup.py bdist at $(date)"
+time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+     EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+     python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
+echo "Finished setup.py bdist at $(date)"
 
 # Build libtorch packages
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
-    for VARIANT in ${LIBTORCH_VARIANTS[@]}; do
-        # Now build pythonless libtorch
-        # Note - just use whichever python we happen to be on
-        python setup.py clean
+    # Now build pythonless libtorch
+    # Note - just use whichever python we happen to be on
+    python setup.py clean
 
-        if [[ $VARIANT = *"static"* ]]; then
-            STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
-        fi
+    if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
+        STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
+    fi
 
-        mkdir -p build
-        pushd build
-        echo "Calling tools/build_libtorch.py at $(date)"
-        time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-             EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
-             python ../tools/build_libtorch.py
-        echo "Finished tools/build_libtorch.py at $(date)"
-        popd
+    mkdir -p build
+    pushd build
+    echo "Calling tools/build_libtorch.py at $(date)"
+    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
+         python ../tools/build_libtorch.py
+    echo "Finished tools/build_libtorch.py at $(date)"
+    popd
 
-        mkdir -p libtorch/{lib,bin,include,share}
-        cp -r build/build/lib libtorch/
+    mkdir -p libtorch/{lib,bin,include,share}
+    cp -r build/build/lib libtorch/
 
-        # for now, the headers for the libtorch package will just be copied in
-        # from one of the wheels
-        ANY_WHEEL=$(ls /tmp/$WHEELHOUSE_DIR/torch*.whl | head -n1)
-        unzip -d any_wheel $ANY_WHEEL
-        if [[ -d any_wheel/torch/include ]]; then
-            cp -r any_wheel/torch/include libtorch/
-        else
-            cp -r any_wheel/torch/lib/include libtorch/
-        fi
-        cp -r any_wheel/torch/share/cmake libtorch/share/
-        rm -rf any_wheel
+    # for now, the headers for the libtorch package will just be copied in
+    # from one of the wheels (this is from when this script built multiple
+    # wheels at once)
+    ANY_WHEEL=$(ls /tmp/$WHEELHOUSE_DIR/torch*.whl | head -n1)
+    unzip -d any_wheel $ANY_WHEEL
+    if [[ -d any_wheel/torch/include ]]; then
+        cp -r any_wheel/torch/include libtorch/
+    else
+        cp -r any_wheel/torch/lib/include libtorch/
+    fi
+    cp -r any_wheel/torch/share/cmake libtorch/share/
+    rm -rf any_wheel
 
-        echo $PYTORCH_BUILD_VERSION > libtorch/build-version
-        echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
+    echo $PYTORCH_BUILD_VERSION > libtorch/build-version
+    echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
-        mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
-        zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
-        cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-$PYTORCH_BUILD_VERSION.zip \
-           /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$VARIANT-latest.zip
-    done
+    mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
+    zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
+    cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip \
+       /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-latest.zip
 fi
 
 popd
@@ -195,7 +182,7 @@ make_wheel_record() {
     fi
 }
 
-echo 'Built these wheels:'
+echo 'Built this wheel:'
 ls /tmp/$WHEELHOUSE_DIR
 mkdir -p "/$WHEELHOUSE_DIR"
 mv /tmp/$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/
@@ -325,34 +312,23 @@ fi
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
   export OMP_NUM_THREADS=4 # on NUMA machines this takes too long
   pushd $pytorch_rootdir/test
-  for (( i=0; i<"${#DESIRED_PYTHON[@]}"; i++ )); do
-    # This assumes that there is a 1:1 correspondence between python versions
-    # and wheels, and that the python version is in the name of the wheel,
-    # and that the python version matches the regex "cp\d\d-cp\d\dmu?"
-    pydir="${python_installations[i]}"
-    curpip="${pydir}/bin/pip"
-    curpy="${pydir}/bin/python"
-    pyver="${DESIRED_PYTHON[i]}"
-    pyver_short="${pyver:2:1}.${pyver:3:1}"
 
-    # Install the wheel for this Python version
-    "$curpip" uninstall -y "$TORCH_PACKAGE_NAME"
-    "$curpip" install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
+  # Install the wheel for this Python version
+  pip uninstall -y "$TORCH_PACKAGE_NAME"
+  pip install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
-    # Print info on the libraries installed in this wheel
-    installed_libraries=($(find "$pydir/lib/python$pyver_short/site-packages/torch/" -name '*.so*'))
-    echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
-    for installed_lib in "${installed_libraries[@]}"; do
-        ldd "$installed_lib"
-    done
-
-    # Run the tests
-    echo "$(date) :: Running tests"
-    pushd "$pytorch_rootdir"
-    LD_LIBRARY_PATH=/usr/local/nvidia/lib64 \
-            PYCMD="$curpy" \
-            "${SOURCE_DIR}/../run_tests.sh" 'manywheel' "$pyver_short" "$DESIRED_CUDA"
-    popd
-    echo "$(date) :: Finished tests"
+  # Print info on the libraries installed in this wheel
+  installed_libraries=($(find "$pydir/lib/python${py_majmin}/site-packages/torch/" -name '*.so*'))
+  echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
+  for installed_lib in "${installed_libraries[@]}"; do
+      ldd "$installed_lib"
   done
+
+  # Run the tests
+  echo "$(date) :: Running tests"
+  pushd "$pytorch_rootdir"
+  LD_LIBRARY_PATH=/usr/local/nvidia/lib64 \
+          "${SOURCE_DIR}/../run_tests.sh" manywheel "${py_majmin}" "$DESIRED_CUDA"
+  popd
+  echo "$(date) :: Finished tests"
 fi
