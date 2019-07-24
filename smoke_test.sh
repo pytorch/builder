@@ -22,7 +22,6 @@ fi
 
 # DESIRED_PYTHON is in format 2.7m?u?
 # DESIRED_CUDA is in format cu80 (or 'cpu')
-# DESIRED_DEVTOOLSET should be either 'devtoolset3' or 'devtoolset7'
 
 # Generate M.m formats for CUDA and Python versions
 if [[ "$DESIRED_CUDA" != cpu ]]; then
@@ -104,11 +103,7 @@ elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     retry conda install -yq -c pytorch "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
 else
-  if [[ "$DESIRED_DEVTOOLSET" == 'devtoolset7' ]]; then
-    pip_url="https://download.pytorch.org/whl/nightly/devtoolset7/$DESIRED_CUDA/torch_nightly.html"
-  else
-    pip_url="https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html"
-  fi
+  pip_url="https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html"
   retry pip install "$package_name_and_version" \
       -f "$pip_url" \
       --no-cache-dir \
