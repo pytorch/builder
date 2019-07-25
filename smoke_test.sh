@@ -103,6 +103,10 @@ elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     retry conda install -yq -c pytorch "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
 else
+  # We need to upgrade pip now that we have '+cuver' in the package name, as
+  # old pips do not correctly change the '+' to '%2B' in the url and fail to
+  # find the package.
+  pip install --upgrade pip -q
   pip_url="https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html"
   retry pip install "$package_name_and_version" \
       -f "$pip_url" \
