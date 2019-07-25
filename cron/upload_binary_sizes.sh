@@ -72,10 +72,10 @@ failed_binary_queries=()
 # Collect conda binary sizes
 # This is read from `conda search`. 
 
-# `conda search` takes a version string. We use *20190101 to catch
-# 1.0.0.dev20190101 or 1.1.0.dev20190101 etc. All the nightly binaries have
-# this general format of version string
-conda_search_version="*$(echo $target_date | tr -d _)"
+# `conda search` takes a version string. We use *20190101* to catch
+# 1.0.0.dev20190101 or 1.1.0.dev20190101+cu90 etc. All the nightly binaries
+# have this general format of version string
+conda_search_version="*$(echo $target_date | tr -d _)*"
 
 conda_platforms=('linux-64' 'osx-64')
 conda_pkg_names=('pytorch-nightly' 'pytorch-nightly-cpu')
