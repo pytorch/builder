@@ -56,7 +56,13 @@ elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
 else
   package_name='pytorch-nightly'
 fi
-package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
+if [[ "$(uname)" == 'Darwin' ]]; then
+  package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
+else
+  # Linux binaries have the cuda version appended to them. This is only on
+  # linux, since all macos builds are cpu.
+  package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}+${DESIRED_CUDA}"
+fi
 
 # Switch to the desired python
 if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
