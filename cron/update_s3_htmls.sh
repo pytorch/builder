@@ -22,7 +22,11 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     # Pull all existing whls in this directory and turn them into html links
     # N.B. we use the .dev as a hacky way to exclude all wheels with old
     # 'yyyy.mm.dd' versions
-    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.whl' | sed 's#.*#<a href="&"></a>#g' > ./$HTML_NAME
+    #
+    # NB: replacing + with %2B is to fix old versions of pip which don't
+    # this transform automatically.  This makes the display a little
+    # ugly but whatever
+    aws s3 ls "$s3_dir" | grep --only-matching '\S*\.whl' | sed 's#+#%2B#g' | sed 's#.*#<a href="&">&</a><br>#g' > ./$HTML_NAME
 
     # Check your work every once in a while
     echo "Setting $HTML_NAME to:"
