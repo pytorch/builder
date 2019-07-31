@@ -61,10 +61,16 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
-    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml
+    # Warning: if you've already manually installed the built conda package
+    # your environment is probably inconsistent (because most of the packages
+    # have a feature requirement).  If we post-facto install the feature,
+    # that will make the environment consistent again.
     if [[ "$cuda_ver" != 'cpu' ]]; then
         retry conda install -yq cudatoolkit=$cuda_ver_majmin
+    else
+        retry conda install -yq cpu-only -c pytorch
     fi
+    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true

@@ -222,17 +222,13 @@ if [[ -n "$cpu_only" ]]; then
     if [[ "$OSTYPE" != "darwin"* ]]; then
         build_string_suffix="cpu_${build_string_suffix}"
     fi
-    # on Linux, rename the package pytorch-nightly-cpu, because it's cpu build
-    if [[ "$(uname)" != 'Darwin' ]]; then
-        export PYTORCH_PACKAGE_SUFFIX="-cpu" # used in name: pytorch part of meta.yaml
-    else
-        export PYTORCH_PACKAGE_SUFFIX=""
-    fi
+    # on Linux, advertise that the package provides cpu-only feature
+    export CONDA_CPU_ONLY_CONSTRAINT="    - cpu-only # [not osx]"
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
     # sets CUDA_VERSION and CUDNN_VERSION
-    export PYTORCH_PACKAGE_SUFFIX="" # no -cpu suffix because it's regular cuda build
     echo "Switching to CUDA version $desired_cuda"
+    export CONDA_CPU_ONLY_CONSTRAINT=""
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
