@@ -1,5 +1,5 @@
 package:
-  name: pytorch-nightly{{ environ.get('PYTORCH_PACKAGE_SUFFIX') }}
+  name: pytorch-nightly
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
@@ -30,6 +30,7 @@ requirements:
     - ninja
     - future # [py2k]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+{{ environ.get('CONDA_CPU_ONLY_CONSTRAINT') }}
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
