@@ -68,7 +68,11 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     if [[ "$cuda_ver" != 'cpu' ]]; then
         retry conda install -yq cudatoolkit=$cuda_ver_majmin
     else
-        retry conda install -yq cpu-only -c pytorch
+        # We DON'T want to install cpu-only, because it should not be
+        # necessary for OS X PyTorch which is always cpu only by default
+        if [[ "$(uname)" != Darwin  ]]; then
+            retry conda install -yq cpu-only -c pytorch
+        fi
     fi
     retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml
 else
