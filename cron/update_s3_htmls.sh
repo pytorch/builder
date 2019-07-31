@@ -11,7 +11,7 @@ if [[ -z "$HTML_NAME" ]]; then
     export HTML_NAME='torch_nightly.html'
 fi
 
-s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}/"
+s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}"
 
 # Pull all existing whls in this directory and turn them into html links
 # N.B. we use the .dev as a hacky way to exclude all wheels with old
