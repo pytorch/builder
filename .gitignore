@@ -68,5 +68,6 @@ conda/torchvision-src
 wheel/pytorch-src
 wheel/torchvision-src
 torch*.html
+*-torch*.html
 
 node_modules
