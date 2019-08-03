@@ -1,5 +1,17 @@
 FROM nvidia/cuda:9.0-devel-centos7
 
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl
+RUN yum install -y yum-utils centos-release-scl
+RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
+RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
+ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
+
+
 # MKL
 RUN mkdir -p /opt/intel/lib
 RUN pushd /tmp && \
@@ -12,16 +24,6 @@ RUN pushd /tmp && \
     mv include /opt/intel/ && \
     rm -rf *
 
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
-
-RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl
-RUN yum install -y yum-utils centos-release-scl
-RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN yum install -y devtoolset-3-gcc devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran devtoolset-3-binutils
-ENV PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
 
 # EPEL for cmake
 RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
@@ -70,12 +72,12 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     ldconfig
 
 # magma
-RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.5.0.tar.gz && \
-    tar -xvf magma-2.5.0.tar.gz && \
-    cd magma-2.5.0 && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.5.0/cmakelists.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.5.0/thread_queue.patch && \
-    patch <cmakelists.patch && \
+RUN wget -q http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.5.1.tar.gz && \
+    tar -xf magma-2.5.1.tar.gz && \
+    cd magma-2.5.1 && \
+    wget -q https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.5.1/cmakelists.patch && \
+    wget -q https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.5.1/thread_queue.patch && \
+    patch -p0 <cmakelists.patch && \
     patch -p0 <thread_queue.patch && \
     mkdir build && \
     cd build && \

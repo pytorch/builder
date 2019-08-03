@@ -1,12 +1,5 @@
 FROM nvidia/cuda:9.2-devel-centos7
 
-# MKL
-RUN mkdir -p /opt/intel/lib
-COPY mkl_libs/libmkl_core.a /opt/intel/lib/libmkl_core.a
-COPY mkl_libs/libmkl_gnu_thread.a /opt/intel/lib/libmkl_gnu_thread.a
-COPY mkl_libs/libmkl_intel_lp64.a /opt/intel/lib/libmkl_intel_lp64.a
-COPY mkl_libs/include /opt/intel/
-
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
@@ -17,6 +10,19 @@ RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-3-gcc devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran devtoolset-3-binutils
 ENV PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
+
+# MKL
+RUN mkdir -p /opt/intel/lib
+RUN pushd /tmp && \
+    wget -q https://anaconda.org/intel/mkl-static/2019.4/download/linux-64/mkl-static-2019.4-intel_243.tar.bz2 && \
+    tar -xvf mkl-static-2019.4-intel_243.tar.bz2 && \
+    cp lib/* /opt/intel/lib/ && \
+    rm -rf * && \
+    wget -q https://anaconda.org/intel/mkl-include/2019.4/download/linux-64/mkl-include-2019.4-intel_243.tar.bz2 && \
+    tar -xvf mkl-include-2019.4-intel_243.tar.bz2 && \
+    mv include /opt/intel/ && \
+    rm -rf *
+
 
 # EPEL for cmake
 RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
@@ -71,15 +77,13 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     ldconfig
 
 # magma
-RUN wget http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.5.0.tar.gz && \
-    tar -xvf magma-2.5.0.tar.gz && \
-    cd magma-2.5.0 && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.5.0/cmakelists.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.5.0/thread_queue.patch && \
-    wget https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.5.0/xhsgetrf_gpu.patch && \
-    patch <cmakelists.patch && \
+RUN wget -q http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.5.1.tar.gz && \
+    tar -xf magma-2.5.1.tar.gz && \
+    cd magma-2.5.1 && \
+    wget -q https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.5.1/cmakelists.patch && \
+    wget -q https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda92-2.5.1/thread_queue.patch && \
+    patch -p0 <cmakelists.patch && \
     patch -p0 <thread_queue.patch && \
-    patch -p0 <xhsgetrf_gpu.patch && \
     mkdir build && \
     cd build && \
     cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX && \
