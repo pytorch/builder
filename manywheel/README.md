@@ -16,17 +16,32 @@ nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda10
 Then run:
 
 ```
+# versioned, build all
 export PYTORCH_REPO=pytorch
-export PYTORCH_BRANCH=v1.0.1
-export PYTORCH_BUILD_VERSION=1.0.1
+export PYTORCH_BRANCH=v1.1.0
+export PYTORCH_BUILD_VERSION=1.1.0
 export PYTORCH_BUILD_NUMBER=1
-export TORCH_CONDA_BUILD_FOLDER=pytorch-1.0.1
+export TORCH_CONDA_BUILD_FOLDER=pytorch-1.1.0
 export TORCH_PACKAGE_NAME=torch
 export PIP_UPLOAD_FOLDER=""
-export NIGHTLIES_ROOT_FOLDER="/private/home/soumith/local/builder/binaries_v1.0.1"
+export NIGHTLIES_ROOT_FOLDER="/private/home/soumith/local/builder/binaries_v1.1.0"
 cd ../cron
 ./build_multiple.sh manywheel all all
 ./remote/build.sh
+
+# single nightly build
+export PYTORCH_REPO=pytorch
+export PYTORCH_BRANCH=master
+export PYTORCH_BUILD_VERSION=nightly
+export PYTORCH_BUILD_NUMBER=1
+export TORCH_CONDA_BUILD_FOLDER=pytorch-nightly
+export TORCH_PACKAGE_NAME=torch
+export PIP_UPLOAD_FOLDER=""
+export NIGHTLIES_ROOT_FOLDER="/private/home/soumith/local/builder/binaries_nightly"
+cd ../cron
+./build_multiple.sh manywheel 3.6m cu100
+./remote/build.sh
+
 ```
 
 Once done, upload wheels via:
