@@ -14,6 +14,7 @@ export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 # for cpp_tests I believe though. TODO figure out what's going on here and fix
 # it. It would be nice to use ninja in the builds of the conda binaries as well
 export USE_NINJA=OFF
+export INSTALL_TEST=0 # dont install test binaries into site-packages
 
 # MacOS build is simple, and will not be for CUDA
 if [[ "$OSTYPE" == "darwin"* ]]; then

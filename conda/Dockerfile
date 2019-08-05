@@ -170,9 +170,9 @@ RUN $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/li
 
 # Anaconda
 RUN wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh && \
-    chmod +x Miniconda2-latest-Linux-x86_64.sh && \
+    chmod +x  Miniconda2-latest-Linux-x86_64.sh && \
     ./Miniconda2-latest-Linux-x86_64.sh -b -p /opt/conda && \
     rm Miniconda2-latest-Linux-x86_64.sh
 ENV PATH /opt/conda/bin:$PATH
-RUN conda install -y conda-build=3.16 anaconda-client git ninja
+RUN conda install -y conda-build anaconda-client git ninja
 RUN conda remove -y --force patchelf

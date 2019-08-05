@@ -128,6 +128,7 @@ popd
 
 
 export TH_BINARY_BUILD=1
+export INSTALL_TEST=0 # dont install test binaries into site-packages
 export MACOSX_DEPLOYMENT_TARGET=10.10
 
 retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja

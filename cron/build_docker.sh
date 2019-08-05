@@ -14,7 +14,7 @@ if [[ "$#" != 3 ]]; then
   if [[ -z "$DESIRED_PYTHON" || -z "$DESIRED_CUDA" || -z "$PACKAGE_TYPE" ]]; then
       echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
       echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
-      echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu80' etc"
+      echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu92' etc"
       exit 1
   fi
   package_type="$PACKAGE_TYPE"
@@ -74,7 +74,7 @@ else
         build_script='/remote/manywheel/build.sh'
     fi
     if [[ -n "$build_for_cpu" ]]; then
-        docker_image="soumith/manylinux-cuda80"
+        docker_image="soumith/manylinux-cuda100"
     else
         docker_image="soumith/manylinux-cuda$cuda_nodot"
     fi

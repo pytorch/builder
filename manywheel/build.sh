@@ -9,6 +9,7 @@ export USE_STATIC_CUDNN=1
 export USE_STATIC_NCCL=1
 export ATEN_STATIC_CUDA=1
 export USE_CUDA_STATIC_LINK=1
+export INSTALL_TEST=0 # dont install test binaries into site-packages
 
 # Keep an array of cmake variables to add to
 if [[ -z "$CMAKE_ARGS" ]]; then
@@ -34,6 +35,10 @@ elif [[ $CUDA_VERSION == "9.2" ]]; then
 elif [[ $CUDA_VERSION == "10.0" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
     # ATen tests can't build with CUDA 10.0 maybe???? (todo) and the old compiler used here
+    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+elif [[ $CUDA_VERSION == "10.1" ]]; then
+    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
+    # ATen tests can't build with CUDA 10.1 maybe???? (todo) and the old compiler used here
     EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
 else
     echo "unknown cuda version $CUDA_VERSION"
@@ -100,6 +105,22 @@ DEPS_SONAME=(
     "libcudart.so.10.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.10.0"
+    "libnvrtc-builtins.so"
+    "libgomp.so.1"
+)
+elif [[ $CUDA_VERSION == "10.1" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.10.1"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.10.1"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/lib64/libgomp.so.1"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.10.1"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.10.1"
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
