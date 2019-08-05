@@ -78,16 +78,10 @@ failed_binary_queries=()
 conda_search_version="*$(echo $target_date | tr -d _)*"
 
 conda_platforms=('linux-64' 'osx-64')
-conda_pkg_names=('pytorch-nightly' 'pytorch-nightly-cpu')
+conda_pkg_names=('pytorch-nightly')
 tmp_json="_conda_search.json"
 for pkg_name in "${conda_pkg_names[@]}"; do
     for platform in "${conda_platforms[@]}"; do
-        # TODO This should really be rewritten in Python
-        if [[ "$pkg_name" == 'pytorch-nightly-cpu' && "$platform" == 'osx-64' ]]; then
-          # On MacOS they're all called pytorch-nightly, since they're all cpu
-          continue
-        fi
-
         # Read the info from conda-search
         touch "$tmp_json"
         set +e
