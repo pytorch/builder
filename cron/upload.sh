@@ -122,7 +122,7 @@ if [[ "$#" -eq 0 ]]; then
     # Packages are organized by type and CUDA/cpu version so we have to loop
     # over these to find all the packages
     _ALL_PKG_TYPES=("manywheel" "wheel" "conda" "libtorch")
-    _ALL_CUDA_VERSIONS=("cpu" "cu80" "cu90" "cu100")
+    _ALL_CUDA_VERSIONS=("cpu" "cu92" "cu100")
     for pkg_type in "${_ALL_PKG_TYPES[@]}"; do
         for cuda_ver in "${_ALL_CUDA_VERSIONS[@]}"; do
             pkg_dir="$(nightlies_package_folder $pkg_type $cuda_ver)"

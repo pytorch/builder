@@ -74,7 +74,7 @@ else
         build_script='/remote/manywheel/build.sh'
     fi
     if [[ -n "$build_for_cpu" ]]; then
-        docker_image="soumith/manylinux-cuda80"
+        docker_image="soumith/manylinux-cuda100"
     else
         docker_image="soumith/manylinux-cuda$cuda_nodot"
     fi
