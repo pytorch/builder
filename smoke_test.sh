@@ -50,7 +50,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   fi
   package_name="libtorch-$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
-  package_name='torch-nightly'
+  package_name='torch'
 elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
   package_name='pytorch-nightly-cpu'
 else

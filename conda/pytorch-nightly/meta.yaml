@@ -1,5 +1,5 @@
 package:
-  name: pytorch-nightly
+  name: pytorch
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
 
 source:
