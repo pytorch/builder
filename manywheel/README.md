@@ -32,7 +32,7 @@ cd ../cron
 # single nightly build
 export PYTORCH_REPO=pytorch
 export PYTORCH_BRANCH=master
-export PYTORCH_BUILD_VERSION=nightly
+export PYTORCH_BUILD_VERSION=1.2.5
 export PYTORCH_BUILD_NUMBER=1
 export TORCH_CONDA_BUILD_FOLDER=pytorch-nightly
 export TORCH_PACKAGE_NAME=torch
