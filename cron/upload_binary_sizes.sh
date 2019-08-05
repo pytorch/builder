@@ -121,6 +121,7 @@ for cu_ver in "${cuda_versions[@]}"; do
     #                            date we're looking for in it
     set +e
     outputs=($(aws s3 ls "$s3_dir" | grep --only-matching "\S* \S*$aws_version\S*\.whl"))
+
     if [[ "$?" != 0 ]]; then
         set -e
         echo "ERROR: Could find no [many]wheels for $cu_ver"
@@ -145,9 +146,15 @@ for cu_ver in "${cuda_versions[@]}"; do
             # The regex matches -cp27-none- , there is no 'mu' variant for mac
             py_ver="$(echo $whl | grep --only-matching '\-cp..\-none\-')"
             py_ver="${py_ver:3:1}.${py_ver:4:1}"
-        else
+        elif [[ "$whl" == *linux* ]]; then
             platform='linux'
             pkg_type='manywheel'
+            # The regex matches -cp27-cp27mu or -cp27-cp27m
+            py_ver="$(echo $whl | grep --only-matching '\-cp..\-cp..mu\?')"
+            py_ver="${py_ver:8:1}.${py_ver:9}"
+	elif [[ "$whl" == *win_amd64* ]]; then
+            platform='windows'
+            pkg_type='wheel'
             # The regex matches -cp27-cp27mu or -cp27-cp27m
             py_ver="$(echo $whl | grep --only-matching '\-cp..\-cp..mu\?')"
             py_ver="${py_ver:8:1}.${py_ver:9}"

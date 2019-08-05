@@ -10,7 +10,7 @@ set -ex
 # 2019_01_01 format.
 # You should make sure that end date is actually after start date, and that
 # both are in underscore format
-START_DATE="2019_04_22"
+START_DATE="2019_08_03"
 END_DATE="$(date +%Y_%m_%d)"
 
 # The upload_binary_sizes script needs to construct the entire Pytorch binary
@@ -18,7 +18,7 @@ END_DATE="$(date +%Y_%m_%d)"
 # assumption in many places that the version is like 1.1.0.dev20190101.
 # N.B. this means you cannot use this script across a version boundary, as the
 # script will only work for part of the range
-CURRENT_PYTORCH_VERSION_PREAMBLE="1.1.0.dev"
+CURRENT_PYTORCH_VERSION_PREAMBLE="1.2.0.dev"
 
 # TODO actually compare times instead of string comparisons. It's easy to get
 # an infinite loop this way.
