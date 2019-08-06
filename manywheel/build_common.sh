@@ -116,6 +116,10 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p build
     pushd build
     echo "Calling tools/build_libtorch.py at $(date)"
+
+    # yf225 TODO debug
+    echo "manywheel/build_common.sh: CMAKE_ARGS: ", ${CMAKE_ARGS[@]}
+
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
          python ../tools/build_libtorch.py

@@ -10,6 +10,7 @@ set -ex
 # Why does this file exist? Why not just update the compiler on the base docker
 # images?
 #
+# yf225 TODO: need to update comment here!
 # So, all the nightlies used to be built on devtoolset3 with the old gcc ABI.
 # These packages worked well for most people, but could not be linked against
 # by client c++ libraries that were compiled using the new gcc ABI. Since both

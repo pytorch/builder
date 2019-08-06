@@ -13,7 +13,7 @@ set -eux -o pipefail
 # 8. CuDNN is available for CUDA builds
 #
 # This script needs the env variables DESIRED_PYTHON, DESIRED_CUDA,
-# DESIRED_DEVTOOLSET and PACKAGE_TYPE
+# DESIRED_DEVTOOLSET, PACKAGE_TYPE and CXX_ABI_VARIANT
 #
 # This script expects PyTorch to be installed into the active Python (the
 # Python returned by `which python`). Or, if this is testing a libtorch
@@ -37,21 +37,14 @@ fi
 echo "Checking that the gcc ABI is what we expect"
 if [[ "$(uname)" != 'Darwin' ]]; then
   function is_expected() {
-    # This commented out logic is what you'd expect if 'devtoolset7' actually
-    # built with the new GCC ABI, but it doesn't; it always builds with ABI=0.
-    # When a compiler is added that does build with new ABI, then replace
-    # devtoolset7 (and the DESIRED_DEVTOOLSET variable) with your new compiler
-    #if [[ "$DESIRED_DEVTOOLSET" == 'devtoolset7' ]]; then
-    #  if [[ "$1" -gt 0 || "$1" == "ON" ]]; then
-    #    echo 1
-    #  fi
-    #else
-    #  if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
-    #    echo 1
-    #  fi
-    #fi
-    if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
-      echo 1
+    if [[ "$CXX_ABI_VARIANT" == 'cxx11-abi' ]]; then
+      if [[ "$1" -gt 0 || "$1" == "ON" ]]; then
+        echo 1
+      fi
+    else
+      if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
+        echo 1
+      fi
     fi
   }
 
@@ -90,26 +83,44 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   fi
 
   # We also check that there are [not] cxx11 symbols in libtorch
+  # yf225 TODO: fix comment here
   # TODO this doesn't catch everything. Even when building with the old ABI
   # there are 44 symbols in the new ABI in the libtorch library, making this
   # check return true. This should actually check that the number of new ABI
   # symbols is sufficiently large.
   # Also, this is wrong on the old ABI, since there are some cxx11 symbols with
   # devtoolset7.
-  #echo "Checking that symbols in libtorch.so have the right gcc abi"
-  #libtorch="${install_root}/lib/libtorch.so"
-  #cxx11_symbols="$(nm "$libtorch" | c++filt | grep __cxx11 | wc -l)" || true
-  #if [[ "$(is_expected $cxx11_symbols)" != 1 ]]; then
-  #  if [[ "$cxx11_symbols" == 0 ]]; then
-  #    echo "No cxx11 symbols found, but there should be."
-  #  else
-  #    echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
-  #    nm "$libtorch" | c++filt | grep __cxx11
-  #  fi
-  #  exit 1
-  #else
-  #  echo "cxx11 symbols seem to be in order"
-  #fi
+  echo "Checking that symbols in libtorch.so have the right gcc abi"
+  # Function to retry functions that sometimes timeout or have flaky failures
+  check_lib_symbols_for_abi_correctness () {
+    lib=$1
+    echo "lib: ", $lib
+    if [[ "$CXX_ABI_VARIANT" == 'cxx11-abi' ]]; then
+      pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l)))
+      echo "pre_cxx11_symbols: ", $pre_cxx11_symbols
+      if [[ "$pre_cxx11_symbols" -gt 0 ]]; then
+        echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
+        nm "$lib" | c++filt | grep std::basic_string
+        nm "$lib" | c++filt | grep std::list
+        exit 1
+      fi
+    else
+      cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::__cxx11::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::__cxx11::list | wc -l)))
+      echo "cxx11_symbols: ", $cxx11_symbols
+      if [[ "$cxx11_symbols" -gt 0 ]]; then
+        echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
+        nm "$lib" | c++filt | grep std::__cxx11::basic_string
+        nm "$lib" | c++filt | grep std::__cxx11::list
+        exit 1
+      fi
+    fi
+  }
+  libc10="${install_root}/lib/libc10.so"
+  libtorch="${install_root}/lib/libtorch.so"
+  check_lib_symbols_for_abi_correctness $libc10
+  check_lib_symbols_for_abi_correctness $libtorch
+  
+  echo "cxx11 symbols seem to be in order"
 fi # if on Darwin
 
 ###############################################################################
