@@ -30,7 +30,6 @@ requirements:
     - ninja
     - future # [py2k]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
-{{ environ.get('CONDA_CPU_ONLY_CONSTRAINT') }}
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
@@ -47,6 +46,8 @@ build:
     - DEBUG
     - USE_FBGEMM
     - USE_SCCACHE # [win]
+  features:
+{{ environ.get('CONDA_CPU_ONLY_FEATURE') }}
 
 test:
  imports:
