@@ -222,8 +222,8 @@ if [[ -n "$cpu_only" ]]; then
     if [[ "$OSTYPE" != "darwin"* ]]; then
         build_string_suffix="cpu_${build_string_suffix}"
     fi
-    # on Linux, advertise that the package sets the cpu-only feature
-    export CONDA_CPU_ONLY_FEATURE="    - cpu-only # [not osx]"
+    # on Linux, advertise that the package sets the cpuonly feature
+    export CONDA_CPU_ONLY_FEATURE="    - cpuonly # [not osx]"
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
     # sets CUDA_VERSION and CUDNN_VERSION
