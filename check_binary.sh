@@ -24,7 +24,8 @@ set -eux -o pipefail
 # The install root depends on both the package type and the os
 # All MacOS packages use conda, even for the wheel packages.
 if [[ "$PACKAGE_TYPE" == libtorch ]]; then
-  install_root="$pwd"
+  # NOTE: Only $PWD works on both CentOS and Ubuntu
+  install_root="$PWD"
 else
   py_dot="${DESIRED_PYTHON:0:3}"
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
