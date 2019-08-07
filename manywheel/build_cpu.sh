@@ -28,7 +28,7 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
 
 DEPS_LIST=(
-    "/usr/lib64/libgomp.so.1"
+    "/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
 )
 
 DEPS_SONAME=(
