@@ -45,92 +45,94 @@ fi
 # - All the nightlies built on CentOS 7 + devtoolset7 use the old gcc ABI.
 # - All the nightlies built on Ubuntu 16.04 + gcc 5.4 use the new gcc ABI.
 
-echo "Checking that the gcc ABI is what we expect"
-if [[ "$(uname)" != 'Darwin' ]]; then
-  function is_expected() {
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-      if [[ "$1" -gt 0 || "$1" == "ON" ]]; then
-        echo 1
+if [[ "$PACKAGE_TYPE" == libtorch ]]; then
+  echo "Checking that the gcc ABI is what we expect"
+  if [[ "$(uname)" != 'Darwin' ]]; then
+    function is_expected() {
+      if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+        if [[ "$1" -gt 0 || "$1" == "ON" ]]; then
+          echo 1
+        fi
+      else
+        if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
+          echo 1
+        fi
       fi
-    else
-      if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
-        echo 1
-      fi
+    }
+
+    # First we check that the env var in TorchConfig.cmake is correct
+
+    # We search for D_GLIBCXX_USE_CXX11_ABI=1 in torch/TorchConfig.cmake
+    torch_config="${install_root}/share/cmake/Torch/TorchConfig.cmake"
+    if [[ ! -f "$torch_config" ]]; then
+      echo "No TorchConfig.cmake found!"
+      ls -lah "$install_root/share/cmake/Torch"
+      exit 1
     fi
-  }
+    echo "Checking the TorchConfig.cmake"
+    cat "$torch_config"
 
-  # First we check that the env var in TorchConfig.cmake is correct
-
-  # We search for D_GLIBCXX_USE_CXX11_ABI=1 in torch/TorchConfig.cmake
-  torch_config="${install_root}/share/cmake/Torch/TorchConfig.cmake"
-  if [[ ! -f "$torch_config" ]]; then
-    echo "No TorchConfig.cmake found!"
-    ls -lah "$install_root/share/cmake/Torch"
-    exit 1
-  fi
-  echo "Checking the TorchConfig.cmake"
-  cat "$torch_config"
-
-  # The sed call below is
-  #   don't print lines by default (only print the line we want)
-  # -n
-  #   execute the following expression
-  # e
-  #   replace lines that match with the first capture group and print
-  # s/.*D_GLIBCXX_USE_CXX11_ABI=\(.\)".*/\1/p
-  #   any characters, D_GLIBCXX_USE_CXX11_ABI=, exactly one any character, a
-  #   quote, any characters
-  #   Note the exactly one single character after the '='. In the case that the
-  #     variable is not set the '=' will be followed by a '"' immediately and the
-  #     line will fail the match and nothing will be printed; this is what we
-  #     want.  Otherwise it will capture the 0 or 1 after the '='.
-  # /.*D_GLIBCXX_USE_CXX11_ABI=\(.\)".*/
-  #   replace the matched line with the capture group and print
-  # /\1/p
-  actual_gcc_abi="$(sed -ne 's/.*D_GLIBCXX_USE_CXX11_ABI=\(.\)".*/\1/p' < "$torch_config")"
-  if [[ "$(is_expected "$actual_gcc_abi")" != 1 ]]; then
-    echo "gcc ABI $actual_gcc_abi not as expected."
-    exit 1
-  fi
-
-  # We also check that there are [not] cxx11 symbols in libtorch
-  # To check whether it is using cxx11 ABI, check non-existence of symbol:
-  # - std::basic_string
-  # - std::list
-  # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
-  # - std::__cxx11::basic_string
-  # - std::__cxx11::list
-  echo "Checking that symbols in libtorch.so have the right gcc abi"
-  check_lib_symbols_for_abi_correctness () {
-    lib=$1
-    echo "lib: " $lib
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-      pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l))) || true
-      echo "pre_cxx11_symbols: " $pre_cxx11_symbols
-      if [[ "$pre_cxx11_symbols" -gt 0 ]]; then
-        echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
-        nm "$lib" | c++filt | grep std::basic_string
-        nm "$lib" | c++filt | grep std::list
-        exit 1
-      fi
-    else
-      cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::__cxx11::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::__cxx11::list | wc -l))) || true
-      echo "cxx11_symbols: " $cxx11_symbols
-      if [[ "$cxx11_symbols" -gt 0 ]]; then
-        echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
-        nm "$lib" | c++filt | grep std::__cxx11::basic_string
-        nm "$lib" | c++filt | grep std::__cxx11::list
-        exit 1
-      fi
+    # The sed call below is
+    #   don't print lines by default (only print the line we want)
+    # -n
+    #   execute the following expression
+    # e
+    #   replace lines that match with the first capture group and print
+    # s/.*D_GLIBCXX_USE_CXX11_ABI=\(.\)".*/\1/p
+    #   any characters, D_GLIBCXX_USE_CXX11_ABI=, exactly one any character, a
+    #   quote, any characters
+    #   Note the exactly one single character after the '='. In the case that the
+    #     variable is not set the '=' will be followed by a '"' immediately and the
+    #     line will fail the match and nothing will be printed; this is what we
+    #     want.  Otherwise it will capture the 0 or 1 after the '='.
+    # /.*D_GLIBCXX_USE_CXX11_ABI=\(.\)".*/
+    #   replace the matched line with the capture group and print
+    # /\1/p
+    actual_gcc_abi="$(sed -ne 's/.*D_GLIBCXX_USE_CXX11_ABI=\(.\)".*/\1/p' < "$torch_config")"
+    if [[ "$(is_expected "$actual_gcc_abi")" != 1 ]]; then
+      echo "gcc ABI $actual_gcc_abi not as expected."
+      exit 1
     fi
-  }
-  libc10="${install_root}/lib/libc10.so"
-  libtorch="${install_root}/lib/libtorch.so"
-  check_lib_symbols_for_abi_correctness $libc10
-  check_lib_symbols_for_abi_correctness $libtorch
-  
-  echo "cxx11 symbols seem to be in order"
-fi # if on Darwin
+
+    # We also check that there are [not] cxx11 symbols in libtorch
+    # To check whether it is using cxx11 ABI, check non-existence of symbol:
+    # - std::basic_string
+    # - std::list
+    # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
+    # - std::__cxx11::basic_string
+    # - std::__cxx11::list
+    echo "Checking that symbols in libtorch.so have the right gcc abi"
+    check_lib_symbols_for_abi_correctness () {
+      lib=$1
+      echo "lib: " $lib
+      if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+        pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l))) || true
+        echo "pre_cxx11_symbols: " $pre_cxx11_symbols
+        if [[ "$pre_cxx11_symbols" -gt 0 ]]; then
+          echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
+          nm "$lib" | c++filt | grep std::basic_string
+          nm "$lib" | c++filt | grep std::list
+          exit 1
+        fi
+      else
+        cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::__cxx11::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::__cxx11::list | wc -l))) || true
+        echo "cxx11_symbols: " $cxx11_symbols
+        if [[ "$cxx11_symbols" -gt 0 ]]; then
+          echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
+          nm "$lib" | c++filt | grep std::__cxx11::basic_string
+          nm "$lib" | c++filt | grep std::__cxx11::list
+          exit 1
+        fi
+      fi
+    }
+    libc10="${install_root}/lib/libc10.so"
+    libtorch="${install_root}/lib/libtorch.so"
+    check_lib_symbols_for_abi_correctness $libc10
+    check_lib_symbols_for_abi_correctness $libtorch
+
+    echo "cxx11 symbols seem to be in order"
+  fi # if on Darwin
+fi # if libtorch
 
 ###############################################################################
 # Check for no OpenBLAS
