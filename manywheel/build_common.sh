@@ -146,9 +146,16 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
     echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
     mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
-    zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
-    cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip \
-       /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-latest.zip
+
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+        LIBTORCH_ABI="cxx11-abi-"
+    else
+        LIBTORCH_ABI=
+    fi
+
+    zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
+    cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip \
+       /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-latest.zip
 fi
 
 popd
