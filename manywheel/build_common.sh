@@ -19,9 +19,6 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
-# TODO move this into the Docker images
-retry yum install -q -y zip openssl
-
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
 # pip 'normalizes' the name first by changing all - to _
