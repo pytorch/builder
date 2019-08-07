@@ -24,7 +24,7 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
 
-if [[ "$CXX_ABI_VARIANT" == 'cxx11-abi' ]]; then
+if [[ "$CXX_ABI_VARIANT" == "cxx11-abi" ]]; then
     CMAKE_ARGS+=("-D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI")
 fi
 
