@@ -95,7 +95,7 @@ else
     retry pip install -q numpy==1.11
 fi
 
-if [[ "$CXX_ABI_VARIANT" == "cxx11-abi" ]]; then
+if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
 else
     export _GLIBCXX_USE_CXX11_ABI=0

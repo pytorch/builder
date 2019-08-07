@@ -13,7 +13,7 @@ set -eux -o pipefail
 # 8. CuDNN is available for CUDA builds
 #
 # This script needs the env variables DESIRED_PYTHON, DESIRED_CUDA,
-# DESIRED_DEVTOOLSET, PACKAGE_TYPE and CXX_ABI_VARIANT
+# DESIRED_DEVTOOLSET and PACKAGE_TYPE
 #
 # This script expects PyTorch to be installed into the active Python (the
 # Python returned by `which python`). Or, if this is testing a libtorch
@@ -48,7 +48,7 @@ fi
 echo "Checking that the gcc ABI is what we expect"
 if [[ "$(uname)" != 'Darwin' ]]; then
   function is_expected() {
-    if [[ "$CXX_ABI_VARIANT" == 'cxx11-abi' ]]; then
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
       if [[ "$1" -gt 0 || "$1" == "ON" ]]; then
         echo 1
       fi
@@ -104,7 +104,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   check_lib_symbols_for_abi_correctness () {
     lib=$1
     echo "lib: " $lib
-    if [[ "$CXX_ABI_VARIANT" == 'cxx11-abi' ]]; then
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
       pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l))) || true
       echo "pre_cxx11_symbols: " $pre_cxx11_symbols
       if [[ "$pre_cxx11_symbols" -gt 0 ]]; then
