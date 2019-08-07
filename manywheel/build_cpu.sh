@@ -5,6 +5,9 @@ set -ex
 export TH_BINARY_BUILD=1
 export USE_CUDA=0
 
+# yf225 TODO debug
+echo "manywheel/build.sh: CXX_ABI_VARIANT: ", $CXX_ABI_VARIANT
+
 # Keep an array of cmake variables to add to
 if [[ -z "$CMAKE_ARGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build()
@@ -13,6 +16,10 @@ fi
 if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
     EXTRA_CAFFE2_CMAKE_FLAGS=()
+fi
+
+if [[ "$CXX_ABI_VARIANT" == "cxx11-abi" ]]; then
+    CMAKE_ARGS+=("-D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI")
 fi
 
 WHEELHOUSE_DIR="wheelhousecpu"
