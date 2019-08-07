@@ -28,6 +28,7 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
 
 DEPS_LIST=(
+    # yf225 TODO: this should be dependent on OS name (CentOS vs. Ubuntu)
     "/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
 )
 
