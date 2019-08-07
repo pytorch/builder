@@ -172,6 +172,7 @@ fi
 ###############################################################################
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   # For libtorch testing is done. All further tests require Python
+  # TODO: We should run those further tests for libtorch as well
   exit 0
 fi
 python -c 'import torch'
