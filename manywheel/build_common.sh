@@ -95,9 +95,6 @@ else
     retry pip install -q numpy==1.11
 fi
 
-# yf225 TODO debug
-echo "manywheel/build_common.sh: CXX_ABI_VARIANT: ", $CXX_ABI_VARIANT
-
 if [[ "$CXX_ABI_VARIANT" == "cxx11-abi" ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
 else
@@ -123,7 +120,6 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p build
     pushd build
     echo "Calling tools/build_libtorch.py at $(date)"
-
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
          python ../tools/build_libtorch.py
