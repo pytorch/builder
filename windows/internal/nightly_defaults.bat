@@ -158,7 +158,7 @@ if "%TORCH_CONDA_BUILD_FOLDER%" == "" set TORCH_CONDA_BUILD_FOLDER=pytorch-night
 ::   pytorch-nightly. N.B. that pip will change all '-' to '_' but conda will
 ::   not. This is dealt with in downstream scripts.
 :: TODO: Not supported yet
-if "%TORCH_PACKAGE_NAME%" == "" set TORCH_PACKAGE_NAME=torch-nightly
+if "%TORCH_PACKAGE_NAME%" == "" set TORCH_PACKAGE_NAME=torch
 
 :: PIP_UPLOAD_FOLDER should end in a slash. This is to handle it being empty
 :: (when uploading to e.g. whl/cpu/) and also to handle nightlies (when
