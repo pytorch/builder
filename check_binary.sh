@@ -90,19 +90,12 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
   # - std::__cxx11::basic_string
   # - std::__cxx11::list
-  # yf225 TODO: fix comment here
-  # TODO this doesn't catch everything. Even when building with the old ABI
-  # there are 44 symbols in the new ABI in the libtorch library, making this
-  # check return true. This should actually check that the number of new ABI
-  # symbols is sufficiently large.
-  # Also, this is wrong on the old ABI, since there are some cxx11 symbols with
-  # devtoolset7.
   echo "Checking that symbols in libtorch.so have the right gcc abi"
   check_lib_symbols_for_abi_correctness () {
     lib=$1
     echo "lib: " $lib
     if [[ "$CXX_ABI_VARIANT" == 'cxx11-abi' ]]; then
-      pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l)))
+      pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l))) || true
       echo "pre_cxx11_symbols: " $pre_cxx11_symbols
       if [[ "$pre_cxx11_symbols" -gt 0 ]]; then
         echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
@@ -111,7 +104,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
         exit 1
       fi
     else
-      cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::__cxx11::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::__cxx11::list | wc -l)))
+      cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::__cxx11::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::__cxx11::list | wc -l))) || true
       echo "cxx11_symbols: " $cxx11_symbols
       if [[ "$cxx11_symbols" -gt 0 ]]; then
         echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
