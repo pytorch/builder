@@ -26,11 +26,16 @@ if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
-
-DEPS_LIST=(
-    # yf225 TODO: this should be dependent on OS name (CentOS vs. Ubuntu)
-    "/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
-)
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+if [[ "$OS_NAME" == 'CentOS Linux' ]]; then
+    DEPS_LIST=(
+        "/usr/lib64/libgomp.so.1"
+    )
+elif [[ "$OS_NAME" == 'Ubuntu' ]]; then
+    DEPS_LIST=(
+        "/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
+    )
+fi
 
 DEPS_SONAME=(
     "libgomp.so.1"
