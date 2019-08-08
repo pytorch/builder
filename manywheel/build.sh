@@ -22,6 +22,8 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
 fi
 
 # Determine CUDA version and architectures to build for
+echo "yf225 TODO: DESIRED_CUDA: " $DESIRED_CUDA
+echo "yf225 TODO: CUDA_VERSION: " $CUDA_VERSION
 CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
 echo "CUDA $CUDA_VERSION Detected"
 
