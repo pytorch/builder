@@ -33,10 +33,11 @@ if [[ -n "$DESIRED_CUDA" ]]; then
     elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
         CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
     fi
+    echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
 else
     CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+    echo "CUDA $CUDA_VERSION Detected"
 fi
-echo "CUDA $CUDA_VERSION Detected"
 
 export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
 if [[ $CUDA_VERSION == "9.0" ]]; then
