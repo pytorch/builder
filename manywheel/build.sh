@@ -22,9 +22,20 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
 fi
 
 # Determine CUDA version and architectures to build for
-echo "yf225 TODO: DESIRED_CUDA: " $DESIRED_CUDA
-echo "yf225 TODO: CUDA_VERSION: " $CUDA_VERSION
-CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+#
+# NOTE: We should first check `DESIRED_CUDA` when determining `CUDA_VERSION`,
+# because in some cases a single Docker image can have multiple CUDA versions
+# on it, and `nvcc --version` might not show the CUDA version we want.
+if [[ -n "$DESIRED_CUDA" ]]; then
+    # cu90, cu92, cu100, cu101
+    if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
+        CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
+    elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
+        CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
+    fi
+else
+    CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+fi
 echo "CUDA $CUDA_VERSION Detected"
 
 export TORCH_CUDA_ARCH_LIST="3.5;5.0+PTX"
