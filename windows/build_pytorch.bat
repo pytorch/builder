@@ -62,9 +62,9 @@ endlocal
 
 :: Install MKL
 rmdir /s /q mkl
-del mkl_2018.2.185.7z
-curl https://s3.amazonaws.com/ossci-windows/mkl_2018.2.185.7z -k -O
-7z x -aoa mkl_2018.2.185.7z -omkl
+del mkl_2019.4.245.7z
+curl https://s3.amazonaws.com/ossci-windows/mkl_2019.4.245.7z -k -O
+7z x -aoa mkl_2019.4.245.7z -omkl
 set CMAKE_INCLUDE_PATH=%cd%\\mkl\\include
 set LIB=%cd%\\mkl\\lib;%LIB%
 
