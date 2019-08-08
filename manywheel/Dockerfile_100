@@ -72,19 +72,12 @@ RUN mkdir tmp_cudnn && cd tmp_cudnn && \
     ldconfig
 
 # magma
-RUN wget -q http://icl.cs.utk.edu/projectsfiles/magma/downloads/magma-2.5.1.tar.gz && \
-    tar -xf magma-2.5.1.tar.gz && \
-    cd magma-2.5.1 && \
-    wget -q https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.5.1/cmakelists.patch && \
-    wget -q https://raw.githubusercontent.com/pytorch/builder/master/conda/magma-cuda100-2.5.1/thread_queue.patch && \
-    patch -p0 <cmakelists.patch && \
-    patch -p0 <thread_queue.patch && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX && \
-    make -j$(getconf _NPROCESSORS_CONF) && \
-    make install && \
-    cd ..
+RUN pushd /tmp && \
+    wget -q https://anaconda.org/pytorch/magma-cuda100/2.5.1/download/linux-64/magma-cuda100-2.5.1-1.tar.bz2 && \
+    tar -xvf magma-cuda100-2.5.1-1.tar.bz2 && \
+    mv include /include && \
+    cp lib/* /usr/lib/ && \
+    rm -rf info lib include magma-cuda100-2.5.1-1.tar.bz2
 
 RUN rm -f /usr/local/bin/patchelf
 RUN git clone https://github.com/NixOS/patchelf && \
