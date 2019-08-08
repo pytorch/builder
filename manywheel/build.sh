@@ -74,13 +74,20 @@ if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+    LIBGOMP_PATH="/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
+fi
+
 if [[ $CUDA_VERSION == "9.0" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.9.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.9.0"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/lib64/libgomp.so.1"
+    "$LIBGOMP_PATH"
 )
 
 DEPS_SONAME=(
@@ -96,7 +103,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.9.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/lib64/libgomp.so.1"
+    "$LIBGOMP_PATH"
 )
 
 DEPS_SONAME=(
@@ -112,7 +119,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.10.0"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/lib64/libgomp.so.1"
+    "$LIBGOMP_PATH"
 )
 
 DEPS_SONAME=(
@@ -128,7 +135,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.10.1"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/lib64/libgomp.so.1"
+    "$LIBGOMP_PATH"
 )
 
 DEPS_SONAME=(
