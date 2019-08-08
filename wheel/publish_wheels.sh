@@ -13,6 +13,6 @@ s3_nightly="s3://pytorch/whl/nightly/"
 
 for subfolder in "${SUBFOLDERS[@]}"; do
   for file in $(aws s3 ls "$s3_nightly$subfolder" | grep --only-matching '\S*\.whl' | grep "$1-\|$1+"); do
-    aws s3 cp "$s3_nightly$subfolder$file" "$s3_prod$subfolder$(echo "$file" | sed 's/-linux/-manylinux1/')"
+    aws s3 cp "$s3_nightly$subfolder$file" "$s3_prod$subfolder$(echo "$file" | sed 's/-linux/-manylinux1/')" --acl public-read
   done
 done

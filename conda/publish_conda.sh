@@ -18,7 +18,7 @@ for platform in "${PLATFORMS[@]}"; do
   for suffix in "${VERSION_SUFFIXES[@]}"; do
     for url in $(conda search --platform "$platform" "$1$suffix[channel=pytorch-nightly]" --json | jq -r '.[][].url'); do
       file="$(basename "$url")"
-      curl -o "$file" "$url"
+      curl -L -o "$file" "$url"
       anaconda upload -u pytorch "$file"
     done
   done
