@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 # Publish conda packages from pytorch-nightly to pytorch
 
@@ -11,15 +11,11 @@ fi
 
 export PLATFORMS=('linux-64' 'osx-64')
 
-# TODO: get rid of the version suffixes
-export VERSION_SUFFIXES=('' '+cpu' '+cu92' '+c100')
-
 for platform in "${PLATFORMS[@]}"; do
-  for suffix in "${VERSION_SUFFIXES[@]}"; do
-    for url in $(conda search --platform "$platform" "$1$suffix[channel=pytorch-nightly]" --json | jq -r '.[][].url'); do
-      file="$(basename "$url")"
-      curl -L -o "$file" "$url"
-      anaconda upload -u pytorch "$file"
-    done
+  for url in $(conda search --platform "$platform" "$1[channel=pytorch-nightly]" --json | jq -r '.[][].url'); do
+    echo "$url"
+    file="$(basename "$url")"
+    curl -L -o "$file" "$url"
+    anaconda upload -u pytorch "$file"
   done
 done
