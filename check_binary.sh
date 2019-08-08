@@ -95,49 +95,65 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
     fi
 
     # We also check that there are [not] cxx11 symbols in libtorch
-    # To check whether it is using cxx11 ABI, check non-existence of symbol:
-    # - std::basic_string
-    # - std::list
-    # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
-    # - std::__cxx11::basic_string
-    # - std::__cxx11::list
     #
-    # NOTE: There are some cxx11 symbols with devtoolset7 even if we build with
-    # old ABI, so this test doesn't work. On the other hand, since it is known
-    # that devtoolset7 on CentOS can *only* build with old ABI (https://bugzilla.redhat.com/show_bug.cgi?id=1546704),
-    # we don't need to test for cxx11 symbols here.
-    if [[ "$DESIRED_DEVTOOLSET" != "devtoolset7" ]]; then
-      echo "Checking that symbols in libtorch.so have the right gcc abi"
-      check_lib_symbols_for_abi_correctness () {
-        lib=$1
-        echo "lib: " $lib
-        if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-          pre_cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::list | wc -l))) || true
-          echo "pre_cxx11_symbols: " $pre_cxx11_symbols
-          if [[ "$pre_cxx11_symbols" -gt 0 ]]; then
-            echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
-            nm "$lib" | c++filt | grep std::basic_string
-            nm "$lib" | c++filt | grep std::list
-            exit 1
-          fi
-        else
-          cxx11_symbols=$(($(nm "$lib" | c++filt | grep std::__cxx11::basic_string | wc -l) + $(nm "$lib" | c++filt | grep std::__cxx11::list | wc -l))) || true
-          echo "cxx11_symbols: " $cxx11_symbols
-          if [[ "$cxx11_symbols" -gt 0 ]]; then
-            echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
-            nm "$lib" | c++filt | grep std::__cxx11::basic_string
-            nm "$lib" | c++filt | grep std::__cxx11::list
-            exit 1
-          fi
+    # To check whether it is using cxx11 ABI, check non-existence of symbol:
+    PRE_CXX11_SYMBOLS=(
+      "std::basic_string"
+      "std::list"
+    )
+    # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
+    CXX11_SYMBOLS=(
+      "std::__cxx11::basic_string"
+      "std::__cxx11::list"
+    )
+    # NOTE: Checking the above symbols in all namespaces doesn't work, because
+    # devtoolset7 always produces some cxx11 symbols even if we build with old ABI,
+    # and CuDNN always has pre-cxx11 symbols even if we build with new ABI using gcc 5.4.
+    # Instead, we *only* check the above symbols in the following namespaces:
+    LIBTORCH_NAMESPACE_LIST=(
+      "c10::"
+      "at::"
+      "caffe2::"
+      "torch::"
+    )
+    echo "Checking that symbols in libtorch.so have the right gcc abi"
+    grep_symbols () {
+      symbols=("$@")
+      for namespace in "${LIBTORCH_NAMESPACE_LIST[@]}"
+      do
+        for symbol in "${symbols[@]}"
+        do
+          nm "$lib" | c++filt | grep $namespace.*$symbol
+        done
+      done
+    }
+    check_lib_symbols_for_abi_correctness () {
+      lib=$1
+      echo "lib: " $lib
+      if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+        num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
+        echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
+        if [[ "$num_pre_cxx11_symbols" -gt 0 ]]; then
+          echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
+          grep_symbols "${PRE_CXX11_SYMBOLS[@]}"
+          exit 1
         fi
-      }
-      libc10="${install_root}/lib/libc10.so"
-      libtorch="${install_root}/lib/libtorch.so"
-      check_lib_symbols_for_abi_correctness $libc10
-      check_lib_symbols_for_abi_correctness $libtorch
+      else
+        num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
+        echo "num_cxx11_symbols: " $num_cxx11_symbols
+        if [[ "$num_cxx11_symbols" -gt 0 ]]; then
+          echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
+          grep_symbols "${CXX11_SYMBOLS[@]}"
+          exit 1
+        fi
+      fi
+    }
+    libc10="${install_root}/lib/libc10.so"
+    libtorch="${install_root}/lib/libtorch.so"
+    check_lib_symbols_for_abi_correctness $libc10
+    check_lib_symbols_for_abi_correctness $libtorch
 
-      echo "cxx11 symbols seem to be in order"
-    fi # if devtoolset7
+    echo "cxx11 symbols seem to be in order"
   fi # if on Darwin
 fi # if libtorch
 
