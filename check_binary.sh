@@ -111,10 +111,10 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
     # and CuDNN always has pre-cxx11 symbols even if we build with new ABI using gcc 5.4.
     # Instead, we *only* check the above symbols in the following namespaces:
     LIBTORCH_NAMESPACE_LIST=(
-      "c10::"
-      "at::"
-      "caffe2::"
-      "torch::"
+      "\sc10::"
+      "\sat::"
+      "\scaffe2::"
+      "\storch::"
     )
     echo "Checking that symbols in libtorch.so have the right gcc abi"
     grep_symbols () {
@@ -138,12 +138,24 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
           grep_symbols "${PRE_CXX11_SYMBOLS[@]}"
           exit 1
         fi
+        num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
+        echo "num_cxx11_symbols: " $num_cxx11_symbols
+        if [[ "$num_cxx11_symbols" -lt 1000 ]]; then
+          echo "Didn't find enough cxx11 symbols. Aborting."
+          exit 1
+        fi
       else
         num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
         echo "num_cxx11_symbols: " $num_cxx11_symbols
         if [[ "$num_cxx11_symbols" -gt 0 ]]; then
           echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
           grep_symbols "${CXX11_SYMBOLS[@]}"
+          exit 1
+        fi
+        num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
+        echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
+        if [[ "$num_pre_cxx11_symbols" -lt 1000 ]]; then
+          echo "Didn't find enough pre-cxx11 symbols. Aborting."
           exit 1
         fi
       fi
