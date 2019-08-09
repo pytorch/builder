@@ -22,5 +22,6 @@ ADD ./common/install_cuda.sh install_cuda.sh
 RUN bash ./install_cuda.sh && rm install_cuda.sh
 
 # Install Anaconda
+ENV PATH /opt/conda/bin:$PATH
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
