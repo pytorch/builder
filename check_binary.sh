@@ -111,10 +111,10 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
     # and CuDNN always has pre-cxx11 symbols even if we build with new ABI using gcc 5.4.
     # Instead, we *only* check the above symbols in the following namespaces:
     LIBTORCH_NAMESPACE_LIST=(
-      "\sc10::"
-      "\sat::"
-      "\scaffe2::"
-      "\storch::"
+      "c10::"
+      "at::"
+      "caffe2::"
+      "torch::"
     )
     echo "Checking that symbols in libtorch.so have the right gcc abi"
     grep_symbols () {
@@ -123,7 +123,7 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
       do
         for symbol in "${symbols[@]}"
         do
-          nm "$lib" | c++filt | grep $namespace.*$symbol
+          nm "$lib" | c++filt | grep " $namespace".*$symbol
         done
       done
     }
