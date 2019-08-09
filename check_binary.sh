@@ -160,9 +160,7 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
         fi
       fi
     }
-    libc10="${install_root}/lib/libc10.so"
     libtorch="${install_root}/lib/libtorch.so"
-    check_lib_symbols_for_abi_correctness $libc10
     check_lib_symbols_for_abi_correctness $libtorch
 
     echo "cxx11 symbols seem to be in order"
