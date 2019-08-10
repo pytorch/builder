@@ -1,5 +1,16 @@
 @echo off
 
+if "%~1"=="" goto arg_error
+if NOT "%~2"=="" goto arg_error
+goto arg_end
+
+:arg_error
+
+echo Illegal number of parameters. Pass packge type `Conda` or `Wheels`.
+exit /b 1
+
+:arg_end
+
 echo "nightly_defaults.bat at %CD% starting at %DATE%"
 
 set SRC_DIR=%~dp0\..
@@ -133,7 +144,15 @@ if "%CUDA_VERSION%" == "cpu" (
 ::       pytorch-nightly==1.0.0.dev20180908
 ::   or in manylinux like
 ::       torch_nightly-1.0.0.dev20180908-cp27-cp27m-linux_x86_64.whl
-if "%PYTORCH_BUILD_VERSION%" == "" set PYTORCH_BUILD_VERSION=1.2.0.dev%NIGHTLIES_DATE_COMPACT%+%_DESIRED_CUDA%
+if "%PYTORCH_BUILD_VERSION%" == "" set PYTORCH_BUILD_VERSION=1.2.0.dev%NIGHTLIES_DATE_COMPACT%
+
+if "%~1" == "Wheels" (
+    if "%BUILD_PYTHONLESS%" == "" (
+        if not "%CUDA_VERSION%" == "100" (
+            set PYTORCH_BUILD_VERSION=%PYTORCH_BUILD_VERSION%+%_DESIRED_CUDA%
+        )
+    )
+)
 
 :: PYTORCH_BUILD_NUMBER
 ::   This is usually the number 1. If more than one build is uploaded for the
