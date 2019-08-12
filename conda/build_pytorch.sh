@@ -283,9 +283,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     cat "$meta_yaml"
 
     # Build the package
-    if [[ "$py_ver" == "3.7" ]]; then # yf225 TODO debug
-        py_ver="3.7.3"
-    fi
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
     echo "Calling conda-build at $(date)"
