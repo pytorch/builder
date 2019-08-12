@@ -299,7 +299,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      --python "$py_ver" \
                      --output-folder "$output_folder" \
                      --no-test \
-                     "$build_folder" || echo $PWD && ls && ls "$build_folder"/ && ls "$output_folder"/ && cat ""$build_folder"/caffe2/CMakeFiles/caffe2_pybind11_state.dir/build.make"
+                     "$build_folder"
     echo "Finished conda-build at $(date)"
 
     # Create a new environment to test in
