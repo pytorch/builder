@@ -19,6 +19,15 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
+# TODO move this into the Docker images
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+    retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+    retry apt-get update
+    retry apt-get -y install zip openssl
+fi
+
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
 # pip 'normalizes' the name first by changing all - to _
