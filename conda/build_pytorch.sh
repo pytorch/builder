@@ -275,7 +275,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # We need to build the compiler activation scripts first on Windows
     if [[ "$OSTYPE" == "msys" ]]; then
         time VSDEVCMD_ARGS=${VSDEVCMD_ARGS[@]} \
-             conda build -c "$ANACONDA_USER" \
+             conda build -c pytorch -c pytorch-nightly \
                          --no-anaconda-upload \
                          --output-folder "$output_folder" \
                          vs2017
@@ -294,7 +294,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
-         conda build -c "$ANACONDA_USER" \
+         conda build -c pytorch -c pytorch-nightly \
                      --no-anaconda-upload \
                      --python "$py_ver" \
                      --output-folder "$output_folder" \
