@@ -107,9 +107,10 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     :: Activate Python Environment
     set PYTHON_PREFIX=%%v
     set "CONDA_LIB_PATH=%CONDA_HOME%\envs\%%v\Library\bin"
-    set "PATH=%CONDA_HOME%\envs\%%v;%CONDA_HOME%\envs\%%v\scripts;%CONDA_HOME%\envs\%%v\Library\bin;%ORIG_PATH%"
     if not "%ADDITIONAL_PATH%" == "" (
-        set "PATH=%ADDITIONAL_PATH%;%PATH%"
+        set "PATH=%ADDITIONAL_PATH%;%CONDA_HOME%\envs\%%v;%CONDA_HOME%\envs\%%v\scripts;%CONDA_HOME%\envs\%%v\Library\bin;%ORIG_PATH%"
+    ) else (
+        set "PATH=%CONDA_HOME%\envs\%%v;%CONDA_HOME%\envs\%%v\scripts;%CONDA_HOME%\envs\%%v\Library\bin;%ORIG_PATH%"
     )
     pip install ninja
     @setlocal
