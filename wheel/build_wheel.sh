@@ -97,7 +97,9 @@ mkdir -p "$whl_tmp_dir"
 # update this!
 # An example of this happened on Aug 13, 2019, when osx-64/python-2.7.16-h97142e2_2.tar.bz2
 # was uploaded to https://anaconda.org/anaconda/python/files
-if [[ "$desired_python" == 3.5 ]]; then
+if [[ "$desired_python" == 3.7 ]]; then
+    mac_version='macosx_10_9_x86_64'
+elif [[ "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
 else
     mac_version='macosx_10_7_x86_64'
