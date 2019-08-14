@@ -182,8 +182,6 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     popd
-    # We have to skip 3.17 because of the following bug.
-    # https://github.com/conda/conda-build/issues/3285
     retry conda install -yq conda-build
 fi
 
