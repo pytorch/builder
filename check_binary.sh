@@ -207,25 +207,53 @@ else
   done
 fi
 
+build_and_run_example_cpp () {
+  if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    GLIBCXX_USE_CXX11_ABI=1
+  else
+    GLIBCXX_USE_CXX11_ABI=0
+  fi
+  g++ example-app.cpp -I/libtorch/include -I/libtorch/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L/libtorch/lib/ -ltorch -lc10 -o example-app
+  ./example-app
+}
 
 ###############################################################################
-# Check simple Python calls
+# Check simple Python/C++ calls
 ###############################################################################
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-  # For libtorch testing is done. All further tests require Python
-  # TODO: We should run those further tests for libtorch as well
-  exit 0
+  cat >example-app.cpp <<EOL
+#include <torch/torch.h>
+
+int main(int argc, const char* argv[]) {
+  TORCH_CHECK(true, "Simple test passed!");
+  return 0;
+}
+EOL
+  build_and_run_example_cpp
+else
+  python -c 'import torch'
+  python -c 'from caffe2.python import core'
 fi
-python -c 'import torch'
-python -c 'from caffe2.python import core'
 
 
 ###############################################################################
 # Check for MKL
 ###############################################################################
-if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
+if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+  cat >example-app.cpp <<EOL
+#include <torch/torch.h>
+
+int main(int argc, const char* argv[]) {
+  TORCH_CHECK(torch::hasMKL(), "MKL is available");
+  return 0;
+}
+EOL
+  build_and_run_example_cpp
+else
+  if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     echo "Checking that MKL is available"
     python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
+  fi
 fi
 
 
@@ -243,6 +271,26 @@ fi
 
 # Test that CUDA builds are setup correctly
 if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
+  if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+    cat >example-app.cpp <<EOL
+#include <torch/torch.h>
+
+int main(int argc, const char* argv[]) {
+  std::cout << "Checking that CUDA archs are setup correctly" << std::endl;
+  TORCH_CHECK(torch::rand({3, 5}, torch::Device(torch::kCUDA)).defined(), "CUDA archs are setup correctly");
+
+  // These have to run after CUDA is initialized
+
+  std::cout << "Checking that magma is available" << std::endl;
+  TORCH_CHECK(torch::hasMAGMA(), "MAGMA is available");
+
+  std::cout << "Checking that CuDNN is available" << std::endl;
+  TORCH_CHECK(torch::detail::getCUDAHooks().hasCuDNN(), "CuDNN is available");
+  return 0;
+}
+EOL
+    build_and_run_example_cpp
+  else
     echo "Checking that CUDA archs are setup correctly"
     timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
 
@@ -253,4 +301,5 @@ if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
 
     echo "Checking that CuDNN is available"
     python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
-fi
+  fi # if libtorch
+fi # if cuda
