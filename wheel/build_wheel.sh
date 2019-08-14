@@ -168,17 +168,17 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     echo "$(date) :: Finished tests"
 else
     pushd "$pytorch_rootdir"
-    mkdir -p build
-    pushd build
-    python ../tools/build_libtorch.py
-    popd
 
     mkdir -p libtorch/{lib,bin,include,share}
-    cp -r "$(pwd)/build/lib" "$(pwd)/libtorch/"
 
-    # for now, the headers for the libtorch package will just be
-    # copied in from the wheel
+    # We copy both the headers and the library files for the libtorch package from the wheel
     unzip -d any_wheel "$whl_tmp_dir/$wheel_filename_gen"
+    if [[ -d $(pwd)/any_wheel/torch/lib ]]; then
+        cp -r "$(pwd)/any_wheel/torch/lib" "$(pwd)/libtorch/"
+    else
+        echo "PyTorch wheel file not found. Aborting."
+        exit 1
+    fi
     if [[ -d $(pwd)/any_wheel/torch/include ]]; then
         cp -r "$(pwd)/any_wheel/torch/include" "$(pwd)/libtorch/"
     else
