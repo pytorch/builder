@@ -20,7 +20,13 @@ retry () {
 }
 
 # TODO move this into the Docker images
-retry yum install -q -y zip openssl
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+    retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+    retry apt-get update
+    retry apt-get -y install zip openssl
+fi
 
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
@@ -97,6 +103,13 @@ if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
 else
     retry pip install -q numpy==1.11
 fi
+
+if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    export _GLIBCXX_USE_CXX11_ABI=1
+else
+    export _GLIBCXX_USE_CXX11_ABI=0
+fi
+
 echo "Calling setup.py bdist at $(date)"
 time CMAKE_ARGS=${CMAKE_ARGS[@]} \
      EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
@@ -142,9 +155,16 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
     echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
     mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
-    zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
-    cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip \
-       /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_VARIANT-latest.zip
+
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+        LIBTORCH_ABI="cxx11-abi-"
+    else
+        LIBTORCH_ABI=
+    fi
+
+    zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
+    cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip \
+       /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-latest.zip
 fi
 
 popd

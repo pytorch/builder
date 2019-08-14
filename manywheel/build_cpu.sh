@@ -26,9 +26,15 @@ if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+    LIBGOMP_PATH="/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
+fi
 
 DEPS_LIST=(
-    "/usr/lib64/libgomp.so.1"
+    "$LIBGOMP_PATH"
 )
 
 DEPS_SONAME=(

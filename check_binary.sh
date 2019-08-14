@@ -24,7 +24,8 @@ set -eux -o pipefail
 # The install root depends on both the package type and the os
 # All MacOS packages use conda, even for the wheel packages.
 if [[ "$PACKAGE_TYPE" == libtorch ]]; then
-  install_root="$pwd"
+  # NOTE: Only $PWD works on both CentOS and Ubuntu
+  install_root="$PWD"
 else
   py_dot="${DESIRED_PYTHON:0:3}"
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
@@ -34,24 +35,27 @@ fi
 ###############################################################################
 # Check GCC ABI
 ###############################################################################
+
+# NOTE [ Building libtorch with old vs. new gcc ABI ]
+#
+# Packages built with one version of ABI could not be linked against by client
+# C++ libraries that were compiled using the other version of ABI. Since both
+# gcc ABIs are still common in the wild, we need to support both ABIs. Currently:
+#
+# - All the nightlies built on CentOS 7 + devtoolset7 use the old gcc ABI.
+# - All the nightlies built on Ubuntu 16.04 + gcc 5.4 use the new gcc ABI.
+
 echo "Checking that the gcc ABI is what we expect"
 if [[ "$(uname)" != 'Darwin' ]]; then
   function is_expected() {
-    # This commented out logic is what you'd expect if 'devtoolset7' actually
-    # built with the new GCC ABI, but it doesn't; it always builds with ABI=0.
-    # When a compiler is added that does build with new ABI, then replace
-    # devtoolset7 (and the DESIRED_DEVTOOLSET variable) with your new compiler
-    #if [[ "$DESIRED_DEVTOOLSET" == 'devtoolset7' ]]; then
-    #  if [[ "$1" -gt 0 || "$1" == "ON" ]]; then
-    #    echo 1
-    #  fi
-    #else
-    #  if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
-    #    echo 1
-    #  fi
-    #fi
-    if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
-      echo 1
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+      if [[ "$1" -gt 0 || "$1" == "ON " ]]; then
+        echo 1
+      fi
+    else
+      if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
+        echo 1
+      fi
     fi
   }
 
@@ -90,26 +94,75 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   fi
 
   # We also check that there are [not] cxx11 symbols in libtorch
-  # TODO this doesn't catch everything. Even when building with the old ABI
-  # there are 44 symbols in the new ABI in the libtorch library, making this
-  # check return true. This should actually check that the number of new ABI
-  # symbols is sufficiently large.
-  # Also, this is wrong on the old ABI, since there are some cxx11 symbols with
-  # devtoolset7.
-  #echo "Checking that symbols in libtorch.so have the right gcc abi"
-  #libtorch="${install_root}/lib/libtorch.so"
-  #cxx11_symbols="$(nm "$libtorch" | c++filt | grep __cxx11 | wc -l)" || true
-  #if [[ "$(is_expected $cxx11_symbols)" != 1 ]]; then
-  #  if [[ "$cxx11_symbols" == 0 ]]; then
-  #    echo "No cxx11 symbols found, but there should be."
-  #  else
-  #    echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
-  #    nm "$libtorch" | c++filt | grep __cxx11
-  #  fi
-  #  exit 1
-  #else
-  #  echo "cxx11 symbols seem to be in order"
-  #fi
+  #
+  # To check whether it is using cxx11 ABI, check non-existence of symbol:
+  PRE_CXX11_SYMBOLS=(
+    "std::basic_string"
+    "std::list"
+  )
+  # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
+  CXX11_SYMBOLS=(
+    "std::__cxx11::basic_string"
+    "std::__cxx11::list"
+  )
+  # NOTE: Checking the above symbols in all namespaces doesn't work, because
+  # devtoolset7 always produces some cxx11 symbols even if we build with old ABI,
+  # and CuDNN always has pre-cxx11 symbols even if we build with new ABI using gcc 5.4.
+  # Instead, we *only* check the above symbols in the following namespaces:
+  LIBTORCH_NAMESPACE_LIST=(
+    "c10::"
+    "at::"
+    "caffe2::"
+    "torch::"
+  )
+  echo "Checking that symbols in libtorch.so have the right gcc abi"
+  grep_symbols () {
+    symbols=("$@")
+    for namespace in "${LIBTORCH_NAMESPACE_LIST[@]}"
+    do
+      for symbol in "${symbols[@]}"
+      do
+        nm "$lib" | c++filt | grep " $namespace".*$symbol
+      done
+    done
+  }
+  check_lib_symbols_for_abi_correctness () {
+    lib=$1
+    echo "lib: " $lib
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+      num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
+      echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
+      if [[ "$num_pre_cxx11_symbols" -gt 0 ]]; then
+        echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
+        grep_symbols "${PRE_CXX11_SYMBOLS[@]}"
+        exit 1
+      fi
+      num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
+      echo "num_cxx11_symbols: " $num_cxx11_symbols
+      if [[ "$num_cxx11_symbols" -lt 1000 ]]; then
+        echo "Didn't find enough cxx11 symbols. Aborting."
+        exit 1
+      fi
+    else
+      num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
+      echo "num_cxx11_symbols: " $num_cxx11_symbols
+      if [[ "$num_cxx11_symbols" -gt 0 ]]; then
+        echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
+        grep_symbols "${CXX11_SYMBOLS[@]}"
+        exit 1
+      fi
+      num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
+      echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
+      if [[ "$num_pre_cxx11_symbols" -lt 1000 ]]; then
+        echo "Didn't find enough pre-cxx11 symbols. Aborting."
+        exit 1
+      fi
+    fi
+  }
+  libtorch="${install_root}/lib/libtorch.so"
+  check_lib_symbols_for_abi_correctness $libtorch
+
+  echo "cxx11 symbols seem to be in order"
 fi # if on Darwin
 
 ###############################################################################
@@ -160,6 +213,7 @@ fi
 ###############################################################################
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   # For libtorch testing is done. All further tests require Python
+  # TODO: We should run those further tests for libtorch as well
   exit 0
 fi
 python -c 'import torch'

@@ -48,7 +48,12 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   else
     libtorch_variant="$LIBTORCH_VARIANT"
   fi
-  package_name="libtorch-$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
+  if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+      LIBTORCH_ABI="cxx11-abi-"
+  else
+      LIBTORCH_ABI=
+  fi
+  package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
   package_name='torch'
 elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
