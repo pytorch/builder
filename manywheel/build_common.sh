@@ -118,25 +118,34 @@ echo "Finished setup.py bdist at $(date)"
 
 # Build libtorch packages
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
-    # Now build pythonless libtorch
-    # Note - just use whichever python we happen to be on
-    python setup.py clean
-
-    if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
-        STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
-    fi
-
-    mkdir -p build
-    pushd build
-    echo "Calling tools/build_libtorch.py at $(date)"
-    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
-         python ../tools/build_libtorch.py
-    echo "Finished tools/build_libtorch.py at $(date)"
-    popd
-
     mkdir -p libtorch/{lib,bin,include,share}
-    cp -r build/build/lib libtorch/
+    # We only do another build for libtorch if we need a static build
+    if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
+        # Note - just use whichever python we happen to be on
+        python setup.py clean
+
+        STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
+
+        mkdir -p build
+        pushd build
+        echo "Calling tools/build_libtorch.py at $(date)"
+        time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+             EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
+             python ../tools/build_libtorch.py
+        echo "Finished tools/build_libtorch.py at $(date)"
+        popd
+        cp -r build/build/lib libtorch/
+    else
+        ANY_WHEEL=$(ls /tmp/$WHEELHOUSE_DIR/torch*.whl | head -n1)
+        unzip -d any_wheel $ANY_WHEEL
+        if [[ -d any_wheel/torch/lib ]]; then
+            cp -r any_wheel/torch/lib libtorch/
+        else
+            echo "PyTorch wheel file not found. Aborting."
+            exit 1
+        fi
+        rm -rf any_wheel/
+    fi
 
     # for now, the headers for the libtorch package will just be copied in
     # from one of the wheels (this is from when this script built multiple
