@@ -213,7 +213,7 @@ build_and_run_example_cpp () {
   else
     GLIBCXX_USE_CXX11_ABI=0
   fi
-  g++ example-app.cpp -I/libtorch/include -I/libtorch/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L/libtorch/lib/ -ltorch -lc10 -o example-app
+  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib/ -ltorch -lc10 -o example-app
   ./example-app
 }
 
