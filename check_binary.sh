@@ -285,7 +285,7 @@ int main(int argc, const char* argv[]) {
   TORCH_CHECK(torch::hasMAGMA(), "MAGMA is available");
 
   std::cout << "Checking that CuDNN is available" << std::endl;
-  TORCH_CHECK(torch::detail::getCUDAHooks().hasCuDNN(), "CuDNN is available");
+  TORCH_CHECK(torch::cuda::cudnn_is_available(), "CuDNN is available");
   return 0;
 }
 EOL
