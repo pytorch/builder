@@ -97,6 +97,7 @@ if "%USE_SCCACHE%" == "1" (
 
         set CUDA_NVCC_EXECUTABLE=%CD%\tmp_bin\nvcc
         set ADDITIONAL_PATH=%CD%\tmp_bin
+        set SCCACHE_IDLE_TIMEOUT=1500
     )
 )
 

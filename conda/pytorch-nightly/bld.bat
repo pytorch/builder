@@ -36,6 +36,7 @@ IF "%USE_SCCACHE%" == "1" (
     curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %SRC_DIR%\tmp_bin\sccache.exe
     copy %SRC_DIR%\tmp_bin\sccache.exe %SRC_DIR%\tmp_bin\nvcc.exe
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
+    set SCCACHE_IDLE_TIMEOUT=1500
 )
 
 IF "%build_with_cuda%" == "" goto cuda_end
