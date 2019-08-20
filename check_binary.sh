@@ -214,7 +214,8 @@ build_and_run_example_cpp () {
     GLIBCXX_USE_CXX11_ABI=0
   fi
   g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib -Wl,-R${install_root}/lib -ltorch -lc10 -o example-app
-  ./example-app
+  # Print all outputs from the dynamic linker to help with debugging
+  LD_DEBUG=all ./example-app
 }
 
 ###############################################################################
