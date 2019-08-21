@@ -240,6 +240,12 @@ fi
 ###############################################################################
 # Check for MKL
 ###############################################################################
+
+echo "yf225 TODO DEBUG: we run this part in order to understand whether the set RPATH commands changed the .so names in libtorch.so"
+echo "yf225 TODO DEBUG: Remove this part after we identify the issue"
+(readelf -a ${install_root}/lib/libtorch.so | grep libgomp.so.1) || true  # yf225 TODO DEBUG
+(readelf -a ${install_root}/lib/libtorch.so | grep libgomp-4f651535.so.1) || true  # yf225 TODO DEBUG
+
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
   cat >example-app.cpp <<EOL

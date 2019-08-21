@@ -28,6 +28,10 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     retry apt-get -y install zip openssl
 fi
 
+export PATCHELF_BIN=/usr/local/bin/patchelf
+# yf225 TODO: enforce that version is greater than 0.10
+echo `$PATCHELF_BIN --version`
+
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
 # pip 'normalizes' the name first by changing all - to _
@@ -92,6 +96,8 @@ else
 fi
 git submodule update --init --recursive
 
+# yf225 TODO: remove this
+echo `$PATCHELF_BIN --version`
 
 ########################################################
 # Compile wheels as well as libtorch
@@ -257,23 +263,34 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         done
 
         echo "patching to fix the so names to the hashed names"
+        echo `$PATCHELF_BIN --version`
         for ((i=0;i<${#DEPS_LIST[@]};++i)); do
             find $PREFIX -name '*.so*' | while read sofile; do
                 origname=${DEPS_SONAME[i]}
                 patchedname=${patched[i]}
                 if [[ "$origname" != "$patchedname" ]]; then
                     set +e
-                    patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
+                    $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
                     ERRCODE=$?
                     set -e
                     if [ "$ERRCODE" -eq "0" ]; then
                         echo "patching $sofile entry $origname to $patchedname"
-                        patchelf --replace-needed $origname $patchedname $sofile
+
+                        echo "yf225 TODO DEBUG Before: "
+                        (readelf -a $sofile | grep $origname) || true  # yf225 TODO DEBUG
+                        (readelf -a $sofile | grep $patchedname) || true  # yf225 TODO DEBUG
+
+                        $PATCHELF_BIN --replace-needed $origname $patchedname $sofile
+
+                        echo "yf225 TODO DEBUG After: "
+                        (readelf -a $sofile | grep $origname) || true  # yf225 TODO DEBUG
+                        (readelf -a $sofile | grep $patchedname) || true  # yf225 TODO DEBUG
+
                         origname_count=`readelf -a $sofile | grep $origname | wc -l`
                         if [[ $origname_count -gt 0 ]]; then
-                            echo "Original .so name $origname is still found in $sofile. \`patchelf --replace-needed $origname $patchedname $sofile\` was unsuccessful."
-                            readelf -a $sofile | grep $origname
-                            readelf -a $sofile | grep $patchedname
+                            echo "Original .so name $origname is still found in $sofile. \`$PATCHELF_BIN --replace-needed $origname $patchedname $sofile\` was unsuccessful."
+                            (readelf -a $sofile | grep $origname) || true
+                            (readelf -a $sofile | grep $patchedname) || true
                             exit 1
                         fi
                     fi
@@ -282,20 +299,29 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         done
     fi
 
+    echo "yf225 TODO DEBUG: we run this part in order to understand whether the set RPATH commands changed the .so names in libtorch.so"
+    echo "yf225 TODO DEBUG: Remove this part after we identify the issue"
+    (readelf -a libtorch/lib/libtorch.so | grep libgomp.so.1) || true  # yf225 TODO DEBUG
+    (readelf -a libtorch/lib/libtorch.so | grep libgomp-4f651535.so.1) || true  # yf225 TODO DEBUG
+
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
         echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
-        patchelf --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
-        patchelf --print-rpath $sofile
+        $PATCHELF_BIN --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
+        $PATCHELF_BIN --print-rpath $sofile
     done
 
     # set RPATH of lib/ files to $ORIGIN
     find $PREFIX/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
         echo "Setting rpath of $sofile to " '$ORIGIN'
-        patchelf --set-rpath '$ORIGIN' $sofile
-        patchelf --print-rpath $sofile
+        $PATCHELF_BIN --set-rpath '$ORIGIN' $sofile
+        $PATCHELF_BIN --print-rpath $sofile
     done
 
+    echo "yf225 TODO DEBUG: we run this part in order to understand whether the set RPATH commands changed the .so names in libtorch.so"
+    echo "yf225 TODO DEBUG: Remove this part after we identify the issue"
+    (readelf -a libtorch/lib/libtorch.so | grep libgomp.so.1) || true  # yf225 TODO DEBUG
+    (readelf -a libtorch/lib/libtorch.so | grep libgomp-4f651535.so.1) || true  # yf225 TODO DEBUG
 
     # regenerate the RECORD file with new hashes
     record_file=`echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
