@@ -280,13 +280,6 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
                     if [ "$ERRCODE" -eq "0" ]; then
                         echo "patching $sofile entry $origname to $patchedname"
                         $PATCHELF_BIN --replace-needed $origname $patchedname $sofile
-                        origname_count=`readelf -a $sofile | grep $origname | wc -l`
-                        if [[ $origname_count -gt 0 ]]; then
-                            echo "Original .so name $origname is still found in $sofile. \`$PATCHELF_BIN --replace-needed $origname $patchedname $sofile\` was unsuccessful."
-                            (readelf -a $sofile | grep $origname) || true
-                            (readelf -a $sofile | grep $patchedname) || true
-                            exit 1
-                        fi
                     fi
                 fi
             done
