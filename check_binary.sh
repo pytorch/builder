@@ -214,8 +214,7 @@ build_and_run_example_cpp () {
     GLIBCXX_USE_CXX11_ABI=0
   fi
   g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib -Wl,-R${install_root}/lib -ltorch -lc10 -o example-app
-  # Print all outputs from the dynamic linker to help with debugging
-  LD_DEBUG=all ./example-app
+  ./example-app
 }
 
 ###############################################################################
@@ -240,11 +239,6 @@ fi
 ###############################################################################
 # Check for MKL
 ###############################################################################
-
-echo "yf225 TODO DEBUG: we run this part in order to understand whether the set RPATH commands changed the .so names in libtorch.so"
-echo "yf225 TODO DEBUG: Remove this part after we identify the issue"
-(readelf -a ${install_root}/lib/libtorch.so | grep libgomp.so.1) || true  # yf225 TODO DEBUG
-(readelf -a ${install_root}/lib/libtorch.so | grep libgomp-4f651535.so.1) || true  # yf225 TODO DEBUG
 
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
