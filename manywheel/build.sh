@@ -78,7 +78,7 @@ OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-    LIBGOMP_PATH="/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
+    LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 fi
 
 if [[ $CUDA_VERSION == "9.0" ]]; then
