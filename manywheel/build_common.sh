@@ -92,6 +92,13 @@ else
 fi
 git submodule update --init --recursive
 
+export PATCHELF_BIN=/usr/local/bin/patchelf
+patchelf_version=`$PATCHELF_BIN --version`
+echo "patchelf version: " $patchelf_version
+if [[ "$patchelf_version" == "patchelf 0.9" ]]; then
+    echo "Your patchelf version is too old. Please use version >= 0.10."
+    exit 1
+fi
 
 ########################################################
 # Compile wheels as well as libtorch
@@ -263,12 +270,12 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
                 patchedname=${patched[i]}
                 if [[ "$origname" != "$patchedname" ]]; then
                     set +e
-                    patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
+                    $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
                     ERRCODE=$?
                     set -e
                     if [ "$ERRCODE" -eq "0" ]; then
                         echo "patching $sofile entry $origname to $patchedname"
-                        patchelf --replace-needed $origname $patchedname $sofile
+                        $PATCHELF_BIN --replace-needed $origname $patchedname $sofile
                     fi
                 fi
             done
@@ -278,17 +285,16 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
         echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
-        patchelf --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
-        patchelf --print-rpath $sofile
+        $PATCHELF_BIN --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
+        $PATCHELF_BIN --print-rpath $sofile
     done
 
     # set RPATH of lib/ files to $ORIGIN
     find $PREFIX/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
         echo "Setting rpath of $sofile to " '$ORIGIN'
-        patchelf --set-rpath '$ORIGIN' $sofile
-        patchelf --print-rpath $sofile
+        $PATCHELF_BIN --set-rpath '$ORIGIN' $sofile
+        $PATCHELF_BIN --print-rpath $sofile
     done
-
 
     # regenerate the RECORD file with new hashes
     record_file=`echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`

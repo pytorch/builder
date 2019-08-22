@@ -1,7 +1,7 @@
 FROM nvidia/cuda:9.2-devel-ubuntu16.04
 
 RUN apt-get clean && apt-get update
-RUN apt-get install -y locales git-all autoconf automake make wget
+RUN apt-get install -y locales git-all autoconf automake make wget unzip
 
 RUN locale-gen en_US.UTF-8
 
@@ -13,9 +13,17 @@ ENV LANGUAGE en_US.UTF-8
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 
+# Install MKL
+ADD ./common/install_mkl.sh install_mkl.sh
+RUN bash ./install_mkl.sh && rm install_mkl.sh
+
 # Install CUDA
 ADD ./common/install_cuda.sh install_cuda.sh
 RUN bash ./install_cuda.sh && rm install_cuda.sh
+
+# Install MAGMA (need CUDA)
+ADD ./common/install_magma.sh install_magma.sh
+RUN bash ./install_magma.sh && rm install_magma.sh
 
 # Install Anaconda
 ENV PATH /opt/conda/bin:$PATH

@@ -78,7 +78,7 @@ OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-    LIBGOMP_PATH="/usr/lib/gcc/x86_64-linux-gnu/5/libgomp.so"
+    LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 fi
 
 if [[ $CUDA_VERSION == "9.0" ]]; then
@@ -156,6 +156,11 @@ export DESIRED_CUDA="$cuda_version_nodot"
 # Switch `/usr/local/cuda` to the desired CUDA version
 rm -rf /usr/local/cuda || true
 ln -s "/usr/local/cuda-${CUDA_VERSION}" /usr/local/cuda
+
+# Switch `/usr/local/magma` to the desired CUDA version
+rm -rf /usr/local/magma || true
+ln -s /usr/local/cuda-${CUDA_VERSION}/magma /usr/local/magma
+
 export CUDA_VERSION=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev) # 10.0.130
 export CUDA_VERSION_SHORT=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev | cut -f1,2 -d".") # 10.0
 export CUDNN_VERSION=$(ls /usr/local/cuda/lib64/libcudnn.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev)
