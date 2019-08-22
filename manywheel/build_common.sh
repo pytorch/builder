@@ -118,10 +118,8 @@ else
 fi
 
 echo "Calling setup.py bdist at $(date)"
-# yf225 TODO: remove TORCH_CUDA_ARCH_LIST=5.2 when we are ready
 time CMAKE_ARGS=${CMAKE_ARGS[@]} \
      EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-     TORCH_CUDA_ARCH_LIST=5.2 \
      python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
 echo "Finished setup.py bdist at $(date)"
 
@@ -138,10 +136,8 @@ if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p build
     pushd build
     echo "Calling tools/build_libtorch.py at $(date)"
-    # yf225 TODO: remove TORCH_CUDA_ARCH_LIST=5.2 when we are ready
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
-         TORCH_CUDA_ARCH_LIST=5.2 \
          python ../tools/build_libtorch.py
     echo "Finished tools/build_libtorch.py at $(date)"
     popd
