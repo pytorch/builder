@@ -231,6 +231,24 @@ build_and_run_example_cpp () {
   ./example-app
 }
 
+build_example_cpp_with_incorrect_abi () {
+  if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    GLIBCXX_USE_CXX11_ABI=0
+  else
+    GLIBCXX_USE_CXX11_ABI=1
+  fi
+  set +e
+  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib -Wl,-R${install_root}/lib -ltorch -lc10 -o example-app
+  ERRCODE=$?
+  set -e
+  if [ "$ERRCODE" -eq "0" ]; then
+    echo "Building example with incorrect ABI didn't throw error. Aborting."
+    exit 1
+  else
+    echo "Building example with incorrect ABI throws expected error. Proceeding."
+  fi
+}
+
 ###############################################################################
 # Check simple Python/C++ calls
 ###############################################################################
@@ -239,11 +257,16 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 #include <torch/torch.h>
 
 int main(int argc, const char* argv[]) {
-  TORCH_CHECK(true, "Simple test failed!");
+  TORCH_WARN("Simple test passed!");
   return 0;
 }
 EOL
   build_and_run_example_cpp
+  # `_GLIBCXX_USE_CXX11_ABI` is always ignored by gcc in devtoolset7, so we test
+  # the expected failure case for Ubuntu 16.04 + gcc 5.4 only.
+  if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    build_example_cpp_with_incorrect_abi
+  fi
 else
   python -c 'import torch'
   python -c 'from caffe2.python import core'
