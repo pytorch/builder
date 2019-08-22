@@ -23,6 +23,12 @@ fi
 # DESIRED_PYTHON is in format 2.7m?u?
 # DESIRED_CUDA is in format cu80 (or 'cpu')
 
+if [[ "$DESIRED_CUDA" == cpu ]]; then
+  export USE_CUDA=0
+else
+  export USE_CUDA=1
+fi
+
 # Generate M.m formats for CUDA and Python versions
 if [[ "$DESIRED_CUDA" != cpu ]]; then
   cuda_dot="$(echo $DESIRED_CUDA | tr -d 'cpu')"
