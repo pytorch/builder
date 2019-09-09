@@ -49,7 +49,7 @@ fi
 # then parse that into json at the end. Calls to `conda search` and s3 are
 # handled in bash. Parsing `conda search` output is handled in Python.
 # Converting all the final info to json is handled in Python. The .log stores
-# lines of 
+# lines of
 # platform package_type python_version cuda_version size_in_bytes
 # The .json stores a list of objects with those fields.
 binary_sizes_log="$SOURCE_DIR/binary_sizes.log"
@@ -70,7 +70,7 @@ failed_binary_queries=()
 
 ##############################################################################
 # Collect conda binary sizes
-# This is read from `conda search`. 
+# This is read from `conda search`.
 
 # `conda search` takes a version string. We use *20190101* to catch
 # 1.0.0.dev20190101 or 1.1.0.dev20190101+cu90 etc. All the nightly binaries
@@ -120,7 +120,7 @@ for cu_ver in "${cuda_versions[@]}"; do
     # \S*$target_date\S*\.whl -- some string that ends in .whl that has the
     #                            date we're looking for in it
     set +e
-    outputs=($(aws s3 ls "$s3_dir" | grep --only-matching "\S* \S*$aws_version\S*\.whl"))
+    outputs=($(aws s3 ls "$s3_dir" | grep torch- | grep --only-matching "\S* \S*$aws_version\S*\.whl"))
 
     if [[ "$?" != 0 ]]; then
         set -e
