@@ -63,9 +63,9 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
   package_name='torch'
 elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
-  package_name='pytorch-nightly-cpu'
+  package_name='pytorch'
 else
-  package_name='pytorch-nightly'
+  package_name='pytorch'
 fi
 if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu100" ]]; then
   package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
@@ -116,9 +116,9 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   unzip -q libtorch_zip
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
-    retry conda install -yq -c pytorch "$package_name_and_version"
+    retry conda install -yq -c pytorch-nightly "$package_name_and_version"
   else
-    retry conda install -yq -c pytorch "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
+    retry conda install -yq -c pytorch-nightly "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
 else
   # We need to upgrade pip now that we have '+cuver' in the package name, as
