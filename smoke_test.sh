@@ -67,7 +67,7 @@ elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
 else
   package_name='pytorch'
 fi
-if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu100" ]]; then
+if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu100" ]] || [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
 else
   # Linux binaries have the cuda version appended to them. This is only on
@@ -115,8 +115,12 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   retry curl -o libtorch_zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
   unzip -q libtorch_zip
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
-  if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
-    retry conda install -yq -c pytorch-nightly "$package_name_and_version"
+    if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
+	if [[ "$(uname)" == 'Darwin' ]]; then
+	    retry conda install -yq -c pytorch-nightly "$package_name_and_version"
+	else
+	    retry conda install -yq -c pytorch-nightly "$package_name_and_version" cpuonly
+	fi
   else
     retry conda install -yq -c pytorch-nightly "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
