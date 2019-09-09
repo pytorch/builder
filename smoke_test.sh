@@ -80,10 +80,10 @@ fi
 if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
   # Create a new conda env in conda, or on MacOS
   conda create -yn test python="$py_dot" && source activate test
-  retry conda install -yq future numpy protobuf six
+  retry conda install -yq future numpy protobuf six requests
 else
   export PATH=/opt/python/${py_long}/bin:$PATH
-  retry pip install -q future numpy protobuf six
+  retry pip install -q future numpy protobuf six requests
 fi
 
 # Switch to the desired CUDA if using the conda-cuda Docker image
