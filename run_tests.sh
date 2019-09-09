@@ -75,7 +75,7 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
             retry conda install -yq cpuonly -c pytorch
         fi
     fi
-    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml
+    retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml requests
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
