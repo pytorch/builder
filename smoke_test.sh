@@ -15,6 +15,13 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
+if ! [ -x "$(command -v curl)" ]; then
+    if [ -f /etc/lsb-release ]; then
+	apt-get update
+	apt-get install -y curl
+    fi
+fi
+
 # Use today's date if none is given
 if [[ -z "${DATE:-}" || "${DATE:-}" == 'today' ]]; then
     DATE="$(date +%Y%m%d)"
