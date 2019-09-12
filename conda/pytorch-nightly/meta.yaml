@@ -29,7 +29,7 @@ requirements:
     - cffi
     - ninja
     - future # [py2k]
-    - requests # [py2k]
+    - requests
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
 
 build:
