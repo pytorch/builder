@@ -1,3 +1,5 @@
+#!/bin/bash -xe
+
 yes | pip install pytest-xdist
 # pip install thinc breaks depending on gcc version  
 yes | conda install thinc

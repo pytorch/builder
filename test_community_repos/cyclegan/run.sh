@@ -1,3 +1,5 @@
+#!/bin/bash -xe
+
 BASEDIR=$(dirname $0)
 pushd $BASEDIR
 git clone https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix.git
