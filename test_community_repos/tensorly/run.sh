@@ -1,3 +1,5 @@
+#!/bin/bash -xe
+
 yes | pip install pip install git+https://github.com/tensorly/tensorly
 yes | pip install pytest-xdist
 yes | pip install nose
