@@ -78,8 +78,8 @@ def gen_commands():
 
     steps_list = []
 
-    steps_list.append({"run": "echo 'hello'"})
-    steps_list.append({"run": "echo 'goodbye'"})
+    steps_list.append({"run": {"name": "Hi", "command": "echo 'hello'"}})
+    steps_list.append({"run": {"name": "Bye", "command": "echo 'goodbye'"}})
 
     mycommand = {
         "description": "PyTorch examples",
