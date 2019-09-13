@@ -1,3 +1,5 @@
+#!/bin/bash -xe
+
 yes | pip install block
 yes | pip install nose
 

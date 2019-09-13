@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+
 import unittest
 import subprocess
 import sys
 
-PY3 = sys.version_info >= (3, 0)
+
 TIMEOUT = 2 * 60 * 60  # 2 hours
 
 
@@ -10,20 +12,11 @@ def run(command, timeout=None):
     """
     Returns (return-code, stdout, stderr)
     """
-    if PY3:
-        completed = subprocess.run(command, stdout=subprocess.PIPE,
+    completed = subprocess.run(command, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE, shell=True,
                                    encoding="utf8", timeout=timeout)
-        return completed.returncode, completed.stdout, completed.stderr
 
-    # Python 2...
-    if timeout is not None:
-        print("WARNING: timeout not supported for python 2")
-    p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, shell=True)
-    output, err = p.communicate()
-    rc = p.returncode
-    return rc, output, err
+    return completed.returncode, completed.stdout, completed.stderr
 
 
 class TestRepos(unittest.TestCase):
@@ -31,7 +24,7 @@ class TestRepos(unittest.TestCase):
 
 
 def _test(cls, directory):
-    command = "bash {}/run.sh".format(directory)
+    command = os.path.join(directory, "run.sh")
     (rc, out, err) = run(command, TIMEOUT)
     cls.assertEqual(rc, 0, "Ran {}\nstdout:\n{}\nstderr:\n{}".format(
         command, out, err))

@@ -1,3 +1,5 @@
+#!/bin/bash -xe
+
 yes | pip install pytest-xdist
 yes | pip install sphinx
 yes | pip install sphinx_rtd_theme
