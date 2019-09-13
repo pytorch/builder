@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import unittest
 import subprocess
 import sys
+import os
 
 
 TIMEOUT = 2 * 60 * 60  # 2 hours
@@ -30,19 +31,16 @@ def _test(cls, directory):
         command, out, err))
 
 
-# Generate the tests, one for each repo
-(rc, stdout, stderr) = run("find . -maxdepth 1 -type d -exec echo {} \;")
-if rc is not 0:
-    print("Couldn't execute find command")
-    exit(1)
-
-# Filter out '.', remove trailing ./
-repos = stdout.split('\n')
-repos = sorted([f[2:] for f in repos if len(f) > 2])
-for f in repos:
-    print("found {}".format(f))
-    setattr(TestRepos, "test_" + f, lambda cls, f=f: _test(cls, f))
+def generate_test_objects(target_directory):
+    """
+    Generate the tests, one for each repo
+    """
+    repos = sorted([os.path.normpath(os.path.join(target_directory, o)) for o in os.listdir(target_directory) if os.path.isdir(os.path.join(target_directory, o))])
+    for f in repos:
+        print("found {}".format(f))
+        setattr(TestRepos, "test_" + f, lambda cls, f=f: _test(cls, f))
 
 
 if __name__ == '__main__':
+    generate_test_objects('examples')
     unittest.main()

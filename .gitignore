@@ -71,3 +71,6 @@ torch*.html
 *-torch*.html
 
 node_modules
+
+# IDE files
+.idea
