@@ -19,7 +19,7 @@ import yaml
 import os.path
 
 
-def workflows(prefix='', upload=False, indentation=6):
+def workflows(prefix='', indentation=6):
     w = []
     for btype in ["wheel", "conda"]:
         os_list = ["linux", "macos"]
@@ -29,12 +29,12 @@ def workflows(prefix='', upload=False, indentation=6):
             for python_version in ["2.7", "3.5", "3.6", "3.7"]:
                 for cu_version in (["cpu", "cu92", "cu100"] if os_type == "linux" else ["cpu"]):
                     for unicode in ([False, True] if btype == "wheel" and python_version == "2.7" else [False]):
-                        w += workflow_pair(btype, os_type, python_version, cu_version, unicode, prefix, upload)
+                        w += workflow_pair(btype, os_type, python_version, cu_version, unicode, prefix)
 
     return indent(indentation, w)
 
 
-def workflow_pair(btype, os_type, python_version, cu_version, unicode, prefix='', upload=False):
+def workflow_pair(btype, os_type, python_version, cu_version, unicode, prefix=''):
 
     w = []
     unicode_suffix = "u" if unicode else ""
@@ -62,6 +62,37 @@ def generate_base_workflow(base_workflow_name, python_version, cu_version, unico
     return {f"binary_{os_type}_{btype}": d}
 
 
+def gen_commands():
+    """
+    commands:
+      sayhello:
+        description: "A very simple command for demonstration purposes"
+        parameters:
+          to:
+            type: string
+            default: "Hello World"
+        steps:
+          - run: echo << parameters.to >>
+    """
+
+
+    steps_list = []
+
+    steps_list.append({"run": "echo 'hello'"})
+    steps_list.append({"run": "echo 'goodbye'"})
+
+    mycommand = {
+        "description": "PyTorch examples",
+        "steps": steps_list,
+    }
+
+    commands_dict = {
+        "run_pytorch_examples": mycommand,
+    }
+
+    return indent(2, commands_dict)
+
+
 def indent(indentation, data_list):
     return ("\n" + " " * indentation).join(yaml.dump(data_list).splitlines())
 
@@ -75,4 +106,4 @@ if __name__ == "__main__":
     )
 
     with open(os.path.join(d, 'config.yml'), 'w') as f:
-        f.write(env.get_template('config.in.yml').render(workflows=workflows))
+        f.write(env.get_template('config.in.yml').render(workflows=workflows, gen_commands=gen_commands))

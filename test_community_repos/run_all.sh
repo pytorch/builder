@@ -3,6 +3,6 @@
 BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
-python3 run_all.py
+./run_all.py
 
 popd
