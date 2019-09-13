@@ -140,6 +140,10 @@ export MACOSX_DEPLOYMENT_TARGET=10.10
 retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja requests
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
+# For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
+export USE_DISTRIBUTED=1
+retry conda install -yq libuv pkg-config
+
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
 python setup.py bdist_wheel -d "$whl_tmp_dir"

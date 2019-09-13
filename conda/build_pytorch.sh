@@ -114,6 +114,14 @@ else
         exit 1
     fi
 fi
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # Produce macOS builds with torch.distributed support.
+    # This is enabled by default on Linux, but disabled by default on macOS,
+    # because it requires an non-bundled compile-time dependency (libuv
+    # through gloo). This dependency is made available through meta.yaml, so
+    # we can override the default and set USE_DISTRIBUTED=1.
+    export USE_DISTRIBUTED=1
+fi
 
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
 echo "Will build for CUDA version: ${desired_cuda}"
@@ -337,4 +345,3 @@ done
 
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER
-
