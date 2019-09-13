@@ -20,6 +20,8 @@ requirements:
     - mkl-include
     - typing
     - ninja
+    - libuv # [unix]
+    - pkg-config # [unix]
 {{ environ.get('MAGMA_PACKAGE') }}
 
   run:
@@ -47,6 +49,7 @@ build:
     - DEBUG
     - USE_FBGEMM
     - USE_SCCACHE # [win]
+    - USE_DISTRIBUTED # [unix]
   features:
 {{ environ.get('CONDA_CPU_ONLY_FEATURE') }}
 
