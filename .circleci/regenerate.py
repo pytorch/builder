@@ -62,24 +62,26 @@ def generate_base_workflow(base_workflow_name, python_version, cu_version, unico
     return {f"binary_{os_type}_{btype}": d}
 
 
-def gen_commands():
+def generate_subdirectory_paths(parent_directory):
     """
-    commands:
-      sayhello:
-        description: "A very simple command for demonstration purposes"
-        parameters:
-          to:
-            type: string
-            default: "Hello World"
-        steps:
-          - run: echo << parameters.to >>
+    Generate the tests, one for each repo
     """
+    current_directory = os.path.abspath(os.getcwd())
+    print("current_directory:", current_directory)
+    return sorted([os.path.normpath(os.path.join(parent_directory, o)) for o in os.listdir(parent_directory)
+                    if os.path.isdir(os.path.join(parent_directory, o))])
 
+
+def gen_commands():
 
     steps_list = []
 
-    steps_list.append({"run": {"name": "Hi", "command": "echo 'hello'"}})
-    steps_list.append({"run": {"name": "Bye", "command": "echo 'goodbye'"}})
+    example_subdirs = generate_subdirectory_paths("test_community_repos/examples")
+
+    for testdir in example_subdirs:
+        runner_cmd = os.path.join(testdir, "run.sh")
+        testname = os.path.basename(testdir)
+        steps_list.append({"run": {"name": "Example Test: " + testname, "command": runner_cmd}})
 
     mycommand = {
         "description": "PyTorch examples",

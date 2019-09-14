@@ -49,8 +49,42 @@ commands:
   run_pytorch_examples:
     description: PyTorch examples
     steps:
-    - run: echo 'hello'
-    - run: echo 'goodbye'
+    - run:
+        command: test_community_repos/examples/dcgan/run.sh
+        name: 'Example Test: dcgan'
+    - run:
+        command: test_community_repos/examples/fast_neural_style/run.sh
+        name: 'Example Test: fast_neural_style'
+    - run:
+        command: test_community_repos/examples/imagenet/run.sh
+        name: 'Example Test: imagenet'
+    - run:
+        command: test_community_repos/examples/mnist/run.sh
+        name: 'Example Test: mnist'
+    - run:
+        command: test_community_repos/examples/mnist_hogwild/run.sh
+        name: 'Example Test: mnist_hogwild'
+    - run:
+        command: test_community_repos/examples/regression/run.sh
+        name: 'Example Test: regression'
+    - run:
+        command: test_community_repos/examples/reinforcement_learning/run.sh
+        name: 'Example Test: reinforcement_learning'
+    - run:
+        command: test_community_repos/examples/snli/run.sh
+        name: 'Example Test: snli'
+    - run:
+        command: test_community_repos/examples/super_resolution/run.sh
+        name: 'Example Test: super_resolution'
+    - run:
+        command: test_community_repos/examples/time_sequence_prediction/run.sh
+        name: 'Example Test: time_sequence_prediction'
+    - run:
+        command: test_community_repos/examples/vae/run.sh
+        name: 'Example Test: vae'
+    - run:
+        command: test_community_repos/examples/word_language_model/run.sh
+        name: 'Example Test: word_language_model'
 
 
 jobs:
