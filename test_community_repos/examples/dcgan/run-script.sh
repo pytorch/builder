@@ -1,3 +1,5 @@
+#!/bin/bash -xe
+
 pushd examples/dcgan
 # smoke test
 python main.py --dataset fake --dataroot . --cuda --niter 100
