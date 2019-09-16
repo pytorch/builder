@@ -1,1 +1,1 @@
-yes | pip install matplotlib
+yes | pip install --progress-bar off matplotlib

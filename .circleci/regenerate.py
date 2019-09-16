@@ -69,14 +69,15 @@ def workflow_pair(category, btype, os_type, python_version, cu_version, unicode,
     unicode_suffix = "u" if unicode else ""
     python_descriptor = f"py{python_version}{unicode_suffix}"
 
-    base_workflow_name = "_".join([
-        prefix,
+    name_components = [prefix] if prefix else [] + [
         category,
         os_type,
         btype,
         python_descriptor,
         cu_version,
-    ])
+    ]
+
+    base_workflow_name = "_".join(name_components)
 
     w.append(generate_base_workflow(base_workflow_name, python_version, cu_version, unicode, os_type, btype))
 
@@ -97,7 +98,18 @@ def generate_base_workflow(base_workflow_name, python_version, cu_version, unico
     if cu_version == "cu92":
         d["wheel_docker_image"] = "soumith/manylinux-cuda92"
 
-    return {f"binary_{os_type}_{btype}": d}
+    job_name_pieces = [
+        "binary",
+        os_type,
+        btype,
+    ]
+
+    if cu_version != "cpu" and btype == "conda":
+        job_name_pieces.append("cuda")
+
+    job_name = "_".join(job_name_pieces)
+
+    return {job_name: d}
 
 
 def generate_subdirectory_paths(parent_directory):

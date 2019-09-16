@@ -1,3 +1,3 @@
 pushd examples/word_language_model
-pip install -r requirements.txt
+pip install --progress-bar off -r requirements.txt
 popd
