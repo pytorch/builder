@@ -1,6 +1,7 @@
 import re
 import subprocess 
 import sys
+import os
 
 PY3 = sys.version_info >= (3, 0)
 
@@ -18,7 +19,30 @@ def run(command, timeout):
 
 
 # data lives in $BASEDIR/cocotrain2014/
-command = 'python examples/fast_neural_style/neural_style/neural_style.py train --dataset cocotrain2014 --style-image examples/fast_neural_style/images/style-images/mosaic.jpg --save-model-dir ./saved_models --epochs 1 --cuda 1 --image-size=128'
+command_args = [
+    'python',
+    'examples/fast_neural_style/neural_style/neural_style.py',
+    'train',
+    '--dataset',
+    'cocotrain2014',
+    '--style-image',
+    'examples/fast_neural_style/images/style-images/mosaic.jpg',
+    '--save-model-dir',
+    './saved_models',
+    '--epochs',
+    '1',
+    '--image-size=128',
+]
+
+
+if os.environ.get("CU_VERSION") != 'cpu':
+    command_args.extend([
+        '--cuda',
+        '1',
+    ])
+
+
+command = " ".join(command_args)
 
 
 def main():

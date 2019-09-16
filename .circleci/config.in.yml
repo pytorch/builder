@@ -180,6 +180,7 @@ jobs:
             curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
+#            packaging/build_wheel.sh
       - run_pytorch_examples
       - store_artifacts:
           path: dist
@@ -200,6 +201,7 @@ jobs:
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
             conda install -yq conda-build
+#            packaging/build_conda.sh
       - run_pytorch_examples
       - store_artifacts:
           path: /Users/distiller/miniconda3/conda-bld/osx-64
@@ -210,10 +212,11 @@ jobs:
 
 workflows:
   build:
-{%- if True %}
     jobs:
       - circleci_consistency
       {{ workflows("pytorch_examples") }}
+  {#      {{ workflows("pytorch_external_projects", prune_python_and_cuda=True) }}
+  #}
 
   nightly:
     triggers:
@@ -223,7 +226,6 @@ workflows:
             branches:
               only:
                 - master
-{%- endif %}
     jobs:
       - circleci_consistency
       {{ workflows("pytorch_examples", prefix="nightly") }}
