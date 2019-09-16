@@ -32,14 +32,9 @@ command_args = [
     '--epochs',
     '1',
     '--image-size=128',
+    '--cuda',
+    '0' if os.environ.get("CU_VERSION") == 'cpu' else '1',
 ]
-
-
-if os.environ.get("CU_VERSION") != 'cpu':
-    command_args.extend([
-        '--cuda',
-        '1',
-    ])
 
 
 command = " ".join(command_args)
