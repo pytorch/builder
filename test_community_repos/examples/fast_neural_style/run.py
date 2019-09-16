@@ -5,6 +5,7 @@ import os
 
 PY3 = sys.version_info >= (3, 0)
 
+
 def run(command, timeout):
     """
     Returns (return-code, stdout, stderr)
@@ -15,7 +16,7 @@ def run(command, timeout):
     if PY3:
         output = output.decode("ascii")
         err = err.decode("ascii")
-    return (rc, output, err)
+    return rc, output, err
 
 
 # data lives in $BASEDIR/cocotrain2014/
@@ -50,7 +51,7 @@ def main():
     # Processes the output for losses
     matches = re.findall('total: (\d+\.\d*)', stdout)
     if len(matches) is 0:
-        print("error: unexpected output: ", stdout)
+        print("error: unexpected output:", stdout)
         sys.exit(1)
     losses = [float(m) for m in matches]
 
@@ -58,7 +59,7 @@ def main():
     prev = float('Inf')
     for loss in losses:
         if loss > prev:
-            print("error: non-decreasing loss: ", losses)
+            print("error: non-decreasing loss:", losses)
             sys.exit(1)
 
 
