@@ -222,7 +222,7 @@ workflows:
 {%- if True %}
     jobs:
       - circleci_consistency
-      {{ workflows() }}
+      {{ workflows("pytorch_examples") }}
 
   nightly:
     triggers:
@@ -235,4 +235,4 @@ workflows:
 {%- endif %}
     jobs:
       - circleci_consistency
-      {{ workflows(prefix="nightly_") }}
+      {{ workflows("pytorch_examples", prefix="nightly") }}

@@ -46,6 +46,66 @@ binary_common: &binary_common
 
 
 commands:
+  run_external_projects:
+    description: External projects
+    steps:
+    - run:
+        command: test_community_repos/external_projects/OpenNMT/run.sh
+        name: 'Example Test: OpenNMT'
+    - run:
+        command: test_community_repos/external_projects/advertorch/run.sh
+        name: 'Example Test: advertorch'
+    - run:
+        command: test_community_repos/external_projects/allennlp/run.sh
+        name: 'Example Test: allennlp'
+    - run:
+        command: test_community_repos/external_projects/block/run.sh
+        name: 'Example Test: block'
+    - run:
+        command: test_community_repos/external_projects/botorch/run.sh
+        name: 'Example Test: botorch'
+    - run:
+        command: test_community_repos/external_projects/cyclegan/run.sh
+        name: 'Example Test: cyclegan'
+    - run:
+        command: test_community_repos/external_projects/fairseq/run.sh
+        name: 'Example Test: fairseq'
+    - run:
+        command: test_community_repos/external_projects/flair/run.sh
+        name: 'Example Test: flair'
+    - run:
+        command: test_community_repos/external_projects/geometric/run.sh
+        name: 'Example Test: geometric'
+    - run:
+        command: test_community_repos/external_projects/gpytorch/run.sh
+        name: 'Example Test: gpytorch'
+    - run:
+        command: test_community_repos/external_projects/ignite/run.sh
+        name: 'Example Test: ignite'
+    - run:
+        command: test_community_repos/external_projects/lightning/run.sh
+        name: 'Example Test: lightning'
+    - run:
+        command: test_community_repos/external_projects/parlai/run.sh
+        name: 'Example Test: parlai'
+    - run:
+        command: test_community_repos/external_projects/pennylane/run.sh
+        name: 'Example Test: pennylane'
+    - run:
+        command: test_community_repos/external_projects/pix2pixHD/run.sh
+        name: 'Example Test: pix2pixHD'
+    - run:
+        command: test_community_repos/external_projects/pyro/run.sh
+        name: 'Example Test: pyro'
+    - run:
+        command: test_community_repos/external_projects/pysyft/run.sh
+        name: 'Example Test: pysyft'
+    - run:
+        command: test_community_repos/external_projects/skorch/run.sh
+        name: 'Example Test: skorch'
+    - run:
+        command: test_community_repos/external_projects/tensorly/run.sh
+        name: 'Example Test: tensorly'
   run_pytorch_examples:
     description: PyTorch examples
     steps:
@@ -261,176 +321,176 @@ workflows:
       - circleci_consistency
       - binary_linux_wheel:
           cu_version: cpu
-          name: binary_linux_wheel_py2.7_cpu
+          name: _pytorch_examples_linux_wheel_py2.7_cpu
           python_version: '2.7'
       - binary_linux_wheel:
           cu_version: cpu
-          name: binary_linux_wheel_py2.7u_cpu
-          python_version: '2.7'
-          unicode_abi: '1'
-      - binary_linux_wheel:
-          cu_version: cu92
-          name: binary_linux_wheel_py2.7_cu92
-          python_version: '2.7'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_wheel:
-          cu_version: cu92
-          name: binary_linux_wheel_py2.7u_cu92
-          python_version: '2.7'
-          unicode_abi: '1'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_wheel:
-          cu_version: cu100
-          name: binary_linux_wheel_py2.7_cu100
-          python_version: '2.7'
-      - binary_linux_wheel:
-          cu_version: cu100
-          name: binary_linux_wheel_py2.7u_cu100
+          name: _pytorch_examples_linux_wheel_py2.7u_cpu
           python_version: '2.7'
           unicode_abi: '1'
       - binary_linux_wheel:
+          cu_version: cu92
+          name: _pytorch_examples_linux_wheel_py2.7_cu92
+          python_version: '2.7'
+          wheel_docker_image: soumith/manylinux-cuda92
+      - binary_linux_wheel:
+          cu_version: cu92
+          name: _pytorch_examples_linux_wheel_py2.7u_cu92
+          python_version: '2.7'
+          unicode_abi: '1'
+          wheel_docker_image: soumith/manylinux-cuda92
+      - binary_linux_wheel:
+          cu_version: cu100
+          name: _pytorch_examples_linux_wheel_py2.7_cu100
+          python_version: '2.7'
+      - binary_linux_wheel:
+          cu_version: cu100
+          name: _pytorch_examples_linux_wheel_py2.7u_cu100
+          python_version: '2.7'
+          unicode_abi: '1'
+      - binary_linux_wheel:
           cu_version: cpu
-          name: binary_linux_wheel_py3.5_cpu
+          name: _pytorch_examples_linux_wheel_py3.5_cpu
           python_version: '3.5'
       - binary_linux_wheel:
           cu_version: cu92
-          name: binary_linux_wheel_py3.5_cu92
+          name: _pytorch_examples_linux_wheel_py3.5_cu92
           python_version: '3.5'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_wheel:
           cu_version: cu100
-          name: binary_linux_wheel_py3.5_cu100
+          name: _pytorch_examples_linux_wheel_py3.5_cu100
           python_version: '3.5'
       - binary_linux_wheel:
           cu_version: cpu
-          name: binary_linux_wheel_py3.6_cpu
+          name: _pytorch_examples_linux_wheel_py3.6_cpu
           python_version: '3.6'
       - binary_linux_wheel:
           cu_version: cu92
-          name: binary_linux_wheel_py3.6_cu92
+          name: _pytorch_examples_linux_wheel_py3.6_cu92
           python_version: '3.6'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_wheel:
           cu_version: cu100
-          name: binary_linux_wheel_py3.6_cu100
+          name: _pytorch_examples_linux_wheel_py3.6_cu100
           python_version: '3.6'
       - binary_linux_wheel:
           cu_version: cpu
-          name: binary_linux_wheel_py3.7_cpu
+          name: _pytorch_examples_linux_wheel_py3.7_cpu
           python_version: '3.7'
       - binary_linux_wheel:
           cu_version: cu92
-          name: binary_linux_wheel_py3.7_cu92
+          name: _pytorch_examples_linux_wheel_py3.7_cu92
           python_version: '3.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_wheel:
           cu_version: cu100
-          name: binary_linux_wheel_py3.7_cu100
+          name: _pytorch_examples_linux_wheel_py3.7_cu100
           python_version: '3.7'
       - binary_macos_wheel:
           cu_version: cpu
-          name: binary_macos_wheel_py2.7_cpu
+          name: _pytorch_examples_macos_wheel_py2.7_cpu
           python_version: '2.7'
       - binary_macos_wheel:
           cu_version: cpu
-          name: binary_macos_wheel_py2.7u_cpu
+          name: _pytorch_examples_macos_wheel_py2.7u_cpu
           python_version: '2.7'
           unicode_abi: '1'
       - binary_macos_wheel:
           cu_version: cpu
-          name: binary_macos_wheel_py3.5_cpu
+          name: _pytorch_examples_macos_wheel_py3.5_cpu
           python_version: '3.5'
       - binary_macos_wheel:
           cu_version: cpu
-          name: binary_macos_wheel_py3.6_cpu
+          name: _pytorch_examples_macos_wheel_py3.6_cpu
           python_version: '3.6'
       - binary_macos_wheel:
           cu_version: cpu
-          name: binary_macos_wheel_py3.7_cpu
+          name: _pytorch_examples_macos_wheel_py3.7_cpu
           python_version: '3.7'
       - binary_linux_conda:
           cu_version: cpu
-          name: binary_linux_conda_py2.7_cpu
+          name: _pytorch_examples_linux_conda_py2.7_cpu
           python_version: '2.7'
       - binary_linux_conda:
           cu_version: cu92
-          name: binary_linux_conda_py2.7_cu92
+          name: _pytorch_examples_linux_conda_py2.7_cu92
           python_version: '2.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: binary_linux_conda_py2.7_cu100
+          name: _pytorch_examples_linux_conda_py2.7_cu100
           python_version: '2.7'
       - binary_linux_conda:
           cu_version: cpu
-          name: binary_linux_conda_py3.5_cpu
+          name: _pytorch_examples_linux_conda_py3.5_cpu
           python_version: '3.5'
       - binary_linux_conda:
           cu_version: cu92
-          name: binary_linux_conda_py3.5_cu92
+          name: _pytorch_examples_linux_conda_py3.5_cu92
           python_version: '3.5'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: binary_linux_conda_py3.5_cu100
+          name: _pytorch_examples_linux_conda_py3.5_cu100
           python_version: '3.5'
       - binary_linux_conda:
           cu_version: cpu
-          name: binary_linux_conda_py3.6_cpu
+          name: _pytorch_examples_linux_conda_py3.6_cpu
           python_version: '3.6'
       - binary_linux_conda:
           cu_version: cu92
-          name: binary_linux_conda_py3.6_cu92
+          name: _pytorch_examples_linux_conda_py3.6_cu92
           python_version: '3.6'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: binary_linux_conda_py3.6_cu100
+          name: _pytorch_examples_linux_conda_py3.6_cu100
           python_version: '3.6'
       - binary_linux_conda:
           cu_version: cpu
-          name: binary_linux_conda_py3.7_cpu
+          name: _pytorch_examples_linux_conda_py3.7_cpu
           python_version: '3.7'
       - binary_linux_conda:
           cu_version: cu92
-          name: binary_linux_conda_py3.7_cu92
+          name: _pytorch_examples_linux_conda_py3.7_cu92
           python_version: '3.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: binary_linux_conda_py3.7_cu100
+          name: _pytorch_examples_linux_conda_py3.7_cu100
           python_version: '3.7'
       - binary_macos_conda:
           cu_version: cpu
-          name: binary_macos_conda_py2.7_cpu
+          name: _pytorch_examples_macos_conda_py2.7_cpu
           python_version: '2.7'
       - binary_macos_conda:
           cu_version: cpu
-          name: binary_macos_conda_py3.5_cpu
+          name: _pytorch_examples_macos_conda_py3.5_cpu
           python_version: '3.5'
       - binary_macos_conda:
           cu_version: cpu
-          name: binary_macos_conda_py3.6_cpu
+          name: _pytorch_examples_macos_conda_py3.6_cpu
           python_version: '3.6'
       - binary_macos_conda:
           cu_version: cpu
-          name: binary_macos_conda_py3.7_cpu
+          name: _pytorch_examples_macos_conda_py3.7_cpu
           python_version: '3.7'
       - binary_win_conda:
           cu_version: cpu
-          name: binary_win_conda_py2.7_cpu
+          name: _pytorch_examples_win_conda_py2.7_cpu
           python_version: '2.7'
       - binary_win_conda:
           cu_version: cpu
-          name: binary_win_conda_py3.5_cpu
+          name: _pytorch_examples_win_conda_py3.5_cpu
           python_version: '3.5'
       - binary_win_conda:
           cu_version: cpu
-          name: binary_win_conda_py3.6_cpu
+          name: _pytorch_examples_win_conda_py3.6_cpu
           python_version: '3.6'
       - binary_win_conda:
           cu_version: cpu
-          name: binary_win_conda_py3.7_cpu
+          name: _pytorch_examples_win_conda_py3.7_cpu
           python_version: '3.7'
 
   nightly:
@@ -445,174 +505,174 @@ workflows:
       - circleci_consistency
       - binary_linux_wheel:
           cu_version: cpu
-          name: nightly_binary_linux_wheel_py2.7_cpu
+          name: nightly_pytorch_examples_linux_wheel_py2.7_cpu
           python_version: '2.7'
       - binary_linux_wheel:
           cu_version: cpu
-          name: nightly_binary_linux_wheel_py2.7u_cpu
-          python_version: '2.7'
-          unicode_abi: '1'
-      - binary_linux_wheel:
-          cu_version: cu92
-          name: nightly_binary_linux_wheel_py2.7_cu92
-          python_version: '2.7'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_wheel:
-          cu_version: cu92
-          name: nightly_binary_linux_wheel_py2.7u_cu92
-          python_version: '2.7'
-          unicode_abi: '1'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_wheel:
-          cu_version: cu100
-          name: nightly_binary_linux_wheel_py2.7_cu100
-          python_version: '2.7'
-      - binary_linux_wheel:
-          cu_version: cu100
-          name: nightly_binary_linux_wheel_py2.7u_cu100
+          name: nightly_pytorch_examples_linux_wheel_py2.7u_cpu
           python_version: '2.7'
           unicode_abi: '1'
       - binary_linux_wheel:
+          cu_version: cu92
+          name: nightly_pytorch_examples_linux_wheel_py2.7_cu92
+          python_version: '2.7'
+          wheel_docker_image: soumith/manylinux-cuda92
+      - binary_linux_wheel:
+          cu_version: cu92
+          name: nightly_pytorch_examples_linux_wheel_py2.7u_cu92
+          python_version: '2.7'
+          unicode_abi: '1'
+          wheel_docker_image: soumith/manylinux-cuda92
+      - binary_linux_wheel:
+          cu_version: cu100
+          name: nightly_pytorch_examples_linux_wheel_py2.7_cu100
+          python_version: '2.7'
+      - binary_linux_wheel:
+          cu_version: cu100
+          name: nightly_pytorch_examples_linux_wheel_py2.7u_cu100
+          python_version: '2.7'
+          unicode_abi: '1'
+      - binary_linux_wheel:
           cu_version: cpu
-          name: nightly_binary_linux_wheel_py3.5_cpu
+          name: nightly_pytorch_examples_linux_wheel_py3.5_cpu
           python_version: '3.5'
       - binary_linux_wheel:
           cu_version: cu92
-          name: nightly_binary_linux_wheel_py3.5_cu92
+          name: nightly_pytorch_examples_linux_wheel_py3.5_cu92
           python_version: '3.5'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_wheel:
           cu_version: cu100
-          name: nightly_binary_linux_wheel_py3.5_cu100
+          name: nightly_pytorch_examples_linux_wheel_py3.5_cu100
           python_version: '3.5'
       - binary_linux_wheel:
           cu_version: cpu
-          name: nightly_binary_linux_wheel_py3.6_cpu
+          name: nightly_pytorch_examples_linux_wheel_py3.6_cpu
           python_version: '3.6'
       - binary_linux_wheel:
           cu_version: cu92
-          name: nightly_binary_linux_wheel_py3.6_cu92
+          name: nightly_pytorch_examples_linux_wheel_py3.6_cu92
           python_version: '3.6'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_wheel:
           cu_version: cu100
-          name: nightly_binary_linux_wheel_py3.6_cu100
+          name: nightly_pytorch_examples_linux_wheel_py3.6_cu100
           python_version: '3.6'
       - binary_linux_wheel:
           cu_version: cpu
-          name: nightly_binary_linux_wheel_py3.7_cpu
+          name: nightly_pytorch_examples_linux_wheel_py3.7_cpu
           python_version: '3.7'
       - binary_linux_wheel:
           cu_version: cu92
-          name: nightly_binary_linux_wheel_py3.7_cu92
+          name: nightly_pytorch_examples_linux_wheel_py3.7_cu92
           python_version: '3.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_wheel:
           cu_version: cu100
-          name: nightly_binary_linux_wheel_py3.7_cu100
+          name: nightly_pytorch_examples_linux_wheel_py3.7_cu100
           python_version: '3.7'
       - binary_macos_wheel:
           cu_version: cpu
-          name: nightly_binary_macos_wheel_py2.7_cpu
+          name: nightly_pytorch_examples_macos_wheel_py2.7_cpu
           python_version: '2.7'
       - binary_macos_wheel:
           cu_version: cpu
-          name: nightly_binary_macos_wheel_py2.7u_cpu
+          name: nightly_pytorch_examples_macos_wheel_py2.7u_cpu
           python_version: '2.7'
           unicode_abi: '1'
       - binary_macos_wheel:
           cu_version: cpu
-          name: nightly_binary_macos_wheel_py3.5_cpu
+          name: nightly_pytorch_examples_macos_wheel_py3.5_cpu
           python_version: '3.5'
       - binary_macos_wheel:
           cu_version: cpu
-          name: nightly_binary_macos_wheel_py3.6_cpu
+          name: nightly_pytorch_examples_macos_wheel_py3.6_cpu
           python_version: '3.6'
       - binary_macos_wheel:
           cu_version: cpu
-          name: nightly_binary_macos_wheel_py3.7_cpu
+          name: nightly_pytorch_examples_macos_wheel_py3.7_cpu
           python_version: '3.7'
       - binary_linux_conda:
           cu_version: cpu
-          name: nightly_binary_linux_conda_py2.7_cpu
+          name: nightly_pytorch_examples_linux_conda_py2.7_cpu
           python_version: '2.7'
       - binary_linux_conda:
           cu_version: cu92
-          name: nightly_binary_linux_conda_py2.7_cu92
+          name: nightly_pytorch_examples_linux_conda_py2.7_cu92
           python_version: '2.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: nightly_binary_linux_conda_py2.7_cu100
+          name: nightly_pytorch_examples_linux_conda_py2.7_cu100
           python_version: '2.7'
       - binary_linux_conda:
           cu_version: cpu
-          name: nightly_binary_linux_conda_py3.5_cpu
+          name: nightly_pytorch_examples_linux_conda_py3.5_cpu
           python_version: '3.5'
       - binary_linux_conda:
           cu_version: cu92
-          name: nightly_binary_linux_conda_py3.5_cu92
+          name: nightly_pytorch_examples_linux_conda_py3.5_cu92
           python_version: '3.5'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: nightly_binary_linux_conda_py3.5_cu100
+          name: nightly_pytorch_examples_linux_conda_py3.5_cu100
           python_version: '3.5'
       - binary_linux_conda:
           cu_version: cpu
-          name: nightly_binary_linux_conda_py3.6_cpu
+          name: nightly_pytorch_examples_linux_conda_py3.6_cpu
           python_version: '3.6'
       - binary_linux_conda:
           cu_version: cu92
-          name: nightly_binary_linux_conda_py3.6_cu92
+          name: nightly_pytorch_examples_linux_conda_py3.6_cu92
           python_version: '3.6'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: nightly_binary_linux_conda_py3.6_cu100
+          name: nightly_pytorch_examples_linux_conda_py3.6_cu100
           python_version: '3.6'
       - binary_linux_conda:
           cu_version: cpu
-          name: nightly_binary_linux_conda_py3.7_cpu
+          name: nightly_pytorch_examples_linux_conda_py3.7_cpu
           python_version: '3.7'
       - binary_linux_conda:
           cu_version: cu92
-          name: nightly_binary_linux_conda_py3.7_cu92
+          name: nightly_pytorch_examples_linux_conda_py3.7_cu92
           python_version: '3.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda:
           cu_version: cu100
-          name: nightly_binary_linux_conda_py3.7_cu100
+          name: nightly_pytorch_examples_linux_conda_py3.7_cu100
           python_version: '3.7'
       - binary_macos_conda:
           cu_version: cpu
-          name: nightly_binary_macos_conda_py2.7_cpu
+          name: nightly_pytorch_examples_macos_conda_py2.7_cpu
           python_version: '2.7'
       - binary_macos_conda:
           cu_version: cpu
-          name: nightly_binary_macos_conda_py3.5_cpu
+          name: nightly_pytorch_examples_macos_conda_py3.5_cpu
           python_version: '3.5'
       - binary_macos_conda:
           cu_version: cpu
-          name: nightly_binary_macos_conda_py3.6_cpu
+          name: nightly_pytorch_examples_macos_conda_py3.6_cpu
           python_version: '3.6'
       - binary_macos_conda:
           cu_version: cpu
-          name: nightly_binary_macos_conda_py3.7_cpu
+          name: nightly_pytorch_examples_macos_conda_py3.7_cpu
           python_version: '3.7'
       - binary_win_conda:
           cu_version: cpu
-          name: nightly_binary_win_conda_py2.7_cpu
+          name: nightly_pytorch_examples_win_conda_py2.7_cpu
           python_version: '2.7'
       - binary_win_conda:
           cu_version: cpu
-          name: nightly_binary_win_conda_py3.5_cpu
+          name: nightly_pytorch_examples_win_conda_py3.5_cpu
           python_version: '3.5'
       - binary_win_conda:
           cu_version: cpu
-          name: nightly_binary_win_conda_py3.6_cpu
+          name: nightly_pytorch_examples_win_conda_py3.6_cpu
           python_version: '3.6'
       - binary_win_conda:
           cu_version: cpu
-          name: nightly_binary_win_conda_py3.7_cpu
+          name: nightly_pytorch_examples_win_conda_py3.7_cpu
           python_version: '3.7'
