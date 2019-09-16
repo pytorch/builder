@@ -145,6 +145,45 @@ commands:
     - run:
         command: test_community_repos/examples/word_language_model/run.sh
         name: 'Example Test: word_language_model'
+  run_pytorch_examples_docker:
+    description: PyTorch examples with Docker
+    steps:
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/dcgan/run.sh
+        name: 'Example Test: dcgan'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/fast_neural_style/run.sh
+        name: 'Example Test: fast_neural_style'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/imagenet/run.sh
+        name: 'Example Test: imagenet'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/mnist/run.sh
+        name: 'Example Test: mnist'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/mnist_hogwild/run.sh
+        name: 'Example Test: mnist_hogwild'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/regression/run.sh
+        name: 'Example Test: regression'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/reinforcement_learning/run.sh
+        name: 'Example Test: reinforcement_learning'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/snli/run.sh
+        name: 'Example Test: snli'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/super_resolution/run.sh
+        name: 'Example Test: super_resolution'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/time_sequence_prediction/run.sh
+        name: 'Example Test: time_sequence_prediction'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/vae/run.sh
+        name: 'Example Test: vae'
+    - run:
+        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/word_language_model/run.sh
+        name: 'Example Test: word_language_model'
 
 
 jobs:
@@ -246,17 +285,8 @@ jobs:
           echo Pulling docker image $DOCKER_IMAGE
           docker pull $DOCKER_IMAGE >/dev/null
 
-    - run:
-        name: Build and run tests
-        command: |
-          set -e
+    - run_pytorch_examples_docker
 
-          cd ${HOME}/project/
-
-          export DOCKER_IMAGE=soumith/conda-cuda
-          export VARS_TO_PASS="-e PYTHON_VERSION -e BUILD_VERSION -e PYTORCH_VERSION -e UNICODE_ABI -e CU_VERSION"
-
-          docker run --gpus all  --ipc=host -v $(pwd):/remote -w /remote ${VARS_TO_PASS} ${DOCKER_IMAGE} ./test_community_repos/run_all.sh
 
   binary_win_conda:
     <<: *binary_common

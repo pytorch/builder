@@ -125,17 +125,24 @@ def generate_subdirectory_paths(parent_directory):
     ])
 
 
-def gen_command_steps_for_subdir(subdir_path, description):
+def gen_command_steps_for_subdir(subdir_path, description, with_docker=False):
 
     example_subdirs = generate_subdirectory_paths(subdir_path)
 
     steps_list = []
     for testdir in example_subdirs:
         runner_cmd = os.path.join(testdir, "run.sh")
+
+        wrapper_args = [
+            ".circleci/helper-scripts/wrap-with-docker-run.sh",
+            runner_cmd,
+        ]
+        wrapped_command = " ".join(wrapper_args) if with_docker else runner_cmd
+
         testname = os.path.basename(testdir)
         steps_list.append({"run": {
             "name": "Example Test: " + testname,
-            "command": runner_cmd,
+            "command": wrapped_command,
         }})
 
     return {
@@ -150,6 +157,11 @@ def gen_commands():
         "run_pytorch_examples": gen_command_steps_for_subdir(
             "test_community_repos/examples",
             "PyTorch examples"),
+
+        "run_pytorch_examples_docker": gen_command_steps_for_subdir(
+            "test_community_repos/examples",
+            "PyTorch examples with Docker",
+            True),
 
         "run_external_projects": gen_command_steps_for_subdir(
             "test_community_repos/external_projects",

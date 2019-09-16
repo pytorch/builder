@@ -148,17 +148,8 @@ jobs:
           echo Pulling docker image $DOCKER_IMAGE
           docker pull $DOCKER_IMAGE >/dev/null
 
-    - run:
-        name: Build and run tests
-        command: |
-          set -e
+    - run_pytorch_examples_docker
 
-          cd ${HOME}/project/
-
-          export DOCKER_IMAGE=soumith/conda-cuda
-          export VARS_TO_PASS="-e PYTHON_VERSION -e BUILD_VERSION -e PYTORCH_VERSION -e UNICODE_ABI -e CU_VERSION"
-
-          docker run --gpus all  --ipc=host -v $(pwd):/remote -w /remote ${VARS_TO_PASS} ${DOCKER_IMAGE} ./test_community_repos/run_all.sh
 
   binary_win_conda:
     <<: *binary_common
