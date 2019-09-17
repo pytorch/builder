@@ -142,7 +142,7 @@ def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
         steps_list.append({"run": {
             "name": test_name_prefix + ": " + testname,
             "command": " ".join(wrapper_args),
-            "no_output_timeout": 1200,
+            "no_output_timeout": 2400,
         }})
 
     return {

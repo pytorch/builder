@@ -57,79 +57,79 @@ commands:
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/OpenNMT/run.sh
         name: 'External project: OpenNMT'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/advertorch/run.sh
         name: 'External project: advertorch'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/allennlp/run.sh
         name: 'External project: allennlp'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/block/run.sh
         name: 'External project: block'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/botorch/run.sh
         name: 'External project: botorch'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/cyclegan/run.sh
         name: 'External project: cyclegan'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
         name: 'External project: fairseq'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/flair/run.sh
         name: 'External project: flair'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/geometric/run.sh
         name: 'External project: geometric'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/gpytorch/run.sh
         name: 'External project: gpytorch'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/ignite/run.sh
         name: 'External project: ignite'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/lightning/run.sh
         name: 'External project: lightning'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/parlai/run.sh
         name: 'External project: parlai'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/pennylane/run.sh
         name: 'External project: pennylane'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/pix2pixHD/run.sh
         name: 'External project: pix2pixHD'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/pyro/run.sh
         name: 'External project: pyro'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh
         name: 'External project: pysyft'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/skorch/run.sh
         name: 'External project: skorch'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/external_projects/tensorly/run.sh
         name: 'External project: tensorly'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
   run_pytorch_examples:
     description: PyTorch examples
     parameters:
@@ -141,51 +141,51 @@ commands:
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/dcgan/run.sh
         name: 'Example test: dcgan'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/fast_neural_style/run.sh
         name: 'Example test: fast_neural_style'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/imagenet/run.sh
         name: 'Example test: imagenet'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/mnist/run.sh
         name: 'Example test: mnist'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/mnist_hogwild/run.sh
         name: 'Example test: mnist_hogwild'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/regression/run.sh
         name: 'Example test: regression'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/reinforcement_learning/run.sh
         name: 'Example test: reinforcement_learning'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/snli/run.sh
         name: 'Example test: snli'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/super_resolution/run.sh
         name: 'Example test: super_resolution'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/time_sequence_prediction/run.sh
         name: 'Example test: time_sequence_prediction'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/vae/run.sh
         name: 'Example test: vae'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/word_language_model/run.sh
         name: 'Example test: word_language_model'
-        no_output_timeout: 1200
+        no_output_timeout: 2400
 
 
 jobs:
@@ -212,10 +212,17 @@ jobs:
             packaging/build_wheel.sh
 
             set -x
+            echo "Activating conda..."
+
+            conda activate "env$PYTHON_VERSION"
+
             echo "Printing pip location:"
             echo $(which pip)
             echo "Now exporting path..."
             echo 'export PATH=$PATH' >> $BASH_ENV
+            echo "Duming BASH_ENV:"
+            echo "$BASH_ENV"
+
       - run_pytorch_examples
       - store_artifacts:
           path: dist
@@ -313,6 +320,21 @@ jobs:
             $env:PATH = "C:\tools\miniconda3;C:\tools\miniconda3\Library\usr\bin;C:\tools\miniconda3\Scripts;C:\tools\miniconda3\bin" + $env:PATH
             conda install -yq conda-build
             bash packaging/build_conda.sh
+            
+
+
+            set -x
+            echo "Activating conda..."
+
+            conda activate "env$PYTHON_VERSION"
+
+            echo "Printing pip location:"
+            echo $(which pip)
+            echo "Now exporting path..."
+            echo 'export PATH=$PATH' >> $BASH_ENV
+            echo "Duming BASH_ENV:"
+            echo "$BASH_ENV"
+
           shell: powershell.exe
       - run_pytorch_examples
 
