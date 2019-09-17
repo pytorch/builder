@@ -176,7 +176,10 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run: packaging/build_wheel.sh
+      - run:
+          command: |
+            packaging/build_wheel.sh
+            echo 'export PATH=$PATH' >> $BASH_ENV
       - run_pytorch_examples
       - store_artifacts:
           path: dist
@@ -192,7 +195,9 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run_pytorch_examples
+      - run:
+          command: run_pytorch_examples
+          no_output_timeout: 1200
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64
       - persist_to_workspace:
