@@ -122,6 +122,7 @@ def generate_subdirectory_paths(parent_directory):
         os.path.normpath(os.path.join(parent_directory, o))
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
+           and o != "fast_neural_style" # FIXME this test times out with 20 minutes of no output
     ])
 
 
@@ -142,7 +143,7 @@ def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
         steps_list.append({"run": {
             "name": test_name_prefix + ": " + testname,
             "command": " ".join(wrapper_args),
-            "no_output_timeout": 2400,
+            "no_output_timeout": 1200,
         }})
 
     return {

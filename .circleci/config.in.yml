@@ -68,23 +68,8 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run:
-          command: |
-            packaging/build_wheel.sh
-
-            set -x
-            echo "Activating conda..."
-
-            conda activate "env$PYTHON_VERSION"
-
-            echo "Printing pip location:"
-            echo $(which pip)
-            echo "Now exporting path..."
-            echo 'export PATH=$PATH' >> $BASH_ENV
-            echo "Duming BASH_ENV:"
-            echo "$BASH_ENV"
-
-      - run_pytorch_examples
+      - run_pytorch_examples:
+          script-wrapper: "packaging/build_wheel.sh"
       - store_artifacts:
           path: dist
       - persist_to_workspace:
@@ -173,32 +158,12 @@ jobs:
     <<: *binary_common
     executor:
       name: win/vs2019
-      shell: bash.exe
+      shell: powershell.exe
     steps:
       - checkout
-      - run:
-          command: |
-            choco install miniconda3
-            $env:PATH = "C:\tools\miniconda3;C:\tools\miniconda3\Library\usr\bin;C:\tools\miniconda3\Scripts;C:\tools\miniconda3\bin" + $env:PATH
-            conda install -yq conda-build
-            bash packaging/build_conda.sh
+      - run_pytorch_examples:
+          script-wrapper: ".circleci/helper-scripts/wrap-with-windows-conda.ps1"
 
-
-
-            set -x
-            echo "Activating conda..."
-
-            conda activate "env$PYTHON_VERSION"
-
-            echo "Printing pip location:"
-            echo $(which pip)
-            echo "Now exporting path..."
-            echo 'export PATH=$PATH' >> $BASH_ENV
-            echo "Duming BASH_ENV:"
-            echo "$BASH_ENV"
-
-          shell: powershell.exe
-      - run_pytorch_examples
 
   binary_macos_wheel:
     <<: *binary_common
