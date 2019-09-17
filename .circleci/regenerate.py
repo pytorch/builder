@@ -33,9 +33,13 @@ ALL_CUDA_VERSIONS = [
 
 
 def get_applicable_os_list(btype):
-    os_list = ["linux", "macos"]
+    os_list = ["macos"]
     if btype != "wheel":
-        os_list.append("win")
+        os_list.extend([
+            "linux",  # TODO Get linux working with CUDA for wheels
+            "win",
+        ])
+
     return os_list
 
 
@@ -45,6 +49,7 @@ def get_unicode_variants(btype, python_version):
 
 def workflows(category, prefix='', indentation=6, prune_python_and_cuda=False):
     w = []
+
     for btype in ["wheel", "conda"]:
         for os_type in get_applicable_os_list(btype):
 
@@ -122,7 +127,7 @@ def generate_subdirectory_paths(parent_directory):
         os.path.normpath(os.path.join(parent_directory, o))
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
-           and o != "fast_neural_style" # FIXME this test times out with 20 minutes of no output
+        and o != "fast_neural_style"  # FIXME this test times out with 20 minutes of no output
     ])
 
 
