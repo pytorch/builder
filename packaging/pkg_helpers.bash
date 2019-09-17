@@ -181,13 +181,7 @@ setup_pip_pytorch_version() {
 setup_conda_pytorch_constraint() {
   if [[ -z "$PYTORCH_VERSION" ]]; then
     export CONDA_CHANNEL_FLAGS="-c pytorch-nightly"
-    export PYTORCH_VERSION="$(conda search --json 'pytorch[channel=pytorch-nightly]' | \
-                              python -c "import os, sys, json, re; cuver = os.environ.get('CU_VERSION'); \
-                               cuver = (cuver[:-1] + '.' + cuver[-1]).replace('cu', 'cuda') if cuver != 'cpu' else cuver; \
-                               print(re.sub(r'\\+.*$', '', \
-                                [x['version'] for x in json.load(sys.stdin)['pytorch'] \
-                                  if (x['platform'] == 'darwin' or cuver in x['fn']) \
-                                    and 'py' + os.environ['PYTHON_VERSION'] in x['fn']][-1]))")"
+    export PYTORCH_VERSION="$(conda search --json 'pytorch[channel=pytorch-nightly]' | ./packaging/versionator.py)"
     if [[ -z "$PYTORCH_VERSION" ]]; then
       echo "PyTorch version auto detection failed"
       echo "No package found for CU_VERSION=$CU_VERSION and PYTHON_VERSION=$PYTHON_VERSION"
