@@ -125,7 +125,7 @@ def generate_subdirectory_paths(parent_directory):
     ])
 
 
-def gen_command_steps_for_subdir(subdir_path, description, with_docker=False):
+def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
 
     example_subdirs = generate_subdirectory_paths(subdir_path)
 
@@ -134,20 +134,26 @@ def gen_command_steps_for_subdir(subdir_path, description, with_docker=False):
         runner_cmd = os.path.join(testdir, "run.sh")
 
         wrapper_args = [
-            ".circleci/helper-scripts/wrap-with-docker-run.sh",
+            "<< parameters.script-wrapper >>",
             runner_cmd,
         ]
-        wrapped_command = " ".join(wrapper_args) if with_docker else runner_cmd
 
         testname = os.path.basename(testdir)
         steps_list.append({"run": {
-            "name": "Example Test: " + testname,
-            "command": wrapped_command,
+            "name": test_name_prefix + ": " + testname,
+            "command": " ".join(wrapper_args),
         }})
 
     return {
         "description": description,
         "steps": steps_list,
+        "parameters": {
+            "script-wrapper": {
+                "type": "string",
+                "default": "",
+                "description": "A command to which the script will be passed as an argument",
+            }
+        }
     }
 
 
@@ -156,16 +162,13 @@ def gen_commands():
     commands_dict = {
         "run_pytorch_examples": gen_command_steps_for_subdir(
             "test_community_repos/examples",
-            "PyTorch examples"),
-
-        "run_pytorch_examples_docker": gen_command_steps_for_subdir(
-            "test_community_repos/examples",
-            "PyTorch examples with Docker",
-            True),
+            "PyTorch examples",
+            "Example test"),
 
         "run_external_projects": gen_command_steps_for_subdir(
             "test_community_repos/external_projects",
-            "External projects"),
+            "External projects",
+            "External project"),
     }
 
     return indent(2, commands_dict)

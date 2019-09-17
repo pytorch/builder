@@ -149,7 +149,8 @@ jobs:
           echo Pulling docker image $DOCKER_IMAGE
           docker pull $DOCKER_IMAGE >/dev/null
 
-    - run_pytorch_examples_docker
+    - run_pytorch_examples:
+        script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
 
 
   binary_win_conda:

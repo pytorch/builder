@@ -48,142 +48,113 @@ binary_common: &binary_common
 commands:
   run_external_projects:
     description: External projects
+    parameters:
+      script-wrapper:
+        default: ''
+        description: A command to which the script will be passed as an argument
+        type: string
     steps:
     - run:
-        command: test_community_repos/external_projects/OpenNMT/run.sh
-        name: 'Example Test: OpenNMT'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/OpenNMT/run.sh
+        name: 'External project: OpenNMT'
     - run:
-        command: test_community_repos/external_projects/advertorch/run.sh
-        name: 'Example Test: advertorch'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/advertorch/run.sh
+        name: 'External project: advertorch'
     - run:
-        command: test_community_repos/external_projects/allennlp/run.sh
-        name: 'Example Test: allennlp'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/allennlp/run.sh
+        name: 'External project: allennlp'
     - run:
-        command: test_community_repos/external_projects/block/run.sh
-        name: 'Example Test: block'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/block/run.sh
+        name: 'External project: block'
     - run:
-        command: test_community_repos/external_projects/botorch/run.sh
-        name: 'Example Test: botorch'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/botorch/run.sh
+        name: 'External project: botorch'
     - run:
-        command: test_community_repos/external_projects/cyclegan/run.sh
-        name: 'Example Test: cyclegan'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/cyclegan/run.sh
+        name: 'External project: cyclegan'
     - run:
-        command: test_community_repos/external_projects/fairseq/run.sh
-        name: 'Example Test: fairseq'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
+        name: 'External project: fairseq'
     - run:
-        command: test_community_repos/external_projects/flair/run.sh
-        name: 'Example Test: flair'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/flair/run.sh
+        name: 'External project: flair'
     - run:
-        command: test_community_repos/external_projects/geometric/run.sh
-        name: 'Example Test: geometric'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/geometric/run.sh
+        name: 'External project: geometric'
     - run:
-        command: test_community_repos/external_projects/gpytorch/run.sh
-        name: 'Example Test: gpytorch'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/gpytorch/run.sh
+        name: 'External project: gpytorch'
     - run:
-        command: test_community_repos/external_projects/ignite/run.sh
-        name: 'Example Test: ignite'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/ignite/run.sh
+        name: 'External project: ignite'
     - run:
-        command: test_community_repos/external_projects/lightning/run.sh
-        name: 'Example Test: lightning'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/lightning/run.sh
+        name: 'External project: lightning'
     - run:
-        command: test_community_repos/external_projects/parlai/run.sh
-        name: 'Example Test: parlai'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/parlai/run.sh
+        name: 'External project: parlai'
     - run:
-        command: test_community_repos/external_projects/pennylane/run.sh
-        name: 'Example Test: pennylane'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/pennylane/run.sh
+        name: 'External project: pennylane'
     - run:
-        command: test_community_repos/external_projects/pix2pixHD/run.sh
-        name: 'Example Test: pix2pixHD'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/pix2pixHD/run.sh
+        name: 'External project: pix2pixHD'
     - run:
-        command: test_community_repos/external_projects/pyro/run.sh
-        name: 'Example Test: pyro'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/pyro/run.sh
+        name: 'External project: pyro'
     - run:
-        command: test_community_repos/external_projects/pysyft/run.sh
-        name: 'Example Test: pysyft'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh
+        name: 'External project: pysyft'
     - run:
-        command: test_community_repos/external_projects/skorch/run.sh
-        name: 'Example Test: skorch'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/skorch/run.sh
+        name: 'External project: skorch'
     - run:
-        command: test_community_repos/external_projects/tensorly/run.sh
-        name: 'Example Test: tensorly'
+        command: << parameters.script-wrapper >> test_community_repos/external_projects/tensorly/run.sh
+        name: 'External project: tensorly'
   run_pytorch_examples:
     description: PyTorch examples
+    parameters:
+      script-wrapper:
+        default: ''
+        description: A command to which the script will be passed as an argument
+        type: string
     steps:
     - run:
-        command: test_community_repos/examples/dcgan/run.sh
-        name: 'Example Test: dcgan'
+        command: << parameters.script-wrapper >> test_community_repos/examples/dcgan/run.sh
+        name: 'Example test: dcgan'
     - run:
-        command: test_community_repos/examples/fast_neural_style/run.sh
-        name: 'Example Test: fast_neural_style'
+        command: << parameters.script-wrapper >> test_community_repos/examples/fast_neural_style/run.sh
+        name: 'Example test: fast_neural_style'
     - run:
-        command: test_community_repos/examples/imagenet/run.sh
-        name: 'Example Test: imagenet'
+        command: << parameters.script-wrapper >> test_community_repos/examples/imagenet/run.sh
+        name: 'Example test: imagenet'
     - run:
-        command: test_community_repos/examples/mnist/run.sh
-        name: 'Example Test: mnist'
+        command: << parameters.script-wrapper >> test_community_repos/examples/mnist/run.sh
+        name: 'Example test: mnist'
     - run:
-        command: test_community_repos/examples/mnist_hogwild/run.sh
-        name: 'Example Test: mnist_hogwild'
+        command: << parameters.script-wrapper >> test_community_repos/examples/mnist_hogwild/run.sh
+        name: 'Example test: mnist_hogwild'
     - run:
-        command: test_community_repos/examples/regression/run.sh
-        name: 'Example Test: regression'
+        command: << parameters.script-wrapper >> test_community_repos/examples/regression/run.sh
+        name: 'Example test: regression'
     - run:
-        command: test_community_repos/examples/reinforcement_learning/run.sh
-        name: 'Example Test: reinforcement_learning'
+        command: << parameters.script-wrapper >> test_community_repos/examples/reinforcement_learning/run.sh
+        name: 'Example test: reinforcement_learning'
     - run:
-        command: test_community_repos/examples/snli/run.sh
-        name: 'Example Test: snli'
+        command: << parameters.script-wrapper >> test_community_repos/examples/snli/run.sh
+        name: 'Example test: snli'
     - run:
-        command: test_community_repos/examples/super_resolution/run.sh
-        name: 'Example Test: super_resolution'
+        command: << parameters.script-wrapper >> test_community_repos/examples/super_resolution/run.sh
+        name: 'Example test: super_resolution'
     - run:
-        command: test_community_repos/examples/time_sequence_prediction/run.sh
-        name: 'Example Test: time_sequence_prediction'
+        command: << parameters.script-wrapper >> test_community_repos/examples/time_sequence_prediction/run.sh
+        name: 'Example test: time_sequence_prediction'
     - run:
-        command: test_community_repos/examples/vae/run.sh
-        name: 'Example Test: vae'
+        command: << parameters.script-wrapper >> test_community_repos/examples/vae/run.sh
+        name: 'Example test: vae'
     - run:
-        command: test_community_repos/examples/word_language_model/run.sh
-        name: 'Example Test: word_language_model'
-  run_pytorch_examples_docker:
-    description: PyTorch examples with Docker
-    steps:
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/dcgan/run.sh
-        name: 'Example Test: dcgan'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/fast_neural_style/run.sh
-        name: 'Example Test: fast_neural_style'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/imagenet/run.sh
-        name: 'Example Test: imagenet'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/mnist/run.sh
-        name: 'Example Test: mnist'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/mnist_hogwild/run.sh
-        name: 'Example Test: mnist_hogwild'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/regression/run.sh
-        name: 'Example Test: regression'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/reinforcement_learning/run.sh
-        name: 'Example Test: reinforcement_learning'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/snli/run.sh
-        name: 'Example Test: snli'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/super_resolution/run.sh
-        name: 'Example Test: super_resolution'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/time_sequence_prediction/run.sh
-        name: 'Example Test: time_sequence_prediction'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/vae/run.sh
-        name: 'Example Test: vae'
-    - run:
-        command: .circleci/helper-scripts/wrap-with-docker-run.sh test_community_repos/examples/word_language_model/run.sh
-        name: 'Example Test: word_language_model'
+        command: << parameters.script-wrapper >> test_community_repos/examples/word_language_model/run.sh
+        name: 'Example test: word_language_model'
 
 
 jobs:
@@ -286,7 +257,8 @@ jobs:
           echo Pulling docker image $DOCKER_IMAGE
           docker pull $DOCKER_IMAGE >/dev/null
 
-    - run_pytorch_examples_docker
+    - run_pytorch_examples:
+        script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
 
 
   binary_win_conda:
