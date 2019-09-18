@@ -223,6 +223,10 @@ workflows:
   build:
     jobs:
       - circleci_consistency
+      - win_silly_test:
+          cu_version: cpu
+          name: silly windows test
+          python_version: '3.6'
       {{ workflows("pytorch_examples") }}
   {#      {{ workflows("pytorch_external_projects", prune_python_and_cuda=True) }}
   #}
@@ -237,5 +241,4 @@ workflows:
                 - master
     jobs:
       - circleci_consistency
-      - win_silly_test
       {{ workflows("pytorch_examples", prefix="nightly") }}

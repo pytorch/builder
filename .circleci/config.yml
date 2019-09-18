@@ -281,7 +281,6 @@ jobs:
         script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
 
 
-
   binary_win_conda:
     <<: *binary_common
     executor:
@@ -291,6 +290,16 @@ jobs:
       - checkout
       - run_pytorch_examples:
           script-wrapper: ".circleci/helper-scripts/wrap-with-windows-conda.ps1"
+
+
+  win_silly_test:
+    <<: *binary_common
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - run: |
+          bash .circleci/helper-scripts/windows-pip-test.sh
 
 
   binary_macos_wheel:
@@ -341,6 +350,10 @@ workflows:
   build:
     jobs:
       - circleci_consistency
+      - win_silly_test:
+          cu_version: cpu
+          name: silly windows test
+          python_version: '3.6'
       - binary_macos_wheel:
           cu_version: cpu
           name: pytorch_examples_macos_wheel_py2.7_cpu
