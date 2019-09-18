@@ -169,11 +169,13 @@ jobs:
     <<: *binary_common
     executor:
       name: win/vs2019
-      shell: powershell.exe
+      shell: bash.exe
     steps:
       - run: |
+          set -x
+
           pwd
-          ls
+          ls -l
           bash .circleci/helper-scripts/windows-pip-test.sh
 
 

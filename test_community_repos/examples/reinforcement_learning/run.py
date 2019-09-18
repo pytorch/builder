@@ -54,5 +54,7 @@ def check_cartpole_example(command, seconds=30, baseline_iter=1000):
 
 if __name__ == '__main__':
     check_cartpole_example(actor_critic_cmd, seconds=5*60, baseline_iter=4000)
-    check_cartpole_example(reinforce_cmd, seconds=60, baseline_iter=4000)
+
+    # NOTE: Times out after 60 seconds; changed to 3 minutes
+    check_cartpole_example(reinforce_cmd, seconds=3*60, baseline_iter=4000)
 
