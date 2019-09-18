@@ -138,6 +138,12 @@ def generate_subdirectory_paths(parent_directory):
         #     mp.set_start_method('spawn')
         #  AttributeError: 'module' object has no attribute 'set_start_method'
         and o != "mnist_hogwild"
+
+
+        # FIXME
+        #   IOError: [E050] Can't find model 'en'.
+        #   It doesn't seem to be a shortcut link, a Python package or a valid path to a data directory.
+        and o != "snli"
     ])
 
 
