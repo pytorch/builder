@@ -37,6 +37,10 @@ binary_common: &binary_common
       description: "Wheel only: what docker image to use"
       type: string
       default: "soumith/manylinux-cuda100"
+    is-python3:
+      description: "Precomputation of whether this Python version is >= 3, for use as a 'when' conditional"
+      type: boolean
+      default: false
   environment:
     PYTHON_VERSION: << parameters.python_version >>
     BUILD_VERSION: << parameters.build_version >>
@@ -49,6 +53,10 @@ commands:
   run_external_projects:
     description: External projects
     parameters:
+      is-python3:
+        default: false
+        description: Whether this is Python 3
+        type: boolean
       script-wrapper:
         default: ''
         description: A command to which the script will be passed as an argument
@@ -133,6 +141,10 @@ commands:
   run_pytorch_examples:
     description: PyTorch examples
     parameters:
+      is-python3:
+        default: false
+        description: Whether this is Python 3
+        type: boolean
       script-wrapper:
         default: ''
         description: A command to which the script will be passed as an argument
@@ -146,6 +158,13 @@ commands:
         command: << parameters.script-wrapper >> test_community_repos/examples/mnist/run.sh
         name: 'Example test: mnist'
         no_output_timeout: 1200
+    - when:
+        condition: << parameters.is-python3 >>
+        steps:
+        - run:
+            command: << parameters.script-wrapper >> test_community_repos/examples/mnist_hogwild/run.sh
+            name: 'Example test: mnist_hogwild'
+            no_output_timeout: 1200
     - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/regression/run.sh
         name: 'Example test: regression'
@@ -180,7 +199,7 @@ jobs:
       - checkout
       - run:
           command: |
-            pip install --user --progress-bar off jinja2 pyyaml
+            pip install --user --progress-bar off -r .circleci/requirements.txt
             python .circleci/regenerate.py
             git diff --exit-code || (echo ".circleci/config.yml not in sync with config.yml.in! Run .circleci/regenerate.py to update config"; exit 1)
 
@@ -194,6 +213,7 @@ jobs:
       - checkout
       - run_pytorch_examples:
           script-wrapper: "packaging/build_wheel.sh"
+          is-python3: <<parameters.is-python3>>
       - store_artifacts:
           path: dist
       - persist_to_workspace:
@@ -208,7 +228,8 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run_pytorch_examples
+      - run_pytorch_examples:
+          is-python3: <<parameters.is-python3>>
       - store_artifacts:
           path: /opt/conda/conda-bld/linux-64
       - persist_to_workspace:
@@ -275,6 +296,7 @@ jobs:
 
     - run_pytorch_examples:
         script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
+        is-python3: <<parameters.is-python3>>
 
 
   binary_win_conda:
@@ -286,6 +308,7 @@ jobs:
       - checkout
       - run_pytorch_examples:
           script-wrapper: ".circleci/helper-scripts/wrap-with-windows-conda.ps1"
+          is-python3: <<parameters.is-python3>>
 
 
   win_silly_test:
@@ -314,7 +337,8 @@ jobs:
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
 #            packaging/build_wheel.sh
-      - run_pytorch_examples
+      - run_pytorch_examples:
+          is-python3: <<parameters.is-python3>>
       - store_artifacts:
           path: dist
       - persist_to_workspace:
@@ -335,7 +359,8 @@ jobs:
             source $HOME/miniconda3/bin/activate
             conda install -yq conda-build
 #            packaging/build_conda.sh
-      - run_pytorch_examples
+      - run_pytorch_examples:
+          is-python3: <<parameters.is-python3>>
       - store_artifacts:
           path: /Users/distiller/miniconda3/conda-bld/osx-64
       - persist_to_workspace:
@@ -353,103 +378,127 @@ workflows:
           python_version: '3.6'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: false
           name: pytorch_examples_macos_wheel_py2.7_cpu
           python_version: '2.7'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: false
           name: pytorch_examples_macos_wheel_py2.7u_cpu
           python_version: '2.7'
           unicode_abi: '1'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_macos_wheel_py3.5_cpu
           python_version: '3.5'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_macos_wheel_py3.6_cpu
           python_version: '3.6'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_macos_wheel_py3.7_cpu
           python_version: '3.7'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: false
           name: pytorch_examples_macos_conda_py2.7_cpu
           python_version: '2.7'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_macos_conda_py3.5_cpu
           python_version: '3.5'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_macos_conda_py3.6_cpu
           python_version: '3.6'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_macos_conda_py3.7_cpu
           python_version: '3.7'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: false
           name: pytorch_examples_linux_conda_py2.7_cpu
           python_version: '2.7'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: false
           name: pytorch_examples_linux_conda_py2.7_cu92
           python_version: '2.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: false
           name: pytorch_examples_linux_conda_py2.7_cu100
           python_version: '2.7'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.5_cpu
           python_version: '3.5'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.5_cu92
           python_version: '3.5'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.5_cu100
           python_version: '3.5'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.6_cpu
           python_version: '3.6'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.6_cu92
           python_version: '3.6'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.6_cu100
           python_version: '3.6'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.7_cpu
           python_version: '3.7'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.7_cu92
           python_version: '3.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: true
           name: pytorch_examples_linux_conda_py3.7_cu100
           python_version: '3.7'
       - binary_win_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_win_conda_py3.5_cpu
           python_version: '3.5'
       - binary_win_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_win_conda_py3.6_cpu
           python_version: '3.6'
       - binary_win_conda:
           cu_version: cpu
+          is-python3: true
           name: pytorch_examples_win_conda_py3.7_cpu
           python_version: '3.7'
 
@@ -466,102 +515,126 @@ workflows:
       - circleci_consistency
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: false
           name: nightly
           python_version: '2.7'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: false
           name: nightly
           python_version: '2.7'
           unicode_abi: '1'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.5'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.6'
       - binary_macos_wheel:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.7'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: false
           name: nightly
           python_version: '2.7'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.5'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.6'
       - binary_macos_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.7'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: false
           name: nightly
           python_version: '2.7'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: false
           name: nightly
           python_version: '2.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: false
           name: nightly
           python_version: '2.7'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.5'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: true
           name: nightly
           python_version: '3.5'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: true
           name: nightly
           python_version: '3.5'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.6'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: true
           name: nightly
           python_version: '3.6'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: true
           name: nightly
           python_version: '3.6'
       - binary_linux_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.7'
       - binary_linux_conda_cuda:
           cu_version: cu92
+          is-python3: true
           name: nightly
           python_version: '3.7'
           wheel_docker_image: soumith/manylinux-cuda92
       - binary_linux_conda_cuda:
           cu_version: cu100
+          is-python3: true
           name: nightly
           python_version: '3.7'
       - binary_win_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.5'
       - binary_win_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.6'
       - binary_win_conda:
           cu_version: cpu
+          is-python3: true
           name: nightly
           python_version: '3.7'

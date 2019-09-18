@@ -17,6 +17,7 @@ https://github.com/pytorch/vision/pull/1321#issuecomment-531033978
 import jinja2
 import yaml
 import os.path
+from packaging.version import Version, parse
 
 
 ALL_PYTHON_VERSIONS = [
@@ -25,6 +26,7 @@ ALL_PYTHON_VERSIONS = [
     "3.6",
     "3.7",
 ]
+
 
 ALL_CUDA_VERSIONS = [
     "cu92",
@@ -43,6 +45,9 @@ def get_applicable_os_list(btype):
     return os_list
 
 
+PARMNAME_IS_PYTHON_3 = "is-python3"
+
+
 def get_unicode_variants(btype, python_version):
     return [False, True] if btype == "wheel" and python_version == "2.7" else [False]
 
@@ -55,7 +60,7 @@ def workflows(category, prefix='', indentation=6, prune_python_and_cuda=False):
 
             python_versions = ALL_PYTHON_VERSIONS[-1:] if prune_python_and_cuda else ALL_PYTHON_VERSIONS
 
-            # XXX Apparently there are no more Python 2.7 builds for Windows?
+            # PyTorch for Python 2.7 builds is not supported on Windows.
             filtered_python_versions = [p for p in python_versions if not (os_type == "win" and p == "2.7")]
 
             for python_version in filtered_python_versions:
@@ -99,6 +104,7 @@ def generate_base_workflow(base_workflow_name, python_version, cu_version, unico
         "name": base_workflow_name,
         "python_version": python_version,
         "cu_version": cu_version,
+        PARMNAME_IS_PYTHON_3: parse(python_version) >= Version("3"),
     }
 
     if unicode:
@@ -131,14 +137,19 @@ def generate_subdirectory_paths(parent_directory):
         os.path.normpath(os.path.join(parent_directory, o))
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
-        and o != "fast_neural_style"  # FIXME this test times out with 20 minutes of no output
-        and o != "imagenet"  # FIXME current error: "IMAGENET_ROOT not set"
+
+        # FIXME this test times out with 20 minutes of no output
+        and o != "fast_neural_style"
+
+        # FIXME current error: "IMAGENET_ROOT not set"
+        #  Need to somehow pre-load 200GB data onto CI
+        and o != "imagenet"
+
         # FIXME
         #   File "main.py", line 57, in <module>
         #     mp.set_start_method('spawn')
         #  AttributeError: 'module' object has no attribute 'set_start_method'
-        and o != "mnist_hogwild"
-
+#        and o != "mnist_hogwild"
 
         # FIXME
         #   IOError: [E050] Can't find model 'en'.
@@ -147,25 +158,52 @@ def generate_subdirectory_paths(parent_directory):
     ])
 
 
+def wrap_conditional_step(parameter_name, original_step_dict):
+    return {
+        "when": {
+            "condition": "<< parameters.%s >>" % parameter_name,
+            "steps": [original_step_dict],
+        }
+    }
+
+
+def render_step(test_name_prefix, testdir):
+
+    runner_cmd = os.path.join(testdir, "run.sh")
+
+    wrapper_args = [
+        "<< parameters.script-wrapper >>",
+        runner_cmd,
+    ]
+
+    testname = os.path.basename(testdir)
+
+    raw_step = {
+        "run": {
+            "name": test_name_prefix + ": " + testname,
+            "command": " ".join(wrapper_args),
+            "no_output_timeout": 1200,
+        }
+    }
+
+    conditional_parm = None
+
+    # Don't run this test with Python 2.7
+    if testname == "mnist_hogwild":
+        conditional_parm = PARMNAME_IS_PYTHON_3
+
+    wrapped_step = wrap_conditional_step(conditional_parm, raw_step) if conditional_parm else raw_step
+
+    return wrapped_step
+
+
 def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
 
     example_subdirs = generate_subdirectory_paths(subdir_path)
 
     steps_list = []
     for testdir in example_subdirs:
-        runner_cmd = os.path.join(testdir, "run.sh")
-
-        wrapper_args = [
-            "<< parameters.script-wrapper >>",
-            runner_cmd,
-        ]
-
-        testname = os.path.basename(testdir)
-        steps_list.append({"run": {
-            "name": test_name_prefix + ": " + testname,
-            "command": " ".join(wrapper_args),
-            "no_output_timeout": 1200,
-        }})
+        steps_list.append(render_step(test_name_prefix, testdir))
 
     return {
         "description": description,
@@ -175,7 +213,12 @@ def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
                 "type": "string",
                 "default": "",
                 "description": "A command to which the script will be passed as an argument",
-            }
+            },
+            PARMNAME_IS_PYTHON_3: {
+                "type": "boolean",
+                "default": False,
+                "description": "Whether this is Python 3",
+            },
         }
     }
 
