@@ -11,10 +11,30 @@ import os, sys, json, re
 cuver = os.environ.get('CU_VERSION')
 cuver = (cuver[:-1] + '.' + cuver[-1]).replace('cu', 'cuda') if cuver != 'cpu' else cuver
 
-versions = [x['version'] for x in json.load(sys.stdin)['pytorch']
-                                  if (x['platform'] == 'darwin' or cuver in x['fn'])
-                                    and 'py' + os.environ['PYTHON_VERSION'] in x['fn']]
-last_entry = versions[-1]
+pytorch_entries = json.load(sys.stdin)['pytorch']
 
-print(re.sub(r'\\+.*$', '', last_entry))
+filtered_pytorch_entries_plat_cuda = filter(lambda x: (x['platform'] == 'darwin' or cuver in x['fn']), pytorch_entries)
 
+filtered_pytorch_entries_py_ver = filter(lambda x: 'py' + os.environ['PYTHON_VERSION'] in x['fn'],
+                                         filtered_pytorch_entries_plat_cuda)
+
+versions = [x['version'] for x in filtered_pytorch_entries_py_ver]
+
+try:
+    last_entry = versions[-1]
+    print(re.sub(r'\\+.*$', '', last_entry))
+
+except Exception as e:
+
+    all_platforms = set([x['platform'] for x in pytorch_entries])
+    all_fns = set([x['fn'] for x in pytorch_entries])
+
+    msg = "\n\t".join([
+        "Exception was: " + str(e),
+        "Unfiltered entries count: " + str(len(pytorch_entries)),
+        "Filtered by platform count: " + str(len(filtered_pytorch_entries_plat_cuda)),
+        "all_platforms:\n" + "".join(map(lambda x: "\t\t" + str(x) + "\n", all_platforms)),
+        "all_fns:\n" + "".join(map(lambda x: "\t\t" + str(x) + "\n", all_fns)),
+    ])
+
+    sys.exit(msg)

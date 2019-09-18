@@ -128,6 +128,7 @@ def generate_subdirectory_paths(parent_directory):
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
         and o != "fast_neural_style"  # FIXME this test times out with 20 minutes of no output
+        and o != "imagenet"  # FIXME current error: "IMAGENET_ROOT not set"
     ])
 
 
