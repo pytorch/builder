@@ -169,15 +169,11 @@ jobs:
     <<: *binary_common
     executor:
       name: win/vs2019
-      shell: bash.exe
+      shell: powershell.exe
     steps:
       - checkout
       - run: |
-          set -x
-
-          pwd
-          ls -l
-          bash .circleci/helper-scripts/windows-pip-test.sh
+          .circleci/helper-scripts/wrap-with-windows-conda.ps1 .circleci/helper-scripts/windows-pip-test.sh
 
 
   binary_macos_wheel:
