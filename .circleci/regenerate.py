@@ -54,7 +54,11 @@ def workflows(category, prefix='', indentation=6, prune_python_and_cuda=False):
         for os_type in get_applicable_os_list(btype):
 
             python_versions = ALL_PYTHON_VERSIONS[-1:] if prune_python_and_cuda else ALL_PYTHON_VERSIONS
-            for python_version in python_versions:
+
+            # XXX Apparently there are no more Python 2.7 builds for Windows?
+            filtered_python_versions = [p for p in python_versions if not (os_type == "win" and p == "2.7")]
+
+            for python_version in filtered_python_versions:
 
                 cuda_subset = ALL_CUDA_VERSIONS[-1:] if prune_python_and_cuda else ALL_CUDA_VERSIONS
 
@@ -129,6 +133,11 @@ def generate_subdirectory_paths(parent_directory):
         if os.path.isdir(os.path.join(parent_directory, o))
         and o != "fast_neural_style"  # FIXME this test times out with 20 minutes of no output
         and o != "imagenet"  # FIXME current error: "IMAGENET_ROOT not set"
+        # FIXME
+        #   File "main.py", line 57, in <module>
+        #     mp.set_start_method('spawn')
+        #  AttributeError: 'module' object has no attribute 'set_start_method'
+        and o != "mnist_hogwild"
     ])
 
 

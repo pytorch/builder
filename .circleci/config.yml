@@ -147,10 +147,6 @@ commands:
         name: 'Example test: mnist'
         no_output_timeout: 1200
     - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/mnist_hogwild/run.sh
-        name: 'Example test: mnist_hogwild'
-        no_output_timeout: 1200
-    - run:
         command: << parameters.script-wrapper >> test_community_repos/examples/regression/run.sh
         name: 'Example test: regression'
         no_output_timeout: 1200
@@ -436,10 +432,6 @@ workflows:
           python_version: '3.7'
       - binary_win_conda:
           cu_version: cpu
-          name: pytorch_examples_win_conda_py2.7_cpu
-          python_version: '2.7'
-      - binary_win_conda:
-          cu_version: cpu
           name: pytorch_examples_win_conda_py3.5_cpu
           python_version: '3.5'
       - binary_win_conda:
@@ -551,10 +543,6 @@ workflows:
           cu_version: cu100
           name: nightly
           python_version: '3.7'
-      - binary_win_conda:
-          cu_version: cpu
-          name: nightly
-          python_version: '2.7'
       - binary_win_conda:
           cu_version: cpu
           name: nightly

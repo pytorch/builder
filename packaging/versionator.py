@@ -40,6 +40,7 @@ except Exception as e:
         "Exception was: " + str(e),
         "Unfiltered entries count: " + str(len(pytorch_entries)),
         "Filtered by platform count: " + str(len(filtered_pytorch_entries_plat_cuda)),
+        "Filtered by python version count: " + str(len(filtered_pytorch_entries_py_ver)),
         "all_platforms:\n" + "".join(map(lambda x: "\t\t" + str(x) + "\n", all_platforms)),
         "all_fns:\n" + "".join(map(lambda x: "\t\t" + str(x) + "\n", all_fns)),
     ])
