@@ -1,5 +1,5 @@
 import re
-import subprocess 
+import subprocess32
 import sys
 
 PY3 = sys.version_info >= (3, 0)
@@ -12,7 +12,7 @@ def run(command, timeout):
     """
     Returns (return-code, stdout, stderr)
     """
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    p = subprocess32.Popen(command, stdout=subprocess32.PIPE, stderr=subprocess32.PIPE, shell=True)
     output, err = p.communicate(timeout=timeout)
     rc = p.returncode
     if PY3:

@@ -172,6 +172,8 @@ jobs:
       shell: powershell.exe
     steps:
       - run: |
+          pwd
+          ls
           bash .circleci/helper-scripts/windows-pip-test.sh
 
 
