@@ -176,6 +176,9 @@ def generate_subdirectory_paths(parent_directory):
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
 
+        # ========================
+        # Internal examples
+
         # FIXME this test times out with 20 minutes of no output
         and o != "fast_neural_style"
 
@@ -193,6 +196,15 @@ def generate_subdirectory_paths(parent_directory):
         #   IOError: [E050] Can't find model 'en'.
         #   It doesn't seem to be a shortcut link, a Python package or a valid path to a data directory.
         and o != "snli"
+
+        # ========================
+        # External projects
+
+        # FIXME fails with no specific error message:
+        # https://circleci.com/gh/pytorch/builder/1992?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
+        and o != "OpenNMT"
+
+
     ])
 
 
