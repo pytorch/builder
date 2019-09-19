@@ -41,6 +41,10 @@ binary_common: &binary_common
       description: "Precomputation of whether this Python version is >= 3, for use as a 'when' conditional"
       type: boolean
       default: false
+    run-external-projects:
+      description: "Should external projects be tested in addition to PyTorch examples. Run on a smaller set of envs."
+      type: boolean
+      default: false
   environment:
     PYTHON_VERSION: << parameters.python_version >>
     BUILD_VERSION: << parameters.build_version >>
@@ -73,15 +77,9 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run_pytorch_examples:
+      - run_integration_tests:
           script-wrapper: "packaging/build_wheel.sh"
           is-python3: <<parameters.is-python3>>
-      - store_artifacts:
-          path: dist
-      - persist_to_workspace:
-          root: dist
-          paths:
-            - "*"
 
   binary_linux_conda:
     <<: *binary_common
@@ -90,14 +88,10 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run_pytorch_examples:
+      - run_integration_tests:
           is-python3: <<parameters.is-python3>>
-      - store_artifacts:
-          path: /opt/conda/conda-bld/linux-64
-      - persist_to_workspace:
-          root: /opt/conda/conda-bld/linux-64
-          paths:
-            - "*"
+          run-external-projects: <<parameters.run-external-projects>>
+
 
   binary_linux_conda_cuda:
     <<: *binary_common
@@ -156,9 +150,10 @@ jobs:
           echo Pulling docker image $DOCKER_IMAGE
           docker pull $DOCKER_IMAGE >/dev/null
 
-    - run_pytorch_examples:
+    - run_integration_tests:
         script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
         is-python3: <<parameters.is-python3>>
+        run-external-projects: <<parameters.run-external-projects>>
 
 
   binary_win_conda:
@@ -168,9 +163,10 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
-      - run_pytorch_examples:
+      - run_integration_tests:
           script-wrapper: ".circleci/helper-scripts/wrap-with-windows-conda.ps1"
           is-python3: <<parameters.is-python3>>
+          run-external-projects: <<parameters.run-external-projects>>
 
 
   win_silly_test:
@@ -199,14 +195,9 @@ jobs:
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
 #            packaging/build_wheel.sh
-      - run_pytorch_examples:
+      - run_integration_tests:
           is-python3: <<parameters.is-python3>>
-      - store_artifacts:
-          path: dist
-      - persist_to_workspace:
-          root: dist
-          paths:
-            - "*"
+          run-external-projects: <<parameters.run-external-projects>>
 
   binary_macos_conda:
     <<: *binary_common
@@ -221,14 +212,9 @@ jobs:
             source $HOME/miniconda3/bin/activate
             conda install -yq conda-build
 #            packaging/build_conda.sh
-      - run_pytorch_examples:
+      - run_integration_tests:
           is-python3: <<parameters.is-python3>>
-      - store_artifacts:
-          path: /Users/distiller/miniconda3/conda-bld/osx-64
-      - persist_to_workspace:
-          root: /Users/distiller/miniconda3/conda-bld/osx-64
-          paths:
-            - "*"
+          run-external-projects: <<parameters.run-external-projects>>
 
 workflows:
   build:
@@ -238,9 +224,7 @@ workflows:
           cu_version: cpu
           name: silly windows test
           python_version: '3.6'
-      {{ workflows("pytorch_examples") }}
-  {#      {{ workflows("pytorch_external_projects", prune_python_and_cuda=True) }}
-  #}
+      {{ workflows("pytorch_test") }}
 
   nightly:
     triggers:

@@ -46,38 +46,57 @@ def get_applicable_os_list(btype):
 
 
 PARMNAME_IS_PYTHON_3 = "is-python3"
+PARMNAME_RUN_EXTERNAL_PROJECTS = "run-external-projects"
 
 
 def get_unicode_variants(btype, python_version):
     return [False, True] if btype == "wheel" and python_version == "2.7" else [False]
 
 
-def workflows(category, prefix='', indentation=6, prune_python_and_cuda=False):
+def workflows(category, prefix='', indentation=6):
     w = []
 
     for btype in ["wheel", "conda"]:
         for os_type in get_applicable_os_list(btype):
 
-            python_versions = ALL_PYTHON_VERSIONS[-1:] if prune_python_and_cuda else ALL_PYTHON_VERSIONS
-
             # PyTorch for Python 2.7 builds is not supported on Windows.
-            filtered_python_versions = [p for p in python_versions if not (os_type == "win" and p == "2.7")]
+            python_versions = [p for p in ALL_PYTHON_VERSIONS if not (os_type == "win" and p == "2.7")]
 
-            for python_version in filtered_python_versions:
-
-                cuda_subset = ALL_CUDA_VERSIONS[-1:] if prune_python_and_cuda else ALL_CUDA_VERSIONS
+            for python_version in python_versions:
 
                 # TODO allow Windows to run CUDA
-                cuda_list = cuda_subset if os_type == "linux" else []
+                cuda_list = ALL_CUDA_VERSIONS if os_type == "linux" else []
 
                 for cu_version in (["cpu"] + cuda_list):
                     for unicode in get_unicode_variants(btype, python_version):
-                        w += workflow_pair(category, btype, os_type, python_version, cu_version, unicode, prefix)
+
+                        should_run_external_projects = python_version == ALL_PYTHON_VERSIONS[-1] and \
+                                                       cu_version in ("cpu", ALL_CUDA_VERSIONS[-1])
+
+                        w += workflow_item(
+                            should_run_external_projects,
+                            category,
+                            btype,
+                            os_type,
+                            python_version,
+                            cu_version,
+                            unicode,
+                            prefix,
+                        )
 
     return indent(indentation, w)
 
 
-def workflow_pair(category, btype, os_type, python_version, cu_version, unicode, prefix=''):
+def workflow_item(
+        should_run_external_projects,
+        category,
+        btype,
+        os_type,
+        python_version,
+        cu_version,
+        unicode,
+        prefix='',
+    ):
 
     w = []
     unicode_suffix = "u" if unicode else ""
@@ -93,18 +112,35 @@ def workflow_pair(category, btype, os_type, python_version, cu_version, unicode,
 
     base_workflow_name = "_".join(name_components)
 
-    w.append(generate_base_workflow(base_workflow_name, python_version, cu_version, unicode, os_type, btype))
+    w.append(generate_base_workflow(
+        should_run_external_projects,
+        base_workflow_name,
+        python_version,
+        cu_version,
+        unicode,
+        os_type,
+        btype,
+    ))
 
     return w
 
 
-def generate_base_workflow(base_workflow_name, python_version, cu_version, unicode, os_type, btype):
+def generate_base_workflow(
+        should_run_external_projects,
+        base_workflow_name,
+        python_version,
+        cu_version,
+        unicode,
+        os_type,
+        btype,
+    ):
 
     d = {
         "name": base_workflow_name,
         "python_version": python_version,
         "cu_version": cu_version,
         PARMNAME_IS_PYTHON_3: parse(python_version) >= Version("3"),
+        PARMNAME_RUN_EXTERNAL_PROJECTS: should_run_external_projects,
     }
 
     if unicode:
@@ -149,7 +185,7 @@ def generate_subdirectory_paths(parent_directory):
         #   File "main.py", line 57, in <module>
         #     mp.set_start_method('spawn')
         #  AttributeError: 'module' object has no attribute 'set_start_method'
-#        and o != "mnist_hogwild"
+        and o != "mnist_hogwild"
 
         # FIXME
         #   IOError: [E050] Can't find model 'en'.
@@ -158,11 +194,11 @@ def generate_subdirectory_paths(parent_directory):
     ])
 
 
-def wrap_conditional_step(parameter_name, original_step_dict):
+def wrap_conditional_steps(parameter_name, original_step_dicts):
     return {
         "when": {
             "condition": "<< parameters.%s >>" % parameter_name,
-            "steps": [original_step_dict],
+            "steps": original_step_dicts,
         }
     }
 
@@ -192,21 +228,31 @@ def render_step(test_name_prefix, testdir):
     if testname == "mnist_hogwild":
         conditional_parm = PARMNAME_IS_PYTHON_3
 
-    wrapped_step = wrap_conditional_step(conditional_parm, raw_step) if conditional_parm else raw_step
+    wrapped_step = wrap_conditional_steps(conditional_parm, [raw_step]) if conditional_parm else raw_step
 
     return wrapped_step
 
 
-def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
+def gen_command_steps_for_subdir():
 
-    example_subdirs = generate_subdirectory_paths(subdir_path)
+    example_subdirs = generate_subdirectory_paths("test_community_repos/examples")
+
+    external_project_subdirs = generate_subdirectory_paths("test_community_repos/external_projects")
 
     steps_list = []
     for testdir in example_subdirs:
-        steps_list.append(render_step(test_name_prefix, testdir))
+        steps_list.append(render_step("Example test", testdir))
+
+    external_projects_steps = []
+
+    for testdir in external_project_subdirs:
+        external_projects_steps.append(render_step("External project", testdir))
+
+    steps_list.append(wrap_conditional_steps(PARMNAME_RUN_EXTERNAL_PROJECTS, external_projects_steps))
+
 
     return {
-        "description": description,
+        "description": "PyTorch examples",
         "steps": steps_list,
         "parameters": {
             "script-wrapper": {
@@ -219,22 +265,18 @@ def gen_command_steps_for_subdir(subdir_path, description, test_name_prefix):
                 "default": False,
                 "description": "Whether this is Python 3",
             },
+            PARMNAME_RUN_EXTERNAL_PROJECTS: {
+                "type": "boolean",
+                "default": False,
+                "description": "Should external projects be run?",
+            },
         }
     }
 
 
 def gen_commands():
-
     commands_dict = {
-        "run_pytorch_examples": gen_command_steps_for_subdir(
-            "test_community_repos/examples",
-            "PyTorch examples",
-            "Example test"),
-
-        "run_external_projects": gen_command_steps_for_subdir(
-            "test_community_repos/external_projects",
-            "External projects",
-            "External project"),
+        "run_integration_tests": gen_command_steps_for_subdir(),
     }
 
     return indent(2, commands_dict)
