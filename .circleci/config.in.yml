@@ -89,6 +89,7 @@ jobs:
     steps:
       - checkout
       - run_integration_tests:
+          script-wrapper: "packaging/build_conda.sh"
           is-python3: <<parameters.is-python3>>
           run-external-projects: <<parameters.run-external-projects>>
 
