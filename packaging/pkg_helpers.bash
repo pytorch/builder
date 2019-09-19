@@ -113,6 +113,12 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
+activate_proper_conda_python_version() {
+    conda env remove -n "env$PYTHON_VERSION" || true
+    conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
+    conda activate "env$PYTHON_VERSION"
+}
+
 # Inputs:
 #   PYTHON_VERSION (2.7, 3.5, 3.6, 3.7)
 #   UNICODE_ABI (bool)
@@ -124,9 +130,9 @@ retry () {
 setup_wheel_python() {
   if [[ "$(uname)" == Darwin ]]; then
     eval "$(conda shell.bash hook)"
-    conda env remove -n "env$PYTHON_VERSION" || true
-    conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
-    conda activate "env$PYTHON_VERSION"
+
+    activate_proper_conda_python_version
+
   else
     case "$PYTHON_VERSION" in
       2.7)

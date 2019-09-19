@@ -13,4 +13,6 @@ setup_conda_pytorch_constraint
 setup_conda_cudatoolkit_constraint
 #conda build $CONDA_CHANNEL_FLAGS -c defaults -c conda-forge --no-anaconda-upload --python "$PYTHON_VERSION" packaging/torchvision
 
+activate_proper_conda_python_version
+
 $COMMAND_TO_WRAP
