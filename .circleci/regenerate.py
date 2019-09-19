@@ -5,7 +5,8 @@ This script should use a very simple, functional programming style.
 Avoid Jinja macros in favor of native Python functions.
 
 Don't go overboard on code generation; use Python only to generate
-content that can't be easily declared statically using CircleCI's YAML API.
+content that can't be easily declared statically using CircleCI's YAML API;
+i.e. make use of CircleCI mechanisms for parameterization and conditional execution.
 
 Data declarations (e.g. the nested loops for defining the configuration matrix)
 should be at the top of the file for easy updating.
@@ -59,7 +60,7 @@ def workflows(category, prefix='', indentation=6):
     for btype in ["wheel", "conda"]:
         for os_type in get_applicable_os_list(btype):
 
-            # PyTorch for Python 2.7 builds is not supported on Windows.
+            # PyTorch for Python 2.7 builds are not supported on Windows.
             python_versions = [p for p in ALL_PYTHON_VERSIONS if not (os_type == "win" and p == "2.7")]
 
             for python_version in python_versions:
@@ -97,7 +98,6 @@ def workflow_item(
         unicode,
         prefix=''):
 
-    w = []
     unicode_suffix = "u" if unicode else ""
     python_descriptor = f"py{python_version}{unicode_suffix}"
 
@@ -111,7 +111,7 @@ def workflow_item(
 
     base_workflow_name = "_".join(name_components)
 
-    w.append(generate_base_workflow(
+    w = generate_base_workflow(
         should_run_external_projects,
         base_workflow_name,
         python_version,
@@ -119,9 +119,9 @@ def workflow_item(
         unicode,
         os_type,
         btype,
-    ))
+    )
 
-    return w
+    return [w]
 
 
 def generate_base_workflow(
@@ -137,9 +137,13 @@ def generate_base_workflow(
         "name": base_workflow_name,
         "python_version": python_version,
         "cu_version": cu_version,
-        PARMNAME_IS_PYTHON_3: parse(python_version) >= Version("3"),
-        PARMNAME_RUN_EXTERNAL_PROJECTS: should_run_external_projects,
     }
+
+    if parse(python_version) >= Version("3"):
+        d[PARMNAME_IS_PYTHON_3] = True
+
+    if should_run_external_projects:
+        d[PARMNAME_RUN_EXTERNAL_PROJECTS] = True
 
     if unicode:
         d["unicode_abi"] = '1'
@@ -216,7 +220,7 @@ def render_step(test_name_prefix, testdir):
         "run": {
             "name": test_name_prefix + ": " + testname,
             "command": " ".join(wrapper_args),
-            "no_output_timeout": 1200,
+            "no_output_timeout": 600,
         }
     }
 
@@ -237,14 +241,15 @@ def gen_command_steps_for_subdir():
 
     external_project_subdirs = generate_subdirectory_paths("test_community_repos/external_projects")
 
-    steps_list = []
-    for testdir in example_subdirs:
-        steps_list.append(render_step("Example test", testdir))
-
     external_projects_steps = []
-
     for testdir in external_project_subdirs:
         external_projects_steps.append(render_step("External project", testdir))
+
+    steps_list = []
+
+    if False:  # TODO restore this!
+        for testdir in example_subdirs:
+            steps_list.append(render_step("Example test", testdir))
 
     steps_list.append(wrap_conditional_steps(PARMNAME_RUN_EXTERNAL_PROJECTS, external_projects_steps))
 
@@ -267,7 +272,7 @@ def gen_command_steps_for_subdir():
                 "default": False,
                 "description": "Should external projects be run?",
             },
-        }
+        },
     }
 
 
