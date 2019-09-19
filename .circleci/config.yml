@@ -74,20 +74,12 @@ commands:
         condition: << parameters.run-external-projects >>
         steps:
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/advertorch/run.sh
-            name: 'External project: advertorch'
-            no_output_timeout: 600
-        - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/allennlp/run.sh
             name: 'External project: allennlp'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/block/run.sh
             name: 'External project: block'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/botorch/run.sh
-            name: 'External project: botorch'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/cyclegan/run.sh
@@ -98,48 +90,8 @@ commands:
             name: 'External project: fairseq'
             no_output_timeout: 600
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/flair/run.sh
-            name: 'External project: flair'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/geometric/run.sh
-            name: 'External project: geometric'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/gpytorch/run.sh
-            name: 'External project: gpytorch'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/ignite/run.sh
-            name: 'External project: ignite'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/lightning/run.sh
-            name: 'External project: lightning'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/parlai/run.sh
-            name: 'External project: parlai'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pennylane/run.sh
-            name: 'External project: pennylane'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pix2pixHD/run.sh
-            name: 'External project: pix2pixHD'
-            no_output_timeout: 600
-        - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/pyro/run.sh
             name: 'External project: pyro'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh
-            name: 'External project: pysyft'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/skorch/run.sh
-            name: 'External project: skorch'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/tensorly/run.sh
