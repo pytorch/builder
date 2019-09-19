@@ -175,7 +175,7 @@ def generate_subdirectory_paths(parent_directory):
         os.path.normpath(os.path.join(parent_directory, o))
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
-        
+
         and os.path.exists(os.path.join(parent_directory, o, "run.sh"))
 
         # ========================
