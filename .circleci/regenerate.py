@@ -71,7 +71,7 @@ def workflows(category, prefix='', indentation=6):
                     for unicode in get_unicode_variants(btype, python_version):
 
                         should_run_external_projects = python_version == ALL_PYTHON_VERSIONS[-1] and \
-                                                       cu_version in ("cpu", ALL_CUDA_VERSIONS[-1])
+                            cu_version in ("cpu", ALL_CUDA_VERSIONS[-1])
 
                         w += workflow_item(
                             should_run_external_projects,
@@ -95,8 +95,7 @@ def workflow_item(
         python_version,
         cu_version,
         unicode,
-        prefix='',
-    ):
+        prefix=''):
 
     w = []
     unicode_suffix = "u" if unicode else ""
@@ -132,8 +131,7 @@ def generate_base_workflow(
         cu_version,
         unicode,
         os_type,
-        btype,
-    ):
+        btype):
 
     d = {
         "name": base_workflow_name,
@@ -249,7 +247,6 @@ def gen_command_steps_for_subdir():
         external_projects_steps.append(render_step("External project", testdir))
 
     steps_list.append(wrap_conditional_steps(PARMNAME_RUN_EXTERNAL_PROJECTS, external_projects_steps))
-
 
     return {
         "description": "PyTorch examples",
