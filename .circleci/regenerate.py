@@ -211,6 +211,11 @@ def generate_subdirectory_paths(parent_directory):
 
         # FIXME Too long with no output (exceeded 10m0s)
         and o != "cyclegan"
+
+        # FIXME
+        #  E   ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by
+        #  /opt/conda/envs/env3.7/lib/python3.7/site-packages/torch_scatter/scatter_cpu.cpython-37m-x86_64-linux-gnu.so)
+        and o != "geometric"
     ])
 
 

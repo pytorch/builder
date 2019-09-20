@@ -215,6 +215,12 @@ jobs:
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
             conda install -yq conda-build
+
+            # Fixes "OSError: [Errno 13] Permission denied: '/usr/local/man'"
+            # see https://github.com/tqdm/tqdm/issues/460#issuecomment-365787522
+            sudo mkdir -p /usr/local/man
+            sudo chown -R "$USER:admin" /usr/local/man
+
 #            packaging/build_conda.sh
       - run_integration_tests:
           is-python3: <<parameters.is-python3>>
