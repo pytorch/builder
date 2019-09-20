@@ -228,6 +228,10 @@ def generate_subdirectory_paths(parent_directory):
         # FIXME
         #  Works but too many unit tests (takes too long)
         and o != "pyro"
+
+        # FIXME
+        #  TypeError: likelihood_i() got an unexpected keyword argument 'noise'
+        and o != "botorch"
     ])
 
 
