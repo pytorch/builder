@@ -2,6 +2,7 @@
 
 yes | pip install block
 yes | pip install nose
+yes | pip install scipy
 
 TMPDIR=$RANDOM
 mkdir /tmp/$TMPDIR
