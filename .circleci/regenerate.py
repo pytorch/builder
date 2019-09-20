@@ -209,7 +209,8 @@ def generate_subdirectory_paths(parent_directory):
         # FIXME fails with flaky tests:
         and o != "allennlp"
 
-#        and o != "cyclegan"
+        # FIXME Too long with no output (exceeded 10m0s)
+        and o != "cyclegan"
     ])
 
 

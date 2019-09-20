@@ -78,10 +78,6 @@ commands:
             name: 'External project: block'
             no_output_timeout: 600
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/cyclegan/run.sh
-            name: 'External project: cyclegan'
-            no_output_timeout: 600
-        - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
             name: 'External project: fairseq'
             no_output_timeout: 600
