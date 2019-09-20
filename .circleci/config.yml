@@ -118,7 +118,7 @@ jobs:
       - run:
           name: Install missing dependencies
           command: |
-            sudo apt install unzip
+            apt-get -qq -y install unzip
             # TODO: don't need "test_community_repos/examples/fast_neural_style/unzip.py" anymore
       - run_integration_tests:
           script-wrapper: "packaging/build_wheel.sh"
@@ -134,7 +134,7 @@ jobs:
       - run:
           name: Install missing dependencies
           command: |
-            sudo apt install unzip
+            apt-get -qq -y install unzip
             # TODO: don't need "test_community_repos/examples/fast_neural_style/unzip.py" anymore
       - run:
           name: Initialize Conda environment with proper Python version
@@ -156,7 +156,7 @@ jobs:
     - run:
         name: Install missing dependencies
         command: |
-          sudo apt install unzip
+          apt-get -qq -y install unzip
           # TODO: don't need "test_community_repos/examples/fast_neural_style/unzip.py" anymore
     - run:
         name: Setup environment
