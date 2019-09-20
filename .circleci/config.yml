@@ -131,11 +131,10 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Activate Conda environment with proper Python version
+          name: Initialize Conda environment with proper Python version
           command: |
             conda env remove -n "env$PYTHON_VERSION" || true
             conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
-            conda init bash
       - run_integration_tests:
           script-wrapper: "packaging/build_conda.sh"
           is-python3: <<parameters.is-python3>>
