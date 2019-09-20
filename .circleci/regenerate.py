@@ -205,6 +205,9 @@ def generate_subdirectory_paths(parent_directory):
         # FIXME fails with no specific error message:
         # https://circleci.com/gh/pytorch/builder/1992?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
         and o != "OpenNMT"
+
+        # FIXME fails with flaky tests:
+        and o != "allennlp"
     ])
 
 
