@@ -209,8 +209,7 @@ def generate_subdirectory_paths(parent_directory):
         # FIXME fails with flaky tests:
         and o != "allennlp"
 
-        # FIXME re-enable when the docker image contains 'unzip':
-        and o != "cyclegan"
+#        and o != "cyclegan"
     ])
 
 
