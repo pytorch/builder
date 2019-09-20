@@ -85,6 +85,13 @@ commands:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/pyro/run.sh
             name: 'External project: pyro'
             no_output_timeout: 600
+        - when:
+            condition: << parameters.is-python3 >>
+            steps:
+            - run:
+                command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh
+                name: 'External project: pysyft'
+                no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/tensorly/run.sh
             name: 'External project: tensorly'
