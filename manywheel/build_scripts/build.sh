@@ -33,8 +33,6 @@ source $MY_DIR/build_utils.sh
 yum -y install bzip2 make git patch unzip bison yasm diffutils \
     automake which file cmake28 \
     kernel-devel-`uname -r` \
-    devtoolset-3-binutils devtoolset-3-gcc \
-    devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran \
     ${PYTHON_COMPILE_DEPS}
 
 # Install newest autoconf

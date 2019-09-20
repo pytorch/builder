@@ -4,7 +4,7 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-RUN yum install -y wget curl perl cmake util-linux xz bzip2 git patch which
+RUN yum install -y wget curl perl cmake util-linux xz bzip2 git patch which unzip
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
@@ -19,7 +19,7 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 
 # Install CUDA
 ADD ./common/install_cuda.sh install_cuda.sh
-RUN bash ./install_cuda.sh && rm install_cuda.sh
+RUN bash ./install_cuda.sh 9.2 10.0 10.1 && rm install_cuda.sh
 
 # Install Anaconda
 ENV PATH /opt/conda/bin:$PATH

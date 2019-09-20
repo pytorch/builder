@@ -9,7 +9,8 @@
 ## build base docker image
 
 ```
-nvidia-docker build -t soumith/conda-cuda -f Dockerfile .
+cd ..
+nvidia-docker build -t soumith/conda-cuda -f conda/Dockerfile .
 docker push soumith/conda-cuda
 ```
 
