@@ -115,11 +115,6 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run:
-          name: Install missing dependencies
-          command: |
-            apt-get -qq -y install unzip
-            # TODO: don't need "test_community_repos/examples/fast_neural_style/unzip.py" anymore
       - run_integration_tests:
           script-wrapper: "packaging/build_wheel.sh"
           is-python3: <<parameters.is-python3>>
@@ -131,11 +126,6 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run:
-          name: Install missing dependencies
-          command: |
-            apt-get -qq -y install unzip
-            # TODO: don't need "test_community_repos/examples/fast_neural_style/unzip.py" anymore
       - run:
           name: Initialize Conda environment with proper Python version
           command: |
@@ -153,11 +143,6 @@ jobs:
     resource_class: gpu.medium
     steps:
     - checkout
-    - run:
-        name: Install missing dependencies
-        command: |
-          apt-get -qq -y install unzip
-          # TODO: don't need "test_community_repos/examples/fast_neural_style/unzip.py" anymore
     - run:
         name: Setup environment
         command: |
