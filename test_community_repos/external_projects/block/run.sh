@@ -1,8 +1,7 @@
 #!/bin/bash -xe
 
-yes | pip install block
-yes | pip install nose
-yes | pip install scipy
+yes | pip install block nose scipy torch
+
 
 TMPDIR=$RANDOM
 mkdir /tmp/$TMPDIR
