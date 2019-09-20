@@ -1,5 +1,4 @@
-#!/bin/bash
-set -ex
+#!/bin/bash -xe
 
 COMMAND_TO_WRAP=$1
 
