@@ -245,7 +245,7 @@ def render_step(test_name_prefix, testdir):
     conditional_parm = None
 
     # Don't run these tests with Python 2.7
-    if testname in ["mnist_hogwild", "pysyft"]:
+    if testname in ["mnist_hogwild"]:
         conditional_parm = PARMNAME_IS_PYTHON_3
 
     wrapped_step = wrap_conditional_steps(conditional_parm, [raw_step]) if conditional_parm else raw_step
