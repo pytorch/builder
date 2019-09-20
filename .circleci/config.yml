@@ -74,8 +74,8 @@ commands:
         condition: << parameters.run-external-projects >>
         steps:
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/block/run.sh
-            name: 'External project: block'
+            command: << parameters.script-wrapper >> test_community_repos/external_projects/botorch/run.sh
+            name: 'External project: botorch'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
@@ -86,8 +86,16 @@ commands:
             name: 'External project: fastai'
             no_output_timeout: 600
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pyro/run.sh
-            name: 'External project: pyro'
+            command: << parameters.script-wrapper >> test_community_repos/external_projects/gpytorch/run.sh
+            name: 'External project: gpytorch'
+            no_output_timeout: 600
+        - run:
+            command: << parameters.script-wrapper >> test_community_repos/external_projects/ignite/run.sh
+            name: 'External project: ignite'
+            no_output_timeout: 600
+        - run:
+            command: << parameters.script-wrapper >> test_community_repos/external_projects/parlai/run.sh
+            name: 'External project: parlai'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh

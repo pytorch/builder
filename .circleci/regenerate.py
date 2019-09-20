@@ -216,6 +216,18 @@ def generate_subdirectory_paths(parent_directory):
         #  E   ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by
         #  /opt/conda/envs/env3.7/lib/python3.7/site-packages/torch_scatter/scatter_cpu.cpython-37m-x86_64-linux-gnu.so)
         and o != "geometric"
+
+
+        # FIXME (on pytorch_test_linux_conda_py3.7_cu100)
+        #    File "/tmp/20188/block/block.py", line 100
+        #     if (i==j):   tup = (*tup, main[i])
+        #                         ^
+        #   SyntaxError: invalid syntax
+        and o != "block"
+
+        # FIXME
+        #  Works but too many unit tests (takes too long)
+        and o != "pyro"
     ])
 
 

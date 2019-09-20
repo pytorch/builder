@@ -13,8 +13,8 @@ tools/run-after-git-clone
 pip install -e ".[dev]"
 
 
-# ???
-# pytest tests
+
+pytest tests
 
 
 popd
