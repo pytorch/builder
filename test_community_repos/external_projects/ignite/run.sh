@@ -1,11 +1,13 @@
 #!/bin/bash -xe
 
+yes | pip install pytest
+
 
 BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
 
-git clone git@github.com:pytorch/ignite.git
+git clone https://github.com/pytorch/ignite.git
 pushd ignite
 
 
