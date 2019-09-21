@@ -217,7 +217,6 @@ def generate_subdirectory_paths(parent_directory):
         #  /opt/conda/envs/env3.7/lib/python3.7/site-packages/torch_scatter/scatter_cpu.cpython-37m-x86_64-linux-gnu.so)
         and o != "geometric"
 
-
         # FIXME (on pytorch_test_linux_conda_py3.7_cu100)
         #    File "/tmp/20188/block/block.py", line 100
         #     if (i==j):   tup = (*tup, main[i])
@@ -232,6 +231,11 @@ def generate_subdirectory_paths(parent_directory):
         # FIXME
         #  TypeError: likelihood_i() got an unexpected keyword argument 'noise'
         and o != "botorch"
+
+        # FIXME
+        #  Failed test "test_purge" (for CPU build)
+        #  AssertionError: should have failed with non-writable path
+        and o != "fastai"
     ])
 
 

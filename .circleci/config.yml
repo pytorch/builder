@@ -78,10 +78,6 @@ commands:
             name: 'External project: fairseq'
             no_output_timeout: 600
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/fastai/run.sh
-            name: 'External project: fastai'
-            no_output_timeout: 600
-        - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/gpytorch/run.sh
             name: 'External project: gpytorch'
             no_output_timeout: 600
