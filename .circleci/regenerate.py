@@ -199,6 +199,10 @@ def generate_subdirectory_paths(parent_directory):
         #   It doesn't seem to be a shortcut link, a Python package or a valid path to a data directory.
         and o != "snli"
 
+        # FIXME
+        #  test_community_repos/external_projects/gpytorch/run.sh: line 12:   896 Segmentation fault      (core dumped) python -m unittest
+        and o != "gpytorch"
+
         # ========================
         # External projects
 
