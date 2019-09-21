@@ -1,10 +1,12 @@
 #!/bin/bash -xe
 
 COMMAND_TO_WRAP=$1
+CONDA_ACTIVATION_WRAPPER_SCRIPT=.circleci/helper-scripts/wrap-with-conda-activation.sh
 
-conda env remove -n "env$PYTHON_VERSION" || true
-conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
+cd ${HOME}/project
 
-source activate "env$PYTHON_VERSION"
+export DOCKER_IMAGE=soumith/conda-cuda
+export VARS_TO_PASS="-e PYTHON_VERSION -e BUILD_VERSION -e PYTORCH_VERSION -e UNICODE_ABI -e CU_VERSION"
 
-$COMMAND_TO_WRAP
+docker run --gpus all --ipc=host -v $(pwd):/remote -w /remote ${VARS_TO_PASS} ${DOCKER_IMAGE} $CONDA_ACTIVATION_WRAPPER_SCRIPT $COMMAND_TO_WRAP
+
