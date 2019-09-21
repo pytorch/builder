@@ -74,10 +74,6 @@ commands:
         condition: << parameters.run-external-projects >>
         steps:
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/botorch/run.sh
-            name: 'External project: botorch'
-            no_output_timeout: 600
-        - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
             name: 'External project: fairseq'
             no_output_timeout: 600
