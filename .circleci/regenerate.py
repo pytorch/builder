@@ -165,6 +165,72 @@ def generate_base_workflow(
     return {job_name: d}
 
 
+BLACKLISTED_TEST_DIRS = set([
+    # Internal examples
+
+    # FIXME this test times out with 20 minutes of no output
+    "fast_neural_style",
+
+    # FIXME current error: "IMAGENET_ROOT not set"
+    #  Need to somehow pre-load 200GB data onto CI
+    "imagenet",
+
+    # FIXME
+    #   File "main.py", line 57, in <module>
+    #     mp.set_start_method('spawn')
+    #  AttributeError: 'module' object has no attribute 'set_start_method'
+    "mnist_hogwild",
+
+    # FIXME
+    #   IOError: [E050] Can't find model 'en'.
+    #   It doesn't seem to be a shortcut link, a Python package or a valid path to a data directory.
+    "snli",
+
+    # FIXME
+    #  test_community_repos/external_projects/gpytorch/run.sh: line 12:   896 Segmentation fault
+    #  (core dumped) python -m unittest
+    "gpytorch",
+
+    # ========================
+    # External projects
+
+    # FIXME fails with no specific error message:
+    # https://circleci.com/gh/pytorch/builder/1992?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
+    "OpenNMT",
+
+    # FIXME fails with flaky tests:
+    "allennlp",
+
+    # FIXME Too long with no output (exceeded 10m0s)
+    "cyclegan",
+
+    # FIXME
+    #  E   ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by
+    #  /opt/conda/envs/env3.7/lib/python3.7/site-packages/torch_scatter/scatter_cpu.cpython-37m-x86_64-linux-gnu.so)
+    "geometric",
+
+    # FIXME (on pytorch_test_linux_conda_py3.7_cu100)
+    #    File "/tmp/20188/block/block.py", line 100
+    #     if (i==j):   tup = (*tup, main[i])
+    #                         ^
+    #   SyntaxError: invalid syntax
+    "block",
+
+    # FIXME
+    #  Works but too many unit tests (takes too long)
+     "pyro",
+
+    # FIXME
+    #  TypeError: likelihood_i() got an unexpected keyword argument 'noise'
+    "botorch",
+
+    # FIXME
+    #  Failed test "test_purge" (for CPU build)
+    #  AssertionError: should have failed with non-writable path
+    "fastai",
+])
+
+
 def generate_subdirectory_paths(parent_directory):
     """
     Generate the tests, one for each repo
@@ -175,72 +241,8 @@ def generate_subdirectory_paths(parent_directory):
         os.path.normpath(os.path.join(parent_directory, o))
         for o in os.listdir(parent_directory)
         if os.path.isdir(os.path.join(parent_directory, o))
-
         and os.path.exists(os.path.join(parent_directory, o, "run.sh"))
-
-        # ========================
-        # Internal examples
-
-        # FIXME this test times out with 20 minutes of no output
-        and o != "fast_neural_style"
-
-        # FIXME current error: "IMAGENET_ROOT not set"
-        #  Need to somehow pre-load 200GB data onto CI
-        and o != "imagenet"
-
-        # FIXME
-        #   File "main.py", line 57, in <module>
-        #     mp.set_start_method('spawn')
-        #  AttributeError: 'module' object has no attribute 'set_start_method'
-        and o != "mnist_hogwild"
-
-        # FIXME
-        #   IOError: [E050] Can't find model 'en'.
-        #   It doesn't seem to be a shortcut link, a Python package or a valid path to a data directory.
-        and o != "snli"
-
-        # FIXME
-        #  test_community_repos/external_projects/gpytorch/run.sh: line 12:   896 Segmentation fault
-        #  (core dumped) python -m unittest
-        and o != "gpytorch"
-
-        # ========================
-        # External projects
-
-        # FIXME fails with no specific error message:
-        # https://circleci.com/gh/pytorch/builder/1992?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
-        and o != "OpenNMT"
-
-        # FIXME fails with flaky tests:
-        and o != "allennlp"
-
-        # FIXME Too long with no output (exceeded 10m0s)
-        and o != "cyclegan"
-
-        # FIXME
-        #  E   ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.20' not found (required by
-        #  /opt/conda/envs/env3.7/lib/python3.7/site-packages/torch_scatter/scatter_cpu.cpython-37m-x86_64-linux-gnu.so)
-        and o != "geometric"
-
-        # FIXME (on pytorch_test_linux_conda_py3.7_cu100)
-        #    File "/tmp/20188/block/block.py", line 100
-        #     if (i==j):   tup = (*tup, main[i])
-        #                         ^
-        #   SyntaxError: invalid syntax
-        and o != "block"
-
-        # FIXME
-        #  Works but too many unit tests (takes too long)
-        and o != "pyro"
-
-        # FIXME
-        #  TypeError: likelihood_i() got an unexpected keyword argument 'noise'
-        and o != "botorch"
-
-        # FIXME
-        #  Failed test "test_purge" (for CPU build)
-        #  AssertionError: should have failed with non-writable path
-        and o != "fastai"
+        and o not in BLACKLISTED_TEST_DIRS
     ])
 
 
