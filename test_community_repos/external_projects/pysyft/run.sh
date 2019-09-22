@@ -5,7 +5,7 @@ BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
 
-git clone git@github.com:OpenMined/PySyft.git
+git clone https://github.com/OpenMined/PySyft.git
 pushd PySyft
 
 pytest test/torch

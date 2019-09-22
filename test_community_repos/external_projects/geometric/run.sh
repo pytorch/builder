@@ -11,7 +11,7 @@ BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
 
-git clone git@github.com:rusty1s/pytorch_geometric.git
+git clone https://github.com/rusty1s/pytorch_geometric.git
 pushd pytorch_geometric
 
 

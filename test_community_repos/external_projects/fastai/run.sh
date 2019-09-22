@@ -5,7 +5,7 @@ BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
 
-git clone git@github.com:fastai/fastai.git
+git clone https://github.com/fastai/fastai.git
 pushd fastai
 
 # See https://github.com/fastai/fastai#developer-install

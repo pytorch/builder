@@ -1,11 +1,13 @@
 #!/bin/bash -xe
 
+yes | pip install torchtext
+
 
 BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
 
-git clone git@github.com:facebookresearch/ParlAI.git
+git clone https://github.com/facebookresearch/ParlAI.git
 pushd ParlAI
 
 

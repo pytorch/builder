@@ -5,7 +5,7 @@ BASEDIR=$(dirname $0)
 pushd $BASEDIR
 
 
-git clone git@github.com:cornellius-gp/gpytorch.git
+git clone https://github.com/cornellius-gp/gpytorch.git
 pushd gpytorch
 
 
