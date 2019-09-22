@@ -1,5 +1,7 @@
 #!/bin/bash -xe
 
+yes | pip install pytest tblib
+
 
 BASEDIR=$(dirname $0)
 pushd $BASEDIR
