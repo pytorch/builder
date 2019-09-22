@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-yes | pip install pytest tblib
+yes | pip install pytest tblib websockets torch
 
 
 BASEDIR=$(dirname $0)
