@@ -218,7 +218,7 @@ BLACKLISTED_TEST_DIRS = set([
 
     # FIXME
     #  Works but too many unit tests (takes too long)
-     "pyro",
+    "pyro",
 
     # FIXME
     #  TypeError: likelihood_i() got an unexpected keyword argument 'noise'
