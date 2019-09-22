@@ -200,7 +200,8 @@ def generate_subdirectory_paths(parent_directory):
         and o != "snli"
 
         # FIXME
-        #  test_community_repos/external_projects/gpytorch/run.sh: line 12:   896 Segmentation fault      (core dumped) python -m unittest
+        #  test_community_repos/external_projects/gpytorch/run.sh: line 12:   896 Segmentation fault
+        #  (core dumped) python -m unittest
         and o != "gpytorch"
 
         # ========================

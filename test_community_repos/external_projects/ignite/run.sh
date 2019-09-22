@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-yes | pip install pytest
+yes | pip install pytest sklearn mock
 
 
 BASEDIR=$(dirname $0)
