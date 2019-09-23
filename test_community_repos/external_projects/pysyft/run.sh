@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-yes | pip install pytest tblib websocket websockets lz4 msgpack torch
+yes | pip install pytest tblib websocket websockets lz4 msgpack zstd scipy torch
 
 
 BASEDIR=$(dirname $0)

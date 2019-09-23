@@ -93,6 +93,7 @@ jobs:
           command: |
             conda env remove -n "env$PYTHON_VERSION" || true
             conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
+
       - run_integration_tests:
           script-wrapper: "packaging/build_conda.sh"
           is-python3: <<parameters.is-python3>>
@@ -220,6 +221,8 @@ jobs:
             # see https://github.com/tqdm/tqdm/issues/460#issuecomment-365787522
             sudo mkdir -p /usr/local/man
             sudo chown -R "$USER:admin" /usr/local/man
+
+            brew install wget
 
 #            packaging/build_conda.sh
       - run_integration_tests:
