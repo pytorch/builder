@@ -12,6 +12,16 @@ setup_conda_pytorch_constraint
 setup_conda_cudatoolkit_constraint
 #conda build $CONDA_CHANNEL_FLAGS -c defaults -c conda-forge --no-anaconda-upload --python "$PYTHON_VERSION" packaging/torchvision
 
+
+echo "Printing python version BEFORE Conda activation"
+python --version
+
+echo "About to run: source activate env$PYTHON_VERSION"
 source activate "env$PYTHON_VERSION"
+
+
+echo "Printing python version AFTER Conda activation"
+python --version
+
 
 $COMMAND_TO_WRAP
