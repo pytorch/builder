@@ -305,10 +305,8 @@ def gen_command_steps_for_subdir():
         external_projects_steps.append(render_step("External project", testdir))
 
     steps_list = []
-
-    if False:  # TODO restore this!
-        for testdir in example_subdirs:
-            steps_list.append(render_step("Example test", testdir))
+    for testdir in example_subdirs:
+        steps_list.append(render_step("Example test", testdir))
 
     steps_list.append(wrap_conditional_steps(PARMNAME_RUN_EXTERNAL_PROJECTS, external_projects_steps))
 

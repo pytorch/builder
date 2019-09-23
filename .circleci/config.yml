@@ -70,6 +70,38 @@ commands:
         description: A command to which the script will be passed as an argument
         type: string
     steps:
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/dcgan/run.sh
+        name: 'Example test: dcgan'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/mnist/run.sh
+        name: 'Example test: mnist'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/regression/run.sh
+        name: 'Example test: regression'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/reinforcement_learning/run.sh
+        name: 'Example test: reinforcement_learning'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/super_resolution/run.sh
+        name: 'Example test: super_resolution'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/time_sequence_prediction/run.sh
+        name: 'Example test: time_sequence_prediction'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/vae/run.sh
+        name: 'Example test: vae'
+        no_output_timeout: 600
+    - run:
+        command: << parameters.script-wrapper >> test_community_repos/examples/word_language_model/run.sh
+        name: 'Example test: word_language_model'
+        no_output_timeout: 600
     - when:
         condition: << parameters.run-external-projects >>
         steps:
@@ -230,7 +262,7 @@ jobs:
             sh conda.sh -b
 
             brew install wget
-#            packaging/build_wheel.sh
+
       - run_integration_tests:
           script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"
           is-python3: <<parameters.is-python3>>
@@ -256,7 +288,6 @@ jobs:
 
             brew install wget
 
-#            packaging/build_conda.sh
       - run_integration_tests:
           script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"
           is-python3: <<parameters.is-python3>>
