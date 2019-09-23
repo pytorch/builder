@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os.path
 import unittest
 import subprocess
 import sys
