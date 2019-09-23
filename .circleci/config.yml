@@ -74,20 +74,12 @@ commands:
         condition: << parameters.run-external-projects >>
         steps:
         - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
-            name: 'External project: fairseq'
-            no_output_timeout: 600
-        - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/ignite/run.sh
             name: 'External project: ignite'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/parlai/run.sh
             name: 'External project: parlai'
-            no_output_timeout: 600
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh
-            name: 'External project: pysyft'
             no_output_timeout: 600
         - run:
             command: << parameters.script-wrapper >> test_community_repos/external_projects/tensorly/run.sh
@@ -236,6 +228,8 @@ jobs:
           command: |
             curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
             sh conda.sh -b
+
+            brew install wget
 #            packaging/build_wheel.sh
       - run_integration_tests:
           script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"

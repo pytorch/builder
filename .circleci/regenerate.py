@@ -165,7 +165,7 @@ def generate_base_workflow(
     return {job_name: d}
 
 
-BLACKLISTED_TEST_DIRS = set([
+BLACKLISTED_TEST_DIRS = {
     # Internal examples
 
     # FIXME this test times out with 20 minutes of no output
@@ -228,7 +228,16 @@ BLACKLISTED_TEST_DIRS = set([
     #  Failed test "test_purge" (for CPU build)
     #  AssertionError: should have failed with non-writable path
     "fastai",
-])
+
+    # FIXME
+    # OSError: [Errno 99] error while attempting to bind on address ('::1', 8555, 0, 0): cannot assign requested address
+    "pysyft",
+
+    # FIXME
+    # Ok on Linux, but has failure on macos (pytorch_test_macos_conda_py3.7_cpu):
+    #   Too long with no output (exceeded 10m0s)
+    "fairseq",
+}
 
 
 def generate_subdirectory_paths(parent_directory):
