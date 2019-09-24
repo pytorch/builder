@@ -4,6 +4,8 @@ set TH_BINARY_BUILD=1
 set PYTORCH_BUILD_VERSION=%PKG_VERSION%
 set PYTORCH_BUILD_NUMBER=%PKG_BUILDNUM%
 
+set INSTALL_TEST=0
+
 if "%USE_CUDA%" == "0" (
     set build_with_cuda=
 ) else (

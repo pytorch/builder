@@ -103,6 +103,7 @@ if "%USE_SCCACHE%" == "1" (
 
 set PYTORCH_BINARY_BUILD=1
 set TH_BINARY_BUILD=1
+set INSTALL_TEST=0
 
 for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     :: Activate Python Environment
