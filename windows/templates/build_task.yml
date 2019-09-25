@@ -70,15 +70,15 @@ jobs:
           BUILD_PYTHONLESS: 1
           DEBUG: 1
       ${{ if ne(parameters.spec, 'CPU') }}:
-        # PY3.5_92:
-        #   DESIRED_PYTHON: 3.5
-        #   CUDA_VERSION: 92
-        # PY3.6_92:
-        #   DESIRED_PYTHON: 3.6
-        #   CUDA_VERSION: 92
-        # PY3.7_92:
-        #   DESIRED_PYTHON: 3.7
-        #   CUDA_VERSION: 92
+        PY3.5_92:
+          DESIRED_PYTHON: 3.5
+          CUDA_VERSION: 92
+        PY3.6_92:
+          DESIRED_PYTHON: 3.6
+          CUDA_VERSION: 92
+        PY3.7_92:
+          DESIRED_PYTHON: 3.7
+          CUDA_VERSION: 92
         PY3.5_100:
           DESIRED_PYTHON: 3.5
           CUDA_VERSION: 100
@@ -89,24 +89,24 @@ jobs:
           DESIRED_PYTHON: 3.7
           CUDA_VERSION: 100
       ${{ if and(ne(parameters.spec, 'CPU'), eq(parameters.package, 'Wheels')) }}:
-        # LIBTORCH_92:
-        #   DESIRED_PYTHON: 3
-        #   BUILD_PYTHONLESS: 1
-        #   CUDA_VERSION: 92
-        # LIBTORCH_92_DEBUG:
-        #   DESIRED_PYTHON: 3
-        #   BUILD_PYTHONLESS: 1
-        #   CUDA_VERSION: 92
-        #   DEBUG: 1
+        LIBTORCH_92:
+          DESIRED_PYTHON: 3
+          BUILD_PYTHONLESS: 1
+          CUDA_VERSION: 92
+        LIBTORCH_92_DEBUG:
+          DESIRED_PYTHON: 3
+          BUILD_PYTHONLESS: 1
+          CUDA_VERSION: 92
+          DEBUG: 1
         LIBTORCH_100:
           DESIRED_PYTHON: 3
           BUILD_PYTHONLESS: 1
           CUDA_VERSION: 100
-        # LIBTORCH_100_DEBUG:
-        #   DESIRED_PYTHON: 3
-        #   BUILD_PYTHONLESS: 1
-        #   CUDA_VERSION: 100
-        #   DEBUG: 1
+        LIBTORCH_100_DEBUG:
+          DESIRED_PYTHON: 3
+          BUILD_PYTHONLESS: 1
+          CUDA_VERSION: 100
+          DEBUG: 1
 
   pool:
     ${{ if eq(parameters.msagent, 'true') }}:
