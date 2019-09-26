@@ -72,6 +72,7 @@ if [[ "$which_worker" == 0 ]]; then
         'manywheel 2.7mu cpu,cu92'
         'manywheel 3.5m cpu,cu92'
         'manywheel 2.7m,2.7mu,3.5m cu100'
+        'manywheel 2.7m,2.7mu,3.5m cu101'
         'libtorch 2.7m cpu'
     )
 elif [[ "$which_worker" == 1 ]]; then
@@ -82,6 +83,7 @@ elif [[ "$which_worker" == 1 ]]; then
         'manywheel 3.7m cpu,cu92'
         'conda 2.7 cpu,cu92'
         'manywheel 3.6m,3.7m cu100  -- conda 2.7 cu100'
+        'manywheel 3.6m,3.7m cu101  -- conda 2.7 cu101'
         'libtorch 2.7m cu92'
     )
 elif [[ "$which_worker" == 2 ]]; then
@@ -91,7 +93,9 @@ elif [[ "$which_worker" == 2 ]]; then
         'conda 3.6 cpu,cu92'
         'conda 3.7 cpu,cu92'
         'conda 3.5,3.6,3.7 cu100'
+        'conda 3.5,3.6,3.7 cu101'
         'libtorch 2.7m cu100'
+        'libtorch 2.7m cu101'
     )
 elif [[ "$which_worker" == 'mac' ]]; then
     # wheel all
