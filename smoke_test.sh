@@ -119,7 +119,11 @@ which python
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   mkdir tmp_libtorch
   pushd tmp_libtorch
-  retry curl -o libtorch_zip "https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/${package_name}+${DESIRED_CUDA}"
+  libtorch_url="https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/${package_name}"
+  if [[ "$DESIRED_CUDA" != 'cu100' ]]; then
+    libtorch_url="https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/${package_name}+${DESIRED_CUDA}"
+  fi
+  retry curl -o libtorch_zip "${libtorch_url}"
   unzip -q libtorch_zip
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
