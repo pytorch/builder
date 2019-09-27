@@ -4,6 +4,8 @@ set TH_BINARY_BUILD=1
 set PYTORCH_BUILD_VERSION=%PKG_VERSION%
 set PYTORCH_BUILD_NUMBER=%PKG_BUILDNUM%
 
+set INSTALL_TEST=0
+
 if "%USE_CUDA%" == "0" (
     set build_with_cuda=
 ) else (
@@ -36,6 +38,7 @@ IF "%USE_SCCACHE%" == "1" (
     curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %SRC_DIR%\tmp_bin\sccache.exe
     copy %SRC_DIR%\tmp_bin\sccache.exe %SRC_DIR%\tmp_bin\nvcc.exe
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
+    set SCCACHE_IDLE_TIMEOUT=1500
 )
 
 IF "%build_with_cuda%" == "" goto cuda_end
