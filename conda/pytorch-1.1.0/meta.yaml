@@ -29,6 +29,7 @@ requirements:
     - cffi
     - ninja
     - future # [py2k]
+    - ripgrep # [win]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
 
 build:
