@@ -133,6 +133,11 @@ jobs:
       name: 'pytorch'
 
   steps:
+  - script: |
+      taskkill /im nvcc.exe /f || ver > NUL
+      taskkill /im sccache.exe /f || ver > NUL
+    displayName: 'Cleaning unclosed processes'
+
   - checkout: self
     clean: true
 
