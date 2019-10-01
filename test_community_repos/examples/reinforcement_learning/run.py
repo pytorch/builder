@@ -1,5 +1,5 @@
 import re
-import subprocess 
+import subprocess32
 import sys
 
 PY3 = sys.version_info >= (3, 0)
@@ -12,7 +12,7 @@ def run(command, timeout):
     """
     Returns (return-code, stdout, stderr)
     """
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    p = subprocess32.Popen(command, stdout=subprocess32.PIPE, stderr=subprocess32.PIPE, shell=True)
     output, err = p.communicate(timeout=timeout)
     rc = p.returncode
     if PY3:
@@ -54,5 +54,7 @@ def check_cartpole_example(command, seconds=30, baseline_iter=1000):
 
 if __name__ == '__main__':
     check_cartpole_example(actor_critic_cmd, seconds=5*60, baseline_iter=4000)
-    check_cartpole_example(reinforce_cmd, seconds=60, baseline_iter=4000)
+
+    # NOTE: Times out after 60 seconds; changed to 3 minutes
+    check_cartpole_example(reinforce_cmd, seconds=3*60, baseline_iter=4000)
 

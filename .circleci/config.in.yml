@@ -37,12 +37,29 @@ binary_common: &binary_common
       description: "Wheel only: what docker image to use"
       type: string
       default: "soumith/manylinux-cuda100"
+    is-python3:
+      description: "Precomputation of whether this Python version is >= 3, for use as a 'when' conditional"
+      type: boolean
+      default: false
+    is-macos:
+      description: "Precomputation of whether the OS is MacOS, for use as a 'when' conditional"
+      type: boolean
+      default: false
+    run-external-projects:
+      description: "Should external projects be tested in addition to PyTorch examples. Run on a smaller set of envs."
+      type: boolean
+      default: false
   environment:
     PYTHON_VERSION: << parameters.python_version >>
     BUILD_VERSION: << parameters.build_version >>
     PYTORCH_VERSION: << parameters.pytorch_version >>
     UNICODE_ABI: << parameters.unicode_abi >>
     CU_VERSION: << parameters.cu_version >>
+
+
+commands:
+  {{ generated_commands }}
+
 
 jobs:
   circleci_consistency:
@@ -52,10 +69,11 @@ jobs:
       - checkout
       - run:
           command: |
-            pip install --user --progress-bar off jinja2 pyyaml
+            pip install --user --progress-bar off -r .circleci/requirements.txt
             python .circleci/regenerate.py
             git diff --exit-code || (echo ".circleci/config.yml not in sync with config.yml.in! Run .circleci/regenerate.py to update config"; exit 1)
 
+# TODO NOT USED YET
   binary_linux_wheel:
     <<: *binary_common
     docker:
@@ -63,13 +81,10 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run: test_community_repos/run_all.sh
-      - store_artifacts:
-          path: dist
-      - persist_to_workspace:
-          root: dist
-          paths:
-            - "*"
+      - run_integration_tests:
+          script-wrapper: "packaging/build_wheel.sh"
+          is-python3: <<parameters.is-python3>>
+          is-macos: <<parameters.is-macos>>
 
   binary_linux_conda:
     <<: *binary_common
@@ -78,13 +93,17 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - checkout
-      - run: test_community_repos/run_all.sh
-      - store_artifacts:
-          path: /opt/conda/conda-bld/linux-64
-      - persist_to_workspace:
-          root: /opt/conda/conda-bld/linux-64
-          paths:
-            - "*"
+      - run:
+          name: Initialize Conda environment with proper Python version
+          command: |
+            conda env remove -n "env$PYTHON_VERSION" || true
+            conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
+
+      - run_integration_tests:
+          script-wrapper: "packaging/build_conda.sh"
+          is-python3: <<parameters.is-python3>>
+          is-macos: <<parameters.is-macos>>
+          run-external-projects: <<parameters.run-external-projects>>
 
   binary_linux_conda_cuda:
     <<: *binary_common
@@ -143,32 +162,36 @@ jobs:
           echo Pulling docker image $DOCKER_IMAGE
           docker pull $DOCKER_IMAGE >/dev/null
 
-    - run:
-        name: Build and run tests
-        command: |
-          set -e
+    - run_integration_tests:
+        script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
+        is-python3: <<parameters.is-python3>>
+        is-macos: <<parameters.is-macos>>
+        run-external-projects: <<parameters.run-external-projects>>
 
-          cd ${HOME}/project/
-
-          export DOCKER_IMAGE=soumith/conda-cuda
-          export VARS_TO_PASS="-e PYTHON_VERSION -e BUILD_VERSION -e PYTORCH_VERSION -e UNICODE_ABI -e CU_VERSION"
-
-          docker run --gpus all  --ipc=host -v $(pwd):/remote -w /remote ${VARS_TO_PASS} ${DOCKER_IMAGE} ./test_community_repos/run_all.sh
 
   binary_win_conda:
     <<: *binary_common
     executor:
       name: win/vs2019
-      shell: bash.exe
+      shell: powershell.exe
     steps:
       - checkout
-      - run:
-          command: |
-            choco install miniconda3
-            $env:PATH = "C:\tools\miniconda3;C:\tools\miniconda3\Library\usr\bin;C:\tools\miniconda3\Scripts;C:\tools\miniconda3\bin" + $env:PATH
-            conda install -yq conda-build
-            bash test_community_repos/run_all.sh
-          shell: powershell.exe
+      - run_integration_tests:
+          script-wrapper: ".circleci/helper-scripts/wrap-with-windows-conda.ps1"
+          is-python3: <<parameters.is-python3>>
+          is-macos: <<parameters.is-macos>>
+          run-external-projects: <<parameters.run-external-projects>>
+
+
+  win_silly_test:
+    <<: *binary_common
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run: |
+          .circleci/helper-scripts/wrap-with-windows-conda.ps1 .circleci/helper-scripts/windows-pip-test.sh
 
   binary_macos_wheel:
     <<: *binary_common
@@ -183,14 +206,14 @@ jobs:
           command: |
             curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
             sh conda.sh -b
-            source $HOME/miniconda3/bin/activate
-            test_community_repos/run_all.sh
-      - store_artifacts:
-          path: dist
-      - persist_to_workspace:
-          root: dist
-          paths:
-            - "*"
+
+            brew install wget
+
+      - run_integration_tests:
+          script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"
+          is-python3: <<parameters.is-python3>>
+          is-macos: <<parameters.is-macos>>
+          run-external-projects: <<parameters.run-external-projects>>
 
   binary_macos_conda:
     <<: *binary_common
@@ -204,29 +227,29 @@ jobs:
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
             conda install -yq conda-build
-            test_community_repos/run_all.sh
-      - store_artifacts:
-          path: /Users/distiller/miniconda3/conda-bld/osx-64
-      - persist_to_workspace:
-          root: /Users/distiller/miniconda3/conda-bld/osx-64
-          paths:
-            - "*"
 
+            # Fixes "OSError: [Errno 13] Permission denied: '/usr/local/man'"
+            # see https://github.com/tqdm/tqdm/issues/460#issuecomment-365787522
+            sudo mkdir -p /usr/local/man
+            sudo chown -R "$USER:admin" /usr/local/man
+
+            brew install wget
+
+      - run_integration_tests:
+          script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"
+          is-python3: <<parameters.is-python3>>
+          is-macos: <<parameters.is-macos>>
+          run-external-projects: <<parameters.run-external-projects>>
 
 workflows:
   build:
-{%- if True %}
     jobs:
       - circleci_consistency
-      {{ workflows() }}
-      - binary_linux_conda_cuda:
-          name: torchvision_linux_py3.7_cu100
-          python_version: "3.7"
-          cu_version: "cu100"
-      - binary_win_conda:
-          name: torchvision_win_py3.6_cpu
-          python_version: "3.6"
-          cu_version: "cpu"
+      - win_silly_test:
+          cu_version: cpu
+          name: silly windows test
+          python_version: '3.6'
+      {{ workflows_standard }}
 
   nightly:
     triggers:
@@ -236,7 +259,6 @@ workflows:
             branches:
               only:
                 - master
-{%- endif %}
     jobs:
       - circleci_consistency
-      {{ workflows(prefix="nightly_", upload=True) }}
+      {{ workflows_nightly }}

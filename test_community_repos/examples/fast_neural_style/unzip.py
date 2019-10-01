@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 import zipfile
 import re
 import sys
+
 
 def unzip(path):
     """
@@ -13,8 +16,9 @@ def unzip(path):
         return
 
     dest = match.group(1) 
-    with zipfile.ZipFile(path, "r") as z:
+    with zipfile.ZipFile(path) as z:
         z.extractall(dest)
+
 
 if __name__ == '__main__':
     unzip(sys.argv[1])
