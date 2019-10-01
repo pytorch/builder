@@ -10,7 +10,7 @@ fi
 
 # Upload for all CUDA/cpu versions if not given one to use
 if [[ -z "$CUDA_VERSIONS" ]]; then
-    CUDA_VERSIONS=('cpu' 'cu90' 'cu100')
+    CUDA_VERSIONS=('cpu' 'cu90' 'cu100' 'cu101')
 fi
 
 # Make sure the user specifically refers to an upload folder

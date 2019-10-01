@@ -5,7 +5,7 @@
 # Take a package name + version and publish all matching packages
 # from S3 production to PyPI
 
-export SUBFOLDERS=('' 'cpu/' 'cu92/' 'cu100/')
+export SUBFOLDERS=('' 'cpu/' 'cu92/' 'cu100/' 'cu101/')
 s3_prod="s3://pytorch/whl/"
 
 for subfolder in "${SUBFOLDERS[@]}"; do

@@ -33,6 +33,7 @@ ALL_PYTHON_VERSIONS = [
 ALL_CUDA_VERSIONS = [
     "cu92",
     "cu100",
+    "cu101",
 ]
 
 

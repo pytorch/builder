@@ -7,7 +7,7 @@ set -e
 #
 # Does NOT update HTMLs; run that command afterwards
 
-export SUBFOLDERS=('' 'cpu/' 'cu92/' 'cu100/')
+export SUBFOLDERS=('' 'cpu/' 'cu92/' 'cu100/' 'cu101/')
 s3_prod="s3://pytorch/whl/"
 s3_nightly="s3://pytorch/whl/nightly/"
 
