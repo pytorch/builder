@@ -56,7 +56,7 @@ while [[ $# -gt 0 ]]; do
       fi
     fi
     if [[ "${all_cuda[0]}" == 'all' ]]; then
-        all_cuda=('cpu' 'cu92' 'cu100')
+        all_cuda=('cpu' 'cu92' 'cu100' 'cu101')
     fi
     for py_ver in "${all_pythons[@]}"; do
       for cuda_ver in "${all_cuda[@]}"; do
