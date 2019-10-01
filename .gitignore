@@ -74,6 +74,3 @@ node_modules
 
 # IDE files
 .idea
-
-# mypy
-**/.mypy_cache/
