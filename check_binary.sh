@@ -18,7 +18,7 @@ set -eux -o pipefail
 # This script expects PyTorch to be installed into the active Python (the
 # Python returned by `which python`). Or, if this is testing a libtorch
 # Pythonless binary, then it expects to be in the root folder of the unzipped
-# libtorch package. 
+# libtorch package.
 
 
 # The install root depends on both the package type and the os
@@ -76,7 +76,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   # First we check that the env var in TorchConfig.cmake is correct
 
   # We search for D_GLIBCXX_USE_CXX11_ABI=1 in torch/TorchConfig.cmake
-  torch_config="${install_root}/share/cmake/Torch/TorchConfig.cmake"
+  torch_config="${install_root}/libtorch/share/cmake/Torch/TorchConfig.cmake"
   if [[ ! -f "$torch_config" ]]; then
     echo "No TorchConfig.cmake found!"
     ls -lah "$install_root/share/cmake/Torch"
@@ -206,7 +206,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     #  exit 1
     #fi
   done
-else 
+else
   all_libs=($(find "$install_root" -name '*.so'))
   for lib in "${all_libs[@]}"; do
     echo "All dependencies of $lib are $(ldd $lib) with runpath $(objdump -p $lib | grep RUNPATH)"
