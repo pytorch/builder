@@ -19,11 +19,11 @@ RUN bash ./install_mkl.sh && rm install_mkl.sh
 
 # Install CUDA
 ADD ./common/install_cuda.sh install_cuda.sh
-RUN bash ./install_cuda.sh && rm install_cuda.sh
+RUN bash ./install_cuda.sh 9.2 10.0 10.1 && rm install_cuda.sh
 
 # Install MAGMA (need CUDA)
 ADD ./common/install_magma.sh install_magma.sh
-RUN bash ./install_magma.sh && rm install_magma.sh
+RUN bash ./install_magma.sh 9.2 10.0 10.1 && rm install_magma.sh
 
 # Install Anaconda
 ENV PATH /opt/conda/bin:$PATH
