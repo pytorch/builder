@@ -18,14 +18,14 @@ set -eux -o pipefail
 # This script expects PyTorch to be installed into the active Python (the
 # Python returned by `which python`). Or, if this is testing a libtorch
 # Pythonless binary, then it expects to be in the root folder of the unzipped
-# libtorch package.
+# libtorch package. 
 
 
 # The install root depends on both the package type and the os
 # All MacOS packages use conda, even for the wheel packages.
 if [[ "$PACKAGE_TYPE" == libtorch ]]; then
   # NOTE: Only $PWD works on both CentOS and Ubuntu
-  install_root="$PWD"/libtorch
+  install_root="$PWD"
 else
   py_dot="${DESIRED_PYTHON:0:3}"
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
@@ -206,7 +206,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     #  exit 1
     #fi
   done
-else
+else 
   all_libs=($(find "$install_root" -name '*.so'))
   for lib in "${all_libs[@]}"; do
     echo "All dependencies of $lib are $(ldd $lib) with runpath $(objdump -p $lib | grep RUNPATH)"
