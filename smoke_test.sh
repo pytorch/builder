@@ -125,6 +125,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   fi
   retry curl -o libtorch_zip "${libtorch_url}"
   unzip -q libtorch_zip
+  cd libtorch
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
 	if [[ "$(uname)" == 'Darwin' ]]; then
