@@ -69,7 +69,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   if [[ "$DESIRED_CUDA" == 'cu100' ]]; then
     package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
   else
-    package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}+${DESIRED_CUDA}.zip"
+    package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}%2B${DESIRED_CUDA}.zip"
   fi
 
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
