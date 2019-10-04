@@ -66,7 +66,12 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   else
       LIBTORCH_ABI=
   fi
-  package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
+  if [[ "$DESIRED_CUDA" == 'cu100' ]]; then
+    package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
+  else
+    package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}+${DESIRED_CUDA}.zip"
+  fi
+
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
   package_name='torch'
 elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
@@ -120,11 +125,9 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   mkdir tmp_libtorch
   pushd tmp_libtorch
   libtorch_url="https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/$package_name"
-  if [[ "$DESIRED_CUDA" != 'cu100' ]]; then
-    libtorch_url="https://download.pytorch.org/libtorch/nightly/$DESIRED_CUDA/${package_name}+${DESIRED_CUDA}"
-  fi
   retry curl -o libtorch_zip "${libtorch_url}"
   unzip -q libtorch_zip
+  cd libtorch
 elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
     if [[ "$DESIRED_CUDA" == 'cpu' ]]; then
 	if [[ "$(uname)" == 'Darwin' ]]; then
