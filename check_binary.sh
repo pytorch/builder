@@ -18,7 +18,7 @@ set -eux -o pipefail
 # This script expects PyTorch to be installed into the active Python (the
 # Python returned by `which python`). Or, if this is testing a libtorch
 # Pythonless binary, then it expects to be in the root folder of the unzipped
-# libtorch package. 
+# libtorch package.
 
 
 # The install root depends on both the package type and the os
@@ -206,7 +206,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     #  exit 1
     #fi
   done
-else 
+else
   all_libs=($(find "$install_root" -name '*.so'))
   for lib in "${all_libs[@]}"; do
     echo "All dependencies of $lib are $(ldd $lib) with runpath $(objdump -p $lib | grep RUNPATH)"
@@ -227,7 +227,11 @@ build_and_run_example_cpp () {
   else
     GLIBCXX_USE_CXX11_ABI=0
   fi
-  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib -Wl,-R${install_root}/lib -ltorch -lc10 -o example-app
+  REF_LIB="-Wl,-R${install_root}/lib"
+  if [[ "$(uname)" == 'Darwin' ]]; then
+    REF_LIB="-Wl,-rpath ${install_root}/lib"
+  fi
+  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib ${REF_LIB} -ltorch -lc10 -o example-app
   ./example-app
 }
 
@@ -238,7 +242,11 @@ build_example_cpp_with_incorrect_abi () {
     GLIBCXX_USE_CXX11_ABI=1
   fi
   set +e
-  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib -Wl,-R${install_root}/lib -ltorch -lc10 -o example-app
+  REF_LIB="-Wl,-R${install_root}/lib"
+  if [[ "$(uname)" == 'Darwin' ]]; then
+    REF_LIB="-Wl,-rpath ${install_root}/lib"
+  fi
+  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++11 -L${install_root}/lib ${REF_LIB} -ltorch -lc10 -o example-app
   ERRCODE=$?
   set -e
   if [ "$ERRCODE" -eq "0" ]; then
