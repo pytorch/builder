@@ -188,8 +188,9 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     curl -sSk https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
     "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
     pushd $tmp_conda
-    export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
+    . ./etc/profile.d/conda.sh
     popd
+    conda activate
     retry conda install -yq conda-build
 fi
 
@@ -312,7 +313,11 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # TODO these reqs are hardcoded for pytorch-nightly
     test_env="env_$folder_tag"
     retry conda create -yn "$test_env" python="$py_ver"
-    source activate "$test_env"
+    if [[ "$OSTYPE" == "msys" ]]; then
+        conda activate "$test_env"
+    else
+        source activate "$test_env"
+    fi
 
     # Extract the package for testing
     ls -lah "$output_folder"
@@ -324,7 +329,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         cp "$built_package" "$PYTORCH_FINAL_PACKAGE_DIR/"
     fi
 
-    conda install -y "$built_package"
+    export TORCH_PACKAGE="$(realpath "$built_package")"
 
     # Run tests
     echo "$(date) :: Running tests"
@@ -338,7 +343,11 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo "$(date) :: Finished tests"
 
     # Clean up test folder
-    source deactivate
+    if [[ "$OSTYPE" == "msys" ]]; then
+        conda deactivate
+    else
+        source deactivate
+    fi
     conda env remove -yn "$test_env"
     rm -rf "$output_folder"
 done
