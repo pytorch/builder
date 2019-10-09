@@ -148,8 +148,17 @@ retry conda install -yq libuv pkg-config
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
+
 python setup.py bdist_wheel -d "$whl_tmp_dir"
+
 echo "Finished setup.py bdist_wheel at $(date)"
+
+echo "delocating wheel dependencies"
+pip install delocate
+find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel {}
+find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
+echo "Finished delocating wheels at $(date)"
+
 echo "The wheel is in $(find $pytorch_rootdir -name '*.whl')"
 popd
 
