@@ -3,12 +3,12 @@ set -ex
 
 if [ "$#" -ne 1 ]; then
     echo "Illegal number of parameters. Pass cuda version"
-    echo "CUDA version should be cu92, cu100 or cpu"
+    echo "CUDA version should be cu92, cu100, cu101 or cpu"
     exit 1
 fi
-export CUVER="$1" # cu92 cu100 cpu
+export CUVER="$1" # cu92 cu100 cu101 cpu
 
-if [[ "$CUVER" == "cu100" ]]; then
+if [[ "$CUVER" == "cu101" ]]; then
   cu_suffix=""
 else
   cu_suffix="+$CUVER"
