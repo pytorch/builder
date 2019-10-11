@@ -8,14 +8,8 @@ jobs:
 
 - template: templates/build_task.yml
   parameters:
-    package: 'Wheels'
-    spec: 'CPU'
-    msagent: false
-
-- template: templates/build_task.yml
-  parameters:
     package: 'Conda'
-    spec: 'CPU'
+    spec: 'CUDA'
     msagent: false
 
 - template: templates/build_task.yml
@@ -27,7 +21,13 @@ jobs:
 - template: templates/build_task.yml
   parameters:
     package: 'Conda'
-    spec: 'CUDA'
+    spec: 'CPU'
+    msagent: false
+
+- template: templates/build_task.yml
+  parameters:
+    package: 'Wheels'
+    spec: 'CPU'
     msagent: false
 
 - template: templates/linux_build_task.yml
