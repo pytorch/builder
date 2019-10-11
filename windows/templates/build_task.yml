@@ -79,15 +79,6 @@ jobs:
         PY3.7_92:
           DESIRED_PYTHON: 3.7
           CUDA_VERSION: 92
-        PY3.5_100:
-          DESIRED_PYTHON: 3.5
-          CUDA_VERSION: 100
-        PY3.6_100:
-          DESIRED_PYTHON: 3.6
-          CUDA_VERSION: 100
-        PY3.7_100:
-          DESIRED_PYTHON: 3.7
-          CUDA_VERSION: 100
         PY3.5_101:
           DESIRED_PYTHON: 3.5
           CUDA_VERSION: 101
@@ -106,15 +97,6 @@ jobs:
           DESIRED_PYTHON: 3
           BUILD_PYTHONLESS: 1
           CUDA_VERSION: 92
-          DEBUG: 1
-        LIBTORCH_100:
-          DESIRED_PYTHON: 3
-          BUILD_PYTHONLESS: 1
-          CUDA_VERSION: 100
-        LIBTORCH_100_DEBUG:
-          DESIRED_PYTHON: 3
-          BUILD_PYTHONLESS: 1
-          CUDA_VERSION: 100
           DEBUG: 1
         LIBTORCH_101:
           DESIRED_PYTHON: 3

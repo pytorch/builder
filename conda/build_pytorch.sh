@@ -324,7 +324,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         cp "$built_package" "$PYTORCH_FINAL_PACKAGE_DIR/"
     fi
 
-    conda install -y "$built_package"
+    export TORCH_PACKAGE="$(realpath "$built_package")"
 
     # Run tests
     echo "$(date) :: Running tests"
