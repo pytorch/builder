@@ -144,11 +144,11 @@ if "%CUDA_VERSION%" == "cpu" (
 ::       pytorch-nightly==1.0.0.dev20180908
 ::   or in manylinux like
 ::       torch_nightly-1.0.0.dev20180908-cp27-cp27m-linux_x86_64.whl
-if "%PYTORCH_BUILD_VERSION%" == "" set PYTORCH_BUILD_VERSION=1.4.0.dev%NIGHTLIES_DATE_COMPACT%
+if "%PYTORCH_BUILD_VERSION%" == "" set PYTORCH_BUILD_VERSION=1.3.0.dev%NIGHTLIES_DATE_COMPACT%
 
 if "%~1" == "Wheels" (
     if "%BUILD_PYTHONLESS%" == "" (
-        if not "%CUDA_VERSION%" == "101" (
+        if not "%CUDA_VERSION%" == "100" (
             set PYTORCH_BUILD_VERSION=%PYTORCH_BUILD_VERSION%+%_DESIRED_CUDA%
         )
     )
