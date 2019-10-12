@@ -19,7 +19,7 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 
 # Install CUDA
 ADD ./common/install_cuda.sh install_cuda.sh
-RUN bash ./install_cuda.sh 9.2 10.0 10.1.old && rm install_cuda.sh
+RUN bash ./install_cuda.sh 9.2 10.0 10.1 && rm install_cuda.sh
 
 # Install Anaconda
 ENV PATH /opt/conda/bin:$PATH
