@@ -98,6 +98,39 @@ function install_101 {
 
 }
 
+function install_101_old {
+    echo "Installing CUDA 10.1 and CuDNN"
+    rm -rf /usr/local/cuda-10.1 /usr/local/cuda
+    # # install CUDA 10.1 in the same container
+    wget -q https://developer.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda_10.1.168_418.67_linux.run
+    chmod +x cuda_10.1.168_418.67_linux.run
+    ./cuda_10.1.168_418.67_linux.run    --extract=/tmp/cuda
+    rm -f cuda_10.1.168_418.67_linux.run
+    mv /tmp/cuda/cuda-toolkit /usr/local/cuda-10.1
+    rm -rf /tmp/cuda
+    rm -f /usr/local/cuda && ln -s /usr/local/cuda-10.1 /usr/local/cuda
+
+    # install CUDA 10.1 CuDNN
+    # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
+    mkdir tmp_cudnn && cd tmp_cudnn
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.6.3.30-1+cuda10.1_amd64.deb -O cudnn-dev.deb
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.6.3.30-1+cuda10.1_amd64.deb -O cudnn.deb
+    ar -x cudnn-dev.deb && tar -xvf data.tar.xz
+    ar -x cudnn.deb && tar -xvf data.tar.xz
+    mkdir -p cuda/include && mkdir -p cuda/lib64
+    cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h
+    cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64
+    mv cuda/lib64/libcudnn_static_v7.a cuda/lib64/libcudnn_static.a
+    ln -s libcudnn.so.7 cuda/lib64/libcudnn.so
+    chmod +x cuda/lib64/*.so
+    cp -a cuda/include/* /usr/local/cuda/include/
+    cp -a cuda/lib64/* /usr/local/cuda/lib64/
+    cd ..
+    rm -rf tmp_cudnn
+    ldconfig
+
+}
+
 
 function prune_92 {
     echo "Pruning CUDA 9.2 and CuDNN"
@@ -177,6 +210,8 @@ do
 	10.0) install_100; prune_100
 		;;
 	10.1) install_101; prune_101
+		;;
+	10.1.old) install_101_old; prune_101
 		;;
 	*) echo "bad argument $1"; exit 1
 	   ;;
