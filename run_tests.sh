@@ -115,6 +115,15 @@ if [[ "$OSTYPE" == "msys" ]]; then
     fi
 fi
 
+# Test that the version number is consistent during building and testing
+if [[ "$PYTORCH_BUILD_NUMBER" -gt 1 ]]; then
+    expected_version="${PYTORCH_BUILD_VERSION}.post${PYTORCH_BUILD_NUMBER}"
+else
+    expected_version="${PYTORCH_BUILD_VERSION}"
+fi
+echo "Checking that we are testing the package that is just built"
+python -c "import torch; exit(0 if torch.__version__ == '$expected_version' else 1)"
+
 # Test that CUDA builds are setup correctly
 if [[ "$cuda_ver" != 'cpu' ]]; then
     # Test CUDA archs
