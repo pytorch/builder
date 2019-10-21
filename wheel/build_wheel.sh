@@ -154,7 +154,7 @@ python setup.py bdist_wheel -d "$whl_tmp_dir"
 echo "Finished setup.py bdist_wheel at $(date)"
 
 echo "delocating wheel dependencies"
-pip install delocate
+retry pip install https://github.com/matthew-brett/delocate/archive/master.zip
 find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel {}
 find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
 echo "Finished delocating wheels at $(date)"
