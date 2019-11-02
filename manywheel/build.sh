@@ -39,7 +39,7 @@ else
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
-export TORCH_CUDA_ARCH_LIST="3.7;5.0+PTX"
+export TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
 if [[ $CUDA_VERSION == "9.0" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
 elif [[ $CUDA_VERSION == "9.2" ]]; then

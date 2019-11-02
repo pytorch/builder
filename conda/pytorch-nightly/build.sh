@@ -30,7 +30,7 @@ if [[ -z "$USE_CUDA" || "$USE_CUDA" == 1 ]]; then
     build_with_cuda=1
 fi
 if [[ -n "$build_with_cuda" ]]; then
-    export TORCH_CUDA_ARCH_LIST="3.7;5.0+PTX"
+    export TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
     if [[ $CUDA_VERSION == 8.0* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
     elif [[ $CUDA_VERSION == 9.0* ]]; then
