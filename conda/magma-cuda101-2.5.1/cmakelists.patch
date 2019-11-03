@@ -49,7 +49,7 @@
  
 +    if ( ${GPU_TARGET} MATCHES "All")
 +      set( MIN_ARCH 370)
-+      SET( NV_SM -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 )
++      SET( NV_SM -gencode arch=compute_37,code=compute_37 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 )
 +      SET( NV_COMP "")
 +    endif()
 +    
