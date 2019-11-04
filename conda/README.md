@@ -41,14 +41,11 @@ export PYTORCH_BRANCH=master
 
 ```
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
-yum install -y yum-utils centos-release-scl
-yum-config-manager --enable rhel-server-rhscl-7-rpms
-yum install -y devtoolset-3-gcc devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran devtoolset-3-binutils
-export PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
-export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
 git clone https://github.com/pytorch/builder
 cd builder/conda
 conda install -y conda-build
 . ./switch_cuda_version.sh 10.0
-conda build magma-cuda100-2.5.0
+conda build magma-cuda100-2.5.1
 ```
+
+Test magma builds on K80 machine, to check against the bug https://github.com/pytorch/pytorch/issues/29096

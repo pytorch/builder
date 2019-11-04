@@ -1,5 +1,5 @@
---- CMakeLists.txt	2019-08-02 14:09:54.000000000 -0700
-+++ CMakeLists.txt	2019-08-02 18:00:11.818541038 -0700
+--- CMakeLists.txt	2019-11-04 15:04:50.452110612 -0800
++++ CMakeLists.txt	2019-11-04 15:05:39.889521970 -0800
 @@ -3,7 +3,7 @@
  # ----------------------------------------
  # to disable Fortran, set this to "off"
@@ -43,6 +43,15 @@
  
  
  # ----------------------------------------
+@@ -119,7 +121,7 @@
+     set( NV_SM    "" )
+     set( NV_COMP  "" )
+ 
+-    set(CUDA_SEPARABLE_COMPILATION ON)
++    set(CUDA_SEPARABLE_COMPILATION OFF)
+ 
+     # nvcc >= 6.5 supports -std=c++11, so propagate CXXFLAGS to NVCCFLAGS.
+     # Older nvcc didn't support -std=c++11, so previously we disabled propagation.
 @@ -259,11 +261,18 @@
          message( STATUS "    compile for CUDA arch 7.5 (Turing)" )
      endif()
