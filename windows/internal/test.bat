@@ -24,6 +24,13 @@ if ERRORLEVEL 1 exit /b 1
 
 if NOT "%BUILD_VISION%" == "" goto smoke_test_end
 
+if "%CUDA_VERSION%" == "cpu" goto smoke_test
+
+:: Remove CUDA paths to ensure all the CUDA DLLs are copied
+set desired_cuda=%CUDA_VERSION:~0,-1%.%CUDA_VERSION:~-1,1%
+set "PATH=%PATH:C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA=C:\Not_Existing_Folder%"
+
+:smoke_test
 echo Smoke testing imports
 python -c "import torch"
 if ERRORLEVEL 1 exit /b 1
