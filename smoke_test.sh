@@ -66,7 +66,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   else
       LIBTORCH_ABI=
   fi
-  if [[ "$DESIRED_CUDA" == 'cu100' || "$libtorch_variant" == 'macos' ]]; then
+  if [[ "$DESIRED_CUDA" == 'cu101' || "$libtorch_variant" == 'macos' ]]; then
     package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
   else
     package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}%2B${DESIRED_CUDA}.zip"
