@@ -79,7 +79,7 @@ elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
 else
   package_name='pytorch'
 fi
-if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu100" ]] || [[ "$PACKAGE_TYPE" == 'conda' ]]; then
+if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu101" ]] || [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
 else
   # Linux binaries have the cuda version appended to them. This is only on
