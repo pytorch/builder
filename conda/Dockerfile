@@ -21,6 +21,11 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 ADD ./common/install_cuda.sh install_cuda.sh
 RUN bash ./install_cuda.sh 9.2 10.0 10.1 && rm install_cuda.sh
 
+# Install java jni header
+ADD ./common/install_jni.sh install_jni.sh
+ADD ./java/jni.h jni.h
+RUN bash ./install_jni.sh && rm install_jni.sh
+
 # Install Anaconda
 ENV PATH /opt/conda/bin:$PATH
 ADD ./common/install_conda.sh install_conda.sh
