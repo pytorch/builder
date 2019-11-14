@@ -173,7 +173,16 @@ if [[ "$(uname)" != 'Darwin' ]]; then
       fi
     fi
   }
-  libtorch="${install_root}/lib/libtorch.so"
+  # After https://github.com/pytorch/pytorch/pull/29731 most of the real
+  # libtorch code will live in libtorch_cpu, not libtorch, so cxx11
+  # symbol counting won't work on libtorch (since there's nothing in
+  # it.)  Fortunately, libtorch_cpu.so doesn't exist prior to this PR,
+  # so just test if the file exists and use it if it does.
+  if [ -f "${install_root}/lib/libtorch_cpu.so" ]; then
+    libtorch="${install_root}/lib/libtorch_cpu.so"
+  else
+    libtorch="${install_root}/lib/libtorch.so"
+  fi
   check_lib_symbols_for_abi_correctness $libtorch
 
   echo "cxx11 symbols seem to be in order"
