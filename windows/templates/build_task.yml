@@ -12,7 +12,7 @@ parameters:
 
 jobs:
 - job: 'Windows_${{ parameters.spec }}_${{ parameters.package }}_Build'
-  timeoutInMinutes: 240
+  timeoutInMinutes: 300
   cancelTimeoutInMinutes: 5
   condition: > 
     or(and(eq('${{ parameters.package }}', 'Conda'), eq('${{ parameters.spec }}', 'CPU'),
@@ -118,6 +118,10 @@ jobs:
   - script: |
       taskkill /im nvcc.exe /f || ver > NUL
       taskkill /im sccache.exe /f || ver > NUL
+      taskkill /im cl.exe /f || ver > NUL
+      taskkill /im ninja.exe /f || ver > NUL
+      taskkill /im link.exe /f || ver > NUL
+      taskkill /im cmake.exe /f || ver > NUL
     displayName: 'Cleaning unclosed processes'
 
   - checkout: self
