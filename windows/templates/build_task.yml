@@ -118,6 +118,11 @@ jobs:
   - script: |
       taskkill /im nvcc.exe /f || ver > NUL
       taskkill /im sccache.exe /f || ver > NUL
+      taskkill /im cl.exe /f || ver > NUL
+      taskkill /im ninja.exe /f || ver > NUL
+      taskkill /im link.exe /f || ver > NUL
+      taskkill /im cmake.exe /f || ver > NUL
+      taskkill /im conda-build.exe /f || ver > NUL
     displayName: 'Cleaning unclosed processes'
 
   - checkout: self
