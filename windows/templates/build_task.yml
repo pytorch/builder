@@ -122,6 +122,7 @@ jobs:
       taskkill /im ninja.exe /f || ver > NUL
       taskkill /im link.exe /f || ver > NUL
       taskkill /im cmake.exe /f || ver > NUL
+      taskkill /im conda-build.exe /f || ver > NUL
     displayName: 'Cleaning unclosed processes'
 
   - checkout: self
