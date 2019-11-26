@@ -33,7 +33,7 @@ IF "%CUDA_PATH_V9_2%"=="" (
     exit /b 1
 ) ELSE (
     IF "%BUILD_VISION%" == "" (
-        set TORCH_CUDA_ARCH_LIST=3.5;5.0+PTX;6.0;6.1;7.0
+        set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0;6.0;6.1;7.0
         set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
     ) ELSE (
         set NVCC_FLAGS=-D__CUDA_NO_HALF_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_61,code=sm_61 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_50,code=compute_50
