@@ -44,11 +44,9 @@ IF "%USE_SCCACHE%" == "1" (
 
 IF "%build_with_cuda%" == "" goto cuda_end
 
-IF "%desired_cuda%" == "8.0" (
-    set MAGMA_VERSION=2.4.0
-) ELSE (
-    set MAGMA_VERSION=2.5.0
-)
+set MAGMA_VERSION=2.5.1
+if "%desired_cuda%" == "8.0" set MAGMA_VERSION=2.4.0
+if "%desired_cuda%" == "9.0" set MAGMA_VERSION=2.5.0
 
 curl https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_cuda%CUDA_VERSION%_release.7z -k -O
 7z x -aoa magma_%MAGMA_VERSION%_cuda%CUDA_VERSION%_release.7z -omagma_cuda%CUDA_VERSION%_release
