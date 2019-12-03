@@ -69,11 +69,9 @@ set CMAKE_INCLUDE_PATH=%cd%\mkl\include
 set LIB=%cd%\mkl\lib;%LIB%
 
 :: Download MAGMA Files on CUDA builds
-if "%CUDA_VERSION%" == "80" (
-    set MAGMA_VERSION=2.4.0
-) else (
-    set MAGMA_VERSION=2.5.0
-)
+set MAGMA_VERSION=2.5.1
+if "%CUDA_VERSION%" == "80" set MAGMA_VERSION=2.4.0
+if "%CUDA_VERSION%" == "90" set MAGMA_VERSION=2.5.0
 
 if "%DEBUG%" == "1" (
     set BUILD_TYPE=debug
