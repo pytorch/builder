@@ -159,7 +159,8 @@ echo "found the following wheels:"
 find $whl_tmp_dir -name "*.whl"
 echo "running delocate"
 find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel -v {}
-find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps -v {}
+find $whl_tmp_dir -name "*.whl"
+find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
 echo "Finished delocating wheels at $(date)"
 
 echo "The wheel is in $(find $pytorch_rootdir -name '*.whl')"
