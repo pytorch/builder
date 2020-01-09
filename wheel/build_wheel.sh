@@ -99,14 +99,15 @@ mkdir -p "$whl_tmp_dir"
 # was uploaded to https://anaconda.org/anaconda/python/files
 if [[ "$desired_python" == 3.7 ]]; then
     mac_version='macosx_10_7_x86_64'
+elif [[ "$desired_python" == 3.6 ]]; then
+    mac_version='macosx_10_9_x86_64'
 elif [[ "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
 else
     mac_version='macosx_10_7_x86_64'
 fi
 
-# Determine the wheel package name so that we can rename it later
-wheel_filename_gen="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-cp${python_nodot}m-${mac_version}.whl"
+# Create a consistent wheel package name to rename the wheel to
 wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-none-${mac_version}.whl"
 
 ###########################################################
@@ -163,12 +164,14 @@ find $whl_tmp_dir -name "*.whl"
 find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
 echo "Finished delocating wheels at $(date)"
 
-echo "The wheel is in $(find $pytorch_rootdir -name '*.whl')"
+echo "The wheel is in $(find $whl_tmp_dir -name '*.whl')"
+
+wheel_filename_gen=$(find $whl_tmp_dir -name '*.whl' | head -n1 | xargs -I {} basename {})
 popd
 
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
     # Copy the whl to a final destination before tests are run
-    echo "Wheel file: $wheel_filename_gen $wheel_filename_new"
+    echo "Renaming Wheel file: $wheel_filename_gen to $wheel_filename_new"
     cp "$whl_tmp_dir/$wheel_filename_gen" "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new"
 
     ##########################
