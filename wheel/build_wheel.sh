@@ -92,19 +92,17 @@ pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
 whl_tmp_dir="${MAC_PACKAGE_WORK_DIR}/dist"
 mkdir -p "$whl_tmp_dir"
 
-# Python 3.5 build against macOS 10.6, others build against 10.7
+# Python 3.5 build against macOS 10.6, others build against 10.9
 # NB: Sometimes Anaconda revs the version, in which case you'll have to
 # update this!
 # An example of this happened on Aug 13, 2019, when osx-64/python-2.7.16-h97142e2_2.tar.bz2
 # was uploaded to https://anaconda.org/anaconda/python/files
-if [[ "$desired_python" == 3.7 ]]; then
-    mac_version='macosx_10_7_x86_64'
-elif [[ "$desired_python" == 3.6 ]]; then
-    mac_version='macosx_10_9_x86_64'
-elif [[ "$desired_python" == 3.5 ]]; then
+if [[ "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
-else
+elif [[ "$desired_python" == 2.7 ]]; then
     mac_version='macosx_10_7_x86_64'
+else
+    mac_version='macosx_10_9_x86_64'
 fi
 
 # Create a consistent wheel package name to rename the wheel to
