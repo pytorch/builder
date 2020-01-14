@@ -137,7 +137,11 @@ export INSTALL_TEST=0 # dont install test binaries into site-packages
 export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
-retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja requests
+if [[ "$desired_python" == 3.8 ]]; then
+    retry conda install -yq cmake numpy=1.15 nomkl setuptools pyyaml ninja requests
+else
+    retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja requests
+fi
 retry conda install -yq mkl-include==2019.5 mkl-static==2019.5 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
