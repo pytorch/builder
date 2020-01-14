@@ -109,7 +109,7 @@ python setup.py clean
 retry pip install -qr requirements.txt
 if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
     retry pip install -q numpy==1.15
-if [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
+elif [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
     retry pip install -q numpy==1.15
 else
     retry pip install -q numpy==1.11
