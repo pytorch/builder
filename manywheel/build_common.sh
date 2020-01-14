@@ -66,6 +66,8 @@ export CMAKE_INCLUDE_PATH="/opt/intel/include:$CMAKE_INCLUDE_PATH"
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     if [[ "$DESIRED_PYTHON" == '2.7mu' ]]; then
       DESIRED_PYTHON='cp27-cp27mu'
+    elif [[ "$DESIRED_PYTHON" == '3.8m' ]]; then
+      DESIRED_PYTHON='cp38-cp38'
     else
       python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
       DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
@@ -106,6 +108,8 @@ fi
 python setup.py clean
 retry pip install -qr requirements.txt
 if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
+    retry pip install -q numpy==1.15
+if [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
     retry pip install -q numpy==1.15
 else
     retry pip install -q numpy==1.11
