@@ -92,7 +92,7 @@ if [[ -z "$DESIRED_PYTHON" ]]; then
     if [[ "$OSTYPE" == "msys" ]]; then
         DESIRED_PYTHON=('3.5' '3.6' '3.7')
     else
-        DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7')
+        DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7' '3.8')
     fi
 fi
 if [[ "$OSTYPE" == "darwin"* ]]; then

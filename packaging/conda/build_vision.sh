@@ -90,5 +90,6 @@ fi
 time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.5 torchvision
 time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.6 torchvision
 time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.7 torchvision
+time conda build -c $ANACONDA_USER --no-anaconda-upload --python 3.8 torchvision
 
 set +e

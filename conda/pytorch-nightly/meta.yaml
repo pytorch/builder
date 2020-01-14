@@ -15,10 +15,10 @@ requirements:
     - numpy 1.11.*
     - setuptools
     - pyyaml
-    - cffi
+    - cffi # [py2k]
     - mkl >=2019
     - mkl-include
-    - typing
+    - typing # [py2k]
     - ninja
     - libuv # [unix]
     - pkg-config # [unix]
@@ -28,7 +28,7 @@ requirements:
     - python
     - numpy >=1.11
     - mkl >=2018
-    - cffi
+    - cffi # [py2k]
     - ninja
     - future # [py2k]
     - typing # [py2k]
