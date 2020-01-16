@@ -18,7 +18,7 @@ fi
 
 
 pushd winwheels/conda
-anaconda upload -u pytorch $package_name*.bz2
+anaconda upload -u pytorch $package_name*.bz2 --force
 popd
 
 

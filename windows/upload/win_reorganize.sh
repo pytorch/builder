@@ -79,10 +79,10 @@ for ((i=0;i<${#CUDA_VERSIONS[@]};++i)); do
 		git checkout $VISION_BRANCH_NAME
 		if [[ "$dtype" == "wheels"* ]]; then
 	    	    mkdir -p $final_dir/whl/$CUDA_VERSION_FINAL
-	    	    cp vision_$dtype/$CUDA_FOLDER/* $final_dir/whl/$CUDA_VERSION_FINAL/
+	    	    cp $dtype/$CUDA_FOLDER/* $final_dir/whl/$CUDA_VERSION_FINAL/
 		else
 	    	    mkdir -p $final_dir/conda
-	    	    cp vision_$dtype/* $final_dir/conda/
+	    	    cp $dtype/* $final_dir/conda/
 		fi
 	    fi
 	done
