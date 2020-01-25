@@ -59,6 +59,9 @@ jobs:
         PY3.7:
           DESIRED_PYTHON: 3.7
           CUDA_VERSION: cpu
+        PY3.8:
+          DESIRED_PYTHON: 3.8
+          CUDA_VERSION: cpu
       ${{ if and(eq(parameters.package, 'Wheels'), eq(parameters.spec, 'CPU')) }}:
         LIBTORCH:
           DESIRED_PYTHON: 3
@@ -79,6 +82,9 @@ jobs:
         PY3.7_92:
           DESIRED_PYTHON: 3.7
           CUDA_VERSION: 92
+        PY3.8_92:
+          DESIRED_PYTHON: 3.8
+          CUDA_VERSION: 92
         PY3.5_101:
           DESIRED_PYTHON: 3.5
           CUDA_VERSION: 101
@@ -87,6 +93,9 @@ jobs:
           CUDA_VERSION: 101
         PY3.7_101:
           DESIRED_PYTHON: 3.7
+          CUDA_VERSION: 101
+        PY3.8_101:
+          DESIRED_PYTHON: 3.8
           CUDA_VERSION: 101
       ${{ if and(ne(parameters.spec, 'CPU'), eq(parameters.package, 'Wheels')) }}:
         LIBTORCH_92:
