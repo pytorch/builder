@@ -138,7 +138,7 @@ export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
 if [[ "$desired_python" == 3.8 ]]; then
-    retry conda install -yq cmake numpy=1.15 nomkl setuptools pyyaml ninja
+    retry conda install -yq cmake numpy=1.17 nomkl setuptools pyyaml ninja
 else
     retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja requests
 fi
