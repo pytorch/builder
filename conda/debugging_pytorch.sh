@@ -14,7 +14,7 @@ export USE_CUDA_STATIC_LINK=1
 . ./switch_cuda_version.sh 9.0
 
 
-conda install -y cmake numpy=1.11 setuptools pyyaml cffi mkl=2018 mkl-include typing ninja magma-cuda80 -c pytorch
+conda install -y cmake numpy=1.17 setuptools pyyaml cffi mkl=2018 mkl-include typing ninja magma-cuda80 -c pytorch
 
 export CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
 git clone https://github.com/pytorch/pytorch -b nightly2 --recursive
