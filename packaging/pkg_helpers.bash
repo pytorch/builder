@@ -133,7 +133,7 @@ activate_proper_conda_python_version() {
 # Outputs:
 #   PATH modified to put correct Python version in PATH
 #
-# Precondition: If Linux, you are in a soumith/manylinux-cuda* Docker image
+# Precondition: If Linux, you are in a pytorch/manylinux-cuda* Docker image
 setup_wheel_python() {
   if [[ "$(uname)" == Darwin ]]; then
     eval "$(conda shell.bash hook)"
@@ -152,6 +152,7 @@ setup_wheel_python() {
       3.5) python_abi=cp35-cp35m ;;
       3.6) python_abi=cp36-cp36m ;;
       3.7) python_abi=cp37-cp37m ;;
+      3.8) python_abi=cp38-cp38 ;;      
       *)
         echo "Unrecognized PYTHON_VERSION=$PYTHON_VERSION"
         exit 1
