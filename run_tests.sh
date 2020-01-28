@@ -80,7 +80,7 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     else
 	retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing pyyaml requests
     fi
-	
+
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
@@ -145,7 +145,7 @@ fi
 # Check that OpenBlas is not linked to on Macs
 if [[ "$(uname)" == 'Darwin' ]]; then
     echo "Checking the OpenBLAS is not linked to"
-    all_dylibs=($(find "$(python -c 'from setuptools import distutils; print(distutils.sysconfig.get_python_lib())')"/torch -name '*.dylib'))
+    all_dylibs=($(find "$(python -c "import site; print(site.getsitepackages()[0])")"/torch -name '*.dylib'))
     for dylib in "${all_dylibs[@]}"; do
         if [[ -n "$(otool -L $dylib | grep -i openblas)" ]]; then
             echo "Found openblas as a dependency of $dylib"
@@ -339,10 +339,10 @@ if [[ "$cuda_ver" != 'cpu' ]]; then
     tests_to_skip+=('TestEndToEndHybridFrontendModels and test_vae_cuda')
 
     # ________________________ TestNN.test_embedding_bag_cuda ________________________
-    # 
+    #
     # self = <test_nn.TestNN testMethod=test_embedding_bag_cuda>
     # dtype = torch.float32
-    # 
+    #
     #     @unittest.skipIf(not TEST_CUDA, "CUDA unavailable")
     #     @repeat_test_for_types(ALL_TENSORTYPES)
     #     @skipIfRocm
@@ -354,7 +354,7 @@ if [[ "$cuda_ver" != 'cpu' ]]; then
     #             # torch.cuda.sparse.HalfTensor is not enabled.
     #             self._test_EmbeddingBag(True, 'sum', True, dtype)
     # >           self._test_EmbeddingBag(True, 'mean', True, dtype)
-    # 
+    #
     # test_nn.py:2144:
     # _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     # test_nn.py:2062: in _test_EmbeddingBag
@@ -695,7 +695,7 @@ for exclusion in "${tests_to_skip[@]}"; do
     fi
 done
 
- 
+
 ##############################################################################
 # Run the tests
 ##############################################################################
