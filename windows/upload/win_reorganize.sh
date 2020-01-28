@@ -26,6 +26,9 @@ fi
 # remotes/origin/conda_3.7
 # remotes/origin/conda_3.7_cuda101
 # remotes/origin/conda_3.7_cuda92
+# remotes/origin/conda_3.8
+# remotes/origin/conda_3.8_cuda101
+# remotes/origin/conda_3.8_cuda92
 # remotes/origin/master
 # remotes/origin/wheels_3
 # remotes/origin/wheels_3_debug
@@ -38,13 +41,16 @@ fi
 # remotes/origin/wheels_3.7
 # remotes/origin/wheels_3.7_cuda101
 # remotes/origin/wheels_3.7_cuda92
+# remotes/origin/wheels_3.8
+# remotes/origin/wheels_3.8_cuda101
+# remotes/origin/wheels_3.8_cuda92
 # remotes/origin/wheels_3_cuda101
 # remotes/origin/wheels_3_cuda101_debug
 # remotes/origin/wheels_3_cuda92
 # remotes/origin/wheels_3_cuda92_debug
 
 
-PYTHON_VERSIONS=('3.5' '3.6' '3.7')
+PYTHON_VERSIONS=('3.5' '3.6' '3.7' '3.8')
 DTYPE=('conda' 'wheels')
 
 CUDA_VERSIONS=('' '_cuda92' '_cuda101')
