@@ -98,6 +98,39 @@ function install_101 {
 
 }
 
+function install_102 {
+    echo "Installing CUDA 10.2 and CuDNN"
+    rm -rf /usr/local/cuda-10.2 /usr/local/cuda
+    # # install CUDA 10.2 in the same container
+    wget -q http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_440.33.01_linux.run
+    chmod +x cuda_10.2.89_440.33.01_linux.run
+    ./cuda_10.2.89_440.33.01_linux.run    --extract=/tmp/cuda
+    rm -f cuda_10.2.89_440.33.01_linux.run
+    mv /tmp/cuda/cuda-toolkit /usr/local/cuda-10.2
+    rm -rf /tmp/cuda
+    rm -f /usr/local/cuda && ln -s /usr/local/cuda-10.2 /usr/local/cuda
+
+    # install CUDA 10.2 CuDNN
+    # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
+    mkdir tmp_cudnn && cd tmp_cudnn
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb -O cudnn-dev.deb
+    wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb -O cudnn.deb
+    ar -x cudnn-dev.deb && tar -xvf data.tar.xz
+    ar -x cudnn.deb && tar -xvf data.tar.xz
+    mkdir -p cuda/include && mkdir -p cuda/lib64
+    cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h
+    cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64
+    mv cuda/lib64/libcudnn_static_v7.a cuda/lib64/libcudnn_static.a
+    ln -s libcudnn.so.7 cuda/lib64/libcudnn.so
+    chmod +x cuda/lib64/*.so
+    cp -a cuda/include/* /usr/local/cuda/include/
+    cp -a cuda/lib64/* /usr/local/cuda/lib64/
+    cd ..
+    rm -rf tmp_cudnn
+    ldconfig
+
+}
+
 
 function prune_92 {
     echo "Pruning CUDA 9.2 and CuDNN"
@@ -167,6 +200,28 @@ function prune_101 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
 }
 
+function prune_102 {
+    echo "Pruning CUDA 10.2 and CuDNN"
+    #####################################################################################
+    # CUDA 10.2 prune static libs
+    #####################################################################################
+    export NVPRUNE="/usr/local/cuda-10.2/bin/nvprune"
+    export CUDA_LIB_DIR="/usr/local/cuda-10.2/lib64"
+
+    export GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+    export GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75"
+
+    # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
+    ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" | grep -v "metis"  \
+	| xargs -I {} bash -c \
+		"echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
+
+    # prune CuDNN and CuBLAS
+    $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+    $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
+    $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
+}
+
 
 # idiomatic parameter and option handling in sh
 while test $# -gt 0
@@ -177,6 +232,8 @@ do
 	10.0) install_100; prune_100
 		;;
 	10.1) install_101; prune_101
+		;;
+	10.2) install_102; prune_102
 		;;
 	*) echo "bad argument $1"; exit 1
 	   ;;
