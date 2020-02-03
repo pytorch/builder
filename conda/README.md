@@ -17,7 +17,12 @@ docker push soumith/conda-cuda
 ## building pytorch / torchvision etc.
 
 ```
-nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/conda-cuda bash
+docker run -it --ipc=host --rm -v $(pwd):/remote pytorch/conda-cuda bash
+yum install -y yum-utils centos-release-scl
+yum-config-manager --enable rhel-server-rhscl-7-rpms
+yum install -y devtoolset-3-gcc devtoolset-3-gcc-c++ devtoolset-3-gcc-gfortran devtoolset-3-binutils
+export PATH=/opt/rh/devtoolset-3/root/usr/bin:$PATH
+export LD_LIBRARY_PATH=/opt/rh/devtoolset-3/root/usr/lib64:/opt/rh/devtoolset-3/root/usr/lib:$LD_LIBRARY_PATH
 cd remote/conda
 
 # versioned
