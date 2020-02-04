@@ -166,4 +166,9 @@ export CUDA_VERSION_SHORT=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | h
 export CUDNN_VERSION=$(ls /usr/local/cuda/lib64/libcudnn.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev)
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-source $SCRIPTPATH/build_common.sh
+if [[ -z "$BUILD_PYTHONLESS" ]]; then
+    BUILD_SCRIPT=build_common.sh
+else
+    BUILD_SCRIPT=build_libtorch.sh
+fi
+source $SCRIPTPATH/${BUILD_SCRIPT}

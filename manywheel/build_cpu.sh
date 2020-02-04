@@ -47,4 +47,9 @@ rm -rf /usr/local/cuda*
 export DESIRED_CUDA='cpu'
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
-source $SCRIPTPATH/build_common.sh
+if [[ -z "$BUILD_PYTHONLESS" ]]; then
+    BUILD_SCRIPT=build_common.sh
+else
+    BUILD_SCRIPT=build_libtorch.sh
+fi
+source $SCRIPTPATH/${BUILD_SCRIPT}
