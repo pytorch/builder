@@ -4,10 +4,17 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-RUN yum install -y wget curl perl cmake util-linux xz bzip2 git patch which unzip
+RUN yum install -y wget curl perl util-linux xz bzip2 git patch which unzip
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
+# EPEL for cmake
+RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    rpm -ivh epel-release-latest-7.noarch.rpm && \
+    rm -f epel-release-latest-7.noarch.rpm
+# cmake
+RUN yum install -y cmake3 && \
+    ln -s /usr/bin/cmake3 /usr/bin/cmake
 ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
 
@@ -39,7 +46,7 @@ FROM cuda as cuda102
 RUN bash ./install_cuda.sh 10.2
 
 FROM base as final
-COPY --from=patchelf /patchelf            /usr/bin/patchelf
+COPY --from=patchelf /patchelf            /usr/local/bin/patchelf
 COPY --from=conda    /opt/conda           /opt/conda
 RUN rm -rf /usr/local/cuda-*
 COPY --from=cuda92   /usr/local/cuda-9.2  /usr/local/cuda-9.2
