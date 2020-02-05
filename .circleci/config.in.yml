@@ -242,15 +242,6 @@ jobs:
           run-external-projects: <<parameters.run-external-projects>>
 
 workflows:
-  build:
-    jobs:
-      - circleci_consistency
-      - win_silly_test:
-          cu_version: cpu
-          name: silly windows test
-          python_version: '3.6'
-      {{ workflows_standard }}
-
   nightly:
     triggers:
       - schedule:
