@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # meant to be called only from the neighboring build.sh and build_cpu.sh scripts
 
 set -ex
