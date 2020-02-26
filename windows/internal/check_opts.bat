@@ -17,12 +17,12 @@ IF NOT ERRORLEVEL 1 (
     set CXX=clcache
 )
 
-where /q sccache.exe
+where /q sccache-cl.exe
 
 IF NOT ERRORLEVEL 1 (
     echo sccache found, using it to speed up builds
-    set CC=sccache cl
-    set CXX=sccache cl
+    set CC=sccache-cl
+    set CXX=sccache-cl
 )
 
 IF exist "%MKLProductDir%\mkl\lib\intel64_win" (

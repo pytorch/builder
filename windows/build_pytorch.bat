@@ -94,6 +94,7 @@ if not "%CUDA_VERSION%" == "cpu" (
 if "%USE_SCCACHE%" == "1" (
     mkdir %CD%\tmp_bin
     curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %CD%\tmp_bin\sccache.exe
+    curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %SRC_DIR%\tmp_bin\sccache-cl.exe
     if not "%CUDA_VERSION%" == "" (
         copy %CD%\tmp_bin\sccache.exe %CD%\tmp_bin\nvcc.exe
 

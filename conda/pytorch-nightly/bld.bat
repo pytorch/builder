@@ -37,6 +37,7 @@ set LIB=%SRC_DIR%\mkl\lib;%LIB%
 IF "%USE_SCCACHE%" == "1" (
     mkdir %SRC_DIR%\tmp_bin
     curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %SRC_DIR%\tmp_bin\sccache.exe
+    curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %SRC_DIR%\tmp_bin\sccache-cl.exe
     copy %SRC_DIR%\tmp_bin\sccache.exe %SRC_DIR%\tmp_bin\nvcc.exe
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
     set SCCACHE_IDLE_TIMEOUT=1500
@@ -73,8 +74,8 @@ sccache --stop-server
 sccache --start-server
 sccache --zero-stats
 
-set CC=sccache cl
-set CXX=sccache cl
+set CC=sccache-cl
+set CXX=sccache-cl
 
 :sccache_end
 
