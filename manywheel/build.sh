@@ -34,6 +34,13 @@ if [[ -n "$DESIRED_CUDA" ]]; then
         CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
     fi
     echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
+
+    # There really has to be a better way to do this - eli
+    # Possibly limiting builds to specific cuda versions be delimiting images would be a choice
+    if [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+        echo "Switching to CUDA version $desired_cuda"
+        /builder/conda/switch_cuda_version.sh "${DESIRED_CUDA}"
+    fi
 else
     CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
     echo "CUDA $CUDA_VERSION Detected"
@@ -51,6 +58,10 @@ elif [[ $CUDA_VERSION == "10.0" ]]; then
     # ATen tests can't build with CUDA 10.0 maybe???? (todo) and the old compiler used here
     EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
 elif [[ $CUDA_VERSION == "10.1" ]]; then
+    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
+    # ATen tests can't build with CUDA 10.1 maybe???? (todo) and the old compiler used here
+    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+elif [[ $CUDA_VERSION == "10.2" ]]; then
     export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
     # ATen tests can't build with CUDA 10.1 maybe???? (todo) and the old compiler used here
     EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
@@ -142,6 +153,22 @@ DEPS_SONAME=(
     "libcudart.so.10.1"
     "libnvToolsExt.so.1"
     "libnvrtc.so.10.1"
+    "libnvrtc-builtins.so"
+    "libgomp.so.1"
+)
+elif [[ $CUDA_VERSION == "10.2" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.10.2"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.10.2"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "$LIBGOMP_PATH"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.10.2"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.10.2"
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )

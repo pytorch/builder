@@ -52,6 +52,13 @@ setup_cuda() {
 
   # Now work out the CUDA settings
   case "$CU_VERSION" in
+    cu102)
+      export CUDA_HOME=/usr/local/cuda-10.2/
+      export FORCE_CUDA=1
+      # Hard-coding gencode flags is temporary situation until
+      # https://github.com/pytorch/pytorch/pull/23408 lands
+      export NVCC_FLAGS="-gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_50,code=compute_50"
+      ;;
     cu101)
       export CUDA_HOME=/usr/local/cuda-10.1/
       export FORCE_CUDA=1
@@ -152,7 +159,7 @@ setup_wheel_python() {
       3.5) python_abi=cp35-cp35m ;;
       3.6) python_abi=cp36-cp36m ;;
       3.7) python_abi=cp37-cp37m ;;
-      3.8) python_abi=cp38-cp38 ;;      
+      3.8) python_abi=cp38-cp38 ;;
       *)
         echo "Unrecognized PYTHON_VERSION=$PYTHON_VERSION"
         exit 1
