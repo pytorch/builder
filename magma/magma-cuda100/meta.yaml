@@ -1,9 +1,9 @@
 package:
-  name: magma-cuda92
-  version: 2.5.1
+  name: magma-cuda100
+  version: 2.5.2
 
 source:
-   url: http://icl.utk.edu/projectsfiles/magma/downloads/magma-2.5.1.tar.gz
+   url: http://icl.utk.edu/projectsfiles/magma/downloads/magma-2.5.2.tar.gz
    patches:
      - cmakelists.patch
      - thread_queue.patch
