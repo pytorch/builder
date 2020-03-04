@@ -153,6 +153,12 @@ function prune_92 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_device.a -o $CUDA_LIB_DIR/libcublas_device.a
 
+    #####################################################################################
+    # CUDA 9.2 prune visual tools
+    #####################################################################################
+    export CUDA_BASE="/usr/local/cuda-9.2/"
+    rm -rf $CUDA_BASE/jre  $CUDA_BASE/libnsight $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins
+
 }
 
 function prune_100 {
@@ -176,6 +182,12 @@ function prune_100 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
 
+    #####################################################################################
+    # CUDA 10.0 prune visual tools
+    #####################################################################################
+    export CUDA_BASE="/usr/local/cuda-10.0/"
+    rm -rf $CUDA_BASE/jre  $CUDA_BASE/libnsight $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/NsightCompute-1.0
+
 }
 
 function prune_101 {
@@ -198,6 +210,12 @@ function prune_101 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
+
+    #####################################################################################
+    # CUDA 10.1 prune visual tools
+    #####################################################################################
+    export CUDA_BASE="/usr/local/cuda-10.1/"
+    rm -rf $CUDA_BASE/libnsight $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/nsight-compute-2019.4.0 $CUDA_BASE/nsight-systems-2019.3.7.5
 }
 
 function prune_102 {
@@ -220,6 +238,13 @@ function prune_102 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
+
+    #####################################################################################
+    # CUDA 10.2 prune visual tools
+    #####################################################################################
+    export CUDA_BASE="/usr/local/cuda-10.2/"
+    rm -rf $CUDA_BASE/libnsight $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/nsight-compute-2019.5.0 $CUDA_BASE/nsight-systems-2019.5.2
+
 }
 
 
