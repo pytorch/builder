@@ -30,6 +30,7 @@ FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
 
+# Install CUDA
 FROM base as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
 
@@ -45,6 +46,11 @@ RUN bash ./install_cuda.sh 10.1
 FROM cuda as cuda102
 RUN bash ./install_cuda.sh 10.2
 
+# Instal MNIST test data
+FROM base as mnist
+ADD ./common/install_mnist.sh install_mnist.sh
+RUN bash ./install_mnist.sh
+
 FROM base as final
 COPY --from=patchelf /patchelf            /usr/local/bin/patchelf
 COPY --from=conda    /opt/conda           /opt/conda
@@ -55,3 +61,4 @@ COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
 COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
 ADD ./java/jni.h     /usr/local/include/jni.h
 ENV PATH /opt/conda/bin:$PATH
+COPY --from=mnist  /usr/local/mnist /usr/local/mnist
