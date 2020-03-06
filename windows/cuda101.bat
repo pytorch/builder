@@ -23,25 +23,32 @@ set USE_CUDA=
 set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
 
 IF "%NVTOOLSEXT_PATH%"=="" (
-    echo NVTX ^(Visual Studio Extension ^for CUDA^) ^not installed, failing
-    exit /b 1
-    goto optcheck
+    IF EXIST "C:\Program Files\NVIDIA Corporation\NvToolsExt\lib\x64\nvToolsExt64_1.lib"  (
+        set NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt
+    ) ELSE (
+        echo NVTX ^(Visual Studio Extension ^for CUDA^) ^not installed, failing
+        exit /b 1
+    )
 )
 
 IF "%CUDA_PATH_V10_1%"=="" (
-    echo CUDA 10.1 not found, failing
-    exit /b 1
-) ELSE (
-    IF "%BUILD_VISION%" == "" (
-        set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0;6.0;6.1;7.0;7.5
-        set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
+    IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1\bin\nvcc.exe" (
+        set "CUDA_PATH_V10_1=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v10.1"
     ) ELSE (
-        set NVCC_FLAGS=-D__CUDA_NO_HALF_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_50,code=compute_50
+        echo CUDA 10.1 not found, failing
+        exit /b 1
     )
-
-    set "CUDA_PATH=%CUDA_PATH_V10_1%"
-    set "PATH=%CUDA_PATH_V10_1%\bin;%PATH%"
 )
+
+IF "%BUILD_VISION%" == "" (
+    set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0;6.0;6.1;7.0;7.5
+    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
+) ELSE (
+    set NVCC_FLAGS=-D__CUDA_NO_HALF_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_50,code=compute_50
+)
+
+set "CUDA_PATH=%CUDA_PATH_V10_1%"
+set "PATH=%CUDA_PATH_V10_1%\bin;%PATH%"
 
 :optcheck
 
