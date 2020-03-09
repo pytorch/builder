@@ -67,8 +67,8 @@ HTML_NAME=torch_stable.html cron/update_s3_htmls.sh
 
 ## Building Docker image
 
-To build:
+To build (Run from the root):
 
 ```
-make DOCKER_ORG=pytorch CUDA_VERSION=<choose your CUDA_VERSION> -f docker.Makefile manywheel-image-push
+manywheel/deploy.sh
 ```
