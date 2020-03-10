@@ -93,9 +93,11 @@ RUN yum install -y autoconf aclocal automake make
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
-COPY --from=python   /opt/python                          /opt/python
-COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION} /usr/local/cuda-${BASE_CUDA_VERSION}
-COPY --from=intel    /opt/intel                           /opt/intel
-COPY --from=patchelf /usr/local/bin/patchelf              /usr/local/bin/patchelf
-COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION} /usr/local/cuda-${BASE_CUDA_VERSION}
-COPY --from=jni      /usr/local/include/jni.h             /usr/local/include/jni.h
+COPY --from=python   /opt/python                           /opt/python
+COPY --from=python   /opt/_internal                        /opt/_internal
+COPY --from=python   /opt/python/cp36-cp36m/bin/auditwheel /usr/local/bin/auditwheel
+COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
+COPY --from=intel    /opt/intel                            /opt/intel
+COPY --from=patchelf /usr/local/bin/patchelf               /usr/local/bin/patchelf
+COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
+COPY --from=jni      /usr/local/include/jni.h              /usr/local/include/jni.h
