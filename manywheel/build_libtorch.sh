@@ -128,15 +128,15 @@ fi
     mkdir -p libtorch/{lib,bin,include,share}
 
     # Copy over all lib files
-    cp -rv build/lib                libtorch/
-    cp -rv build/lib*/torch/lib/*   libtorch/
+    cp -rv build/lib/*                libtorch/lib/
+    cp -rv build/lib*/torch/lib/*     libtorch/lib/
 
     # Copy over all include files
-    cp -rv build/include            libtorch/
-    cp -rv build/lib*/torch/include libtorch/
+    cp -rv build/include/*            libtorch/include/
+    cp -rv build/lib*/torch/include/* libtorch/include/
 
     # Copy over all of the cmake files
-    cp -rv build/lib*/torch/share   libtorch/
+    cp -rv build/lib*/torch/share/*   libtorch/share/
 
     echo "${PYTORCH_BUILD_VERSION}" > libtorch/build-version
     echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
