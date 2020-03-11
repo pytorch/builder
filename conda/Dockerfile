@@ -18,7 +18,7 @@ RUN yum install -y cmake3 && \
 ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
 
-RUN yum install -y autoconf aclocal automake make
+RUN yum install -y autoconf aclocal automake make ninja-build
 
 FROM base as patchelf
 # Install patchelf

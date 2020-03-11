@@ -1,7 +1,7 @@
 FROM nvidia/cuda:9.2-devel-ubuntu16.04 as base
 
 RUN apt-get clean && apt-get update
-RUN apt-get install -y curl locales git-all autoconf automake make wget unzip
+RUN apt-get install -y curl locales git-all autoconf automake make wget unzip ninja-build
 
 RUN locale-gen en_US.UTF-8
 
