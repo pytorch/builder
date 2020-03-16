@@ -56,6 +56,23 @@ binary_common: &binary_common
     UNICODE_ABI: << parameters.unicode_abi >>
     CU_VERSION: << parameters.cu_version >>
 
+promote_common: &promote_common
+  docker:
+    - image: pytorch/release
+  parameters:
+    package_name:
+      description: "package name to promote"
+      type: string
+      default: ""
+  environment:
+    PACKAGE_NAME: << parameters.package_name >>
+    ANACONDA_API_TOKEN: ${CONDA_PYTORCHBOT_TOKEN}
+    AWS_ACCESS_KEY_ID: ${PYTORCH_BINARY_AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY: ${PYTORCH_BINARY_AWS_SECRET_ACCESS_KEY}
+    TEST_WITHOUT_GIT_TAG: 1
+    TEST_PYTORCH_PROMOTE_VERSION: 1.4.0
+    PYTORCH_CONDA_FROM: pytorch
+    PYTORCH_S3_FROM: nightly
 
 commands:
   {{ generated_commands }}
@@ -72,6 +89,37 @@ jobs:
             pip install --user --progress-bar off -r .circleci/requirements.txt
             python .circleci/regenerate.py
             git diff --exit-code || (echo ".circleci/config.yml not in sync with config.yml.in! Run .circleci/regenerate.py to update config"; exit 1)
+
+  test_promote_s3:
+    <<: *promote_common
+    steps:
+      - checkout
+      - run:
+          name: Setting test environment variables
+          command: |
+            export PYTORCH_S3_FROM=nightly
+      - run:
+          name: Running promote script
+          command: |
+            promote/wheel_to_s3.sh
+
+  test_promote_pypi:
+    <<: *promote_common
+    steps:
+      - checkout
+      - run:
+          name: Running promote script
+          command: |
+            promote/wheel_to_pypi.sh
+
+  test_promote_conda:
+    <<: *promote_common
+    steps:
+      - checkout
+      - run:
+          name: Running promote script
+          command: |
+            promote/conda_to_conda.sh
 
 # TODO NOT USED YET
   binary_linux_wheel:
@@ -253,3 +301,19 @@ workflows:
     jobs:
       - circleci_consistency
       {{ workflows_nightly }}
+  test-promote:
+    # These are all dry-run by default
+    jobs:
+      # TODO: find a way to build the dockerfile per-pr
+      - test_promote_s3:
+          name: test_promote_s3_libtorch
+          package_name: libtorch
+      - test_promote_s3:
+          name: test_promote_s3_torch
+          package_name: torch
+      - test_promote_pypi:
+          name: test_promote_pypi_torch
+          package_name: torch
+      - test_promote_conda:
+          name: test_promote_conda_pytorch
+          package_name: pytorch
