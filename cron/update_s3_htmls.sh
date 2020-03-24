@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 # Update the html links file in the s3 bucket Pip uses this html file to look
 # through all the wheels and pick the most recently uploaded one (by the
@@ -14,6 +14,13 @@ fi
 
 if [[ -z "$HTML_NAME" ]]; then
     export HTML_NAME='torch_nightly.html'
+fi
+
+# Dry run disabled by default for legacy purposes
+DRY_RUN=${DRY_RUN:-disabled}
+DRY_RUN_FLAG=""
+if [[ "${DRY_RUN}" != disabled ]]; then
+  DRY_RUN_FLAG="--dryrun"
 fi
 
 # NB: includes trailing slash (from PIP_UPLOAD_FOLDER)
@@ -45,15 +52,20 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
     # Check your work every once in a while
     echo "Setting ${cuda_ver}/$HTML_NAME to:"
     cat "${cuda_ver}-$HTML_NAME"
-
-    aws s3 cp "${cuda_ver}-$HTML_NAME" "s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/$HTML_NAME"  --acl public-read --cache-control 'no-cache,no-store,must-revalidate'
+    (
+      set -x
+      aws s3 cp ${DRY_RUN_FLAG} "${cuda_ver}-$HTML_NAME" "s3://pytorch/whl/${PIP_UPLOAD_FOLDER}${cuda_ver}/$HTML_NAME"  --acl public-read --cache-control 'no-cache,no-store,must-revalidate'
+    )
 
 done
 
 # Check your work every once in a while
 echo "Setting $HTML_NAME to:"
 cat "$HTML_NAME"
+(
+  set -x
 
-# Upload the html file back up
-# Note the lack of a / b/c duplicate / do cause problems in s3
-aws s3 cp "$HTML_NAME" "$s3_base$HTML_NAME"  --acl public-read --cache-control 'no-cache,no-store,must-revalidate'
+  # Upload the html file back up
+  # Note the lack of a / b/c duplicate / do cause problems in s3
+  aws s3 cp ${DRY_RUN_FLAG} "$HTML_NAME" "$s3_base$HTML_NAME"  --acl public-read --cache-control 'no-cache,no-store,must-revalidate'
+)
