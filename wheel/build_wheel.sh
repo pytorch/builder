@@ -139,12 +139,16 @@ export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
 SETUPTOOLS_PINNED_VERSION=""
 PYYAML_PINNED_VERSION=""
-# These are currently pinned due to a bugged setuptools version,
-# see: https://github.com/pytorch/pytorch/pull/35400#issuecomment-604065952
-if [[ "${OSTYPE}" == "darwin"* ]]; then
-    SETUPTOOLS_PINNED_VERSION="=46.0.0"
-    PYYAML_PINNED_VERSION="=5.3"
-fi
+case ${desired_python} in
+    3.5 | 2.7)
+        # setuptools and pyyaml discontinued support for python 3.5 and 2.7
+        continue
+        ;;
+    3*)
+        SETUPTOOLS_PINNED_VERSION="=46.0.0"
+        PYYAML_PINNED_VERSION="=5.3"
+        ;;
+esac
 
 if [[ "$desired_python" == 3.8 ]]; then
     retry conda install -yq cmake numpy=1.17 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" ninja
