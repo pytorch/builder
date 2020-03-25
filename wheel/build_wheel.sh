@@ -137,10 +137,19 @@ export INSTALL_TEST=0 # dont install test binaries into site-packages
 export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
+SETUPTOOLS_PINNED_VERSION=""
+PYYAML_PINNED_VERSION=""
+# These are currently pinned due to a bugged setuptools version,
+# see: https://github.com/pytorch/pytorch/pull/35400#issuecomment-604065952
+if [[ "${OSTYPE}" == "darwin"* ]]; then
+    SETUPTOOLS_PINNED_VERSION="=46.0.0"
+    PYYAML_PINNED_VERSION="=5.3"
+fi
+
 if [[ "$desired_python" == 3.8 ]]; then
-    retry conda install -yq cmake numpy=1.17 nomkl setuptools pyyaml ninja
+    retry conda install -yq cmake numpy=1.17 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" ninja
 else
-    retry conda install -yq cmake numpy==1.11.3 nomkl setuptools pyyaml cffi typing ninja requests
+    retry conda install -yq cmake numpy==1.11.3 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing ninja requests
 fi
 retry conda install -yq mkl-include==2019.5 mkl-static==2019.5 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
