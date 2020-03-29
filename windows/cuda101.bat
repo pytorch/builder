@@ -1,21 +1,17 @@
 @echo off
 
-IF NOT "%BUILD_VISION%" == "" (
-    set MODULE_NAME=vision
-) ELSE (
-    set MODULE_NAME=pytorch
-)
+set MODULE_NAME=pytorch
 
 IF NOT EXIST "setup.py" IF NOT EXIST "%MODULE_NAME%" (
     call internal\clone.bat
     cd ..
-    IF ERRORLEVEL 1 goto eof
 ) ELSE (
     call internal\clean.bat
 )
+IF ERRORLEVEL 1 goto :eof
 
 call internal\check_deps.bat
-IF ERRORLEVEL 1 goto eof
+IF ERRORLEVEL 1 goto :eof
 
 REM Check for optional components
 
@@ -52,15 +48,11 @@ set "PATH=%CUDA_PATH_V10_1%\bin;%PATH%"
 
 :optcheck
 
-IF "%BUILD_VISION%" == "" (
-    call internal\check_opts.bat
-    IF ERRORLEVEL 1 goto eof
+call internal\check_opts.bat
+IF ERRORLEVEL 1 goto :eof
 
-    call internal\copy.bat
-    IF ERRORLEVEL 1 goto eof
-)
+call internal\copy.bat
+IF ERRORLEVEL 1 goto :eof
 
 call internal\setup.bat
-IF ERRORLEVEL 1 goto eof
-
-:eof
+IF ERRORLEVEL 1 goto :eof
