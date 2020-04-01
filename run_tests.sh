@@ -87,7 +87,7 @@ else
     if [[ "$(python --version 2>&1)" == *3.7.* ]]; then
         retry pip install -q numpy==1.15 || true
     else
-        retry pip install -q numpy==1.11 || ture
+        retry pip install -q numpy==1.11 || true
     fi
 fi
 
