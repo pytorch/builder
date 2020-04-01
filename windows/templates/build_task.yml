@@ -153,7 +153,10 @@ jobs:
       taskkill /im link.exe /f || ver > NUL
       taskkill /im cmake.exe /f || ver > NUL
       taskkill /im conda-build.exe /f || ver > NUL
-    displayName: 'Cleaning unclosed processes'
+      rd /s /q $(Build.Repository.LocalPath)\windows\pytorch || ver > NUL
+      rd /s /q $(Build.Repository.LocalPath)\windows\output || ver > NUL
+
+    displayName: 'Cleaning unclosed processes & files'
 
   - checkout: self
     clean: true

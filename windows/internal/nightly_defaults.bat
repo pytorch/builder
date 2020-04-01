@@ -36,7 +36,7 @@ if "%NIGHTLIES_FOLDER%" == "" set "NIGHTLIES_FOLDER=%SRC_DIR%"
 ::   the current date.
 
 
-if "%NIGHTLIES_DATE%" == "" ( goto date_start ) else ( goto date_end )
+if NOT "%NIGHTLIES_DATE%" == "" goto date_end
 
 :date_start
 
@@ -102,17 +102,17 @@ if "%PYTORCH_REPO%" == "" set PYTORCH_REPO=pytorch
 ::   my_branch_name) or can be a git commit (git checkout 4b2674n...). Default
 ::   is 'latest', which is a special term that signals to pull the last commit
 ::   before 0:00 midnight on the NIGHTLIES_DATE
-if "%PYTORCH_BRANCH%" == "" set PYTORCH_BRANCH=latest
+if "%PYTORCH_BRANCH%" == "" set PYTORCH_BRANCH=nightly
 
 :: Clone the requested pytorch checkout
-if exist "%NIGHTLIES_PYTORCH_ROOT%" ( goto clone_end ) else ( goto clone_start )
+if exist "%NIGHTLIES_PYTORCH_ROOT%" goto clone_end
 
 :clone_start
 
 git clone --recursive "https://github.com/%PYTORCH_REPO%/pytorch.git" "%NIGHTLIES_PYTORCH_ROOT%"
 pushd "%NIGHTLIES_PYTORCH_ROOT%"
 
-if "%PYTORCH_BRANCH%" == "latest" ( goto latest_start ) else ( goto latest_end )
+if NOT "%PYTORCH_BRANCH%" == "latest" goto latest_end
 
 :latest_start
 
