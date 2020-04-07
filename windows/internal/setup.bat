@@ -69,9 +69,9 @@ IF "%DEBUG%" == "" (
 
 7z a -tzip "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" libtorch\*
 
-mkdir ..\output\%CUDA_PREFIX%
-copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\%CUDA_PREFIX%\
-copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\%CUDA_PREFIX%\%LIBTORCH_PREFIX%-latest.zip
+if not exist ..\output mkdir ..\output
+copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\
+copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\%LIBTORCH_PREFIX%-latest.zip
 
 goto build_end
 
