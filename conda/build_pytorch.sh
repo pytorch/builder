@@ -54,6 +54,10 @@ if [[ "$desired_cuda" != cpu ]]; then
 fi
 echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
 
+if [[ "$OSTYPE" == "msys" && "$CIRCLECI" == 'true' ]]; then
+    export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.:$PATH"
+fi
+
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
 # PYTORCH_BUILD_NUMBER > 1
 if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
