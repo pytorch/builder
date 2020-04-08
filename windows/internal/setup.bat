@@ -69,15 +69,15 @@ IF "%DEBUG%" == "" (
 
 7z a -tzip "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" libtorch\*
 
-mkdir ..\output\%CUDA_PREFIX%
-copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\%CUDA_PREFIX%\
-copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\%CUDA_PREFIX%\%LIBTORCH_PREFIX%-latest.zip
+if not exist ..\output mkdir ..\output
+copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\
+copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" ..\output\%LIBTORCH_PREFIX%-latest.zip
 
 goto build_end
 
 :pytorch
 :: This stores in e.g. D:/_work/1/s/windows/output/cpu
-pip wheel -e . --no-deps --wheel-dir ../output/%CUDA_PREFIX%
+pip wheel -vvv -e . --no-deps --wheel-dir ../output
 
 :build_end
 IF ERRORLEVEL 1 exit /b 1

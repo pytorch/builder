@@ -54,6 +54,10 @@ if [[ "$desired_cuda" != cpu ]]; then
 fi
 echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
 
+if [[ "$OSTYPE" == "msys" && "$CIRCLECI" == 'true' ]]; then
+    export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.:$PATH"
+fi
+
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
 # PYTORCH_BUILD_NUMBER > 1
 if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
@@ -174,7 +178,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_sh"
-    retry curl -sS https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
     chmod +x "$miniconda_sh" && \
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
@@ -185,7 +189,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_exe"
-    curl -sSk https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
+    curl -sSk https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
     "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
