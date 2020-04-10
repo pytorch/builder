@@ -93,7 +93,7 @@ if not "%CUDA_VERSION%" == "cpu" (
 :: Install sccache
 if "%USE_SCCACHE%" == "1" (
     mkdir %CD%\tmp_bin
-    curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %CD%\tmp_bin\sccache.exe
+    curl -kL "https://drive.google.com/u/0/uc?id=1WvPeBpn41hdr6gQ29uXiQ5RjlzeFvJbO&export=download" --output %CD%\tmp_bin\sccache.exe
     curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %CD%\tmp_bin\sccache-cl.exe
     if not "%CUDA_VERSION%" == "" (
         copy %CD%\tmp_bin\sccache.exe %CD%\tmp_bin\nvcc.exe
