@@ -273,6 +273,15 @@ else
 
 fi
 
+# Some tricks for sccache with conda builds on Windows
+if [[ "$OSTYPE" == "msys" ]]; then
+    mkdir -p /c/cb/pytorch_1
+    export CONDA_BLD_PATH="C:\\cb"
+    export CONDA_BUILD_EXTRA_ARGS="--dirty"
+else
+    export CONDA_BUILD_EXTRA_ARGS=""
+fi
+
 # Loop through all Python versions to build a package for each
 for py_ver in "${DESIRED_PYTHON[@]}"; do
     build_string="py${py_ver}_${build_string_suffix}"
@@ -311,7 +320,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      --no-anaconda-upload \
                      --python "$py_ver" \
                      --output-folder "$output_folder" \
-                     --no-test \
+                     --no-test $CONDA_BUILD_EXTRA_ARGS \
                      "$build_folder"
     echo "Finished conda-build at $(date)"
 
