@@ -37,7 +37,7 @@ set LIB=%SRC_DIR%\mkl\lib;%LIB%
 
 IF "%USE_SCCACHE%" == "1" (
     mkdir %SRC_DIR%\tmp_bin
-    curl -kL "https://drive.google.com/u/0/uc?id=1WvPeBpn41hdr6gQ29uXiQ5RjlzeFvJbO&export=download" --output %SRC_DIR%\tmp_bin\sccache.exe
+    curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %SRC_DIR%\tmp_bin\sccache.exe
     curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %SRC_DIR%\tmp_bin\sccache-cl.exe
     copy %SRC_DIR%\tmp_bin\sccache.exe %SRC_DIR%\tmp_bin\nvcc.exe
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
@@ -84,7 +84,6 @@ python setup.py install
 if errorlevel 1 exit /b 1
 
 IF "%USE_SCCACHE%" == "1" (
-    sccache --show-stats
     taskkill /im sccache.exe /f /t || ver > nul
     taskkill /im nvcc.exe /f /t || ver > nul
 )
