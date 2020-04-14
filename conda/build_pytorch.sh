@@ -150,7 +150,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     git config --system core.longpaths true
     # The jobs are seperated on Windows, so we don't need to clone again.
     if [[ -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
-        cp -R "$NIGHTLIES_PYTORCH_ROOT" "$WIN_PACKAGE_WORK_DIR"
+        cp -R "$NIGHTLIES_PYTORCH_ROOT" "$pytorch_rootdir"
     fi
 elif [[ -d '/pytorch' ]]; then
     # All docker binary builds
