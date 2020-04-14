@@ -84,6 +84,7 @@ python setup.py install
 if errorlevel 1 exit /b 1
 
 IF "%USE_SCCACHE%" == "1" (
+    sccache --show-stats
     taskkill /im sccache.exe /f /t || ver > nul
     taskkill /im nvcc.exe /f /t || ver > nul
 )

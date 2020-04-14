@@ -359,5 +359,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     rm -rf "$output_folder"
 done
 
+# Cleanup the tricks for sccache with conda builds on Windows
+if [[ "$OSTYPE" == "msys" ]]; then
+    rm -rf /c/cb/pytorch_1000000000000
+    unset CONDA_BLD_PATH
+fi
+unset CONDA_BUILD_EXTRA_ARGS
+
 unset PYTORCH_BUILD_VERSION
 unset PYTORCH_BUILD_NUMBER
