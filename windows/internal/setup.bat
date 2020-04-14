@@ -22,11 +22,16 @@ IF NOT exist "setup.py" (
     cd %MODULE_NAME%
 )
 
-if "%CXX%"=="sccache cl" (
-    sccache --stop-server
-    sccache --start-server
-    sccache --zero-stats
-)
+if "%CXX%"=="sccache cl" goto sccache_start
+if "%CXX%"=="sccache-cl" goto sccache_start
+goto sccache_end
+
+:sccache_start
+sccache --stop-server
+sccache --start-server
+sccache --zero-stats
+
+:sccache_end
 
 
 if "%BUILD_PYTHONLESS%" == "" goto pytorch else goto libtorch
@@ -83,9 +88,15 @@ pip wheel -vvv -e . --no-deps --wheel-dir ../output
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
 
-if "%CXX%"=="sccache cl" (
-    taskkill /im sccache.exe /f /t || ver > nul
-    taskkill /im nvcc.exe /f /t || ver > nul
-)
+if "%CXX%"=="sccache cl" goto sccache_cleanup
+if "%CXX%"=="sccache-cl" goto sccache_cleanup
+goto sccache_cleanup_end
+
+:sccache_cleanup
+sccache --show-stats
+taskkill /im sccache.exe /f /t || ver > nul
+taskkill /im nvcc.exe /f /t || ver > nul
+
+:sccache_cleanup_end
 
 cd ..
