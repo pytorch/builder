@@ -9,7 +9,7 @@ set PKG_NAME=torch
 
 pip install future pytest coverage hypothesis protobuf
 
-for /F "delims=" %%i in ('where /R %SRC_DIR%\output %PKG_NAME%*%PYTHON_VERSION%*.whl') do pip install "%%i"
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" %PKG_NAME%*%PYTHON_VERSION%*.whl') do pip install "%%i"
 
 if ERRORLEVEL 1 exit /b 1
 
