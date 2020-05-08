@@ -27,6 +27,8 @@ if "%CXX%"=="sccache-cl" goto sccache_start
 goto sccache_end
 
 :sccache_start
+set SCCACHE_IDLE_TIMEOUT=0
+
 sccache --stop-server
 sccache --start-server
 sccache --zero-stats

@@ -71,6 +71,8 @@ set CMAKE_GENERATOR=Ninja
 
 IF NOT "%USE_SCCACHE%" == "1" goto sccache_end
 
+set SCCACHE_IDLE_TIMEOUT=0
+
 sccache --stop-server
 sccache --start-server
 sccache --zero-stats
