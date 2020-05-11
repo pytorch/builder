@@ -256,8 +256,8 @@ build_and_run_example_cpp () {
   if [ -f "${install_root}/lib/libtorch_cuda.so" ] || [ -f "${install_root}/lib/libtorch_cuda.dylib" ]; then
     TORCH_CUDA_LINK_FLAGS="-ltorch_cuda"
   fi
-  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o example-app
-  ./example-app
+  g++ /builder/test_example_code/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
+  ./$1
 }
 
 build_example_cpp_with_incorrect_abi () {
@@ -287,7 +287,7 @@ build_example_cpp_with_incorrect_abi () {
   if [ -f "${install_root}/lib/libtorch_cuda.so" ] || [ -f "${install_root}/lib/libtorch_cuda.dylib" ]; then
     TORCH_CUDA_LINK_FLAGS="-ltorch_cuda"
   fi
-  g++ example-app.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o example-app
+  g++ /builder/test_example_code/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
   ERRCODE=$?
   set -e
   if [ "$ERRCODE" -eq "0" ]; then
@@ -302,19 +302,11 @@ build_example_cpp_with_incorrect_abi () {
 # Check simple Python/C++ calls
 ###############################################################################
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-  cat >example-app.cpp <<EOL
-#include <torch/torch.h>
-
-int main(int argc, const char* argv[]) {
-  TORCH_WARN("Simple test passed!");
-  return 0;
-}
-EOL
-  build_and_run_example_cpp
+  build_and_run_example_cpp simple-torch-test
   # `_GLIBCXX_USE_CXX11_ABI` is always ignored by gcc in devtoolset7, so we test
   # the expected failure case for Ubuntu 16.04 + gcc 5.4 only.
   if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-    build_example_cpp_with_incorrect_abi
+    build_example_cpp_with_incorrect_abi simple-torch-test
   fi
 else
   python -c 'import torch'
@@ -328,15 +320,7 @@ fi
 
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
-  cat >example-app.cpp <<EOL
-#include <torch/torch.h>
-
-int main(int argc, const char* argv[]) {
-  TORCH_CHECK(torch::hasMKL(), "MKL is not available");
-  return 0;
-}
-EOL
-  build_and_run_example_cpp
+  build_and_run_example_cpp check-torch-mkl
 else
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     echo "Checking that MKL is available"
@@ -360,24 +344,7 @@ fi
 # Test that CUDA builds are setup correctly
 if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
   if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-    cat >example-app.cpp <<EOL
-#include <torch/torch.h>
-
-int main(int argc, const char* argv[]) {
-  std::cout << "Checking that CUDA archs are setup correctly" << std::endl;
-  TORCH_CHECK(torch::rand({3, 5}, torch::Device(torch::kCUDA)).defined(), "CUDA archs are not setup correctly");
-
-  // These have to run after CUDA is initialized
-
-  std::cout << "Checking that magma is available" << std::endl;
-  TORCH_CHECK(torch::hasMAGMA(), "MAGMA is not available");
-
-  std::cout << "Checking that CuDNN is available" << std::endl;
-  TORCH_CHECK(torch::cuda::cudnn_is_available(), "CuDNN is not available");
-  return 0;
-}
-EOL
-    build_and_run_example_cpp
+    build_and_run_example_cpp check-torch-cuda
   else
     echo "Checking that CUDA archs are setup correctly"
     timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
