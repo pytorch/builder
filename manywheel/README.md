@@ -13,7 +13,7 @@ OR
 nvidia-docker run -it --ipc=host --rm -v $(pwd):/remote soumith/manylinux-cuda100:latest bash
 ```
 
-Then run:
+Exit the container, then back in the host, run:
 
 ```
 # versioned, build all
