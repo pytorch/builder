@@ -310,6 +310,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                          --no-anaconda-upload \
                          --output-folder "$output_folder" \
                          $vs_package
+                         
+        cp "$vs_package/conda_build_config.yaml" "pytorch-nightly/conda_build_config.yaml"
     fi
 
     # Output the meta.yaml for easy debugging
