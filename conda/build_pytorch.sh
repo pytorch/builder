@@ -299,11 +299,17 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # We need to build the compiler activation scripts first on Windows
     if [[ "$OSTYPE" == "msys" ]]; then
+        if [[ "$desired_cuda" == "9.2" || "$desired_cuda" == "10.0" ]]; then
+            vs_package="vs2017"
+        else
+            vs_package="vs2019"
+        fi
+
         time VSDEVCMD_ARGS=${VSDEVCMD_ARGS[@]} \
              conda build -c "$ANACONDA_USER" \
                          --no-anaconda-upload \
                          --output-folder "$output_folder" \
-                         vs2017
+                         $vs_package
     fi
 
     # Output the meta.yaml for easy debugging
