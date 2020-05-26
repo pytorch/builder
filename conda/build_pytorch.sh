@@ -299,11 +299,15 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # We need to build the compiler activation scripts first on Windows
     if [[ "$OSTYPE" == "msys" ]]; then
+        vs_package="vs$VC_YEAR"
+
         time VSDEVCMD_ARGS=${VSDEVCMD_ARGS[@]} \
              conda build -c "$ANACONDA_USER" \
                          --no-anaconda-upload \
                          --output-folder "$output_folder" \
-                         vs2017
+                         $vs_package
+                         
+        cp "$vs_package/conda_build_config.yaml" "pytorch-nightly/conda_build_config.yaml"
     fi
 
     # Output the meta.yaml for easy debugging
