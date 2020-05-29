@@ -65,6 +65,20 @@ if "%CUDA_VERSION%" == "80" (
     set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
 )
 
+:: randomtemp is used to resolve the intermittent build error related to CUDA.
+:: code: https://github.com/peterjc123/randomtemp
+:: issue: https://github.com/pytorch/pytorch/issues/25393
+::
+:: Previously, CMake uses CUDA_NVCC_EXECUTABLE for finding nvcc and then
+:: the calls are redirected to sccache. sccache looks for the actual nvcc
+:: in PATH, and then pass the arguments to it.
+:: Currently, randomtemp is placed before sccache (%TMP_DIR_WIN%\bin\nvcc)
+:: so we are actually pretending sccache instead of nvcc itself.
+curl -kL https://github.com/peterjc123/randomtemp/releases/download/v0.3/randomtemp.exe --output %SRC_DIR%\tmp_bin\randomtemp.exe
+set RANDOMTEMP_EXECUTABLE=%SRC_DIR%\tmp_bin\nvcc.exe
+set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\tmp_bin\randomtemp.exe
+set RANDOMTEMP_BASEDIR=%SRC_DIR%\tmp_bin
+
 :cuda_end
 
 set CMAKE_GENERATOR=Ninja

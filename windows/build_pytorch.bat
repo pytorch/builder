@@ -101,6 +101,20 @@ if "%USE_SCCACHE%" == "1" (
         set CUDA_NVCC_EXECUTABLE=%CD%\tmp_bin\nvcc
         set ADDITIONAL_PATH=%CD%\tmp_bin
         set SCCACHE_IDLE_TIMEOUT=1500
+
+        :: randomtemp is used to resolve the intermittent build error related to CUDA.
+        :: code: https://github.com/peterjc123/randomtemp
+        :: issue: https://github.com/pytorch/pytorch/issues/25393
+        ::
+        :: Previously, CMake uses CUDA_NVCC_EXECUTABLE for finding nvcc and then
+        :: the calls are redirected to sccache. sccache looks for the actual nvcc
+        :: in PATH, and then pass the arguments to it.
+        :: Currently, randomtemp is placed before sccache (%TMP_DIR_WIN%\bin\nvcc)
+        :: so we are actually pretending sccache instead of nvcc itself.
+        curl -kL https://github.com/peterjc123/randomtemp/releases/download/v0.3/randomtemp.exe --output %CD%\tmp_bin\randomtemp.exe
+        set RANDOMTEMP_EXECUTABLE=%CD%\tmp_bin\nvcc.exe
+        set CUDA_NVCC_EXECUTABLE=%CD%\tmp_bin\randomtemp.exe
+        set RANDOMTEMP_BASEDIR=%CD%\tmp_bin
     )
 )
 
