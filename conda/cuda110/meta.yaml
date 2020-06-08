@@ -1,0 +1,7 @@
+package:
+  name: cuda110
+  version: 1.0
+
+build:
+  track_features:
+      - cuda110
