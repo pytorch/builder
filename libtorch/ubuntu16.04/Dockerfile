@@ -32,6 +32,9 @@ RUN bash ./install_cuda.sh 10.1
 FROM cuda as cuda102
 RUN bash ./install_cuda.sh 10.2
 
+FROM cuda as cuda110
+RUN bash ./install_cuda.sh 11.0
+
 FROM base as final
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
@@ -55,5 +58,6 @@ COPY --from=cuda92   /usr/local/cuda-9.2  /usr/local/cuda-9.2
 COPY --from=cuda100  /usr/local/cuda-10.0 /usr/local/cuda-10.0
 COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
 COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
+COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
 COPY --from=intel /opt/intel /opt/intel
 ENV CUDA_HOME /usr/local/cuda

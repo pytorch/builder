@@ -52,6 +52,13 @@ setup_cuda() {
 
   # Now work out the CUDA settings
   case "$CU_VERSION" in
+    cu110)
+      export CUDA_HOME=/usr/local/cuda-11.0/
+      export FORCE_CUDA=1
+      # Hard-coding gencode flags is temporary situation until
+      # https://github.com/pytorch/pytorch/pull/23408 lands
+      export NVCC_FLAGS="-gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_80,code=sm_80 -gencode=arch=compute_50,code=compute_50"
+      ;;
     cu102)
       export CUDA_HOME=/usr/local/cuda-10.2/
       export FORCE_CUDA=1
