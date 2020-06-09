@@ -49,6 +49,10 @@ py_dot="${DESIRED_PYTHON:0:3}"
 
 # Generate "long" python versions cp27-cp27mu
 py_long="cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}-cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2}"
+# TODO: I know this is the wrong way to do this translation, we should probably fix it upstream, but this is the quickest way
+if [[ "${py_long}" = "cp38-cp38m" ]]; then
+  py_long="cp38-38"
+fi
 
 # Determine package name
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
@@ -66,7 +70,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   else
       LIBTORCH_ABI=
   fi
-  if [[ "$DESIRED_CUDA" == 'cu101' || "$libtorch_variant" == 'macos' ]]; then
+  if [[ "$DESIRED_CUDA" == 'cu102' || "$libtorch_variant" == 'macos' ]]; then
     package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}.zip"
   else
     package_name="libtorch-$LIBTORCH_ABI$libtorch_variant-${NIGHTLIES_DATE_PREAMBLE}${DATE}%2B${DESIRED_CUDA}.zip"
@@ -79,7 +83,7 @@ elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
 else
   package_name='pytorch'
 fi
-if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu101" ]] || [[ "$PACKAGE_TYPE" == 'conda' ]]; then
+if [[ "$(uname)" == 'Darwin' ]] || [[ "$DESIRED_CUDA" == "cu102" ]] || [[ "$PACKAGE_TYPE" == 'conda' ]]; then
   package_name_and_version="${package_name}==${NIGHTLIES_DATE_PREAMBLE}${DATE}"
 else
   # Linux binaries have the cuda version appended to them. This is only on
