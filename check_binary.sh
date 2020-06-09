@@ -310,8 +310,12 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_example_cpp_with_incorrect_abi simple-torch-test
   fi
 else
+  TMP_DIR=$(mktemp -d)
+  trap 'rm -rf ${TMP_DIR}' EXIT
+  pushd "${TMP_DIR}" # To attempt to not muddle results with local python path
   python -c 'import torch'
   python -c 'from caffe2.python import core'
+  popd
 fi
 
 
