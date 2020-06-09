@@ -51,7 +51,7 @@ py_dot="${DESIRED_PYTHON:0:3}"
 py_long="cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2:1}-cp${DESIRED_PYTHON:0:1}${DESIRED_PYTHON:2}"
 # TODO: I know this is the wrong way to do this translation, we should probably fix it upstream, but this is the quickest way
 if [[ "${py_long}" = "cp38-cp38m" ]]; then
-  py_long="cp38-38"
+  py_long="cp38-cp38"
 fi
 
 # Determine package name
