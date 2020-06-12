@@ -78,8 +78,6 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 
 elif [[ "$PACKAGE_TYPE" == *wheel ]]; then
   package_name='torch'
-elif [[ "$DESIRED_CUDA" == 'cpu' && "$(uname)" != 'Darwin' ]]; then
-  package_name='pytorch'
 else
   package_name='pytorch'
 fi
