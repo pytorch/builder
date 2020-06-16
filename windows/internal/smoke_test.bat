@@ -49,8 +49,13 @@ set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python%PYTHON_VERSION%;%PATH%
 pip install -q future numpy protobuf six "mkl>=2019"
 if errorlevel 1 exit /b 1
 
-for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
-if errorlevel 1 exit /b 1
+if "%TEST_NIGHTLY_PACKAGE%" == "1" (
+    call internal\install_nightly_package.bat
+    if errorlevel 1 exit /b 1
+) else (
+    for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
+    if errorlevel 1 exit /b 1
+)
 
 goto smoke_test
 
@@ -79,15 +84,21 @@ if errorlevel 1 exit /b 1
 call conda install -yq future numpy protobuf six
 if ERRORLEVEL 1 exit /b 1
 
-for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install -y "%%i" --offline
-if ERRORLEVEL 1 exit /b 1
-
-if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
-
 set /a CUDA_VER=%CUDA_VERSION%
 set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
+
+if "%TEST_NIGHTLY_PACKAGE%" == "1" (
+    call internal\install_nightly_package.bat
+    if errorlevel 1 exit /b 1
+    goto smoke_test
+)
+
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install -y "%%i" --offline
+if ERRORLEVEL 1 exit /b 1
+
+if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
 if "%CUDA_VERSION_STR%" == "9.2" (
     call conda install -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch -c defaults -c numba/label/dev
@@ -138,8 +149,13 @@ echo "install and test libtorch"
 if "%VC_YEAR%" == "2017" powershell internal\vs2017_install.ps1
 if ERRORLEVEL 1 exit /b 1
 
-for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
-if ERRORLEVEL 1 exit /b 1
+if "%TEST_NIGHTLY_PACKAGE%" == "1" (
+    call internal\install_nightly_package.bat
+    if errorlevel 1 exit /b 1
+) else (
+    for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
+    if ERRORLEVEL 1 exit /b 1
+)
 
 pushd tmp\libtorch
 
