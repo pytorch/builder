@@ -137,10 +137,8 @@ function install_110 {
     # # install CUDA 11.0 in the same container
     wget -q http://developer.download.nvidia.com/compute/cuda/11.0.1/local_installers/cuda_11.0.1_450.36.06_linux.run
     chmod +x cuda_11.0.1_450.36.06_linux.run
-    ./cuda_11.0.1_450.36.06_linux.run    --extract=/tmp/cuda
+    ./cuda_11.0.1_450.36.06_linux.run --toolkit --silent
     rm -f cuda_11.0.1_450.36.06_linux.run
-    mv /tmp/cuda/cuda-toolkit /usr/local/cuda-11.0
-    rm -rf /tmp/cuda
     rm -f /usr/local/cuda && ln -s /usr/local/cuda-11.0 /usr/local/cuda
 
     # install CUDA 11.0 CuDNN
@@ -297,7 +295,8 @@ function prune_110 {
 		"echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
     # prune CuDNN and CuBLAS
-    $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+    # TODO: not including cudnn yet
+    # $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
 
