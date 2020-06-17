@@ -143,24 +143,14 @@ function install_110 {
 
     # install CUDA 11.0 CuDNN
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
-    # TODO: CuDNN for CUDA 11.0 is not released yet
-    # mkdir tmp_cudnn && cd tmp_cudnn
-    # wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7-dev_7.6.5.32-1+cuda10.2_amd64.deb -O cudnn-dev.deb
-    # wget -q http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn7_7.6.5.32-1+cuda10.2_amd64.deb -O cudnn.deb
-    # ar -x cudnn-dev.deb && tar -xvf data.tar.xz
-    # ar -x cudnn.deb && tar -xvf data.tar.xz
-    # mkdir -p cuda/include && mkdir -p cuda/lib64
-    # cp -a usr/include/x86_64-linux-gnu/cudnn_v7.h cuda/include/cudnn.h
-    # cp -a usr/lib/x86_64-linux-gnu/libcudnn* cuda/lib64
-    # mv cuda/lib64/libcudnn_static_v7.a cuda/lib64/libcudnn_static.a
-    # ln -s libcudnn.so.7 cuda/lib64/libcudnn.so
-    # chmod +x cuda/lib64/*.so
-    # cp -a cuda/include/* /usr/local/cuda/include/
-    # cp -a cuda/lib64/* /usr/local/cuda/lib64/
-    # cd ..
-    # rm -rf tmp_cudnn
-    # ldconfig
-
+    mkdir tmp_cudnn && cd tmp_cudnn
+    wget -q http://developer.download.nvidia.com/compute/redist/cudnn/v8.0.0/cudnn-11.0-linux-x64-v8.0.0.180.tgz -O cudnn-8.0.tgz
+    tar xf cudnn-8.0.tgz
+    cp -a cuda/include/* /usr/local/cuda/include/
+    cp -a cuda/lib64/* /usr/local/cuda/lib64/
+    cd ..
+    rm -rf tmp_cudnn
+    ldconfig
 }
 
 
@@ -295,8 +285,7 @@ function prune_110 {
 		"echo {} && $NVPRUNE $GENCODE $CUDA_LIB_DIR/{} -o $CUDA_LIB_DIR/{}"
 
     # prune CuDNN and CuBLAS
-    # TODO: not including cudnn yet
-    # $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
+    $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcudnn_static.a -o $CUDA_LIB_DIR/libcudnn_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublas_static.a -o $CUDA_LIB_DIR/libcublas_static.a
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
 

@@ -34,17 +34,17 @@ RUN bash ./install_conda.sh && rm install_conda.sh
 FROM base as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
 
-FROM cuda as cuda92
-RUN bash ./install_cuda.sh 9.2
+# FROM cuda as cuda92
+# RUN bash ./install_cuda.sh 9.2
 
-FROM cuda as cuda100
-RUN bash ./install_cuda.sh 10.0
+# FROM cuda as cuda100
+# RUN bash ./install_cuda.sh 10.0
 
-FROM cuda as cuda101
-RUN bash ./install_cuda.sh 10.1
+# FROM cuda as cuda101
+# RUN bash ./install_cuda.sh 10.1
 
-FROM cuda as cuda102
-RUN bash ./install_cuda.sh 10.2
+# FROM cuda as cuda102
+# RUN bash ./install_cuda.sh 10.2
 
 FROM cuda as cuda110
 RUN bash ./install_cuda.sh 11.0
