@@ -10,12 +10,9 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
 FROM base as intel
-RUN mkdir -p /opt/intel/lib
-WORKDIR /tmp
-RUN curl -fsSL https://anaconda.org/intel/mkl-static/2019.5/download/linux-64/mkl-static-2019.5-intel_281.tar.bz2 | tar xjv
-RUN mv lib/* /opt/intel/lib/
-RUN curl -fsSL https://anaconda.org/intel/mkl-include/2019.5/download/linux-64/mkl-include-2019.5-intel_281.tar.bz2 | tar xjv
-RUN mv include /opt/intel/
+# Install MKL
+ADD ./common/install_mkl.sh install_mkl.sh
+RUN bash ./install_mkl.sh && rm install_mkl.sh
 
 FROM base as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
@@ -39,10 +36,6 @@ FROM base as final
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-
-# Install MKL
-ADD ./common/install_mkl.sh install_mkl.sh
-RUN bash ./install_mkl.sh && rm install_mkl.sh
 
 # Install MAGMA (need CUDA)
 ADD ./common/install_magma.sh install_magma.sh

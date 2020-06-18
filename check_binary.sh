@@ -310,8 +310,10 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_example_cpp_with_incorrect_abi simple-torch-test
   fi
 else
+  pushd /tmp
   python -c 'import torch'
   python -c 'from caffe2.python import core'
+  popd
 fi
 
 
@@ -325,7 +327,9 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 else
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     echo "Checking that MKL is available"
+    pushd /tmp
     python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
+    popd
   fi
 fi
 
@@ -347,6 +351,7 @@ if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
   if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_and_run_example_cpp check-torch-cuda
   else
+    pushd /tmp
     echo "Checking that CUDA archs are setup correctly"
     timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
 
@@ -357,5 +362,6 @@ if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
 
     echo "Checking that CuDNN is available"
     python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
+    popd
   fi # if libtorch
 fi # if cuda

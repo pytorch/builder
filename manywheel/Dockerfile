@@ -42,12 +42,8 @@ RUN bash ./install_cuda.sh ${BASE_CUDA_VERSION} && rm install_cuda.sh
 
 FROM base as intel
 # MKL
-RUN mkdir -p /opt/intel/lib
-WORKDIR /tmp
-RUN curl -fsSL https://anaconda.org/intel/mkl-static/2019.5/download/linux-64/mkl-static-2019.5-intel_281.tar.bz2 | tar xjv
-RUN mv lib/* /opt/intel/lib/
-RUN curl -fsSL https://anaconda.org/intel/mkl-include/2019.5/download/linux-64/mkl-include-2019.5-intel_281.tar.bz2 | tar xjv
-RUN mv include /opt/intel/
+ADD ./common/install_mkl.sh install_mkl.sh
+RUN bash ./install_mkl.sh && rm install_mkl.sh
 
 # EPEL for cmake
 FROM base as patchelf
