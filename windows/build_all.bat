@@ -45,8 +45,6 @@ set LIB=%cd%\\mkl\\lib;%LIB%
 
 REM Download MAGMA Files
 for %%p in (
-        cuda80
-        cuda90
         cuda92
        ) do (
             rmdir /s /q magma_%%p_release
@@ -78,19 +76,13 @@ for %%v in (
             pip install ninja
             for %%c in (
                 cpu
-                80
-                90
                 92
             ) do (
                 @setlocal
 
                 REM Set Flags
                 if NOT "%%c"=="cpu" (
-                    if NOT "%%c"=="92" (
-                        set MAGMA_HOME=%cd%\\magma_!CUDA_PREFIX!_release
-                    ) else (
-                        set MAGMA_HOME=%cd%\\magma_!CUDA_PREFIX!_release\magma_cuda92\magma\install
-                    )
+                    set MAGMA_HOME=%cd%\\magma_!CUDA_PREFIX!_release\magma_cuda92\magma\install
                     set CUDA_VERSION=%%c
                     set CUDA_PREFIX=cuda!CUDA_VERSION!
                     set CUDNN_VERSION=7
