@@ -97,12 +97,11 @@ if not exist "%SRC_DIR%\temp_build\cuda_11.0.1_451.22_win10.exe" (
     set "ARGS=nvcc_11.0 cuobjdump_11.0 nvprune_11.0 cupti_11.0 cublas_11.0 cublas_dev_11.0 cudart_11.0 cufft_11.0 cufft_dev_11.0 curand_11.0 curand_dev_11.0 cusolver_11.0 cusolver_dev_11.0 cusparse_11.0 cusparse_dev_11.0 nvgraph_11.0 nvgraph_dev_11.0 npp_11.0 npp_dev_11.0 nvrtc_11.0 nvrtc_dev_11.0 nvml_dev_11.0"
 )
 
-REM cuDNN is not released yet
-REM if not exist "%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip" (
-REM     curl -k -L https://ossci-windows.s3.amazonaws.com/cudnn-10.2-windows10-x64-v7.6.5.32.zip --output "%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip"
-REM     if errorlevel 1 exit /b 1
-REM     set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip"
-REM )
+if not exist "%SRC_DIR%\temp_build\cudnn-11.0-windows-x64-v8.0.0.180.zip" (
+    curl -k -L https://developer.download.nvidia.com/compute/redist/cudnn/v8.0.0/cudnn-11.0-windows-x64-v8.0.0.180.zip --output "%SRC_DIR%\temp_build\cudnn-11.0-windows-x64-v8.0.0.180.zip"
+    if errorlevel 1 exit /b 1
+    set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-11.0-windows-x64-v8.0.0.180.zip"
+)
 
 goto cuda_common
 
