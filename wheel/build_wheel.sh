@@ -155,7 +155,7 @@ if [[ "$desired_python" == 3.8 ]]; then
 else
     retry conda install -yq cmake numpy==1.11.3 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing ninja requests
 fi
-retry conda install -yq mkl-include==2019.5 mkl-static==2019.5 -c intel
+retry conda install -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
