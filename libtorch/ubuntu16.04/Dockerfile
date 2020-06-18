@@ -39,7 +39,7 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 
 # Install MAGMA (need CUDA)
 ADD ./common/install_magma.sh install_magma.sh
-RUN bash ./install_magma.sh 9.2 10.0 10.1 10.2 && rm install_magma.sh
+RUN bash ./install_magma.sh 9.2 10.0 10.1 10.2 11.0 && rm install_magma.sh
 
 # Install Anaconda
 ENV PATH /opt/conda/bin:$PATH

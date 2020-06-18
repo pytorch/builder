@@ -47,7 +47,7 @@ function install_102 {
 function install_110 {
     # Install MAGMA for CUDA 11.0
     pushd /tmp
-    wget -q https://anaconda.org/pytorch/magma-cuda102/2.5.2/download/linux-64/magma-cuda110-2.5.2-1.tar.bz2
+    wget -q https://anaconda.org/pytorch/magma-cuda110/2.5.2/download/linux-64/magma-cuda110-2.5.2-1.tar.bz2
     tar -xvf magma-cuda110-2.5.2-1.tar.bz2
     mkdir -p /usr/local/cuda-11.0/magma
     mv include /usr/local/cuda-11.0/magma/include
