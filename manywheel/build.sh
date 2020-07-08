@@ -46,21 +46,19 @@ else
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
-export TORCH_CUDA_ARCH_LIST="3.7+PTX;6.0;6.1;7.0"
+export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;6.1;7.0"
 case ${CUDA_VERSION} in
     10.2)
         # No 5.0 for CUDA 10.2
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-        # Compile CUDA 10.2 without caffe2 ops
-        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DBUILD_CAFFE2_OPS=OFF")
         ;;
     10.*)
-        export TORCH_CUDA_ARCH_LIST="5.0;${TORCH_CUDA_ARCH_LIST}"
+        export TORCH_CUDA_ARCH_LIST=";${TORCH_CUDA_ARCH_LIST}"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     9.*)
-        export TORCH_CUDA_ARCH_LIST="5.0;${TORCH_CUDA_ARCH_LIST}"
+        export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         ;;
     *)
         echo "unknown cuda version $CUDA_VERSION"
