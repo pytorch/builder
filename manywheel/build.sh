@@ -46,7 +46,7 @@ else
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
-export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;6.1;7.0"
+export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
     10.2)
         # No 5.0 for CUDA 10.2
