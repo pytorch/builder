@@ -46,29 +46,25 @@ else
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
-export TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
-if [[ $CUDA_VERSION == "9.0" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;7.0"
-elif [[ $CUDA_VERSION == "9.2" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0"
-    # ATen tests can't build with CUDA 9.2 and the old compiler used here
-    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-elif [[ $CUDA_VERSION == "10.0" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
-    # ATen tests can't build with CUDA 10.0 maybe???? (todo) and the old compiler used here
-    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-elif [[ $CUDA_VERSION == "10.1" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
-    # ATen tests can't build with CUDA 10.1 maybe???? (todo) and the old compiler used here
-    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-elif [[ $CUDA_VERSION == "10.2" ]]; then
-    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
-    # ATen tests can't build with CUDA 10.1 maybe???? (todo) and the old compiler used here
-    EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-else
-    echo "unknown cuda version $CUDA_VERSION"
-    exit 1
-fi
+export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
+case ${CUDA_VERSION} in
+    10.2)
+        # No 5.0 for CUDA 10.2
+        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5"
+        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+        ;;
+    10.*)
+        export TORCH_CUDA_ARCH_LIST=";${TORCH_CUDA_ARCH_LIST}"
+        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+        ;;
+    9.*)
+        export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
+        ;;
+    *)
+        echo "unknown cuda version $CUDA_VERSION"
+        exit 1
+        ;;
+esac
 echo $TORCH_CUDA_ARCH_LIST
 
 cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
