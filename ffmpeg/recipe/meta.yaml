@@ -1,0 +1,83 @@
+{% set version = "4.3" %}
+
+package:
+  name: ffmpeg
+  version: {{ version }}
+
+source:
+  - url: https://ffmpeg.org/releases/ffmpeg-{{ version }}.tar.gz  # [not win]
+    sha256: 95edf444cc46509ea1fea85d99ecd40a597a873627483ef9b068796feb3bf72a  # [not win]
+
+  - url: https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-{{ version }}-win64-shared-lgpl.zip  # [win]
+    sha256: aaca10decc4696d919284bebdd307db3528240f88ed75fdebc487cf7ca07aeaf  # [win]
+
+  - url: https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-{{ version }}-win64-dev-lgpl.zip  # [win]
+    sha256: 57f312a15310294101067bc21b9323e41d09c6851ff83d3282200278e5e74b54  # [win]
+
+build:
+  number: 0
+  run_exports:
+  # seems to be minor version compatibility
+  # https://abi-laboratory.pro/tracker/timeline/ffmpeg/
+    - {{ pin_subpackage('ffmpeg', max_pin='x.x') }}
+
+requirements:
+  build:
+    - {{ compiler("c") }}
+    - {{ compiler("cxx") }}
+    - pkg-config  # [not win]
+    - libtool  # [not win]
+    - nasm  # [not win]
+    - lame  # [not win]
+    - make  # [not win]
+  host:
+    - bzip2  # [not win]
+    - freetype  # [not win]
+    - gnutls  # [not win]
+    - libiconv  # [not win]
+    - zlib  # [not win]
+    - openh264  # [not win]
+    - lame  # [not win]
+    - gmp  # [unix]
+  run:
+    - bzip2  # [not win]
+    - freetype  # [not win]
+    - gnutls  # [not win]
+    - openh264  # [not win]
+    - lame  # [not win]
+    - gmp  # [unix]
+
+test:
+  commands:
+    - ffmpeg --help
+    - ffmpeg -loglevel panic -protocols | grep "https"  # [not win]
+    - ffmpeg -loglevel panic -codecs | grep "libmp3lame"  # [not win]
+    - ffmpeg -loglevel panic -codecs | grep "DEVI.S zlib"  # [unix]
+    - ffmpeg -loglevel panic -codecs | grep "DEV.LS h264"  # [unix]
+    - ffmpeg -loglevel panic -codecs | grep "libx264"  # [unix]
+    - ffmpeg -loglevel panic -codecs | grep "libopenh264"  # [unix]
+    # Verify dynamic libraries on all systems
+    {% set ffmpeg_libs = [
+        "avcodec",
+        "avdevice",
+        "swresample",
+        "postproc",
+        "avfilter",
+        "swresample",
+        "avcodec",
+        "avformat",
+        "swscale",
+        "avresample"
+    ] %}
+    {% for each_ffmpeg_lib in ffmpeg_libs %}
+    - test -f $PREFIX/lib/lib{{ each_ffmpeg_lib }}.dylib  # [osx]
+    - test -f $PREFIX/lib/lib{{ each_ffmpeg_lib }}.so     # [linux]
+    {% endfor %}
+    - conda inspect linkages -p $PREFIX $PKG_NAME  # [not win]
+    - conda inspect objects -p $PREFIX $PKG_NAME  # [osx]
+
+about:
+  home: http://www.ffmpeg.org/
+  license: LGPL
+  license_file: COPYING.GPLv3  # [unix]
+  summary: Cross-platform solution to record, convert and stream audio and video.
