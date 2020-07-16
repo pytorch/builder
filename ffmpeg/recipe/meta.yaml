@@ -44,6 +44,7 @@ requirements:
     - freetype  # [not win]
     - gnutls  # [not win]
     - openh264  # [not win]
+    - libiconv  # [not win]
     - lame  # [not win]
     - gmp  # [unix]
 
@@ -54,14 +55,12 @@ test:
     - ffmpeg -loglevel panic -codecs | grep "libmp3lame"  # [not win]
     - ffmpeg -loglevel panic -codecs | grep "DEVI.S zlib"  # [unix]
     - ffmpeg -loglevel panic -codecs | grep "DEV.LS h264"  # [unix]
-    - ffmpeg -loglevel panic -codecs | grep "libx264"  # [unix]
     - ffmpeg -loglevel panic -codecs | grep "libopenh264"  # [unix]
     # Verify dynamic libraries on all systems
     {% set ffmpeg_libs = [
         "avcodec",
         "avdevice",
         "swresample",
-        "postproc",
         "avfilter",
         "swresample",
         "avcodec",
@@ -79,5 +78,5 @@ test:
 about:
   home: http://www.ffmpeg.org/
   license: LGPL
-  license_file: COPYING.GPLv3  # [unix]
+  license_file: COPYING.LGPLv2.1  # [unix]
   summary: Cross-platform solution to record, convert and stream audio and video.

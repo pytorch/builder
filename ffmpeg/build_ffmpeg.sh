@@ -5,5 +5,5 @@ set -eou pipefail
 conda install -yq conda-build conda-verify
 (
     set -x
-    conda build --output-folder ffmpeg/output "recipe"
+    conda build --output-folder ffmpeg/output "ffmpeg/recipe"
 )
