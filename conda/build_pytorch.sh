@@ -274,13 +274,15 @@ else
 fi
 
 # Some tricks for sccache with conda builds on Windows
-if [[ "$OSTYPE" == "msys" && "$USE_SCCACHE" == "1" ]]; then
+if [[ "$OSTYPE" == "msys" ]]; then
     if [[ ! -d "/c/cb" ]]; then
         rm -rf /c/cb
     fi
-    mkdir -p /c/cb/pytorch_1000000000000
     export CONDA_BLD_PATH="C:\\cb"
-    export CONDA_BUILD_EXTRA_ARGS="--dirty"
+    mkdir -p /c/cb/pytorch_1000000000000
+    if [[ "$USE_SCCACHE" == "1"  ]]; then
+      export CONDA_BUILD_EXTRA_ARGS="--dirty"
+    fi
 else
     export CONDA_BUILD_EXTRA_ARGS=""
 fi
@@ -306,7 +308,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                          --no-anaconda-upload \
                          --output-folder "$output_folder" \
                          $vs_package
-                         
+
         cp "$vs_package/conda_build_config.yaml" "pytorch-nightly/conda_build_config.yaml"
     fi
 
