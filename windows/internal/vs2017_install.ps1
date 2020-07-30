@@ -1,6 +1,5 @@
 $VS_DOWNLOAD_LINK = "https://aka.ms/vs/15/release/vs_buildtools.exe"
 $VS_INSTALL_ARGS = @("--nocache","--quiet","--wait", "--add Microsoft.VisualStudio.Workload.VCTools",
-                                                     "--add Microsoft.VisualStudio.Component.VC.Tools.14.13",
                                                      "--add Microsoft.Component.MSBuild",
                                                      "--add Microsoft.VisualStudio.Component.Roslyn.Compiler",
                                                      "--add Microsoft.VisualStudio.Component.TextTemplating",
@@ -9,6 +8,10 @@ $VS_INSTALL_ARGS = @("--nocache","--quiet","--wait", "--add Microsoft.VisualStud
                                                      "--add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core",
                                                      "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
                                                      "--add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Win81")
+
+if ($args.Count -ne 0) {
+    $VS_INSTALL_ARGS += "--add Microsoft.VisualStudio.Component.VC.Tools.$($args[0])"
+}
 
 curl.exe --retry 3 -kL $VS_DOWNLOAD_LINK --output vs_installer.exe
 if ($LASTEXITCODE -ne 0) {
