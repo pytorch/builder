@@ -37,9 +37,6 @@ ADD ./common/install_cuda.sh install_cuda.sh
 FROM cuda as cuda92
 RUN bash ./install_cuda.sh 9.2
 
-FROM cuda as cuda100
-RUN bash ./install_cuda.sh 10.0
-
 FROM cuda as cuda101
 RUN bash ./install_cuda.sh 10.1
 
@@ -59,7 +56,6 @@ COPY --from=patchelf /patchelf            /usr/local/bin/patchelf
 COPY --from=conda    /opt/conda           /opt/conda
 RUN rm -rf /usr/local/cuda-*
 COPY --from=cuda92   /usr/local/cuda-9.2  /usr/local/cuda-9.2
-COPY --from=cuda100  /usr/local/cuda-10.0 /usr/local/cuda-10.0
 COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
 COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
 COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
