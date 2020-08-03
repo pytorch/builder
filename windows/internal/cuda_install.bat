@@ -90,17 +90,17 @@ if not exist "%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip" (
 
 :cuda110
 
-if not exist "%SRC_DIR%\temp_build\cuda_11.0.1_451.22_win10.exe" (
-    curl -k -L http://developer.download.nvidia.com/compute/cuda/11.0.1/local_installers/cuda_11.0.1_451.22_win10.exe --output "%SRC_DIR%\temp_build\cuda_11.0.1_451.22_win10.exe"
+if not exist "%SRC_DIR%\temp_build\cuda_11.0.2_451.48_win10.exe" (
+    curl -k -L http://developer.download.nvidia.com/compute/cuda/11.0.2/local_installers/cuda_11.0.2_451.48_win10.exe --output "%SRC_DIR%\temp_build\cuda_11.0.2_451.48_win10.exe"
     if errorlevel 1 exit /b 1
-    set "CUDA_SETUP_FILE=%SRC_DIR%\temp_build\cuda_11.0.1_451.22_win10.exe"
+    set "CUDA_SETUP_FILE=%SRC_DIR%\temp_build\cuda_11.0.2_451.48_win10.exe"
     set "ARGS=nvcc_11.0 cuobjdump_11.0 nvprune_11.0 cupti_11.0 cublas_11.0 cublas_dev_11.0 cudart_11.0 cufft_11.0 cufft_dev_11.0 curand_11.0 curand_dev_11.0 cusolver_11.0 cusolver_dev_11.0 cusparse_11.0 cusparse_dev_11.0 nvgraph_11.0 nvgraph_dev_11.0 npp_11.0 npp_dev_11.0 nvrtc_11.0 nvrtc_dev_11.0 nvml_dev_11.0"
 )
 
-if not exist "%SRC_DIR%\temp_build\cudnn-11.0-windows-x64-v8.0.0.180.zip" (
-    curl -k -L https://developer.download.nvidia.com/compute/redist/cudnn/v8.0.0/cudnn-11.0-windows-x64-v8.0.0.180.zip --output "%SRC_DIR%\temp_build\cudnn-11.0-windows-x64-v8.0.0.180.zip"
+if not exist "%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip" (
+    curl -k -L https://developer.download.nvidia.com/compute/redist/cudnn/v8.0.2/cudnn-11.0-windows10-x64-v8.0.2.39.zip --output "%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip"
     if errorlevel 1 exit /b 1
-    set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-11.0-windows-x64-v8.0.0.180.zip"
+    set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip"
 )
 
 goto cuda_common
