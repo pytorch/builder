@@ -153,7 +153,7 @@ esac
 if [[ "$desired_python" == 3.8 ]]; then
     retry conda install -yq cmake numpy=1.17 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" ninja
 else
-    retry conda install -yq cmake numpy==1.11.3 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing ninja requests
+    retry conda install -yq cmake numpy==1.11.3 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
 fi
 retry conda install -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
