@@ -1,5 +1,4 @@
-if "%VC_YEAR%" == "2017" if "%CUDA_VERSION%" == "92" set VSDEVCMD_ARGS=-vcvars_ver=14.11
-if "%VC_YEAR%" == "2017" powershell windows/internal/vs2017_install.ps1
+call windows/internal/vc_install_helper.bat
 if errorlevel 1 exit /b 1
 
 call windows/internal/cuda_install.bat

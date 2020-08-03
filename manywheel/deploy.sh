@@ -6,7 +6,7 @@ build_image() {
     BASE_CUDA_VERSION=$1
 }
 
-for cuda_version in 9.2 10.0 10.1 10.2; do
+for cuda_version in 9.2 10.1 10.2; do
     (
         set -x
         docker build \

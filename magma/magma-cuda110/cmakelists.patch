@@ -1,5 +1,5 @@
---- CMakeLists.txt	2019-11-04 15:04:50.452110612 -0800
-+++ CMakeLists.txt	2019-11-04 15:05:39.889521970 -0800
+--- CMakeLists.txt	2020-06-18 14:34:00.713576314 -0700
++++ CMakeLists.txt	2020-06-18 14:36:23.821607272 -0700
 @@ -3,7 +3,7 @@
  # ----------------------------------------
  # to disable Fortran, set this to "off"
@@ -58,7 +58,7 @@
  
 +    if ( ${GPU_TARGET} MATCHES "All")
 +      set( MIN_ARCH 370)
-+      SET( NV_SM -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 )
++      SET( NV_SM -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70  -gencode arch=compute_80,code=sm_80 )
 +      SET( NV_COMP "")
 +    endif()
 +    
@@ -81,7 +81,7 @@
      # force showing updated LAPACK_LIBRARIES in ccmake / cmake-gui.
      set( LAPACK_LIBRARIES ${LAPACK_LIBRARIES} CACHE STRING "Libraries for LAPACK and BLAS, to manually override search" FORCE )
  else()
-@@ -405,7 +414,7 @@
+@@ -405,12 +414,12 @@
      #message( "libmagma_all_f   ${libmagma_all_f}"   )
  
      # on Windows, Fortran files aren't compiled if listed here...
@@ -90,7 +90,13 @@
      target_link_libraries( magma
          ${LAPACK_LIBRARIES}
          ${CUDA_CUDART_LIBRARY}
-@@ -427,7 +436,7 @@
+         ${CUDA_CUBLAS_LIBRARIES}
+-        ${CUDA_cusparse_LIBRARY}
++        # ${CUDA_cusparse_LIBRARY}
+     )
+ 
+     # no Fortran files at the moment (how to test libmagma_all_f is not empty?),
+@@ -427,13 +436,13 @@
      ## make list of Fortran .mod files to install, as below
  else()
      # Unix doesn't seem to have a problem with mixing C, CUDA, and Fortran files
@@ -99,7 +105,14 @@
      target_link_libraries( magma
          ${blas_fix}
          ${LAPACK_LIBRARIES}
-@@ -446,43 +455,43 @@
+         ${CUDA_CUDART_LIBRARY}
+         ${CUDA_CUBLAS_LIBRARIES}
+-        ${CUDA_cusparse_LIBRARY}
++        # ${CUDA_cusparse_LIBRARY}
+     )
+ 
+     # make list of Fortran .mod files to install
+@@ -446,112 +455,112 @@
      endforeach()
  endif()
  add_custom_target( lib DEPENDS magma )
@@ -179,25 +192,27 @@
  
  
  # ----------------------------------------
-@@ -492,7 +501,7 @@
- include_directories( sparse/include )
- include_directories( sparse/control )
- include_directories( testing )
+ # compile MAGMA sparse library
+ 
+ # sparse doesn't have Fortran at the moment, so no need for above shenanigans
+-include_directories( sparse/include )
+-include_directories( sparse/control )
+-include_directories( testing )
 -cuda_add_library( magma_sparse ${libsparse_all} )
-+cuda_add_library( magma_sparse STATIC ${libsparse_all} OPTIONS --compiler-options "-fPIC")
- target_link_libraries( magma_sparse
-     magma
-     ${blas_fix}
-@@ -503,45 +512,45 @@
- )
- add_custom_target( sparse-lib DEPENDS magma_sparse )
- 
+-target_link_libraries( magma_sparse
+-    magma
+-    ${blas_fix}
+-    ${LAPACK_LIBRARIES}
+-    ${CUDA_CUDART_LIBRARY}
+-    ${CUDA_CUBLAS_LIBRARIES}
+-    ${CUDA_cusparse_LIBRARY}
+-)
+-add_custom_target( sparse-lib DEPENDS magma_sparse )
 -
-+set_target_properties(magma_sparse PROPERTIES POSITION_INDEPENDENT_CODE ON)
- # ----------------------------------------
+-
+-# ----------------------------------------
 -# compile each tester
-+# # compile each tester
- 
+-
 -# save testers to testing/
 -# save tester lib files to testing_lib/ to avoid cluttering lib/
 -set( CMAKE_RUNTIME_OUTPUT_DIRECTORY testing )
@@ -233,6 +248,24 @@
 -    list( APPEND sparse-testing ${EXE} )
 -endforeach()
 -add_custom_target( sparse-testing DEPENDS ${sparse-testing} )
++# include_directories( sparse/include )
++# include_directories( sparse/control )
++# include_directories( testing )
++# cuda_add_library( magma_sparse STATIC ${libsparse_all} OPTIONS --compiler-options "-fPIC")
++# target_link_libraries( magma_sparse
++#     magma
++#     ${blas_fix}
++#     ${LAPACK_LIBRARIES}
++#     ${CUDA_CUDART_LIBRARY}
++#     ${CUDA_CUBLAS_LIBRARIES}
++#     ${CUDA_cusparse_LIBRARY}
++# )
++# add_custom_target( sparse-lib DEPENDS magma_sparse )
++
++# set_target_properties(magma_sparse PROPERTIES POSITION_INDEPENDENT_CODE ON)
++# ----------------------------------------
++# # compile each tester
++
 +# # save testers to testing/
 +# # save tester lib files to testing_lib/ to avoid cluttering lib/
 +# set( CMAKE_RUNTIME_OUTPUT_DIRECTORY testing )
@@ -271,11 +304,15 @@
  
  
  # ----------------------------------------
-@@ -551,7 +560,7 @@
+ # what to install
+-install( TARGETS magma magma_sparse ${blas_fix}
++install( TARGETS magma ${blas_fix}
+          RUNTIME DESTINATION bin
           LIBRARY DESTINATION lib
           ARCHIVE DESTINATION lib )
- file( GLOB headers include/*.h sparse/include/*.h )
+-file( GLOB headers include/*.h sparse/include/*.h )
 -install( FILES ${headers} ${modules}
++file( GLOB headers include/*.h )
 +install( FILES ${headers} 
           DESTINATION include )
  
