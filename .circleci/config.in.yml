@@ -241,6 +241,41 @@ jobs:
           is-macos: <<parameters.is-macos>>
           run-external-projects: <<parameters.run-external-projects>>
 
+  ffmpeg_linux:
+    <<: *binary_common
+    docker:
+      - image: "pytorch/conda-cuda"
+    resource_class: 2xlarge+
+    steps:
+      - checkout
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            ffmpeg/build_ci.sh
+
+  ffmpeg_mac:
+    <<: *binary_common
+    macos:
+      xcode: "9.0"
+    steps:
+      - checkout
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            ffmpeg/build_ci.sh
+
+  ffmpeg_win:
+    <<: *binary_common
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh
+
 workflows:
   nightly:
     triggers:
@@ -251,5 +286,16 @@ workflows:
               only:
                 - master
     jobs:
+      - hold:
+        type: approval
+      - ffmpeg_linux:
+        requires:
+          - hold
+      - ffmpeg_mac:
+        requires:
+          - hold
+      - ffmpeg_win:
+        requires:
+          - hold
       - circleci_consistency
       {{ workflows_nightly }}
