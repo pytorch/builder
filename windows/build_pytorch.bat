@@ -73,8 +73,7 @@ set LIB=%cd%\mkl\lib;%LIB%
 
 :: Download MAGMA Files on CUDA builds
 set MAGMA_VERSION=2.5.2
-if "%CUDA_VERSION%" == "80" set MAGMA_VERSION=2.4.0
-if "%CUDA_VERSION%" == "90" set MAGMA_VERSION=2.5.0
+if "%CUDA_VERSION%" == "110" set MAGMA_VERSION=2.5.3
 
 if "%DEBUG%" == "1" (
     set BUILD_TYPE=debug
