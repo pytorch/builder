@@ -98,7 +98,7 @@ if not exist "%SRC_DIR%\temp_build\cuda_11.0.2_451.48_win10.exe" (
 )
 
 if not exist "%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip" (
-    curl -k -L https://ossci-windows.s3.amazonaws.com/cudnn-11.0-windows-x64-v8.0.2.39.zip --output "%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip"
+    curl -k -L https://ossci-windows.s3.amazonaws.com/cudnn-11.0-windows10-x64-v8.0.2.39.zip --output "%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip"
     if errorlevel 1 exit /b 1
     set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-11.0-windows10-x64-v8.0.2.39.zip"
 )
