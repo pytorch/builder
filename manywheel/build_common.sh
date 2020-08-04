@@ -22,12 +22,6 @@ retry () {
 
 # TODO move this into the Docker images
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
-if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
-    retry yum install -q -y zip openssl
-elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-    retry apt-get update
-    retry apt-get -y install zip openssl
-fi
 
 # We use the package name to test the package by passing this to 'pip install'
 # This is the env variable that setup.py uses to name the package. Note that
@@ -358,7 +352,7 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   # Run the tests
   echo "$(date) :: Running tests"
   pushd "$pytorch_rootdir"
-  LD_LIBRARY_PATH=/usr/local/nvidia/lib64 \
+  LD_LIBRARY_PATH="/usr/local/nvidia/lib64:/usr/local/lib:/usr/lib64" \
           "${SOURCE_DIR}/../run_tests.sh" manywheel "${py_majmin}" "$DESIRED_CUDA"
   popd
   echo "$(date) :: Finished tests"
