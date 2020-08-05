@@ -18,7 +18,8 @@ git branch
 git fetch origin
 
 FOLDER_COMMIT=$(git log -1 --format=format:%H --full-diff $DIR)
-BASE_COMMIT=$(git merge-base --fork-point refs/remotes/origin/master)
+BASE_COMMIT="$("$(git show-ref refs/remotes/origin/master)" | awk '{print $1}')"
+# BASE_COMMIT=$(git merge-base --fork-point refs/remotes/origin/master)
 
 git merge-base --is-ancestor $FOLDER_COMMIT $BASE_COMMIT
 COMMIT_SAME=$?
