@@ -471,7 +471,7 @@ jobs:
           paths:
             - output/*/ffmpeg*.bz2
 
-  ffpmeg_upload:
+  ffmpeg_upload:
     <<: *binary_common
     docker:
       - image: "pytorch/conda-cuda"
