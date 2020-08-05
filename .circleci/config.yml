@@ -447,6 +447,20 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Anaconda
+          command: |
+            curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+            sh conda.sh -b
+            source $HOME/miniconda3/bin/activate
+            conda install -yq conda-build
+
+            # Fixes "OSError: [Errno 13] Permission denied: '/usr/local/man'"
+            # see https://github.com/tqdm/tqdm/issues/460#issuecomment-365787522
+            sudo mkdir -p /usr/local/man
+            sudo chown -R "$USER:admin" /usr/local/man
+
+            brew install wget
+      - run:
           name: Build FFmpeg recipe
           command: |
             ffmpeg/build_ci.sh
