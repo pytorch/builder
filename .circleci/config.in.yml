@@ -280,7 +280,7 @@ jobs:
       - run:
           name: Build FFmpeg recipe
           command: |
-            ffmpeg/build_ci.sh
+            .circleci/helper-scripts/wrap-with-conda-activation-macos.sh ffmpeg/build_ci.sh
       - persist_to_workspace:
           root: ffmpeg
           paths:
