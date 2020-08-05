@@ -436,9 +436,9 @@ jobs:
           command: |
             ffmpeg/build_ci.sh
       - persist_to_workspace:
-        root: ffmpeg
-        paths:
-          - output/*/ffmpeg*.bz2
+          root: ffmpeg
+          paths:
+            - output/*/ffmpeg*.bz2
 
   ffmpeg_mac:
     <<: *binary_common
@@ -451,9 +451,9 @@ jobs:
           command: |
             ffmpeg/build_ci.sh
       - persist_to_workspace:
-        root: ffmpeg
-        paths:
-          - output/*/ffmpeg*.bz2
+          root: ffmpeg
+          paths:
+            - output/*/ffmpeg*.bz2
 
   ffmpeg_win:
     <<: *binary_common
@@ -467,9 +467,9 @@ jobs:
           command: |
             .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh
       - persist_to_workspace:
-        root: ffmpeg
-        paths:
-          - output/*/ffmpeg*.bz2
+          root: ffmpeg
+          paths:
+            - output/*/ffmpeg*.bz2
 
   ffpmeg_upload:
     <<: *binary_common
@@ -478,7 +478,7 @@ jobs:
     resource_class: 2xlarge+
     steps:
       - attach_workspace:
-        at: /tmp/workspace
+          at: /tmp/workspace
       - run:
           name: Upload FFmpeg packages to PyTorch Anaconda channel
           command: |
@@ -655,11 +655,11 @@ workflows:
       - ffmpeg_mac
       - ffmpeg_win
       - hold:
-        type: approval
-        requires:
-          - ffmpeg_linux
-          - ffmpeg_mac
-          - ffmpeg_win
+          type: approval
+          requires:
+            - ffmpeg_linux
+            - ffmpeg_mac
+            - ffmpeg_win
       - ffpmeg_upload:
-        requires:
-          - hold
+          requires:
+            - hold
