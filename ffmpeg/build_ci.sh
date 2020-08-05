@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-# set e+x
-# echo "Getting git refs"
+set e+x
+echo "Getting git refs"
 
-# git show-ref --head --heads | while IFS=' ' read -r hash name;
-# do
-#   echo "ref $name hash $hash"
-#   test ! -e "${GIT_DIR:-.git}/$name" && echo $hash > "${GIT_DIR:-.git}/$name";
-# done
+git show-ref | while IFS=' ' read -r hash name;
+do
+  echo "ref $name hash $hash"
+  test ! -e "${GIT_DIR:-.git}/$name" && echo $hash > "${GIT_DIR:-.git}/$name";
+done
 
 set -xou pipefail
 
@@ -16,7 +16,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 git remote -v
 git branch
 git fetch origin
-git show-ref
 
 FOLDER_COMMIT=$(git log -1 --format=format:%H --full-diff $DIR)
 BASE_COMMIT=$(git merge-base --fork-point refs/remotes/origin/master)
