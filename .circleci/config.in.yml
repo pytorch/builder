@@ -317,9 +317,21 @@ workflows:
 
   ffmpeg:
     jobs:
-      - ffmpeg_linux
-      - ffmpeg_mac
-      - ffmpeg_win
+      - ffmpeg_linux:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg
+          python_version: '3.7'
+      - ffmpeg_mac:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg
+          python_version: '3.7'
+      - ffmpeg_win:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg
+          python_version: '3.7'
       - hold:
           type: approval
           requires:
