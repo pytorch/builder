@@ -7,7 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 git remote -v
 git branch
 
-BASE_COMMIT=$(git merge-base --fork-point origin/master)
+BASE_COMMIT=$(git merge-base --fork-point master)
 FOLDER_COMMIT=$(git log -1 --format=format:%H --full-diff $DIR)
 
 git merge-base --is-ancestor $FOLDER_COMMIT $BASE_COMMIT
