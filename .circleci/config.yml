@@ -672,6 +672,10 @@ workflows:
             - ffmpeg_linux
             - ffmpeg_mac
             - ffmpeg_win
-      - ffpmeg_upload:
+      - ffmpeg_upload:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_upload
+          python_version: '3.7'
           requires:
             - hold
