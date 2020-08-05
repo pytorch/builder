@@ -654,17 +654,17 @@ workflows:
       - ffmpeg_linux:
           cu_version: cpu
           is-python3: true
-          name: ffmpeg
+          name: ffmpeg_linux
           python_version: '3.7'
       - ffmpeg_mac:
           cu_version: cpu
           is-python3: true
-          name: ffmpeg
+          name: ffmpeg_mac
           python_version: '3.7'
       - ffmpeg_win:
           cu_version: cpu
           is-python3: true
-          name: ffmpeg
+          name: ffmpeg_win
           python_version: '3.7'
       - hold:
           type: approval
@@ -673,9 +673,5 @@ workflows:
             - ffmpeg_mac
             - ffmpeg_win
       - ffpmeg_upload:
-          cu_version: cpu
-          is-python3: true
-          name: ffmpeg
-          python_version: '3.7'
           requires:
             - hold
