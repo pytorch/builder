@@ -438,23 +438,6 @@ workflows:
       - binary_macos_wheel:
           cu_version: cpu
           is-macos: true
-          name: nightly
-          python_version: '2.7'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
-          name: nightly
-          python_version: '2.7'
-          unicode_abi: '1'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
           is-python3: true
           name: nightly
           python_version: '3.6'
@@ -464,18 +447,13 @@ workflows:
           is-python3: true
           name: nightly
           python_version: '3.7'
-          run-external-projects: true
-      - binary_macos_conda:
-          cu_version: cpu
-          is-macos: true
-          name: nightly
-          python_version: '2.7'
-      - binary_macos_conda:
+      - binary_macos_wheel:
           cu_version: cpu
           is-macos: true
           is-python3: true
           name: nightly
-          python_version: '3.5'
+          python_version: '3.8'
+          run-external-projects: true
       - binary_macos_conda:
           cu_version: cpu
           is-macos: true
@@ -488,45 +466,13 @@ workflows:
           is-python3: true
           name: nightly
           python_version: '3.7'
+      - binary_macos_conda:
+          cu_version: cpu
+          is-macos: true
+          is-python3: true
+          name: nightly
+          python_version: '3.8'
           run-external-projects: true
-      - binary_linux_conda:
-          cu_version: cpu
-          name: nightly
-          python_version: '2.7'
-      - binary_linux_conda_cuda:
-          cu_version: cu92
-          name: nightly
-          python_version: '2.7'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_conda_cuda:
-          cu_version: cu100
-          name: nightly
-          python_version: '2.7'
-      - binary_linux_conda_cuda:
-          cu_version: cu101
-          name: nightly
-          python_version: '2.7'
-      - binary_linux_conda:
-          cu_version: cpu
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_linux_conda_cuda:
-          cu_version: cu92
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_conda_cuda:
-          cu_version: cu100
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_linux_conda_cuda:
-          cu_version: cu101
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
       - binary_linux_conda:
           cu_version: cpu
           is-python3: true
@@ -548,12 +494,16 @@ workflows:
           is-python3: true
           name: nightly
           python_version: '3.6'
+      - binary_linux_conda_cuda:
+          cu_version: cu110
+          is-python3: true
+          name: nightly
+          python_version: '3.6'
       - binary_linux_conda:
           cu_version: cpu
           is-python3: true
           name: nightly
           python_version: '3.7'
-          run-external-projects: true
       - binary_linux_conda_cuda:
           cu_version: cu92
           is-python3: true
@@ -570,12 +520,39 @@ workflows:
           is-python3: true
           name: nightly
           python_version: '3.7'
-          run-external-projects: true
-      - binary_win_conda:
+      - binary_linux_conda_cuda:
+          cu_version: cu110
+          is-python3: true
+          name: nightly
+          python_version: '3.7'
+      - binary_linux_conda:
           cu_version: cpu
           is-python3: true
           name: nightly
-          python_version: '3.5'
+          python_version: '3.8'
+          run-external-projects: true
+      - binary_linux_conda_cuda:
+          cu_version: cu92
+          is-python3: true
+          name: nightly
+          python_version: '3.8'
+          wheel_docker_image: soumith/manylinux-cuda92
+      - binary_linux_conda_cuda:
+          cu_version: cu100
+          is-python3: true
+          name: nightly
+          python_version: '3.8'
+      - binary_linux_conda_cuda:
+          cu_version: cu101
+          is-python3: true
+          name: nightly
+          python_version: '3.8'
+      - binary_linux_conda_cuda:
+          cu_version: cu110
+          is-python3: true
+          name: nightly
+          python_version: '3.8'
+          run-external-projects: true
       - binary_win_conda:
           cu_version: cpu
           is-python3: true
@@ -586,4 +563,9 @@ workflows:
           is-python3: true
           name: nightly
           python_version: '3.7'
+      - binary_win_conda:
+          cu_version: cpu
+          is-python3: true
+          name: nightly
+          python_version: '3.8'
           run-external-projects: true
