@@ -44,6 +44,17 @@ function install_102 {
     rm -rf info lib include magma-cuda102-2.5.2-1.tar.bz2
 }
 
+function install_110 {
+    # Install MAGMA for CUDA 11.0
+    pushd /tmp
+    wget -q https://anaconda.org/pytorch/magma-cuda110/2.5.2/download/linux-64/magma-cuda110-2.5.2-1.tar.bz2
+    tar -xvf magma-cuda110-2.5.2-1.tar.bz2
+    mkdir -p /usr/local/cuda-11.0/magma
+    mv include /usr/local/cuda-11.0/magma/include
+    mv lib /usr/local/cuda-11.0/magma/lib
+    rm -rf info lib include magma-cuda110-2.5.2-1.tar.bz2
+}
+
 # idiomatic parameter and option handling in sh
 while test $# -gt 0
 do
@@ -55,6 +66,8 @@ do
     10.1) install_101
         ;;
     10.2) install_102
+        ;;
+    11.0) install_110
         ;;
     *) echo "bad argument $1"; exit 1
        ;;
