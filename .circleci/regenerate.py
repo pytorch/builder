@@ -23,10 +23,9 @@ import argparse
 
 
 ALL_PYTHON_VERSIONS = [
-    "2.7",
-    "3.5",
     "3.6",
     "3.7",
+    "3.8",
 ]
 
 
@@ -34,6 +33,7 @@ ALL_CUDA_VERSIONS = [
     "cu92",
     "cu100",
     "cu101",
+    "cu110",
 ]
 
 
