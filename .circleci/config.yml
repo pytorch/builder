@@ -496,7 +496,7 @@ jobs:
       - run:
           name: Upload FFmpeg packages to PyTorch Anaconda channel
           command: |
-            anaconda upload -u pytorch --force /tmp/workspace/ffmpeg*.bz2
+            anaconda -t "${CONDA_PYTORCHBOT_TOKEN}" upload -u pytorch --force $(find /tmp/workspace -name "ffmpeg*.bz2" -type f)
 
 
 workflows:
@@ -650,7 +650,6 @@ workflows:
       - ffmpeg_linux:
           cu_version: cpu
           is-python3: true
-          name: ffmpeg_linux
           python_version: '3.7'
       - ffmpeg_mac:
           cu_version: cpu
@@ -669,6 +668,7 @@ workflows:
             - ffmpeg_mac
             - ffmpeg_win
       - ffmpeg_upload:
+          context: org-member
           cu_version: cpu
           is-python3: true
           name: ffmpeg_upload
