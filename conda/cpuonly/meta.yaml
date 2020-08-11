@@ -4,7 +4,7 @@ package:
 
 requirements:
   run_constrained:
-    - faiss-proc * cpu
+    - pytorch-proc * cpu
 
 outputs:
   # A meta-package to select CPU or GPU build for faiss.
