@@ -88,6 +88,8 @@ if not exist "%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip" (
     set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip"
 )
 
+goto cuda_common
+
 :cuda110
 
 if not exist "%SRC_DIR%\temp_build\cuda_11.0.2_451.48_win10.exe" (
