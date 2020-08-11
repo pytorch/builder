@@ -241,6 +241,81 @@ jobs:
           is-macos: <<parameters.is-macos>>
           run-external-projects: <<parameters.run-external-projects>>
 
+  ffmpeg_linux:
+    <<: *binary_common
+    docker:
+      - image: "pytorch/conda-cuda"
+    resource_class: 2xlarge+
+    steps:
+      - checkout
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            ffmpeg/build_ci.sh
+      - persist_to_workspace:
+          root: ffmpeg
+          paths:
+            - output/*/ffmpeg*.bz2
+
+  ffmpeg_mac:
+    <<: *binary_common
+    macos:
+      xcode: "9.0"
+    steps:
+      - checkout
+      - run:
+          name: Install Anaconda
+          command: |
+            curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+            sh conda.sh -b
+            source $HOME/miniconda3/bin/activate
+            conda install -yq conda-build
+
+            # Fixes "OSError: [Errno 13] Permission denied: '/usr/local/man'"
+            # see https://github.com/tqdm/tqdm/issues/460#issuecomment-365787522
+            sudo mkdir -p /usr/local/man
+            sudo chown -R "$USER:admin" /usr/local/man
+
+            brew install wget
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            .circleci/helper-scripts/wrap-with-conda-activation-macos.sh ffmpeg/build_ci.sh
+      - persist_to_workspace:
+          root: ffmpeg
+          paths:
+            - output/*/ffmpeg*.bz2
+
+  ffmpeg_win:
+    <<: *binary_common
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh
+      - persist_to_workspace:
+          root: ffmpeg
+          paths:
+            - output/*/ffmpeg*.bz2
+
+  ffmpeg_upload:
+    <<: *binary_common
+    docker:
+      - image: "pytorch/conda-cuda"
+    resource_class: 2xlarge+
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Upload FFmpeg packages to PyTorch Anaconda channel
+          command: |
+            anaconda upload -u pytorch --force /tmp/workspace/ffmpeg*.bz2
+
+
 workflows:
   nightly:
     triggers:
@@ -253,3 +328,35 @@ workflows:
     jobs:
       - circleci_consistency
       {{ workflows_nightly }}
+
+  ffmpeg:
+    jobs:
+      - ffmpeg_linux:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_linux
+          python_version: '3.7'
+      - ffmpeg_mac:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_mac
+          python_version: '3.7'
+      - ffmpeg_win:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_win
+          python_version: '3.7'
+      - hold:
+          type: approval
+          requires:
+            - ffmpeg_linux
+            - ffmpeg_mac
+            - ffmpeg_win
+      - ffmpeg_upload:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_upload
+          python_version: '3.7'
+          requires:
+            - hold
+
