@@ -2,7 +2,13 @@ package:
   name: cpuonly
   version: 1.0
 
-build:
-  track_features:
-      - cpuonly
-  noarch: generic
+requirements:
+  run_constrained:
+    - faiss-proc * cpu
+
+outputs:
+  # A meta-package to select CPU or GPU build for faiss.
+  - name: pytorch-proc
+    version: 1.0.0
+    build:
+      string: cpu
