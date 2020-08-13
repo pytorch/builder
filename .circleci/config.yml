@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  win: circleci/windows@1.0.0
+
 binary_common: &binary_common
   parameters:
     # Edit these defaults to do a release`
