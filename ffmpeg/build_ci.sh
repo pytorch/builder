@@ -22,9 +22,9 @@ BASE_COMMIT=$(git show-ref refs/remotes/origin/master | awk '{print $1}')
 
 set -exou pipefail
 
-mkdir -p output/
+mkdir -p "${DIR}/output/"
 # This is so that circle's persist_to_workspace doesn't fail when builds don't run
-touch output/hello
+touch "${DIR}/output/hello"
 
 if git merge-base --is-ancestor "${FOLDER_COMMIT}" "${BASE_COMMIT}"; then
     echo "FFMpeg has changed"
