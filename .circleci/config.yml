@@ -72,7 +72,7 @@ jobs:
       - persist_to_workspace:
           root: ffmpeg
           paths:
-            - output/*/ffmpeg*.bz2
+            - output/*
 
   ffmpeg_mac:
     <<: *binary_common
@@ -101,7 +101,7 @@ jobs:
       - persist_to_workspace:
           root: ffmpeg
           paths:
-            - output/*/ffmpeg*.bz2
+            - output/*
 
   ffmpeg_win:
     <<: *binary_common
@@ -117,7 +117,7 @@ jobs:
       - persist_to_workspace:
           root: ffmpeg
           paths:
-            - output/*/ffmpeg*.bz2
+            - output/*
 
   ffmpeg_upload:
     <<: *binary_common
