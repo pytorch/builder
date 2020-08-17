@@ -6,7 +6,7 @@ import itertools
 import sqlite3
 import os
 import sys
-from typing import Optional, List, Dict, Dict
+from typing import Callable, Dict, List, Optional
 
 def get_executor_price_rate(executor):
     (etype, eclass) = executor['type'], executor['resource_class']
@@ -303,7 +303,74 @@ def fetch_status(branch=None, item_count=50):
             print_line(workflow_status, padding = padding)
 
 
+def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bool]] = None):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    revisions = set()
+    job_summary: Dict[str, Dict[str, float]] = {}
+    ci_cache = CircleCICache(None)
+    pipelines = ci_cache.get_pipelines(branch = 'master')
+    for pipeline in pipelines:
+        if pipeline['trigger']['type'] == 'schedule':
+            continue
+        revision = pipeline['vcs']['revision']
+        workflows = ci_cache.get_pipeline_workflows(pipeline['id'])
+        for workflow in workflows:
+            if is_workflow_in_progress(workflow):
+                continue
+            jobs = ci_cache.get_workflow_jobs(workflow['id'])
+            for job in jobs:
+                job_name = job['name']
+                job_status = job['status']
+                if job_status in ['infrastructure_fail', 'cancelled', 'blocked']:
+                    continue
+                if job_name.startswith('docker') or job_name.startswith('binary') or 'build' in job_name:
+                    continue
+                if callable(name_filter) and not name_filter(job_name):
+                    continue
+                revisions.add(revision)
+                result = 1.0 if job_status == 'success' else -1.0
+                if job_name not in job_summary:
+                    job_summary[job_name] = {}
+                job_summary[job_name][revision] = result
+    job_names = sorted(job_summary.keys())
+    revisions = sorted(revisions)
+    job_data = np.zeros((len(job_names), len(revisions)), dtype=np.float)
+    for job_idx, job_name in enumerate(job_names):
+        job_row = job_summary[job_name]
+        for rev_idx, revision in enumerate(revisions):
+            if revision in job_row:
+                job_data[job_idx, rev_idx] = job_row[revision]
+        success_rate = job_data[job_idx,].sum() / len(job_row)
+        present_rate = 1.0 * len(job_row) / len(revisions)
+        print(f"{job_name}: missing {100.0 * (1.0 - present_rate):.2f}% success rate: {100 * success_rate:.2f}%")
+    cov_matrix = np.corrcoef(job_data)
+    fig, ax = plt.subplots()
+    im = ax.imshow(cov_matrix)
+    ax.set_xticks(np.arange(len(job_names)))
+    ax.set_yticks(np.arange(len(job_names)))
+    ax.set_xticklabels(job_names)
+    ax.set_yticklabels(job_names)
+    #Rotate tick labels
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+    # Annotate values
+    for i in range(len(job_names)):
+        for j in range(len(job_names)):
+            ax.text(j, i, f'{cov_matrix[i, j]:.2f}', ha = 'center', va = 'center', color = 'w')
+    plt.show()
+
 if __name__ == '__main__':
     #plot_graph()
-    fetch_status(branch='master', item_count=1500)
+    #fetch_status(branch='master', item_count=4000)
     #fetch_status(None, 2000)
+    def filter_cuda(name):
+        # Skip jit-profiling tests
+        if 'jit-profiling' in name:
+            return False
+        # Skip VS2017 tests
+        if 'vs2017' in name:
+            return False
+        if 'nogpu' in name:
+            return False
+        return 'cuda' in name or 'gpu' in name
+    compute_covariance(name_filter=filter_cuda)
