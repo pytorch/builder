@@ -6,11 +6,11 @@ import itertools
 import sqlite3
 import os
 import sys
-from typing import Optional, List, Dict, Dict
+from typing import Callable, Dict, List, Optional
 
 def get_executor_price_rate(executor):
     (etype, eclass) = executor['type'], executor['resource_class']
-    assert etype in ['machine', 'docker', 'macos', 'runner'], f'Unexpected type {etype}'
+    assert etype in ['machine', 'external', 'docker', 'macos', 'runner'], f'Unexpected type {etype}:{eclass}'
     if etype == 'machine':
         return {
                 'medium': 10,
@@ -44,7 +44,7 @@ def get_executor_price_rate(executor):
                 '2xlarge': 80,
                 '2xlarge+': 100,
                 }[eclass]
-    if etype == 'runner':
+    if etype == 'runner' or etype == 'external':
         return {
                 'pytorch/amd-gpu': 0,
                 }[eclass]
@@ -62,23 +62,31 @@ def get_circleci_token() -> str:
     with open(token_file_path) as f:
         return f.read().strip()
 
+def is_workflow_in_progress(workflow: Dict) -> bool:
+    return workflow['status'] in ['running', 'not_run', 'failing', 'on_hold']
+
 class CircleCICache:
-    def __init__(self, token, db_name='circleci-cache.db'):
+    def __init__(self, token: Optional[str], db_name: str = 'circleci-cache.db') -> None:
         file_folder = os.path.dirname(__file__)
         self.url_prefix = 'https://circleci.com/api/v2'
         self.session = requests.session()
         self.headers = {
                 'Accept': 'application/json',
                 'Circle-Token': token,
-                }
+                } if token is not None else None
         self.db = sqlite3.connect(os.path.join(file_folder, db_name))
         self.db.execute('CREATE TABLE IF NOT EXISTS jobs(slug TEXT NOT NULL, job_id INTENER NOT NULL, json TEXT NOT NULL);')
         self.db.execute('CREATE UNIQUE INDEX IF NOT EXISTS jobs_key on jobs(slug, job_id);')
         self.db.execute('CREATE TABLE IF NOT EXISTS workflows(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL);')
+        self.db.execute('CREATE TABLE IF NOT EXISTS pipeline_workflows(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL);')
+        self.db.execute('CREATE TABLE IF NOT EXISTS pipelines(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL, branch TEXT, revision TEXT);')
         self.db.commit()
 
+    def is_offline(self) -> bool:
+        return self.headers is None
+
     def _get_paged_items_list(self, url: str, params = {}, item_count: Optional[int] =-1) -> List:
-        rc, token, run_once = [], None, False 
+        rc, token, run_once = [], None, False
         def _should_quit():
             nonlocal run_once, rc, token
             if not run_once:
@@ -98,11 +106,38 @@ class CircleCICache:
             rc.extend(j['items'])
         return rc
 
-    def get_pipelines(self, project='github/pytorch/pytorch',branch=None, item_count=None) -> List:
-        return self._get_paged_items_list( f'{self.url_prefix}/project/{project}/pipeline', {'branch': branch} if branch is not None else {}, item_count)
+    def get_pipelines(self, project: str = 'github/pytorch/pytorch',branch: Optional[str] = None, item_count: Optional[int] = None) -> List:
+        if self.is_offline():
+            c = self.db.cursor()
+            cmd = "SELECT json from pipelines"
+            if branch is not None:
+                cmd += f" WHERE branch='{branch}'"
+            if item_count is not None and item_count > 0:
+                cmd += f" LIMIT {item_count}"
+            c.execute(cmd)
+            return [json.loads(val[0]) for val in c.fetchall()]
+        rc = self._get_paged_items_list( f'{self.url_prefix}/project/{project}/pipeline', {'branch': branch} if branch is not None else {}, item_count)
+        for pipeline in rc:
+            vcs = pipeline['vcs']
+            pid, branch, revision, pser = pipeline['id'], vcs['branch'], vcs['revision'], json.dumps(pipeline)
+            self.db.execute("INSERT OR REPLACE INTO pipelines(id, branch, revision, json) VALUES (?, ?, ?, ?)", (pid, branch, revision, pser))
+        self.db.commit()
+        return rc
 
     def get_pipeline_workflows(self, pipeline) -> List:
-        return self._get_paged_items_list(f'{self.url_prefix}/pipeline/{pipeline}/workflow')
+        c = self.db.cursor()
+        c.execute("SELECT json FROM pipeline_workflows WHERE id=?", (pipeline,))
+        rc = c.fetchone()
+        if rc is not None:
+            rc = json.loads(rc[0])
+            if not any([is_workflow_in_progress(w) for w in rc]) or self.is_offline():
+                return rc
+        if self.is_offline():
+            return []
+        rc = self._get_paged_items_list(f'{self.url_prefix}/pipeline/{pipeline}/workflow')
+        self.db.execute("INSERT OR REPLACE INTO pipeline_workflows(id, json) VALUES (?, ?)", (pipeline, json.dumps(rc)))
+        self.db.commit()
+        return rc
 
     def get_workflow_jobs(self, workflow, should_cache = True) -> List:
         c = self.db.cursor()
@@ -110,6 +145,8 @@ class CircleCICache:
         rc = c.fetchone()
         if rc is not None:
             return json.loads(rc[0])
+        if self.is_offline():
+            return []
         rc = self._get_paged_items_list(f'{self.url_prefix}/workflow/{workflow}/job')
         if should_cache:
             self.db.execute("INSERT INTO workflows(id, json) VALUES (?, ?)", (workflow, json.dumps(rc)))
@@ -122,6 +159,8 @@ class CircleCICache:
         rc = c.fetchone()
         if rc is not None:
             return json.loads(rc[0])
+        if self.is_offline():
+            return {}
         r = self.session.get(f'{self.url_prefix}/project/{project_slug}/job/{job_number}', headers = self.headers)
         rc=r.json()
         self.db.execute("INSERT INTO jobs(slug,job_id, json) VALUES (?, ?, ?)", (project_slug, job_number, json.dumps(rc)))
@@ -203,7 +242,7 @@ def fetch_status(branch=None, item_count=50):
         known_job_ids = []
         for workflow in workflows:
             url = f'https://app.circleci.com/pipelines/github/pytorch/pytorch/{workflow["pipeline_number"]}/workflows/{workflow["id"]}'
-            if workflow['status'] in ['running', 'not_run', 'failing', 'on_hold']:
+            if is_workflow_in_progress(workflow):
                 print_line(f'Skipping {url} name:{workflow["name"]} status:{workflow["status"]}', newline=not sys.stdout.isatty())
                 continue
             rerun=False
@@ -221,6 +260,9 @@ def fetch_status(branch=None, item_count=50):
                 job_info = ci_cache.get_job(job['project_slug'], job_number)
                 job_executor = job_info['executor']
                 resource_class = job_executor['resource_class']
+                if resource_class is None:
+                    print(f'resource_class is none for {job_info}')
+                    continue
                 job_on_gpu = 'gpu' in resource_class
                 job_on_win = 'windows' in resource_class
                 duration = datetime.fromisoformat(job_info['stopped_at'][:-1]) - datetime.fromisoformat(job_info['started_at'][:-1])
@@ -260,7 +302,75 @@ def fetch_status(branch=None, item_count=50):
             workflow_status += f' Total: ${total_price:.2f} master fraction: {100 * total_master_price/ total_price:.1f}%'
             print_line(workflow_status, padding = padding)
 
+
+def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bool]] = None):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    revisions = set()
+    job_summary: Dict[str, Dict[str, float]] = {}
+    ci_cache = CircleCICache(None)
+    pipelines = ci_cache.get_pipelines(branch = 'master')
+    for pipeline in pipelines:
+        if pipeline['trigger']['type'] == 'schedule':
+            continue
+        revision = pipeline['vcs']['revision']
+        workflows = ci_cache.get_pipeline_workflows(pipeline['id'])
+        for workflow in workflows:
+            if is_workflow_in_progress(workflow):
+                continue
+            jobs = ci_cache.get_workflow_jobs(workflow['id'])
+            for job in jobs:
+                job_name = job['name']
+                job_status = job['status']
+                if job_status in ['infrastructure_fail', 'cancelled', 'blocked']:
+                    continue
+                if job_name.startswith('docker') or job_name.startswith('binary') or 'build' in job_name:
+                    continue
+                if callable(name_filter) and not name_filter(job_name):
+                    continue
+                revisions.add(revision)
+                result = 1.0 if job_status == 'success' else -1.0
+                if job_name not in job_summary:
+                    job_summary[job_name] = {}
+                job_summary[job_name][revision] = result
+    job_names = sorted(job_summary.keys())
+    revisions = sorted(revisions)
+    job_data = np.zeros((len(job_names), len(revisions)), dtype=np.float)
+    for job_idx, job_name in enumerate(job_names):
+        job_row = job_summary[job_name]
+        for rev_idx, revision in enumerate(revisions):
+            if revision in job_row:
+                job_data[job_idx, rev_idx] = job_row[revision]
+        success_rate = job_data[job_idx,].sum() / len(job_row)
+        present_rate = 1.0 * len(job_row) / len(revisions)
+        print(f"{job_name}: missing {100.0 * (1.0 - present_rate):.2f}% success rate: {100 * success_rate:.2f}%")
+    cov_matrix = np.corrcoef(job_data)
+    fig, ax = plt.subplots()
+    im = ax.imshow(cov_matrix)
+    ax.set_xticks(np.arange(len(job_names)))
+    ax.set_yticks(np.arange(len(job_names)))
+    ax.set_xticklabels(job_names)
+    ax.set_yticklabels(job_names)
+    #Rotate tick labels
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+    # Annotate values
+    for i in range(len(job_names)):
+        for j in range(len(job_names)):
+            ax.text(j, i, f'{cov_matrix[i, j]:.2f}', ha = 'center', va = 'center', color = 'w')
+    plt.show()
+
 if __name__ == '__main__':
     #plot_graph()
-    fetch_status(branch='master', item_count=100)
+    #fetch_status(branch='master', item_count=4000)
     #fetch_status(None, 2000)
+    def filter_cuda(name):
+        # Skip jit-profiling tests
+        if 'jit-profiling' in name:
+            return False
+        # Skip VS2017 tests
+        if 'vs2017' in name:
+            return False
+        if 'nogpu' in name:
+            return False
+        return 'cuda' in name or 'gpu' in name
+    compute_covariance(name_filter=filter_cuda)
