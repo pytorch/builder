@@ -10,7 +10,7 @@ from typing import Optional, List, Dict, Dict
 
 def get_executor_price_rate(executor):
     (etype, eclass) = executor['type'], executor['resource_class']
-    assert etype in ['machine', 'docker', 'macos', 'runner'], f'Unexpected type {etype}'
+    assert etype in ['machine', 'external', 'docker', 'macos', 'runner'], f'Unexpected type {etype}:{eclass}'
     if etype == 'machine':
         return {
                 'medium': 10,
@@ -44,7 +44,7 @@ def get_executor_price_rate(executor):
                 '2xlarge': 80,
                 '2xlarge+': 100,
                 }[eclass]
-    if etype == 'runner':
+    if etype == 'runner' or etype == 'external':
         return {
                 'pytorch/amd-gpu': 0,
                 }[eclass]
@@ -62,23 +62,31 @@ def get_circleci_token() -> str:
     with open(token_file_path) as f:
         return f.read().strip()
 
+def is_workflow_in_progress(workflow: Dict) -> bool:
+    return workflow['status'] in ['running', 'not_run', 'failing', 'on_hold']
+
 class CircleCICache:
-    def __init__(self, token, db_name='circleci-cache.db'):
+    def __init__(self, token: Optional[str], db_name: str = 'circleci-cache.db') -> None:
         file_folder = os.path.dirname(__file__)
         self.url_prefix = 'https://circleci.com/api/v2'
         self.session = requests.session()
         self.headers = {
                 'Accept': 'application/json',
                 'Circle-Token': token,
-                }
+                } if token is not None else None
         self.db = sqlite3.connect(os.path.join(file_folder, db_name))
         self.db.execute('CREATE TABLE IF NOT EXISTS jobs(slug TEXT NOT NULL, job_id INTENER NOT NULL, json TEXT NOT NULL);')
         self.db.execute('CREATE UNIQUE INDEX IF NOT EXISTS jobs_key on jobs(slug, job_id);')
         self.db.execute('CREATE TABLE IF NOT EXISTS workflows(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL);')
+        self.db.execute('CREATE TABLE IF NOT EXISTS pipeline_workflows(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL);')
+        self.db.execute('CREATE TABLE IF NOT EXISTS pipelines(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL, branch TEXT, revision TEXT);')
         self.db.commit()
 
+    def is_offline(self) -> bool:
+        return self.headers is None
+
     def _get_paged_items_list(self, url: str, params = {}, item_count: Optional[int] =-1) -> List:
-        rc, token, run_once = [], None, False 
+        rc, token, run_once = [], None, False
         def _should_quit():
             nonlocal run_once, rc, token
             if not run_once:
@@ -98,11 +106,38 @@ class CircleCICache:
             rc.extend(j['items'])
         return rc
 
-    def get_pipelines(self, project='github/pytorch/pytorch',branch=None, item_count=None) -> List:
-        return self._get_paged_items_list( f'{self.url_prefix}/project/{project}/pipeline', {'branch': branch} if branch is not None else {}, item_count)
+    def get_pipelines(self, project: str = 'github/pytorch/pytorch',branch: Optional[str] = None, item_count: Optional[int] = None) -> List:
+        if self.is_offline():
+            c = self.db.cursor()
+            cmd = "SELECT json from pipelines"
+            if branch is not None:
+                cmd += f" WHERE branch='{branch}'"
+            if item_count is not None and item_count > 0:
+                cmd += f" LIMIT {item_count}"
+            c.execute(cmd)
+            return [json.loads(val[0]) for val in c.fetchall()]
+        rc = self._get_paged_items_list( f'{self.url_prefix}/project/{project}/pipeline', {'branch': branch} if branch is not None else {}, item_count)
+        for pipeline in rc:
+            vcs = pipeline['vcs']
+            pid, branch, revision, pser = pipeline['id'], vcs['branch'], vcs['revision'], json.dumps(pipeline)
+            self.db.execute("INSERT OR REPLACE INTO pipelines(id, branch, revision, json) VALUES (?, ?, ?, ?)", (pid, branch, revision, pser))
+        self.db.commit()
+        return rc
 
     def get_pipeline_workflows(self, pipeline) -> List:
-        return self._get_paged_items_list(f'{self.url_prefix}/pipeline/{pipeline}/workflow')
+        c = self.db.cursor()
+        c.execute("SELECT json FROM pipeline_workflows WHERE id=?", (pipeline,))
+        rc = c.fetchone()
+        if rc is not None:
+            rc = json.loads(rc[0])
+            if not any([is_workflow_in_progress(w) for w in rc]) or self.is_offline():
+                return rc
+        if self.is_offline():
+            return []
+        rc = self._get_paged_items_list(f'{self.url_prefix}/pipeline/{pipeline}/workflow')
+        self.db.execute("INSERT OR REPLACE INTO pipeline_workflows(id, json) VALUES (?, ?)", (pipeline, json.dumps(rc)))
+        self.db.commit()
+        return rc
 
     def get_workflow_jobs(self, workflow, should_cache = True) -> List:
         c = self.db.cursor()
@@ -110,6 +145,8 @@ class CircleCICache:
         rc = c.fetchone()
         if rc is not None:
             return json.loads(rc[0])
+        if self.is_offline():
+            return []
         rc = self._get_paged_items_list(f'{self.url_prefix}/workflow/{workflow}/job')
         if should_cache:
             self.db.execute("INSERT INTO workflows(id, json) VALUES (?, ?)", (workflow, json.dumps(rc)))
@@ -122,6 +159,8 @@ class CircleCICache:
         rc = c.fetchone()
         if rc is not None:
             return json.loads(rc[0])
+        if self.is_offline():
+            return {}
         r = self.session.get(f'{self.url_prefix}/project/{project_slug}/job/{job_number}', headers = self.headers)
         rc=r.json()
         self.db.execute("INSERT INTO jobs(slug,job_id, json) VALUES (?, ?, ?)", (project_slug, job_number, json.dumps(rc)))
@@ -203,7 +242,7 @@ def fetch_status(branch=None, item_count=50):
         known_job_ids = []
         for workflow in workflows:
             url = f'https://app.circleci.com/pipelines/github/pytorch/pytorch/{workflow["pipeline_number"]}/workflows/{workflow["id"]}'
-            if workflow['status'] in ['running', 'not_run', 'failing', 'on_hold']:
+            if is_workflow_in_progress(workflow):
                 print_line(f'Skipping {url} name:{workflow["name"]} status:{workflow["status"]}', newline=not sys.stdout.isatty())
                 continue
             rerun=False
@@ -221,6 +260,9 @@ def fetch_status(branch=None, item_count=50):
                 job_info = ci_cache.get_job(job['project_slug'], job_number)
                 job_executor = job_info['executor']
                 resource_class = job_executor['resource_class']
+                if resource_class is None:
+                    print(f'resource_class is none for {job_info}')
+                    continue
                 job_on_gpu = 'gpu' in resource_class
                 job_on_win = 'windows' in resource_class
                 duration = datetime.fromisoformat(job_info['stopped_at'][:-1]) - datetime.fromisoformat(job_info['started_at'][:-1])
@@ -260,7 +302,8 @@ def fetch_status(branch=None, item_count=50):
             workflow_status += f' Total: ${total_price:.2f} master fraction: {100 * total_master_price/ total_price:.1f}%'
             print_line(workflow_status, padding = padding)
 
+
 if __name__ == '__main__':
     #plot_graph()
-    fetch_status(branch='master', item_count=100)
+    fetch_status(branch='master', item_count=1500)
     #fetch_status(None, 2000)
