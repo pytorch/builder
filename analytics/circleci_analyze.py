@@ -6,7 +6,7 @@ import itertools
 import sqlite3
 import os
 import sys
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, MutableSet, Optional
 
 def get_executor_price_rate(executor):
     (etype, eclass) = executor['type'], executor['resource_class']
@@ -162,7 +162,11 @@ class CircleCICache:
         if self.is_offline():
             return {}
         r = self.session.get(f'{self.url_prefix}/project/{project_slug}/job/{job_number}', headers = self.headers)
-        rc=r.json()
+        try:
+            rc=r.json()
+        except json.JSONDecodeError:
+            print(f"Failed to decode {rc}", file=sys.stderr)
+            raise
         self.db.execute("INSERT INTO jobs(slug,job_id, json) VALUES (?, ?, ?)", (project_slug, job_number, json.dumps(rc)))
         self.db.commit()
         return rc
@@ -233,6 +237,7 @@ def fetch_status(branch=None, item_count=50):
     isatty = sys.stdout.isatty()
     padding = os.get_terminal_size().columns -1 if isatty else None
     ci_cache = CircleCICache(token=get_circleci_token())
+    print(f"About to fetch {item_count} latest pipelines against {branch if branch is not None else 'all branches'}")
     pipelines = ci_cache.get_pipelines(branch=branch, item_count=item_count)
     total_price, total_master_price = 0, 0
     for pipeline in pipelines:
@@ -258,6 +263,9 @@ def fetch_status(branch=None, item_count=50):
                     rerun = True
                     continue
                 job_info = ci_cache.get_job(job['project_slug'], job_number)
+                if 'executor' not in job_info:
+                    print(f'executor not found in {job_info}')
+                    continue
                 job_executor = job_info['executor']
                 resource_class = job_executor['resource_class']
                 if resource_class is None:
@@ -303,17 +311,78 @@ def fetch_status(branch=None, item_count=50):
             print_line(workflow_status, padding = padding)
 
 
-def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bool]] = None):
+def plot_heatmap(cov_matrix, names):
     import numpy as np
     import matplotlib.pyplot as plt
-    revisions = set()
+    assert cov_matrix.shape == (len(names), len(names))
+    fig, ax = plt.subplots()
+    im = ax.imshow(cov_matrix)
+    ax.set_xticks(np.arange(len(names)))
+    ax.set_yticks(np.arange(len(names)))
+    ax.set_xticklabels(names)
+    ax.set_yticklabels(names)
+    #Rotate tick labels
+    plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+    # Annotate values
+    for i in range(len(names)):
+        for j in range(len(names)):
+            ax.text(j, i, f'{cov_matrix[i, j]:.2f}', ha = 'center', va = 'center', color = 'w')
+    plt.show()
+
+def filter_service_jobs(name):
+    if name.startswith('docker'):
+        return True
+    if name.startswith('binary'):
+        return True
+    return False
+
+def filter_cuda_test(name):
+    if filter_service_jobs(name):
+        return False
+    if 'libtorch' in name:
+        return False
+    if 'test' not in name:
+        return False
+    # Skip jit-profiling tests
+    if 'jit-profiling' in name:
+        return False
+    if 'cuda11' in name:
+        return False
+    # Skip VS2017 tests
+    if 'vs2017' in name:
+        return False
+    return 'cuda' in name and 'nogpu' not in name
+
+def filter_cuda_build(name):
+    if filter_service_jobs(name):
+        return False
+    if 'libtorch' in name:
+        return False
+    return 'cuda' in name and name.endswith('build')
+
+def filter_windows_test(name):
+    if filter_service_jobs(name):
+        return False
+    # Skip jit-profiling tests
+    if 'jit-profiling' in name:
+        return False
+    return 'test' in name and 'windows' in name
+
+def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bool]] = None):
+    import numpy as np
+    revisions: MutableSet[str] = set()
     job_summary: Dict[str, Dict[str, float]] = {}
+
+    # Extract data
+    print(f"Computing covariance for {branch if branch is not None else 'all branches'}")
     ci_cache = CircleCICache(None)
-    pipelines = ci_cache.get_pipelines(branch = 'master')
+    pipelines = ci_cache.get_pipelines(branch = branch)
     for pipeline in pipelines:
         if pipeline['trigger']['type'] == 'schedule':
             continue
         revision = pipeline['vcs']['revision']
+        pipeline_jobs: Dict[str, float] = {}
+        blocked_jobs: MutableSet[str] = set()
         workflows = ci_cache.get_pipeline_workflows(pipeline['id'])
         for workflow in workflows:
             if is_workflow_in_progress(workflow):
@@ -322,55 +391,67 @@ def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bo
             for job in jobs:
                 job_name = job['name']
                 job_status = job['status']
-                if job_status in ['infrastructure_fail', 'cancelled', 'blocked']:
-                    continue
-                if job_name.startswith('docker') or job_name.startswith('binary') or 'build' in job_name:
+                # Handle renames
+                if job_name == 'pytorch_linux_xenial_cuda10_1_cudnn7_py3_NO_AVX2_test':
+                    job_name = 'pytorch_linux_xenial_cuda10_1_cudnn7_py3_nogpu_NO_AVX2_test'
+                if job_name == 'pytorch_linux_xenial_cuda10_1_cudnn7_py3_NO_AVX_NO_AVX2_test':
+                    job_name = 'pytorch_linux_xenial_cuda10_1_cudnn7_py3_nogpu_NO_AVX_test'
+                if job_status in ['infrastructure_fail', 'canceled']:
                     continue
                 if callable(name_filter) and not name_filter(job_name):
                     continue
-                revisions.add(revision)
+                if job_status == 'blocked':
+                    blocked_jobs.add(job_name)
+                    continue
+                if job_name in blocked_jobs:
+                    blocked_jobs.remove(job_name)
                 result = 1.0 if job_status == 'success' else -1.0
-                if job_name not in job_summary:
-                    job_summary[job_name] = {}
-                job_summary[job_name][revision] = result
+                pipeline_jobs[job_name] = result
+        # Skip build with blocked job [which usually means build failed due to the test failure]
+        if len(blocked_jobs) != 0:
+            continue
+        # Skip all success workflows
+        if all([result == 1.0 for result in pipeline_jobs.values()]):
+         continue
+        revisions.add(revision)
+        for job_name in pipeline_jobs:
+            if job_name not in job_summary:
+                job_summary[job_name] = {}
+            job_summary[job_name][revision] = pipeline_jobs[job_name]
+    # Analyze results
     job_names = sorted(job_summary.keys())
-    revisions = sorted(revisions)
+    #revisions = sorted(revisions)
     job_data = np.zeros((len(job_names), len(revisions)), dtype=np.float)
+    print(f"Number of observations: {len(revisions)}")
     for job_idx, job_name in enumerate(job_names):
         job_row = job_summary[job_name]
         for rev_idx, revision in enumerate(revisions):
             if revision in job_row:
                 job_data[job_idx, rev_idx] = job_row[revision]
-        success_rate = job_data[job_idx,].sum() / len(job_row)
+        success_rate = job_data[job_idx,].sum(where=job_data[job_idx,]>0.0) / len(job_row)
         present_rate = 1.0 * len(job_row) / len(revisions)
         print(f"{job_name}: missing {100.0 * (1.0 - present_rate):.2f}% success rate: {100 * success_rate:.2f}%")
     cov_matrix = np.corrcoef(job_data)
-    fig, ax = plt.subplots()
-    im = ax.imshow(cov_matrix)
-    ax.set_xticks(np.arange(len(job_names)))
-    ax.set_yticks(np.arange(len(job_names)))
-    ax.set_xticklabels(job_names)
-    ax.set_yticklabels(job_names)
-    #Rotate tick labels
-    plt.setp(ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
-    # Annotate values
-    for i in range(len(job_names)):
-        for j in range(len(job_names)):
-            ax.text(j, i, f'{cov_matrix[i, j]:.2f}', ha = 'center', va = 'center', color = 'w')
-    plt.show()
+    plot_heatmap(cov_matrix, job_names)
+
+
+def parse_arguments():
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="Download and analyze circle logs")
+    parser.add_argument('--branch', type=str)
+    parser.add_argument('--item_count', type=int, default=100)
+    parser.add_argument('--compute_covariance', choices=['cuda_test', 'cuda_build', 'windows_test'])
+    return parser.parse_args()
 
 if __name__ == '__main__':
+    args = parse_arguments()
+    if args.compute_covariance is not None:
+        name_filter = {
+                'cuda_test': filter_cuda_test,
+                'cuda_build': filter_cuda_build,
+                'windows_test': filter_windows_test,
+                }[args.compute_covariance]
+        compute_covariance(branch=args.branch, name_filter=name_filter)
+        sys.exit(0)
+    fetch_status(branch=args.branch, item_count=args.item_count)
     #plot_graph()
-    #fetch_status(branch='master', item_count=4000)
-    #fetch_status(None, 2000)
-    def filter_cuda(name):
-        # Skip jit-profiling tests
-        if 'jit-profiling' in name:
-            return False
-        # Skip VS2017 tests
-        if 'vs2017' in name:
-            return False
-        if 'nogpu' in name:
-            return False
-        return 'cuda' in name or 'gpu' in name
-    compute_covariance(name_filter=filter_cuda)
