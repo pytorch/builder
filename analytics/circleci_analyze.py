@@ -237,6 +237,7 @@ def fetch_status(branch=None, item_count=50):
     isatty = sys.stdout.isatty()
     padding = os.get_terminal_size().columns -1 if isatty else None
     ci_cache = CircleCICache(token=get_circleci_token())
+    print(f"About to fetch {item_count} latest pipelines against {branch if branch is not None else 'all branches'}")
     pipelines = ci_cache.get_pipelines(branch=branch, item_count=item_count)
     total_price, total_master_price = 0, 0
     for pipeline in pipelines:
@@ -328,12 +329,52 @@ def plot_heatmap(cov_matrix, names):
             ax.text(j, i, f'{cov_matrix[i, j]:.2f}', ha = 'center', va = 'center', color = 'w')
     plt.show()
 
+def filter_service_jobs(name):
+    if name.startswith('docker'):
+        return True
+    if name.startswith('binary'):
+        return True
+    return False
+
+def filter_cuda_test(name):
+    if filter_service_jobs(name):
+        return False
+    if 'libtorch' in name:
+        return False
+    if 'test' not in name:
+        return False
+    # Skip jit-profiling tests
+    if 'jit-profiling' in name:
+        return False
+    if 'cuda11' in name:
+        return False
+    # Skip VS2017 tests
+    if 'vs2017' in name:
+        return False
+    return 'cuda' in name and 'nogpu' not in name
+
+def filter_cuda_build(name):
+    if filter_service_jobs(name):
+        return False
+    if 'libtorch' in name:
+        return False
+    return 'cuda' in name and name.endswith('build')
+
+def filter_windows_test(name):
+    if filter_service_jobs(name):
+        return False
+    # Skip jit-profiling tests
+    if 'jit-profiling' in name:
+        return False
+    return 'test' in name and 'windows' in name
+
 def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bool]] = None):
     import numpy as np
     revisions: MutableSet[str] = set()
     job_summary: Dict[str, Dict[str, float]] = {}
 
     # Extract data
+    print(f"Computing covariance for {branch if branch is not None else 'all branches'}")
     ci_cache = CircleCICache(None)
     pipelines = ci_cache.get_pipelines(branch = branch)
     for pipeline in pipelines:
@@ -393,43 +434,24 @@ def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bo
     cov_matrix = np.corrcoef(job_data)
     plot_heatmap(cov_matrix, job_names)
 
+
+def parse_arguments():
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="Download and analyze circle logs")
+    parser.add_argument('--branch', type=str)
+    parser.add_argument('--item_count', type=int, default=100)
+    parser.add_argument('--compute_covariance', choices=['cuda_test', 'cuda_build', 'windows_test'])
+    return parser.parse_args()
+
 if __name__ == '__main__':
+    args = parse_arguments()
+    if args.compute_covariance is not None:
+        name_filter = {
+                'cuda_test': filter_cuda_test,
+                'cuda_build': filter_cuda_build,
+                'windows_test': filter_windows_test,
+                }[args.compute_covariance]
+        compute_covariance(branch=args.branch, name_filter=name_filter)
+        sys.exit(0)
+    fetch_status(branch=args.branch, item_count=args.item_count)
     #plot_graph()
-    fetch_status(branch=None, item_count=4000)
-    #fetch_status(None, 2000)
-    def filter_service_jobs(name):
-        if name.startswith('docker'):
-            return True
-        if name.startswith('binary'):
-            return True
-        return False
-    def filter_cuda_test(name):
-        if filter_service_jobs(name):
-            return False
-        if 'libtorch' in name:
-            return False
-        if 'test' not in name:
-            return False
-        # Skip jit-profiling tests
-        if 'jit-profiling' in name:
-            return False
-        if 'cuda11' in name:
-            return False
-        # Skip VS2017 tests
-        if 'vs2017' in name:
-            return False
-        return 'cuda' in name and 'nogpu' not in name
-    def filter_cuda_build(name):
-        if filter_service_jobs(name):
-            return False
-        if 'libtorch' in name:
-            return False
-        return 'cuda' in name and name.endswith('build')
-    def filter_windows_test(name):
-        if filter_service_jobs(name):
-            return False
-        # Skip jit-profiling tests
-        if 'jit-profiling' in name:
-            return False
-        return 'test' in name and 'windows' in name
-    compute_covariance(branch='master', name_filter=filter_cuda_build)
