@@ -62,7 +62,7 @@ function do_cpython_build {
     if [ -e ${prefix}/bin/pip3 ] && [ ! -e ${prefix}/bin/pip ]; then
         ln -s pip3 ${prefix}/bin/pip
     fi
-    ${prefix}/bin/pip install wheel
+    ${prefix}/bin/pip install wheel==0.34.2
     local abi_tag=$(${prefix}/bin/python ${MY_DIR}/python-tag-abi-tag.py)
     ln -s ${prefix} /opt/python/${abi_tag}
 }
