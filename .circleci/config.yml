@@ -1,13 +1,5 @@
 version: 2.1
 
-# This script was adapted from: https://github.com/pytorch/vision/blob/master/.circleci/config.yml.in
-
-# How to test the Linux jobs:
-#   - Install CircleCI local CLI: https://circleci.com/docs/2.0/local-cli/
-#   - circleci config process .circleci/config.yml > gen.yml && circleci local execute -c gen.yml --job binary_linux_wheel_py3.7
-#     - Replace binary_linux_wheel_py3.7 with the name of the job you want to test.
-#       Job names are 'name:' key.
-
 orbs:
   win: circleci/windows@1.0.0
 
@@ -57,193 +49,6 @@ binary_common: &binary_common
     CU_VERSION: << parameters.cu_version >>
 
 
-commands:
-  run_integration_tests:
-    description: PyTorch examples
-    parameters:
-      is-macos:
-        default: false
-        description: Whether this is operating system is MacOS
-        type: boolean
-      is-python3:
-        default: false
-        description: Whether this is Python 3
-        type: boolean
-      run-external-projects:
-        default: false
-        description: Should external projects be run?
-        type: boolean
-      script-wrapper:
-        default: ''
-        description: A command to which the script will be passed as an argument
-        type: string
-    steps:
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/dcgan/run.sh
-        name: 'Example: dcgan'
-        no_output_timeout: 600
-        when: always
-    - unless:
-        condition: << parameters.is-macos >>
-        steps:
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/examples/fast_neural_style/run.sh
-            name: 'Example: fast_neural_style'
-            no_output_timeout: 600
-            when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/imagenet/run.sh
-        name: 'Example: imagenet'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/mnist/run.sh
-        name: 'Example: mnist'
-        no_output_timeout: 600
-        when: always
-    - when:
-        condition: << parameters.is-python3 >>
-        steps:
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/examples/mnist_hogwild/run.sh
-            name: 'Example: mnist_hogwild'
-            no_output_timeout: 600
-            when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/regression/run.sh
-        name: 'Example: regression'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/reinforcement_learning/run.sh
-        name: 'Example: reinforcement_learning'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/snli/run.sh
-        name: 'Example: snli'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/super_resolution/run.sh
-        name: 'Example: super_resolution'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/time_sequence_prediction/run.sh
-        name: 'Example: time_sequence_prediction'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/vae/run.sh
-        name: 'Example: vae'
-        no_output_timeout: 600
-        when: always
-    - run:
-        command: << parameters.script-wrapper >> test_community_repos/examples/word_language_model/run.sh
-        name: 'Example: word_language_model'
-        no_output_timeout: 600
-        when: always
-    - when:
-        condition: << parameters.run-external-projects >>
-        steps:
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/OpenNMT/run.sh
-            name: 'Project: OpenNMT'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/advertorch/run.sh
-            name: 'Project: advertorch'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/allennlp/run.sh
-            name: 'Project: allennlp'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/block/run.sh
-            name: 'Project: block'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/botorch/run.sh
-            name: 'Project: botorch'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/cyclegan/run.sh
-            name: 'Project: cyclegan'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/fairseq/run.sh
-            name: 'Project: fairseq'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/fastai/run.sh
-            name: 'Project: fastai'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/flair/run.sh
-            name: 'Project: flair'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/geometric/run.sh
-            name: 'Project: geometric'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/gpytorch/run.sh
-            name: 'Project: gpytorch'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/ignite/run.sh
-            name: 'Project: ignite'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/lightning/run.sh
-            name: 'Project: lightning'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/parlai/run.sh
-            name: 'Project: parlai'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pennylane/run.sh
-            name: 'Project: pennylane'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pix2pixHD/run.sh
-            name: 'Project: pix2pixHD'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/pysyft/run.sh
-            name: 'Project: pysyft'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/skorch/run.sh
-            name: 'Project: skorch'
-            no_output_timeout: 600
-            when: always
-        - run:
-            command: << parameters.script-wrapper >> test_community_repos/external_projects/tensorly/run.sh
-            name: 'Project: tensorly'
-            no_output_timeout: 600
-            when: always
-
-
 jobs:
   circleci_consistency:
     docker:
@@ -256,155 +61,30 @@ jobs:
             python .circleci/regenerate.py
             git diff --exit-code || (echo ".circleci/config.yml not in sync with config.yml.in! Run .circleci/regenerate.py to update config"; exit 1)
 
-# TODO NOT USED YET
-  binary_linux_wheel:
+  ffmpeg_linux:
     <<: *binary_common
     docker:
-      - image: << parameters.wheel_docker_image >>
-    resource_class: 2xlarge+
-    steps:
-      - checkout
-      - run_integration_tests:
-          script-wrapper: "packaging/build_wheel.sh"
-          is-python3: <<parameters.is-python3>>
-          is-macos: <<parameters.is-macos>>
-
-  binary_linux_conda:
-    <<: *binary_common
-    docker:
-      - image: "soumith/conda-cuda"
+      - image: "pytorch/conda-cuda"
     resource_class: 2xlarge+
     steps:
       - checkout
       - run:
-          name: Initialize Conda environment with proper Python version
+          name: Build FFmpeg recipe
           command: |
-            conda env remove -n "env$PYTHON_VERSION" || true
-            conda create -yn "env$PYTHON_VERSION" python="$PYTHON_VERSION"
+            ffmpeg/build_ci.sh
+      - persist_to_workspace:
+          root: ffmpeg
+          paths:
+            - output/*
 
-      - run_integration_tests:
-          script-wrapper: "packaging/build_conda.sh"
-          is-python3: <<parameters.is-python3>>
-          is-macos: <<parameters.is-macos>>
-          run-external-projects: <<parameters.run-external-projects>>
-
-  binary_linux_conda_cuda:
-    <<: *binary_common
-    machine:
-      image: ubuntu-1604:201903-01
-    resource_class: gpu.medium
-    steps:
-    - checkout
-    - run:
-        name: Setup environment
-        command: |
-          set -e
-
-          curl -L https://packagecloud.io/circleci/trusty/gpgkey | sudo apt-key add -
-          curl -L https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-
-          sudo apt-get update
-
-          sudo apt-get install \
-              apt-transport-https \
-              ca-certificates \
-              curl \
-              gnupg-agent \
-              software-properties-common
-
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-
-          sudo add-apt-repository \
-             "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-             $(lsb_release -cs) \
-             stable"
-
-          sudo apt-get update
-          export DOCKER_VERSION="5:19.03.2~3-0~ubuntu-xenial"
-          sudo apt-get install docker-ce=${DOCKER_VERSION} docker-ce-cli=${DOCKER_VERSION} containerd.io
-
-          # Add the package repositories
-          distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-          curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-          curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
-
-          export NVIDIA_CONTAINER_VERSION="1.0.3-1"
-          sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit=${NVIDIA_CONTAINER_VERSION}
-          sudo systemctl restart docker
-
-          DRIVER_FN="NVIDIA-Linux-x86_64-410.104.run"
-          wget "https://s3.amazonaws.com/ossci-linux/nvidia_driver/$DRIVER_FN"
-          sudo /bin/bash "$DRIVER_FN" -s --no-drm || (sudo cat /var/log/nvidia-installer.log && false)
-          nvidia-smi
-
-    - run:
-        name: Pull docker image
-        command: |
-          set -e
-          export DOCKER_IMAGE=soumith/conda-cuda
-          echo Pulling docker image $DOCKER_IMAGE
-          docker pull $DOCKER_IMAGE >/dev/null
-
-    - run_integration_tests:
-        script-wrapper: ".circleci/helper-scripts/wrap-with-docker-run.sh"
-        is-python3: <<parameters.is-python3>>
-        is-macos: <<parameters.is-macos>>
-        run-external-projects: <<parameters.run-external-projects>>
-
-
-  binary_win_conda:
-    <<: *binary_common
-    executor:
-      name: win/vs2019
-      shell: powershell.exe
-    steps:
-      - checkout
-      - run_integration_tests:
-          script-wrapper: ".circleci/helper-scripts/wrap-with-windows-conda.ps1"
-          is-python3: <<parameters.is-python3>>
-          is-macos: <<parameters.is-macos>>
-          run-external-projects: <<parameters.run-external-projects>>
-
-
-  win_silly_test:
-    <<: *binary_common
-    executor:
-      name: win/vs2019
-      shell: powershell.exe
-    steps:
-      - checkout
-      - run: |
-          .circleci/helper-scripts/wrap-with-windows-conda.ps1 .circleci/helper-scripts/windows-pip-test.sh
-
-  binary_macos_wheel:
+  ffmpeg_mac:
     <<: *binary_common
     macos:
       xcode: "9.0"
     steps:
       - checkout
       - run:
-          # Cannot easily deduplicate this as source'ing activate
-          # will set environment variables which we need to propagate
-          # to build_wheel.sh
-          command: |
-            curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-            sh conda.sh -b
-
-            brew install wget
-
-      - run_integration_tests:
-          script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"
-          is-python3: <<parameters.is-python3>>
-          is-macos: <<parameters.is-macos>>
-          run-external-projects: <<parameters.run-external-projects>>
-
-  binary_macos_conda:
-    <<: *binary_common
-    macos:
-      xcode: "9.0"
-    steps:
-      - checkout
-      - run:
+          name: Install Anaconda
           command: |
             curl -o conda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
             sh conda.sh -b
@@ -417,173 +97,73 @@ jobs:
             sudo chown -R "$USER:admin" /usr/local/man
 
             brew install wget
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            .circleci/helper-scripts/wrap-with-conda-activation-macos.sh ffmpeg/build_ci.sh
+      - persist_to_workspace:
+          root: ffmpeg
+          paths:
+            - output/*
 
-      - run_integration_tests:
-          script-wrapper: ".circleci/helper-scripts/wrap-with-conda-activation-macos.sh"
-          is-python3: <<parameters.is-python3>>
-          is-macos: <<parameters.is-macos>>
-          run-external-projects: <<parameters.run-external-projects>>
+  ffmpeg_win:
+    <<: *binary_common
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run:
+          name: Build FFmpeg recipe
+          command: |
+            .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh
+      - persist_to_workspace:
+          root: ffmpeg
+          paths:
+            - output/*
+
+  ffmpeg_upload:
+    <<: *binary_common
+    docker:
+      - image: "pytorch/conda-cuda"
+    resource_class: 2xlarge+
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Upload FFmpeg packages to PyTorch Anaconda channel
+          command: |
+            anaconda -t "${CONDA_PYTORCHBOT_TOKEN}" upload -u pytorch --force $(find /tmp/workspace -name "ffmpeg*.bz2" -type f)
+
 
 workflows:
-  nightly:
-    triggers:
-      - schedule:
-          cron: "0 9 * * *"
-          filters:
-            branches:
-              only:
-                - master
+  ffmpeg:
     jobs:
-      - circleci_consistency
-      - binary_macos_wheel:
+      - ffmpeg_linux:
           cu_version: cpu
-          is-macos: true
-          name: nightly
-          python_version: '2.7'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
-          name: nightly
-          python_version: '2.7'
-          unicode_abi: '1'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
           is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-      - binary_macos_wheel:
-          cu_version: cpu
-          is-macos: true
-          is-python3: true
-          name: nightly
           python_version: '3.7'
-          run-external-projects: true
-      - binary_macos_conda:
+      - ffmpeg_mac:
           cu_version: cpu
-          is-macos: true
-          name: nightly
-          python_version: '2.7'
-      - binary_macos_conda:
-          cu_version: cpu
-          is-macos: true
           is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_macos_conda:
-          cu_version: cpu
-          is-macos: true
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-      - binary_macos_conda:
-          cu_version: cpu
-          is-macos: true
-          is-python3: true
-          name: nightly
+          name: ffmpeg_mac
           python_version: '3.7'
-          run-external-projects: true
-      - binary_linux_conda:
-          cu_version: cpu
-          name: nightly
-          python_version: '2.7'
-      - binary_linux_conda_cuda:
-          cu_version: cu92
-          name: nightly
-          python_version: '2.7'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_conda_cuda:
-          cu_version: cu100
-          name: nightly
-          python_version: '2.7'
-      - binary_linux_conda_cuda:
-          cu_version: cu101
-          name: nightly
-          python_version: '2.7'
-      - binary_linux_conda:
+      - ffmpeg_win:
           cu_version: cpu
           is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_linux_conda_cuda:
-          cu_version: cu92
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_conda_cuda:
-          cu_version: cu100
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_linux_conda_cuda:
-          cu_version: cu101
-          is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_linux_conda:
-          cu_version: cpu
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-      - binary_linux_conda_cuda:
-          cu_version: cu92
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_conda_cuda:
-          cu_version: cu100
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-      - binary_linux_conda_cuda:
-          cu_version: cu101
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-      - binary_linux_conda:
-          cu_version: cpu
-          is-python3: true
-          name: nightly
+          name: ffmpeg_win
           python_version: '3.7'
-          run-external-projects: true
-      - binary_linux_conda_cuda:
-          cu_version: cu92
-          is-python3: true
-          name: nightly
-          python_version: '3.7'
-          wheel_docker_image: soumith/manylinux-cuda92
-      - binary_linux_conda_cuda:
-          cu_version: cu100
-          is-python3: true
-          name: nightly
-          python_version: '3.7'
-      - binary_linux_conda_cuda:
-          cu_version: cu101
-          is-python3: true
-          name: nightly
-          python_version: '3.7'
-          run-external-projects: true
-      - binary_win_conda:
+      - hold:
+          type: approval
+          requires:
+            - ffmpeg_linux
+            - ffmpeg_mac
+            - ffmpeg_win
+      - ffmpeg_upload:
+          context: org-member
           cu_version: cpu
           is-python3: true
-          name: nightly
-          python_version: '3.5'
-      - binary_win_conda:
-          cu_version: cpu
-          is-python3: true
-          name: nightly
-          python_version: '3.6'
-      - binary_win_conda:
-          cu_version: cpu
-          is-python3: true
-          name: nightly
+          name: ffmpeg_upload
           python_version: '3.7'
-          run-external-projects: true
+          requires:
+            - hold
