@@ -245,7 +245,7 @@ else
     if [[ "$desired_cuda" == "11.0" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.0,<11.1 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda110 # [not osx and not win]"
-    if [[ "$desired_cuda" == "10.2" ]]; then
+    elif [[ "$desired_cuda" == "10.2" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.2,<10.3 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda102 # [not osx and not win]"
     elif [[ "$desired_cuda" == "10.1" ]]; then
