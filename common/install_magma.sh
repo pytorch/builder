@@ -16,7 +16,6 @@ function do_install() {
         mkdir -p "${cuda_dir}/magma"
         mv include "${cuda_dir}/magma/include"
         mv lib "${cuda_dir}/magma/lib"
-        rm -rf info lib include "${magma_archive}"
     )
 }
 
