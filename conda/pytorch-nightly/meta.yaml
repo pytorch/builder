@@ -1,3 +1,8 @@
+{% set desired_cuda = environ.get("DESIRED_CUDA", "cpu") %}
+{% set cuda_version = environ.get("CUDA_VERSION", "0.0") %}
+{% set cuda_maj_min = ".".join(cuda_version.split(".")[:2]) %}
+{% set cuda_maj_min_nodot = cuda_maj_min.replace(".", "") %}
+
 package:
   name: pytorch
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
@@ -5,74 +10,85 @@ package:
 source:
   path: "{{ environ.get('PYTORCH_GITHUB_ROOT_DIR') }}"
 
-requirements:
-  build:
-    - cmake
-    - {{ compiler('c') }} # [win]
+outputs:
+  # The actual pytorch package
+  - name: pytorch
+    version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+    build:
+      number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
+      detect_binary_files_with_prefix: False
+      string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
+      script_env:
+        - CUDA_VERSION
+        - CUDNN_VERSION
+        - USE_CUDA
+        - CMAKE_ARGS
+        - EXTRA_CAFFE2_CMAKE_FLAGS
+        - DEVELOPER_DIR
+        - DEBUG
+        - USE_FBGEMM
+        - USE_SCCACHE  # [win]
+        - USE_DISTRIBUTED  # [unix]
 
-  host:
-    - python
-    # Conda has some pretty unpredictable behavior when it comes to channel priority
-    # so to be safe on which numpy version we want we default to 1.19
-    - numpy=1.19
-    - setuptools
-    - pyyaml
-    - mkl >=2019
-    - mkl-include
-    - typing_extensions
-    - dataclasses # [py36]
-    - ninja
-    - libuv # [win]
-    - libuv # [unix]
-    - pkg-config # [unix]
-{{ environ.get('MAGMA_PACKAGE') }}
+    requirements:
+      build:
+        - cmake
+        - {{ compiler('c') }} # [win]
+      host:
+        - python
+        # Conda has some pretty unpredictable behavior when it comes to channel priority
+        # so to be safe on which numpy version we want we default to 1.19
+        - numpy=1.19
+        - setuptools
+        - pyyaml
+        - mkl >=2019
+        - mkl-include
+        - typing_extensions
+        - dataclasses # [py36]
+        - ninja
+        - libuv # [win]
+        - libuv # [unix]
+        - pkg-config # [unix]
+{% if desired_cuda != "cpu" %}
+        - magma-cuda{{ cuda_maj_min_nodot }}  # [not osx and not win]
+{% endif %}
 
-  run:
-    - python
-    - numpy >=1.19
-    - mkl >=2018
-    - dataclasses # [py36]
-    - libuv # [win]
-    - intel-openmp # [win]
-    - ninja
-    - typing_extensions
-    - blas * mkl
-{{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+      run:
+        - python
+        - numpy >=1.11
+        - mkl >=2018
+        - ninja
+        - typing_extensions
+        - blas * mkl
+        - gpu * {{ desired_cuda }}
+        - {{ pin_subpackage("cuda" + cuda_maj_min_nodot, exact=True) }}
 
-build:
-  number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
-  detect_binary_files_with_prefix: False
-  string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
-  script_env:
-    - BUILD_SPLIT_CUDA
-    - CUDA_VERSION
-    - CUDNN_VERSION
-    - CONDA_CUDATOOLKIT_CONSTRAINT
-    - USE_CUDA
-    - CMAKE_ARGS
-    - EXTRA_CAFFE2_CMAKE_FLAGS
-    - DEVELOPER_DIR
-    - DEBUG
-    - USE_FBGEMM
-    - USE_SCCACHE # [win]
-    - USE_DISTRIBUTED # [unix]
-    - CMAKE_OSX_ARCHITECTURES # [unix]
-    - USE_MKLDNN # [unix]
-    - USE_NNPACK # [unix]
-    - USE_QNNPACK # [unix]
-    - BUILD_TEST # [unix]
-  features:
-{{ environ.get('CONDA_CPU_ONLY_FEATURE') }}
-
-test:
- imports:
-    - torch
- source_files:
-   - test
- commands:
-   - OMP_NUM_THREADS=4 python ./test/run_test.py || true # [not win]
-   - python ./test/run_test.py # [win]
-
+    test:
+      imports:
+        - torch
+      source_files:
+        - test
+      commands:
+        - OMP_NUM_THREADS=4 python ./test/run_test.py || true  # [not win]
+        - python ./test/run_test.py  # [win]
+  # mutex package for only one GPU type
+  - name: gpu
+    version: 1.0
+    build:
+      string: {{ desired_cuda }}
+{% if desired_cuda != "cpu" %}
+    requirements:
+      run:
+        - cudatoolkit {{ cuda_maj_min }}  # [not osx]
+{% endif %}
+  # convenience package for installing
+  - name: cuda{{ cuda_maj_min_nodot }}
+    version: 1.0
+    build:
+      number: 0
+    requirements:
+      run:
+        - gpu * {{ desired_cuda }}
 
 about:
   home: http://pytorch.org/

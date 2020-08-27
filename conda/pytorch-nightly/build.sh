@@ -81,7 +81,7 @@ DEPS_LIST=()
 
 
 # install
-python setup.py install
+#python setup.py install
 
 # copy over needed dependent .so files over and tag them with their hash
 patched=()
