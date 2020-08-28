@@ -253,6 +253,7 @@ else
     echo "Switching to CUDA version $desired_cuda"
     export CONDA_CPU_ONLY_FEATURE=""
     . ./switch_cuda_version.sh "$desired_cuda"
+    export CUDA_VERSION
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
     if [[ "$desired_cuda" == '9.2' ]]; then
