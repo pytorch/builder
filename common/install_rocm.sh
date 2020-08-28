@@ -2,13 +2,7 @@
 
 set -ex
 
-# trailing patch version is omitted in some contexts
-dots="${BASE_ROCM_VERSION//[^.]}"
-if [ ${#dots} = 2 ]; then
-    ROCM_VERSION=${BASE_ROCM_VERSION%.0}
-else
-    ROCM_VERSION=${BASE_ROCM_VERSION}
-fi
+ROCM_VERSION=$1
 
 yum update -y
 yum install -y kmod

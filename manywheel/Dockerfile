@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-ARG BASE_ROCM_VERSION=3.7.0
+ARG ROCM_VERSION=3.7
 ARG BASE_CUDA_VERSION=10.1
 ARG GPU_IMAGE=nvidia/cuda:${BASE_CUDA_VERSION}-devel-centos7
 FROM centos:7 as base
@@ -119,10 +119,10 @@ COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BAS
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 
 FROM common as rocm_final
-ARG BASE_ROCM_VERSION=3.7.0
+ARG ROCM_VERSION=3.7
 # Install ROCm
 ADD ./common/install_rocm.sh install_rocm.sh
-RUN bash ./install_rocm.sh ${BASE_ROCM_VERSION} && rm install_rocm.sh
+RUN bash ./install_rocm.sh ${ROCM_VERSION} && rm install_rocm.sh
 # cmake is already installed inside the rocm base image, but both 2 and 3 exist
 RUN yum install -y cmake3 && \
     rm -f /usr/bin/cmake && \

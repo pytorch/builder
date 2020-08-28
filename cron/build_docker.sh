@@ -14,7 +14,7 @@ if [[ "$#" != 3 ]]; then
   if [[ -z "$DESIRED_PYTHON" || -z "$DESIRED_CUDA" || -z "$PACKAGE_TYPE" ]]; then
       echo "The env variabled PACKAGE_TYPE must be set to 'conda' or 'manywheel' or 'libtorch'"
       echo "The env variabled DESIRED_PYTHON must be set like '2.7mu' or '3.6m' etc"
-      echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu92' etc"
+      echo "The env variabled DESIRED_CUDA must be set like 'cpu' or 'cu92' or 'rocm3.7' etc"
       exit 1
   fi
   package_type="$PACKAGE_TYPE"
@@ -44,6 +44,8 @@ docker_package_dir="/host_machine_pkgs"
 python_nodot="${desired_python:0:1}${desired_python:2:1}"
 if [[ "$desired_cuda" == 'cpu' ]]; then
     build_for_cpu=1
+elif [[ "$desired_cuda" == "*rocm*" ]]; then
+    build_for_rocm=1
 else
     cuda_nodot="${desired_cuda:2}"
 fi
@@ -70,11 +72,15 @@ else
     # desired_cuda is correct
     if [[ -n "$build_for_cpu" ]]; then
         build_script='/remote/manywheel/build_cpu.sh'
+    elif [[ -n "$build_for_rocm" ]]; then
+        build_script='/remote/manywheel/build_rocm.sh'
     else
         build_script='/remote/manywheel/build.sh'
     fi
     if [[ -n "$build_for_cpu" ]]; then
         docker_image="soumith/manylinux-cuda100"
+    elif [[ -n "$build_for_rocm" ]]; then
+        docker_image="soumith/manylinux-$desired_rocm"
     else
         docker_image="soumith/manylinux-cuda$cuda_nodot"
     fi
@@ -117,6 +123,14 @@ fi
 # just start up another docker to delete this files at the end
  #docker_args+=" --user $(id -u):$(id -g)"
 
+# ROCm doesn't have a convenience wrapper like nvidia-docker
+if [[ -n "$build_for_rocm" ]]; then
+    docker_args+=" --device=/dev/kfd --device=/dev/dri --group-add video"
+    docker_exec=docker
+else
+    docker_exec=nvidia-docker
+fi
+
 # Image
 docker_args+=" ${docker_image}"
 ##############################################################################
@@ -124,14 +138,14 @@ docker_args+=" ${docker_image}"
 # We start a container and detach it such that we can run
 # a series of commands without nuking the container
 echo "Starting container for image ${docker_image}"
-id=$(nvidia-docker run ${docker_args} /bin/cat)
+id=$(${docker_exec} run ${docker_args} /bin/cat)
 
 trap "echo 'Stopping container...' &&
 docker rm -f $id > /dev/null" EXIT
 
 # Copy pytorch/builder and pytorch/pytorch into the container
-nvidia-docker cp "$NIGHTLIES_BUILDER_ROOT" "$id:/remote"
-nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
+${docker_exec} cp "$NIGHTLIES_BUILDER_ROOT" "$id:/remote"
+${docker_exec} cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
 
 # I found the only way to make the command below return the proper
 # exit code is by splitting run and exec. Executing run directly
@@ -172,7 +186,7 @@ nvidia-docker cp "$NIGHTLIES_PYTORCH_ROOT" "$id:/pytorch"
     echo 'fi'
 
     echo 'exit $ret'
-) | nvidia-docker exec -i "$id" bash
+) | ${docker_exec} exec -i "$id" bash
 echo "docker run exited with $?"
 
 exit 0
