@@ -6,7 +6,7 @@ for rocm_version in 3.7; do
     (
         set -x
         DOCKER_BUILDKIT=1 docker build \
-            -t "pytorch/manylinux-rocm${rocm_version}" \
+            -t "pytorch/manylinux-rocm:${rocm_version}" \
             --build-arg "ROCM_VERSION=${rocm_version}" \
             --build-arg "GPU_IMAGE=rocm/dev-centos-7:${rocm_version}" \
             --target rocm_final \
