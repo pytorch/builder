@@ -18,6 +18,7 @@ requirements:
     - mkl >=2019
     - mkl-include
     - typing_extensions
+    - dataclasses
     - ninja
     - libuv # [unix]
     - pkg-config # [unix]
