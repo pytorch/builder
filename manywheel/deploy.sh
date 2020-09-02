@@ -12,7 +12,7 @@ for rocm_version in 3.7; do
             --target rocm_final \
             -f manywheel/Dockerfile \
             .
-        docker push "pytorch/manylinux-rocm${rocm_version}"
+        docker push "pytorch/manylinux-rocm:${rocm_version}"
     )
 done
 
