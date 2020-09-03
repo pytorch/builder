@@ -62,7 +62,7 @@ DEPS_LIST=(
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
-    "/opt/rocm/lib/libhsakmt.so.1"
+    "/opt/rocm/lib64/libhsakmt.so.1"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
     "/opt/rocm/rocfft/lib/librocfft-device.so.0"
