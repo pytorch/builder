@@ -122,7 +122,7 @@ else
     export _GLIBCXX_USE_CXX11_ABI=0
 fi
 
-if [[ "$DESIRED_CUDA" == "*rocm*" ]]; then
+if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
     echo "Calling build_amd.py at $(date)"
     python tools/amd_build/build_amd.py
 fi
