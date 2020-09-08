@@ -31,7 +31,7 @@ else
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
 fi
 
-if [[ "$DESIRED_CUDA" != 'cpu' ]]; then
+if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'rocm3.7' ]]; then
   # cu90, cu92, cu100, cu101
   if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
     CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
