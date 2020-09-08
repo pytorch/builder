@@ -33,8 +33,8 @@ $Env:CONDA_DLL_SEARCH_MODIFICATION_ENABLE += 1
 #echo "Current python version before activation:"
 #python --version
 
-echo "About to run: bash packaging/build_conda.sh $a"
-bash packaging/build_conda.sh $a
+echo "About to run: bash $a"
+bash $a
 
 # Required to propagate bash error out of Powershell:
 exit $LastExitCode
