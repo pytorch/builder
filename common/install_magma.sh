@@ -11,11 +11,14 @@ function do_install() {
     cuda_dir="/usr/local/cuda-${cuda_version}"
     (
         set -x
+        tmp_dir=$(mktemp -d)
+        pushd ${tmp_dir}
         wget -q https://anaconda.org/pytorch/magma-cuda${cuda_version_nodot}/${MAGMA_VERSION}/download/linux-64/${magma_archive}
         tar -xvf "${magma_archive}"
         mkdir -p "${cuda_dir}/magma"
         mv include "${cuda_dir}/magma/include"
         mv lib "${cuda_dir}/magma/lib"
+        popd
     )
 }
 
