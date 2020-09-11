@@ -3,6 +3,7 @@ copy "%CUDA_PATH%\bin\cublas*64_*.dll*" pytorch\torch\lib
 copy "%CUDA_PATH%\bin\cudart*64_*.dll*" pytorch\torch\lib
 copy "%CUDA_PATH%\bin\curand*64_*.dll*" pytorch\torch\lib
 copy "%CUDA_PATH%\bin\cufft*64_*.dll*" pytorch\torch\lib
+copy "%CUDA_PATH%\bin\cusolver64_*.dll*" pytorch\torch\lib
 
 copy "%CUDA_PATH%\bin\cudnn*64_*.dll*" pytorch\torch\lib
 copy "%CUDA_PATH%\bin\nvrtc*64_*.dll*" pytorch\torch\lib
