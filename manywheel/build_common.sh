@@ -362,8 +362,8 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   pip install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
   # Print info on the libraries installed in this wheel
-  # Rather than adjust find command to skip *.hsaco files from ROCm, since this is only for 
-  # reporting purposes, we add the || true to the ldd command.
+  # Rather than adjust find command to skip non-library files with an embedded *.so* in their name,
+  # since this is only for reporting purposes, we add the || true to the ldd command.
   installed_libraries=($(find "$pydir/lib/python${py_majmin}/site-packages/torch/" -name '*.so*'))
   echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
   for installed_lib in "${installed_libraries[@]}"; do
