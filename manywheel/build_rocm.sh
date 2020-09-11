@@ -89,6 +89,31 @@ DEPS_SONAME=(
     "libroctx64.so.1"
     "libgomp.so.1"
 )
+
+DEPS_AUX_SRCLIST=(
+    "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx803.hsaco"
+    "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx900.hsaco"
+    "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx906.hsaco"
+    "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx908.hsaco"
+    "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx803.co"
+    "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx900.co"
+    "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx906.co"
+    "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx908.co"
+    "/opt/rocm/rocblas/lib/library/TensileLibrary.yaml"
+)
+
+DEPS_AUX_DSTLIST=(
+    "lib/library/Kernels.so-000-gfx803.hsaco"
+    "lib/library/Kernels.so-000-gfx900.hsaco"
+    "lib/library/Kernels.so-000-gfx906.hsaco"
+    "lib/library/Kernels.so-000-gfx908.hsaco"
+    "lib/library/TensileLibrary_gfx803.co"
+    "lib/library/TensileLibrary_gfx900.co"
+    "lib/library/TensileLibrary_gfx906.co"
+    "lib/library/TensileLibrary_gfx908.co"
+    "lib/library/TensileLibrary.yaml"
+)
+
 else
     echo "Unknown ROCm version $ROCM_VERSION"
     exit 1
