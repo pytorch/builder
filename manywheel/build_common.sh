@@ -290,6 +290,14 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
                 fi
             done
         done
+
+        # copy over needed auxiliary files
+        for ((i=0;i<${#DEPS_AUX_SRCLIST[@]};++i)); do
+            srcpath=${DEPS_AUX_SRCLIST[i]}
+            dstpath=$PREFIX/${DEPS_AUX_DSTLIST[i]}
+            mkdir -p $(dirname $dstpath)
+            cp $srcpath $dstpath
+        done
     fi
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
@@ -354,10 +362,12 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   pip install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
   # Print info on the libraries installed in this wheel
+  # Rather than adjust find command to skip non-library files with an embedded *.so* in their name,
+  # since this is only for reporting purposes, we add the || true to the ldd command.
   installed_libraries=($(find "$pydir/lib/python${py_majmin}/site-packages/torch/" -name '*.so*'))
   echo "The wheel installed all of the libraries: ${installed_libraries[@]}"
   for installed_lib in "${installed_libraries[@]}"; do
-      ldd "$installed_lib"
+      ldd "$installed_lib" || true
   done
 
   # Run the tests
