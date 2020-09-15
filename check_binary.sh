@@ -62,12 +62,12 @@ fi
 echo "Checking that the gcc ABI is what we expect"
 if [[ "$(uname)" != 'Darwin' ]]; then
   function is_expected() {
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-      if [[ "$1" -gt 0 || "$1" == "ON " ]]; then
+    if [[ "$DESIRED_DEVTOOLSET" == *devtoolset7* ]] && [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+      if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
         echo 1
       fi
     else
-      if [[ -z "$1" || "$1" == 0 || "$1" == "OFF" ]]; then
+      if [[ "$1" -gt 0 || "$1" == "ON " ]]; then
         echo 1
       fi
     fi
@@ -143,21 +143,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   check_lib_symbols_for_abi_correctness () {
     lib=$1
     echo "lib: " $lib
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-      num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
-      echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
-      if [[ "$num_pre_cxx11_symbols" -gt 0 ]]; then
-        echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
-        grep_symbols "${PRE_CXX11_SYMBOLS[@]}"
-        exit 1
-      fi
-      num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
-      echo "num_cxx11_symbols: " $num_cxx11_symbols
-      if [[ "$num_cxx11_symbols" -lt 1000 ]]; then
-        echo "Didn't find enough cxx11 symbols. Aborting."
-        exit 1
-      fi
-    else
+    if [[ "$DESIRED_DEVTOOLSET" == *devtoolset7* ]] && [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
       num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
       echo "num_cxx11_symbols: " $num_cxx11_symbols
       if [[ "$num_cxx11_symbols" -gt 0 ]]; then
@@ -169,6 +155,20 @@ if [[ "$(uname)" != 'Darwin' ]]; then
       echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
       if [[ "$num_pre_cxx11_symbols" -lt 1000 ]]; then
         echo "Didn't find enough pre-cxx11 symbols. Aborting."
+        exit 1
+      fi
+    else
+      num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
+      echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
+      if [[ "$num_pre_cxx11_symbols" -gt 0 ]]; then
+        echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
+        grep_symbols "${PRE_CXX11_SYMBOLS[@]}"
+        exit 1
+      fi
+      num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
+      echo "num_cxx11_symbols: " $num_cxx11_symbols
+      if [[ "$num_cxx11_symbols" -lt 1000 ]]; then
+        echo "Didn't find enough cxx11 symbols. Aborting."
         exit 1
       fi
     fi
