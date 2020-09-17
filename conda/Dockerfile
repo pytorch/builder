@@ -18,7 +18,7 @@ RUN yum install -y cmake3 && \
 ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
 
-RUN yum install -y autoconf aclocal automake make
+RUN yum install -y autoconf aclocal automake make sudo
 
 FROM base as patchelf
 # Install patchelf
@@ -46,7 +46,7 @@ RUN bash ./install_cuda.sh 10.2
 FROM cuda as cuda110
 RUN bash ./install_cuda.sh 11.0
 
-# Instal MNIST test data
+# Install MNIST test data
 FROM base as mnist
 ADD ./common/install_mnist.sh install_mnist.sh
 RUN bash ./install_mnist.sh
@@ -62,3 +62,9 @@ COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
 ADD ./java/jni.h     /usr/local/include/jni.h
 ENV PATH /opt/conda/bin:$PATH
 COPY --from=mnist  /usr/local/mnist /usr/local/mnist
+RUN rm -rf /usr/local/cuda
+RUN chmod o+rw /usr/local
+RUN touch /.condarc && \
+    chmod o+rw /.condarc && \
+    chmod -R o+rw /opt/conda
+

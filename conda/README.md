@@ -8,33 +8,30 @@
 
 ## build base docker image
 
-```
+```sh
 cd ..
-nvidia-docker build -t soumith/conda-cuda -f conda/Dockerfile .
+docker build -t soumith/conda-cuda -f conda/Dockerfile .
 docker push soumith/conda-cuda
 ```
 
 ## building pytorch / torchvision etc.
 
-```
-docker run -it --ipc=host --rm -v $(pwd):/remote pytorch/conda-cuda bash
-
-cd remote/conda
-
-# versioned
-export PYTORCH_FINAL_PACKAGE_DIR="/remote"
-export TORCH_CONDA_BUILD_FOLDER=pytorch-1.1.0
-export PYTORCH_REPO=pytorch
-export PYTORCH_BRANCH=v1.1.0
-./build_pytorch.sh 100 1.1.0 1 # cuda 10.0 pytorch 1.0.1 build_number 1
-
-# nightly
-export PYTORCH_FINAL_PACKAGE_DIR="/remote"
-export TORCH_CONDA_BUILD_FOLDER=pytorch-nightly
-export PYTORCH_REPO=pytorch
-export PYTORCH_BRANCH=master
-./build_pytorch.sh 100 nightly 1 # cuda 10.0 pytorch 1.0.1 build_number 1
-
+```sh
+# building pytorch
+docker run --rm -it \
+    -e PACKAGE_TYPE=conda \
+    -e DESIRED_CUDA=cu92 \
+    -e DESIRED_PYTHON=3.8 \
+    -e PYTORCH_BUILD_VERSION=1.5.0 \
+    -e PYTORCH_BUILD_NUMBER=1 \
+    -e OVERRIDE_PACKAGE_VERSION=1.5.0
+    -e TORCH_CONDA_BUILD_FOLDER=pytorch-nightly \
+    -v /path/to/pytorch:/pytorch \
+    -v /path/to/builder:/builder \
+    -v "$(pwd):/final_pkgs" \
+    -u "$(id -u):$(id -g)"  \
+    pytorch/conda-cuda \
+    /builder/conda/build_pytorch.sh
 ```
 
 
