@@ -64,11 +64,7 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
 endlocal
 
 ::Install libuv
-conda install -y -q -c rdonnelly libuv
-:: Get installed libuv path
-FOR /f "tokens=1,2,3* delims=: " %%a IN ('conda info') DO (
- IF "%%a %%b %%c"=="active env location" SET "active_conda_path=%%d\Library"
-)
+set active_conda_path=%CONDA_HOME%\Library
 mkdir %active_conda_path%\lib\release
 copy %active_conda_path%\bin\uv.dll %active_conda_path%\lib\release
 copy %active_conda_path%\lib\uv.lib %active_conda_path%\lib\release
