@@ -64,6 +64,7 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
 endlocal
 
 ::Install libuv
+conda install -y -q -c rdonnelly libuv
 set active_conda_path=%CONDA_HOME%\Library
 mkdir %active_conda_path%\lib\release
 copy %active_conda_path%\bin\uv.dll %active_conda_path%\lib\release
