@@ -48,11 +48,3 @@ IF ERRORLEVEL 1 git checkout tags/%PYTORCH_BRANCH%
 
 git submodule update --init --recursive
 IF ERRORLEVEL 1 exit /b 1
-
-:: Will be removed after GLOO fix PR merged
-rmdir /q /s third_party\gloo
-cd third_party
-git clone https://github.com/gunandrose4u/gloo.git
-cd gloo
-git.exe checkout -b jozh/test_build remotes/origin/jozh/test_build
-cd ..\..
