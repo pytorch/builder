@@ -51,8 +51,12 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+    LIBNUMA_PATH="/usr/lib64/libnuma.so.1"
+    LIBELF_PATH="/usr/lib64/libelf.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
+    LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
 fi
 
 if [[ $ROCM_VERSION == "rocm3.7" ]]; then
@@ -72,6 +76,8 @@ DEPS_LIST=(
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
     "/opt/rocm/roctracer/lib/libroctx64.so.1"
     "$LIBGOMP_PATH"
+    "$LIBNUMA_PATH"
+    "$LIBELF_PATH"
 )
 
 DEPS_SONAME=(
@@ -90,6 +96,8 @@ DEPS_SONAME=(
     "librocsparse.so.0"
     "libroctx64.so.1"
     "libgomp.so.1"
+    "libnuma.so.1"
+    "libelf.so.1"
 )
 
 DEPS_AUX_SRCLIST=(
