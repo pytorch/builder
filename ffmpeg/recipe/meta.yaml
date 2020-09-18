@@ -24,8 +24,8 @@ build:
 
 requirements:
   build:
-    - {{ compiler("c") }}
-    - {{ compiler("cxx") }}
+    - {{ compiler("c") }}  # [linux]
+    - {{ compiler("cxx") }}  #[linux]
     - pkg-config  # [not win]
     - libtool  # [not win]
     - nasm  # [not win]
