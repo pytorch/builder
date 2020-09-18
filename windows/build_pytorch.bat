@@ -66,6 +66,7 @@ endlocal
 ::Install libuv
 conda install -y -q -c rdonnelly libuv
 set libuv_ROOT=%CONDA_HOME%\Library
+echo libuv_ROOT=%libuv_ROOT%
 
 :: Install MKL
 rmdir /s /q mkl
