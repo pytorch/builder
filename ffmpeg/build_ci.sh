@@ -32,7 +32,8 @@ touch "${DIR}/output/hello"
 if [ $COMMIT_SAME -eq 1 ]; then
     echo "FFMpeg has changed"
     if [[ "$(uname)" == Darwin ]]; then
-      echo $(xcode-select --print-path)/Prms/MacOSX.platform/Developer/SDKs
+      echo $(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs
+      ls $(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs
     fi
     "${DIR}/build_ffmpeg.sh"
 else
