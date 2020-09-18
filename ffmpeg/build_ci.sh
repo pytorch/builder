@@ -34,6 +34,7 @@ if [ $COMMIT_SAME -eq 1 ]; then
     if [[ "$(uname)" == Darwin ]]; then
       echo $(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs
       ls $(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs
+      export CONDA_BUILD_SYSROOT=$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
     fi
     "${DIR}/build_ffmpeg.sh"
 else
