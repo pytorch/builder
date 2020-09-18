@@ -65,13 +65,7 @@ endlocal
 
 ::Install libuv
 conda install -y -q -c rdonnelly libuv
-set active_conda_path=%CONDA_HOME%\Library
-mkdir %active_conda_path%\lib\release
-copy %active_conda_path%\bin\uv.dll %active_conda_path%\lib\release
-copy %active_conda_path%\lib\uv.lib %active_conda_path%\lib\release
-copy %active_conda_path%\lib\uv_a.lib %active_conda_path%\lib\release
-set libuv_ROOT=%active_conda_path%
-echo libuv_ROOT=%active_conda_path%
+set libuv_ROOT=%CONDA_HOME%\Library
 
 :: Install MKL
 rmdir /s /q mkl
