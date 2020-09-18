@@ -1,4 +1,4 @@
-{% set version = "4.3" %}
+{% set version = "4.2" %}
 
 package:
   name: ffmpeg
@@ -6,13 +6,14 @@ package:
 
 source:
   - url: https://ffmpeg.org/releases/ffmpeg-{{ version }}.tar.gz  # [not win]
-    sha256: 95edf444cc46509ea1fea85d99ecd40a597a873627483ef9b068796feb3bf72a  # [not win]
+    sha256: 9353228c2a397d1c62df7ca16033ec8a0cd2b12296de83a1c74948fe7395bb87  # [not win]
 
-  - url: https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-{{ version }}-win64-shared-lgpl.zip  # [win]
-    sha256: aaca10decc4696d919284bebdd307db3528240f88ed75fdebc487cf7ca07aeaf  # [win]
+  # Windows builds are disabled temporarily
+  # - url: https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-{{ version }}-win64-shared-lgpl.zip  # [win]
+  #   sha256: aaca10decc4696d919284bebdd307db3528240f88ed75fdebc487cf7ca07aeaf  # [win]
 
-  - url: https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-{{ version }}-win64-dev-lgpl.zip  # [win]
-    sha256: 57f312a15310294101067bc21b9323e41d09c6851ff83d3282200278e5e74b54  # [win]
+  # - url: https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-{{ version }}-win64-dev-lgpl.zip  # [win]
+  #   sha256: 57f312a15310294101067bc21b9323e41d09c6851ff83d3282200278e5e74b54  # [win]
 
 build:
   number: 0
