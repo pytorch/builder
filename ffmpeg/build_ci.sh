@@ -20,13 +20,16 @@ git fetch origin
 FOLDER_COMMIT=$(git log -1 --format=format:%H --full-diff $DIR)
 BASE_COMMIT=$(git show-ref refs/remotes/origin/master | awk '{print $1}')
 
+git merge-base --is-ancestor "${FOLDER_COMMIT}" "${BASE_COMMIT}"
+COMMIT_SAME=$?
+
 set -exou pipefail
 
 mkdir -p "${DIR}/output/"
 # This is so that circle's persist_to_workspace doesn't fail when builds don't run
 touch "${DIR}/output/hello"
 
-if git merge-base --is-ancestor "${FOLDER_COMMIT}" "${BASE_COMMIT}"; then
+if [ $COMMIT_SAME -eq 1 ]; then
     echo "FFMpeg has changed"
     "${DIR}/build_ffmpeg.sh"
 else
