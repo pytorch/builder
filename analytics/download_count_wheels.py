@@ -138,11 +138,11 @@ def output_results(bytes_cache: dict) -> None:
             )
 
 def download_logs(log_directory: str, since: float):
+    yesterday = datetime.utcnow() - timedelta(days=1)
     for key in tqdm(BUCKET.objects.filter(Prefix='cflogs')):
         remote_fname = key.key
         local_fname = os.path.join(log_directory, remote_fname)
-        # Only download things from yesterday
-        if datetime.utcnow() - timedelta(days=1) > key.last_modified.utcnow():
+        if not yesterday.strftime("%Y-%m-%d") in remote_fname:
             continue
         # TODO: Do this in parallel
         if not os.path.exists(local_fname):
