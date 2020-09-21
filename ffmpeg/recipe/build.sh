@@ -3,6 +3,10 @@
 # unset the SUBDIR variable since it changes the behavior of make here
 unset SUBDIR
 
+if [[ "$(uname)" == Darwin ]]; then
+   export CONDA_BUILD_SYSROOT=$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk
+fi
+
 ./configure \
         --prefix="${PREFIX}" \
         --cc=${CC} \
