@@ -1,4 +1,4 @@
-# FFmpeg
+# FFmpeg (4.2)
 
 ## Building
 
