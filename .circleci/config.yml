@@ -98,7 +98,7 @@ jobs:
       - persist_to_workspace:
           root: ffmpeg
           paths:
-            - output/*
+            - output/*/ffmpeg*
 
   ffmpeg_win:
     <<: *binary_common
