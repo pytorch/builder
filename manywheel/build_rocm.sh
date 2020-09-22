@@ -59,6 +59,12 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
 fi
 
+if [[ $ROCM_VERSION == "rocm3.7" ]]; then
+    TENSILE_LIBRARY_NAME=TensileLibrary.yaml
+elif [[ $ROCM_VERSION == "rocm3.8" ]]; then
+    TENSILE_LIBRARY_NAME=TensileLibrary.dat
+fi
+
 # NOTE: Some ROCm versions have identical dependencies.
 # To avoid copy/paste mistakes, version condition branches are combined.
 if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" ]]; then
@@ -111,7 +117,7 @@ DEPS_AUX_SRCLIST=(
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx900.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx906.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx908.co"
-    "/opt/rocm/rocblas/lib/library/TensileLibrary.yaml"
+    "/opt/rocm/rocblas/lib/library/$TENSILE_LIBRARY_NAME"
 )
 
 DEPS_AUX_DSTLIST=(
@@ -123,7 +129,7 @@ DEPS_AUX_DSTLIST=(
     "lib/library/TensileLibrary_gfx900.co"
     "lib/library/TensileLibrary_gfx906.co"
     "lib/library/TensileLibrary_gfx908.co"
-    "lib/library/TensileLibrary.yaml"
+    "lib/library/$TENSILE_LIBRARY_NAME"
 )
 
 else
