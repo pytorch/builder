@@ -59,7 +59,9 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
 fi
 
-if [[ $ROCM_VERSION == "rocm3.7" ]]; then
+# NOTE: Some ROCm versions have identical dependencies.
+# To avoid copy/paste mistakes, version condition branches are combined.
+if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" ]]; then
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/libamdhip64.so.3"
