@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-for rocm_version in 3.7; do
+for rocm_version in 3.7 3.8; do
     (
         set -x
         DOCKER_BUILDKIT=1 docker build \
