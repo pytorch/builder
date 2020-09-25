@@ -150,7 +150,6 @@ def download_logs(log_directory: str, since: float):
             continue
         # TODO: Do this in parallel
         if not os.path.exists(local_fname):
-            print("downloading: %s", remote_fname)
             dirname = os.path.dirname(local_fname)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
