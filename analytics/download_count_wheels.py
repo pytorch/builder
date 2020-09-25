@@ -1,5 +1,5 @@
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import gzip
 import multiprocessing
 import os
@@ -138,14 +138,19 @@ def output_results(bytes_cache: dict) -> None:
             )
 
 def download_logs(log_directory: str, since: float):
+    dt_now = datetime.now(timezone.utc)
+    dt_end = datetime(dt_now.year, dt_now.month, dt_now.day, tzinfo=timezone.utc)
+    dt_start = dt_end - timedelta(days=1, hours=1) # Add 1 hour padding to account for potentially missed logs due to timing 
     for key in tqdm(BUCKET.objects.filter(Prefix='cflogs')):
         remote_fname = key.key
         local_fname = os.path.join(log_directory, remote_fname)
         # Only download things from yesterday
-        if datetime.utcnow() - timedelta(days=1) > key.last_modified.utcnow():
+        dt_modified = key.last_modified.replace(tzinfo=timezone.utc)
+        if dt_start >= dt_modified or dt_end < dt_modified:
             continue
         # TODO: Do this in parallel
         if not os.path.exists(local_fname):
+            print("downloading: %s", remote_fname)
             dirname = os.path.dirname(local_fname)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
