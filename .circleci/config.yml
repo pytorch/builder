@@ -47,6 +47,7 @@ binary_common: &binary_common
     PYTORCH_VERSION: << parameters.pytorch_version >>
     UNICODE_ABI: << parameters.unicode_abi >>
     CU_VERSION: << parameters.cu_version >>
+    TERM: xterm-256color
 
 
 jobs:
@@ -80,7 +81,7 @@ jobs:
   ffmpeg_mac:
     <<: *binary_common
     macos:
-      xcode: "9.0"
+      xcode: "11.0.0"
     steps:
       - checkout
       - run:
@@ -90,13 +91,6 @@ jobs:
             sh conda.sh -b
             source $HOME/miniconda3/bin/activate
             conda install -yq conda-build
-
-            # Fixes "OSError: [Errno 13] Permission denied: '/usr/local/man'"
-            # see https://github.com/tqdm/tqdm/issues/460#issuecomment-365787522
-            sudo mkdir -p /usr/local/man
-            sudo chown -R "$USER:admin" /usr/local/man
-
-            brew install wget
       - run:
           name: Build FFmpeg recipe
           command: |
@@ -104,7 +98,7 @@ jobs:
       - persist_to_workspace:
           root: ffmpeg
           paths:
-            - output/*
+            - output/*/ffmpeg*
 
   ffmpeg_win:
     <<: *binary_common
@@ -148,17 +142,11 @@ workflows:
           is-python3: true
           name: ffmpeg_mac
           python_version: '3.7'
-      - ffmpeg_win:
-          cu_version: cpu
-          is-python3: true
-          name: ffmpeg_win
-          python_version: '3.7'
       - hold:
           type: approval
           requires:
             - ffmpeg_linux
             - ffmpeg_mac
-            - ffmpeg_win
       - ffmpeg_upload:
           context: org-member
           cu_version: cpu

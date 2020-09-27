@@ -51,17 +51,30 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+    LIBNUMA_PATH="/usr/lib64/libnuma.so.1"
+    LIBELF_PATH="/usr/lib64/libelf.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
+    LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
 fi
 
 if [[ $ROCM_VERSION == "rocm3.7" ]]; then
+    TENSILE_LIBRARY_NAME=TensileLibrary.yaml
+elif [[ $ROCM_VERSION == "rocm3.8" ]]; then
+    TENSILE_LIBRARY_NAME=TensileLibrary.dat
+fi
+
+# NOTE: Some ROCm versions have identical dependencies.
+# To avoid copy/paste mistakes, version condition branches are combined.
+if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" ]]; then
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/libamdhip64.so.3"
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
+    "/opt/rocm/lib/libamd_comgr.so.1"
     "/opt/rocm/lib64/libhsakmt.so.1"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
@@ -71,6 +84,8 @@ DEPS_LIST=(
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
     "/opt/rocm/roctracer/lib/libroctx64.so.1"
     "$LIBGOMP_PATH"
+    "$LIBNUMA_PATH"
+    "$LIBELF_PATH"
 )
 
 DEPS_SONAME=(
@@ -79,6 +94,7 @@ DEPS_SONAME=(
     "libhiprand.so.1"
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
+    "libamd_comgr.so.1"
     "libhsakmt.so.1"
     "librccl.so.1"
     "librocblas.so.0"
@@ -88,6 +104,8 @@ DEPS_SONAME=(
     "librocsparse.so.0"
     "libroctx64.so.1"
     "libgomp.so.1"
+    "libnuma.so.1"
+    "libelf.so.1"
 )
 
 DEPS_AUX_SRCLIST=(
@@ -99,7 +117,7 @@ DEPS_AUX_SRCLIST=(
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx900.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx906.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx908.co"
-    "/opt/rocm/rocblas/lib/library/TensileLibrary.yaml"
+    "/opt/rocm/rocblas/lib/library/$TENSILE_LIBRARY_NAME"
 )
 
 DEPS_AUX_DSTLIST=(
@@ -111,7 +129,7 @@ DEPS_AUX_DSTLIST=(
     "lib/library/TensileLibrary_gfx900.co"
     "lib/library/TensileLibrary_gfx906.co"
     "lib/library/TensileLibrary_gfx908.co"
-    "lib/library/TensileLibrary.yaml"
+    "lib/library/$TENSILE_LIBRARY_NAME"
 )
 
 else

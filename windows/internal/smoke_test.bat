@@ -32,7 +32,7 @@ echo "install wheel package"
 
 set PYTHON_INSTALLER_URL=
 if "%DESIRED_PYTHON%" == "3.8" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.8.2/python-3.8.2-amd64.exe"
-if "%DESIRED_PYTHON%" == "3.7" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.7.7/python-3.7.7-amd64.exe"
+if "%DESIRED_PYTHON%" == "3.7" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.6" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.6.8/python-3.6.8-amd64.exe"
 if "%PYTHON_INSTALLER_URL%" == "" (
     echo Python %DESIRED_PYTHON% not supported yet
@@ -42,10 +42,10 @@ del python-amd64.exe
 curl --retry 3 -kL "%PYTHON_INSTALLER_URL%" --output python-amd64.exe
 if errorlevel 1 exit /b 1
 
-start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 TargetDir=%CD%\Python%PYTHON_VERSION%
+start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 TargetDir=%CD%\Python
 if errorlevel 1 exit /b 1
 
-set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python%PYTHON_VERSION%;%PATH%"
+set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
 pip install -q future numpy protobuf six "mkl>=2019"
 if errorlevel 1 exit /b 1
