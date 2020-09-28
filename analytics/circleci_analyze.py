@@ -6,7 +6,7 @@ import itertools
 import sqlite3
 import os
 import sys
-from typing import Callable, Dict, List, MutableSet, Optional
+from typing import Callable, Dict, List, MutableSet, Optional, Sequence
 
 def get_executor_price_rate(executor):
     (etype, eclass) = executor['type'], executor['resource_class']
@@ -75,7 +75,8 @@ class CircleCICache:
                 'Circle-Token': token,
                 } if token is not None else None
         self.db = sqlite3.connect(os.path.join(file_folder, db_name))
-        self.db.execute('CREATE TABLE IF NOT EXISTS jobs(slug TEXT NOT NULL, job_id INTENER NOT NULL, json TEXT NOT NULL);')
+        self.db.execute('CREATE TABLE IF NOT EXISTS jobs(slug TEXT NOT NULL, job_id INTEGER NOT NULL, json TEXT NOT NULL);')
+        self.db.execute('CREATE TABLE IF NOT EXISTS artifacts(slug TEXT NOT NULL, job_id INTEGER NOT NULL, json TEXT NOT NULL);')
         self.db.execute('CREATE UNIQUE INDEX IF NOT EXISTS jobs_key on jobs(slug, job_id);')
         self.db.execute('CREATE TABLE IF NOT EXISTS workflows(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL);')
         self.db.execute('CREATE TABLE IF NOT EXISTS pipeline_workflows(id TEXT NOT NULL PRIMARY KEY, json TEXT NOT NULL);')
@@ -99,7 +100,11 @@ class CircleCICache:
         while not _should_quit():
             if token is not None: params['page-token'] = token
             r = self.session.get(url, params = params, headers = self.headers)
-            j = r.json()
+            try:
+                j = r.json()
+            except json.JSONDecodeError:
+                print(f"Failed to decode {rc}", file=sys.stderr)
+                raise
             if 'message' in j:
                 raise RuntimeError(f'Failed to get list from {url}: {j["message"]}')
             token = j['next_page_token']
@@ -170,6 +175,26 @@ class CircleCICache:
         self.db.execute("INSERT INTO jobs(slug,job_id, json) VALUES (?, ?, ?)", (project_slug, job_number, json.dumps(rc)))
         self.db.commit()
         return rc
+
+    def get_job_artifacts(self, project_slug, job_number) -> List[Dict]:
+        c = self.db.cursor()
+        c.execute("select json from artifacts where slug=? and job_id = ?", (project_slug, job_number))
+        rc = c.fetchone()
+        if rc is not None:
+            return json.loads(rc[0])
+        if self.is_offline():
+            return {}
+        rc = self._get_paged_items_list(f"{self.url_prefix}/project/{project_slug}/{job_number}/artifacts")
+        self.db.execute("INSERT INTO artifacts(slug,job_id, json) VALUES (?, ?, ?)", (project_slug, job_number, json.dumps(rc)))
+        self.db.commit()
+        return rc
+
+    def get_pipeline_jobs(self, project: str = 'github/pytorch/pytorch', branch: Optional[str] = None, item_count: Optional[int] = None) -> Sequence:
+        for pipeline in self.get_pipelines(project, branch, item_count):
+            for workflow in self.get_pipeline_workflows(pipeline['id']):
+                in_progress = is_workflow_in_progress(workflow)
+                for job in self.get_workflow_jobs(workflow['id'], should_cache = not in_progress):
+                    yield (pipeline, workflow, job)
 
 
     def get_jobs_summary(self, slug='gh/pytorch/pytorch', workflow='build') -> Dict:
@@ -434,10 +459,25 @@ def compute_covariance(branch='master', name_filter: Optional[Callable[[str], bo
     cov_matrix = np.corrcoef(job_data)
     plot_heatmap(cov_matrix, job_names)
 
+def print_artifacts(branch, item_count, name_filter: Callable[[str], bool]) -> None:
+    ci_cache = CircleCICache(token=get_circleci_token())
+    for pipeline, workflow, job in ci_cache.get_pipeline_jobs(branch=branch, item_count = item_count):
+        revision = pipeline['vcs']['revision']
+        if not name_filter(job["name"]):
+            continue
+        job_number = job.get("job_number")
+        if job_number is None:
+            continue
+        artifacts = ci_cache.get_job_artifacts('gh/pytorch/pytorch', job_number)
+        for artifact in artifacts:
+            name = os.path.basename(artifact['path'])
+            url = artifact["url"]
+            print(f"{revision} {name} {url}")
 
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser(description="Download and analyze circle logs")
+    parser.add_argument('--get_artifacts', type=str)
     parser.add_argument('--branch', type=str)
     parser.add_argument('--item_count', type=int, default=100)
     parser.add_argument('--compute_covariance', choices=['cuda_test', 'cuda_build', 'windows_test'])
@@ -445,6 +485,11 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
+    if args.get_artifacts is not None:
+        print_artifacts(branch=args.branch,
+                        item_count=args.item_count,
+                        name_filter=lambda x: args.get_artifacts in x)
+        sys.exit(0)
     if args.compute_covariance is not None:
         name_filter = {
                 'cuda_test': filter_cuda_test,
