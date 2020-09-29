@@ -20,6 +20,7 @@ requirements:
     - typing_extensions
     - dataclasses
     - ninja
+    - libuv # [win]
     - libuv # [unix]
     - pkg-config # [unix]
 {{ environ.get('MAGMA_PACKAGE') }}
