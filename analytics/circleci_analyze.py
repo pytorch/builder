@@ -477,12 +477,27 @@ def print_artifacts(branch, item_count, name_filter: Callable[[str], bool]) -> N
             url = artifact["url"]
             print(f"{revision} {name} {url}")
 
+def print_duration(branch, item_count, name_filter: Callable[[str], bool]) -> None:
+    ci_cache = CircleCICache(token=get_circleci_token())
+    for pipeline, workflow, job in ci_cache.get_pipeline_jobs(branch=branch, item_count = item_count):
+        job_name, job_status, job_number = job['name'], job['status'], job.get("job_number")
+        revision = pipeline['vcs']['revision']
+        if not name_filter(job_name) or job_number is None:
+            continue
+        if job_status in ['blocked', 'canceled', 'unauthorized', 'running', 'not_run', 'failing']:
+            continue
+        started_at = datetime.fromisoformat(job['started_at'][:-1])
+        stopped_at = datetime.fromisoformat(job['stopped_at'][:-1])
+        duration = stopped_at - started_at
+        print(f"{job_name} {revision} {duration} {started_at}")
+
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser(description="Download and analyze circle logs")
     parser.add_argument('--plot-graph', type=str, nargs = '?', help="Plot job time trends", const = '')
     parser.add_argument('--output', type=str, help="Output file name for the graphs")
     parser.add_argument('--get_artifacts', type=str)
+    parser.add_argument('--print-duration', type=str)
     parser.add_argument('--branch', type=str)
     parser.add_argument('--item_count', type=int, default=100)
     parser.add_argument('--compute_covariance', choices=['cuda_test', 'cuda_build', 'windows_test'])
@@ -494,6 +509,11 @@ if __name__ == '__main__':
         print_artifacts(branch=args.branch,
                         item_count=args.item_count,
                         name_filter=lambda x: args.get_artifacts in x)
+        sys.exit(0)
+    if args.print_duration is not None:
+        print_duration(branch=args.branch,
+                        item_count=args.item_count,
+                        name_filter=lambda x: args.print_duration in x)
         sys.exit(0)
     if args.compute_covariance is not None:
         name_filter = {
