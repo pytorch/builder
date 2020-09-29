@@ -228,7 +228,7 @@ def aggregate_by_day(series):
     return [(x, rc[x][0] / rc[x][1]) for x in sorted(rc.keys())]
 
 
-def plot_graph(name_filter=None):
+def plot_graph(name_filter=None, output_file=None):
     import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
 
@@ -251,7 +251,10 @@ def plot_graph(name_filter=None):
         x,y=zip(*aggregate_by_day(ts))
         plt.plot(x, y, styles[len(labels)%len(styles)])
     plt.legend(labels)
-    plt.show()
+    if output_file is not None:
+        plt.savefig(output_file)
+    else:
+        plt.show()
 
 def print_line(line: str, padding: Optional[int] =None, newline: bool =True) -> None:
     if padding is not None and len(line) < padding:
@@ -477,6 +480,8 @@ def print_artifacts(branch, item_count, name_filter: Callable[[str], bool]) -> N
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser(description="Download and analyze circle logs")
+    parser.add_argument('--plot-graph', type=str, nargs = '?', help="Plot job time trends", const = '')
+    parser.add_argument('--output', type=str, help="Output file name for the graphs")
     parser.add_argument('--get_artifacts', type=str)
     parser.add_argument('--branch', type=str)
     parser.add_argument('--item_count', type=int, default=100)
@@ -498,5 +503,7 @@ if __name__ == '__main__':
                 }[args.compute_covariance]
         compute_covariance(branch=args.branch, name_filter=name_filter)
         sys.exit(0)
+    if args.plot_graph is not None:
+        plot_graph(args.plot_graph, args.output)
+        sys.exit(0)
     fetch_status(branch=args.branch, item_count=args.item_count)
-    #plot_graph()
