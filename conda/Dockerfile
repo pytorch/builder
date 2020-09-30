@@ -34,17 +34,20 @@ RUN bash ./install_conda.sh && rm install_conda.sh
 FROM base as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
 
-FROM cuda as cuda92
-RUN bash ./install_cuda.sh 9.2
+# FROM cuda as cuda92
+# RUN bash ./install_cuda.sh 9.2
 
-FROM cuda as cuda101
-RUN bash ./install_cuda.sh 10.1
+# FROM cuda as cuda101
+# RUN bash ./install_cuda.sh 10.1
 
-FROM cuda as cuda102
-RUN bash ./install_cuda.sh 10.2
+# FROM cuda as cuda102
+# RUN bash ./install_cuda.sh 10.2
 
-FROM cuda as cuda110
-RUN bash ./install_cuda.sh 11.0
+# FROM cuda as cuda110
+# RUN bash ./install_cuda.sh 11.0
+
+FROM cuda as cuda111
+RUN bash ./install_cuda.sh 11.1
 
 # Install MNIST test data
 FROM base as mnist
@@ -55,10 +58,11 @@ FROM base as final
 COPY --from=patchelf /patchelf            /usr/local/bin/patchelf
 COPY --from=conda    /opt/conda           /opt/conda
 RUN rm -rf /usr/local/cuda-*
-COPY --from=cuda92   /usr/local/cuda-9.2  /usr/local/cuda-9.2
-COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
-COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
-COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
+# COPY --from=cuda92   /usr/local/cuda-9.2  /usr/local/cuda-9.2
+# COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
+# COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
+# COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
+COPY --from=cuda111  /usr/local/cuda-11.1 /usr/local/cuda-11.1
 ADD ./java/jni.h     /usr/local/include/jni.h
 ENV PATH /opt/conda/bin:$PATH
 COPY --from=mnist  /usr/local/mnist /usr/local/mnist
