@@ -77,11 +77,11 @@ class CacheEntry:
 
 def parse_logs(log_directory: str) -> dict:
     bytes_cache = dict()
-    entries = []
     for (dirpath, _, filenames) in os.walk(log_directory):
         for filename in tqdm(filenames):
             with gzip.open(os.path.join(dirpath, filename), 'r') as gf:
                 string = gf.read().decode("utf-8")
+                entries = []
                 entries += string.splitlines()[2:]
             for entry in entries:
                 columns = entry.split('\t')
