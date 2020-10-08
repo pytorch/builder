@@ -47,6 +47,7 @@ binary_common: &binary_common
     PYTORCH_VERSION: << parameters.pytorch_version >>
     UNICODE_ABI: << parameters.unicode_abi >>
     CU_VERSION: << parameters.cu_version >>
+    FFMPEG_VERSION: << parameters.ffmpeg_version >>
     TERM: xterm-256color
 
 
@@ -116,6 +117,26 @@ jobs:
           paths:
             - output/*
 
+  ffmpeg_build_win:
+    <<: *binary_common
+    docker:
+      - image: "andfoy/ffmpeg-win-lgpl"
+    resource_class: 2xlarge+
+    steps:
+      - checkout
+      - run:
+          name: Copy FFmpeg script to workdir
+          command: |
+            cp ffmpeg/win/build_ffmpeg.sh /ffmpeg-build-src
+      - run:
+          name: Compile FFmpeg
+          command: |
+            cd /ffmpeg-build-src && bash build_ffmpeg.sh
+      - persist_to_workspace:
+          root: ffmpeg_win
+          paths:
+            - /ffmpeg-build-src/ffmpeg_output/*.tar.gz
+
   ffmpeg_upload:
     <<: *binary_common
     docker:
@@ -142,11 +163,25 @@ workflows:
           is-python3: true
           name: ffmpeg_mac
           python_version: '3.7'
+      - ffmpeg_build_win:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_build_win
+          python_version: '3.7'
+          ffmpeg_version: '4.2'
+      # - ffmpeg_win:
+      #     cu_version: cpu
+      #     is-python3: true
+      #     name: ffmpeg_win
+      #     python_version: '3.7'
+      #     requires:
+      #         - ffmpeg_build_win
       - hold:
           type: approval
           requires:
             - ffmpeg_linux
             - ffmpeg_mac
+            # - ffmpeg_win
       - ffmpeg_upload:
           context: org-member
           cu_version: cpu
