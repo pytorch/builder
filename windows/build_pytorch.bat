@@ -64,7 +64,7 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
 endlocal
 
 ::Install libuv
-conda install -y -q -c rdonnelly libuv
+conda install -y -q -c conda-forge libuv=1.39
 set libuv_ROOT=%CONDA_HOME%\Library
 echo libuv_ROOT=%libuv_ROOT%
 
