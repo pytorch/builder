@@ -47,7 +47,7 @@ binary_common: &binary_common
     PYTORCH_VERSION: << parameters.pytorch_version >>
     UNICODE_ABI: << parameters.unicode_abi >>
     CU_VERSION: << parameters.cu_version >>
-    FFMPEG_VERSION: << parameters.ffmpeg_version >>
+    FFMPEG_VERSION: '4.2'
     TERM: xterm-256color
 
 
@@ -168,7 +168,6 @@ workflows:
           is-python3: true
           name: ffmpeg_build_win
           python_version: '3.7'
-          ffmpeg_version: '4.2'
       # - ffmpeg_win:
       #     cu_version: cpu
       #     is-python3: true
