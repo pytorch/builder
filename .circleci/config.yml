@@ -132,10 +132,10 @@ jobs:
           name: Compile FFmpeg
           command: |
             cd /ffmpeg-build-src && bash build_ffmpeg.sh
-      - persist_to_workspace:
-          root: ffmpeg_win
-          paths:
-            - /ffmpeg-build-src/ffmpeg_output/*.tar.gz
+      # - persist_to_workspace:
+      #     root: ffmpeg_win
+      #     paths:
+      #       - /ffmpeg-build-src/ffmpeg_output/*.tar.gz
 
   ffmpeg_upload:
     <<: *binary_common
