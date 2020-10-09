@@ -3,8 +3,13 @@
 set -eou pipefail
 
 if [[ "$OSTYPE" == "msys" ]]; then
-    FFMPEG_TARBALL=$(find tmp -type f -name *.tar.gz)
-    echo $FFMPEG_TARBALL
+    FFMPEG_SHA=""
+    # FFMPEG_TARBALL=$(find tmp -type f -name *.tar.gz)
+    for FFMPEG_TARBALL in tmp/*.tar.gz; do
+        echo $FFMPEG_TARBALL
+        FFMPEG_SHA=$(sha256sum $FFMPEG_TARBALL)
+    done
+
 fi
 
 conda install -yq conda-build conda-verify
