@@ -128,14 +128,17 @@ jobs:
           name: Copy FFmpeg script to workdir
           command: |
             cp ffmpeg/win/build_ffmpeg.sh /ffmpeg-build-src
+            mkdir ffmpeg_output && ln -s $(pwd)/ffmpeg_output /ffmpeg-build-src
       - run:
           name: Compile FFmpeg
           command: |
             cd /ffmpeg-build-src && bash build_ffmpeg.sh
-      # - persist_to_workspace:
-      #     root: ffmpeg_win
-      #     paths:
-      #       - /ffmpeg-build-src/ffmpeg_output/*.tar.gz
+      - store_artifacts:
+          path: ffmpeg_output
+      - persist_to_workspace:
+          root: ffmpeg_win
+          paths:
+            - ffmpeg_output/*.tar.gz
 
   ffmpeg_upload:
     <<: *binary_common
