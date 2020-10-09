@@ -111,6 +111,10 @@ jobs:
       - attach_workspace:
           at: tmp
       - run:
+          name: Print pwd and contents
+          command: |
+            pwd && ls -l
+      - run:
           name: Build FFmpeg recipe
           command: |
             .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh

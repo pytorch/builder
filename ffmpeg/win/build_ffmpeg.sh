@@ -34,7 +34,7 @@ pushd ffmpeg-$FFMPEG_VERSION
 --enable-libmp3lame
 
 # Compile FFmpeg
-make
+make -j$(nproc)
 
 # Install FFmpeg to output folder
 make DESTDIR=../ffmpeg_output install
