@@ -185,7 +185,7 @@ workflows:
           requires:
             - ffmpeg_linux
             - ffmpeg_mac
-            # - ffmpeg_win
+            - ffmpeg_win
       - ffmpeg_upload:
           context: org-member
           cu_version: cpu
