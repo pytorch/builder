@@ -12,7 +12,7 @@ source:
     sha256: "{{ environ.get('FFMPEG_SHA') }}"  # [win]
 
 build:
-  number: 0
+  number: 1
   run_exports:
   # seems to be minor version compatibility
   # https://abi-laboratory.pro/tracker/timeline/ffmpeg/
