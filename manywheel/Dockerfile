@@ -66,6 +66,11 @@ ADD ./common/install_jni.sh install_jni.sh
 ADD ./java/jni.h jni.h
 RUN bash ./install_jni.sh && rm install_jni.sh
 
+FROM base as libpng
+# Install libpng
+ADD ./common/install_libpng.sh install_libpng.sh
+RUN bash ./install_libpng.sh && rm install_libpng.sh
+
 FROM ${GPU_IMAGE} as common
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
