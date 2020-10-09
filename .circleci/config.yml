@@ -74,6 +74,8 @@ jobs:
           name: Build FFmpeg recipe
           command: |
             ffmpeg/build_ci.sh
+      - store_artifacts:
+          path: ffmpeg/output
       - persist_to_workspace:
           root: ffmpeg
           paths:
@@ -96,6 +98,8 @@ jobs:
           name: Build FFmpeg recipe
           command: |
             .circleci/helper-scripts/wrap-with-conda-activation-macos.sh ffmpeg/build_ci.sh
+      - store_artifacts:
+          path: ffmpeg/output
       - persist_to_workspace:
           root: ffmpeg
           paths:
@@ -118,6 +122,8 @@ jobs:
           name: Build FFmpeg recipe
           command: |
             .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh
+      - store_artifacts:
+          path: ffmpeg/output
       - persist_to_workspace:
           root: ffmpeg
           paths:
