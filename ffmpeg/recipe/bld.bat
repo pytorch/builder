@@ -1,8 +1,7 @@
 @echo ON
 
 rem Copy over the bin, include and lib dirs
-robocopy %SRC_DIR%\bin\ %LIBRARY_BIN%\ *.* /E
-if %ERRORLEVEL% GEQ 8 exit 1
+REM robocopy %SRC_DIR%\bin\ %LIBRARY_BIN%\ *.* /E
 
 for %%i in (%SRC_DIR%\bin\*) do (
     echo %%i
@@ -12,6 +11,8 @@ for %%i in (%SRC_DIR%\bin\*) do (
         copy %%i %LIBRARY_BIN%\%%~nxi
     )
 )
+if %ERRORLEVEL% GEQ 8 exit 1
+
 
 robocopy %SRC_DIR%\include\ %LIBRARY_INC%\ *.* /E
 if %ERRORLEVEL% GEQ 8 exit 1
