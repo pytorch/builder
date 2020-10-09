@@ -113,7 +113,7 @@ jobs:
       - run:
           name: Print pwd and contents
           command: |
-            dir
+            dir tmp/
       - run:
           name: Build FFmpeg recipe
           command: |
