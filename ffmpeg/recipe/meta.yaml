@@ -28,22 +28,27 @@ requirements:
     - lame  # [not win]
     - make  # [not win]
   host:
-    - bzip2  # [not win]
-    - freetype  # [not win]
+    - bzip2
+    - libpng
+    - freetype
     - gnutls  # [not win]
-    - libiconv  # [not win]
-    - zlib  # [not win]
+    - libiconv
+    - zlib
     - openh264  # [not win]
     - lame  # [not win]
     - gmp  # [unix]
+    - nettle # [not win]
   run:
-    - bzip2  # [not win]
-    - freetype  # [not win]
+    - bzip2
+    - libpng
+    - freetype
     - gnutls  # [not win]
+    - libiconv
+    - zlib
     - openh264  # [not win]
-    - libiconv  # [not win]
     - lame  # [not win]
     - gmp  # [unix]
+    - nettle  # [not win]
 
 test:
   commands:

@@ -4,7 +4,6 @@ set -eou pipefail
 
 if [[ "$OSTYPE" == "msys" ]]; then
     export FFMPEG_SHA=""
-    # FFMPEG_TARBALL=$(find tmp -type f -name *.tar.gz)
     for FFMPEG_TARBALL in tmp/*.tar.gz; do
         echo $FFMPEG_TARBALL
         export FFMPEG_SHA=$(sha256sum $FFMPEG_TARBALL | awk '{print $1}')
