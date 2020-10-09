@@ -136,9 +136,9 @@ jobs:
       - store_artifacts:
           path: ffmpeg_output
       - persist_to_workspace:
-          root: ffmpeg_win
+          root: ffmpeg_output
           paths:
-            - ffmpeg_output/*.tar.gz
+            - ./*.tar.gz
 
   ffmpeg_upload:
     <<: *binary_common
