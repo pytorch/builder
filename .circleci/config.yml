@@ -108,6 +108,8 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
+      - attach_workspace:
+          at: tmp
       - run:
           name: Build FFmpeg recipe
           command: |
@@ -171,13 +173,13 @@ workflows:
           is-python3: true
           name: ffmpeg_build_win
           python_version: '3.7'
-      # - ffmpeg_win:
-      #     cu_version: cpu
-      #     is-python3: true
-      #     name: ffmpeg_win
-      #     python_version: '3.7'
-      #     requires:
-      #         - ffmpeg_build_win
+      - ffmpeg_win:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_win
+          python_version: '3.7'
+          requires:
+              - ffmpeg_build_win
       - hold:
           type: approval
           requires:
