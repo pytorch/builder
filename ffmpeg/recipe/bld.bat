@@ -1,16 +1,7 @@
 @echo ON
 
 rem Copy over the bin, include and lib dirs
-REM robocopy %SRC_DIR%\bin\ %LIBRARY_BIN%\ *.* /E
-
-for %%i in (%SRC_DIR%\bin\*) do (
-    echo %%i
-    if exist %LIBRARY_BIN%\%%~nxi (
-        echo %%i is provided by conda
-    ) else (
-        copy %%i %LIBRARY_BIN%\%%~nxi
-    )
-)
+robocopy %SRC_DIR%\bin\ %LIBRARY_BIN%\ *.* /E /XC /XN /XO
 if %ERRORLEVEL% GEQ 8 exit 1
 
 
