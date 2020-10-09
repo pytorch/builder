@@ -102,6 +102,12 @@ COPY --from=python   /opt/python/cp36-cp36m/bin/auditwheel /usr/local/bin/auditw
 COPY --from=intel    /opt/intel                            /opt/intel
 COPY --from=patchelf /usr/local/bin/patchelf               /usr/local/bin/patchelf
 COPY --from=jni      /usr/local/include/jni.h              /usr/local/include/jni.h
+COPY --from=libpng   /usr/local/bin/png*                   /usr/local/bin/
+COPY --from=libpng   /usr/local/bin/libpng*                /usr/local/bin/
+COPY --from=libpng   /usr/local/include/png*               /usr/local/include/
+COPY --from=libpng   /usr/local/include/libpng*            /usr/local/include/
+COPY --from=libpng   /usr/local/lib/libpng*                /usr/local/lib/
+COPY --from=libpng   /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 
 FROM common as cuda_final
 ARG BASE_CUDA_VERSION=10.1
