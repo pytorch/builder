@@ -113,7 +113,8 @@ jobs:
       - run:
           name: Print pwd and contents
           command: |
-            pwd && ls -l
+            .circleci/helper-scripts/wrap-with-windows-conda.ps1 pwd
+            .circleci/helper-scripts/wrap-with-windows-conda.ps1 ls -l
       - run:
           name: Build FFmpeg recipe
           command: |
