@@ -1,0 +1,10 @@
+--- openh264.pc.bak	2020-10-07 03:05:43.475152908 +0000
++++ openh264.pc	2020-10-07 03:06:32.871410433 +0000
+@@ -1,5 +1,5 @@
+-prefix=/usr/local
+-libdir=/usr/local/lib
++prefix=/ffmpeg-build-src/mxe/usr/x86_64-w64-mingw32.shared/usr/local
++libdir=/ffmpeg-build-src/mxe/usr/x86_64-w64-mingw32.shared/usr/local/lib
+ includedir=${prefix}/include
+
+ Name: OpenH264

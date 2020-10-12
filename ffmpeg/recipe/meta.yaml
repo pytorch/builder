@@ -8,15 +8,11 @@ source:
   - url: https://ffmpeg.org/releases/ffmpeg-{{ version }}.tar.gz  # [not win]
     sha256: 9353228c2a397d1c62df7ca16033ec8a0cd2b12296de83a1c74948fe7395bb87  # [not win]
 
-  # Windows builds are disabled temporarily
-  # - url: https://ffmpeg.zeranoe.com/builds/win64/shared/ffmpeg-{{ version }}-win64-shared-lgpl.zip  # [win]
-  #   sha256: aaca10decc4696d919284bebdd307db3528240f88ed75fdebc487cf7ca07aeaf  # [win]
-
-  # - url: https://ffmpeg.zeranoe.com/builds/win64/dev/ffmpeg-{{ version }}-win64-dev-lgpl.zip  # [win]
-  #   sha256: 57f312a15310294101067bc21b9323e41d09c6851ff83d3282200278e5e74b54  # [win]
+  - url: file:///c:/Users/circleci/project/tmp/ffmpeg-{{ version }}-win64-shared-dev-lgpl.tar.gz  # [win]
+    sha256: "{{ environ.get('FFMPEG_SHA') }}"  # [win]
 
 build:
-  number: 0
+  number: 1
   run_exports:
   # seems to be minor version compatibility
   # https://abi-laboratory.pro/tracker/timeline/ffmpeg/
@@ -32,22 +28,27 @@ requirements:
     - lame  # [not win]
     - make  # [not win]
   host:
-    - bzip2  # [not win]
-    - freetype  # [not win]
+    - bzip2
+    - libpng
+    - freetype
     - gnutls  # [not win]
-    - libiconv  # [not win]
-    - zlib  # [not win]
+    - libiconv
+    - zlib
     - openh264  # [not win]
     - lame  # [not win]
     - gmp  # [unix]
+    - nettle # [not win]
   run:
-    - bzip2  # [not win]
-    - freetype  # [not win]
+    - bzip2
+    - libpng
+    - freetype
     - gnutls  # [not win]
+    - libiconv
+    - zlib
     - openh264  # [not win]
-    - libiconv  # [not win]
     - lame  # [not win]
     - gmp  # [unix]
+    - nettle  # [not win]
 
 test:
   commands:
