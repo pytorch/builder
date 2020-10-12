@@ -47,6 +47,7 @@ binary_common: &binary_common
     PYTORCH_VERSION: << parameters.pytorch_version >>
     UNICODE_ABI: << parameters.unicode_abi >>
     CU_VERSION: << parameters.cu_version >>
+    FFMPEG_VERSION: '4.2'
     TERM: xterm-256color
 
 
@@ -73,6 +74,8 @@ jobs:
           name: Build FFmpeg recipe
           command: |
             ffmpeg/build_ci.sh
+      - store_artifacts:
+          path: ffmpeg/output
       - persist_to_workspace:
           root: ffmpeg
           paths:
@@ -95,6 +98,8 @@ jobs:
           name: Build FFmpeg recipe
           command: |
             .circleci/helper-scripts/wrap-with-conda-activation-macos.sh ffmpeg/build_ci.sh
+      - store_artifacts:
+          path: ffmpeg/output
       - persist_to_workspace:
           root: ffmpeg
           paths:
@@ -107,14 +112,45 @@ jobs:
       shell: powershell.exe
     steps:
       - checkout
+      - attach_workspace:
+          at: tmp
+      - run:
+          name: Print pwd and contents
+          command: |
+            dir tmp/
       - run:
           name: Build FFmpeg recipe
           command: |
             .circleci/helper-scripts/wrap-with-windows-conda.ps1 ffmpeg/build_ci.sh
+      - store_artifacts:
+          path: ffmpeg/output
       - persist_to_workspace:
           root: ffmpeg
           paths:
-            - output/*
+            - output/*/ffmpeg*
+
+  ffmpeg_build_win:
+    <<: *binary_common
+    docker:
+      - image: "andfoy/ffmpeg-win-lgpl:0.1.1"
+    resource_class: 2xlarge+
+    steps:
+      - checkout
+      - run:
+          name: Copy FFmpeg script to workdir
+          command: |
+            cp ffmpeg/win/build_ffmpeg.sh /ffmpeg-build-src
+            mkdir ffmpeg_output && ln -s $(pwd)/ffmpeg_output /ffmpeg-build-src
+      - run:
+          name: Compile FFmpeg
+          command: |
+            cd /ffmpeg-build-src && bash build_ffmpeg.sh
+      - store_artifacts:
+          path: ffmpeg_output
+      - persist_to_workspace:
+          root: ffmpeg_output
+          paths:
+            - ./*.tar.gz
 
   ffmpeg_upload:
     <<: *binary_common
@@ -142,11 +178,24 @@ workflows:
           is-python3: true
           name: ffmpeg_mac
           python_version: '3.7'
+      - ffmpeg_build_win:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_build_win
+          python_version: '3.7'
+      - ffmpeg_win:
+          cu_version: cpu
+          is-python3: true
+          name: ffmpeg_win
+          python_version: '3.7'
+          requires:
+              - ffmpeg_build_win
       - hold:
           type: approval
           requires:
             - ffmpeg_linux
             - ffmpeg_mac
+            - ffmpeg_win
       - ffmpeg_upload:
           context: org-member
           cu_version: cpu
