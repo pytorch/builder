@@ -66,6 +66,11 @@ ADD ./common/install_jni.sh install_jni.sh
 ADD ./java/jni.h jni.h
 RUN bash ./install_jni.sh && rm install_jni.sh
 
+FROM base as libpng
+# Install libpng
+ADD ./common/install_libpng.sh install_libpng.sh
+RUN bash ./install_libpng.sh && rm install_libpng.sh
+
 FROM ${GPU_IMAGE} as common
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -97,6 +102,12 @@ COPY --from=python   /opt/python/cp36-cp36m/bin/auditwheel /usr/local/bin/auditw
 COPY --from=intel    /opt/intel                            /opt/intel
 COPY --from=patchelf /usr/local/bin/patchelf               /usr/local/bin/patchelf
 COPY --from=jni      /usr/local/include/jni.h              /usr/local/include/jni.h
+COPY --from=libpng   /usr/local/bin/png*                   /usr/local/bin/
+COPY --from=libpng   /usr/local/bin/libpng*                /usr/local/bin/
+COPY --from=libpng   /usr/local/include/png*               /usr/local/include/
+COPY --from=libpng   /usr/local/include/libpng*            /usr/local/include/
+COPY --from=libpng   /usr/local/lib/libpng*                /usr/local/lib/
+COPY --from=libpng   /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 
 FROM common as cuda_final
 ARG BASE_CUDA_VERSION=10.1
