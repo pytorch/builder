@@ -8,7 +8,7 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl
+RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl nasm gnutls-devel freetype-devel lame-devel
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
@@ -71,6 +71,11 @@ FROM base as libpng
 ADD ./common/install_libpng.sh install_libpng.sh
 RUN bash ./install_libpng.sh && rm install_libpng.sh
 
+FROM base as ffmpeg
+# Install FFmpeg
+ADD ./common/install_ffmpeg.sh install_ffmpeg.sh
+RUN bash ./install_ffmpeg.sh && rm install_ffmpeg.sh
+
 FROM ${GPU_IMAGE} as common
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -108,6 +113,14 @@ COPY --from=libpng   /usr/local/include/png*               /usr/local/include/
 COPY --from=libpng   /usr/local/include/libpng*            /usr/local/include/
 COPY --from=libpng   /usr/local/lib/libpng*                /usr/local/lib/
 COPY --from=libpng   /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
+COPY --from=ffmpeg   /usr/local/include/wels               /usr/local/include/
+COPY --from=ffmpeg   /usr/local/lib/libopenh264*           /usr/local/lib/
+COPY --from=ffmpeg   /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
+COPY --from=ffmpeg   /usr/local/include/libav*             /usr/local/include/
+COPY --from=ffmpeg   /usr/local/include/libsw*             /usr/local/include/
+COPY --from=ffmpeg   /usr/local/lib/libsw*                 /usr/local/lib/
+COPY --from=ffmpeg   /usr/local/lib/libav*                 /usr/local/lib/
+COPY --from=ffmpeg   /usr/local/bin/ff*                    /usr/local/bin/
 
 FROM common as cuda_final
 ARG BASE_CUDA_VERSION=10.1
