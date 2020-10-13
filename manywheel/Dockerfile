@@ -8,7 +8,7 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
-RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel nasm gnutls-devel freetype-devel lame-devel
+RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel nasm gnutls-devel freetype-devel
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
@@ -18,6 +18,9 @@ ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/roo
 RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     rpm -ivh epel-release-latest-7.noarch.rpm && \
     rm -f epel-release-latest-7.noarch.rpm
+
+# Lame
+RUN yum install -y lame-devel lame
 
 # cmake
 RUN yum install -y cmake3 && \
