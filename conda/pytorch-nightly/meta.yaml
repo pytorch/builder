@@ -18,7 +18,7 @@ requirements:
     - mkl >=2019
     - mkl-include
     - typing_extensions
-    - dataclasses; python_version < "3.7"
+    - dataclasses # [py36]
     - ninja
     - libuv # [win]
     - libuv # [unix]
@@ -29,7 +29,7 @@ requirements:
     - python
     - numpy >=1.11
     - mkl >=2018
-    - dataclasses; python_version < "3.7"
+    - dataclasses # [py36]
     - ninja
     - typing_extensions
     - blas * mkl
