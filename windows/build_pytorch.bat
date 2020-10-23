@@ -64,7 +64,7 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
 endlocal
 
 ::Install libuv
-conda install -y -q -c rdonnelly libuv
+conda install -y -q -c conda-forge libuv=1.39
 set libuv_ROOT=%CONDA_HOME%\Library
 echo libuv_ROOT=%libuv_ROOT%
 
@@ -115,7 +115,7 @@ if "%USE_SCCACHE%" == "1" (
         :: in PATH, and then pass the arguments to it.
         :: Currently, randomtemp is placed before sccache (%TMP_DIR_WIN%\bin\nvcc)
         :: so we are actually pretending sccache instead of nvcc itself.
-        curl -kL https://github.com/peterjc123/randomtemp-rust/releases/download/v0.2/randomtemp.exe --output %CD%\tmp_bin\randomtemp.exe
+        curl -kL https://github.com/peterjc123/randomtemp-rust/releases/download/v0.3/randomtemp.exe --output %CD%\tmp_bin\randomtemp.exe
         set RANDOMTEMP_EXECUTABLE=%CD%\tmp_bin\nvcc.exe
         set CUDA_NVCC_EXECUTABLE=%CD%\tmp_bin\randomtemp.exe
         set RANDOMTEMP_BASEDIR=%CD%\tmp_bin

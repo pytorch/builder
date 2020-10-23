@@ -94,10 +94,18 @@ fi
 if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
   # Create a new conda env in conda, or on MacOS
   conda create -yn test python="$py_dot" && source activate test
-  retry conda install -yq future numpy protobuf six requests
+  if [[ "$(python --version 2>&1)" == *3.6.* ]]; then
+    retry conda install -yq future numpy protobuf six requests dataclasses
+  else
+    retry conda install -yq future numpy protobuf six requests
+  fi
 else
   export PATH=/opt/python/${py_long}/bin:$PATH
-  retry pip install -q future numpy protobuf six requests
+  if [[ "$(python --version 2>&1)" == *3.6.* ]]; then
+    retry pip install -q future numpy protobuf six requests dataclasses
+  else
+    retry pip install -q future numpy protobuf six requests
+  fi
 fi
 
 # Switch to the desired CUDA if using the conda-cuda Docker image
