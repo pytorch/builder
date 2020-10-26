@@ -22,16 +22,12 @@ install_requires = [
 
 class install_torch(setuptools.command.install.install):
     def run(self):
-        if sys.platform == 'win32':
-            raise UserWarning("Please install using `python "\
-                "-m pip install xxxx -f https://download.pytorch.org/whl/torch_stable.html`.")
-
         if sys.maxsize.bit_length() == 31:
             raise UserWarning("We don't support Python x86." \
                 "Please install Python x64 instead.")
 
         raise UserWarning(
-            f"Can not download torch binary from {torch_download_url}."
+            f"Can not download torch binary from {torch_download_url}." \
             f"Please visit {torch_download_url} for more details."
         )
 
