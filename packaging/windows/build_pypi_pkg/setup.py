@@ -33,11 +33,14 @@ class install_torch(setuptools.command.install.install):
 
 class bdist_wheel(wheel.bdist_wheel.bdist_wheel):
     def run(self):
-        subprocess.check_call(
-            [sys.executable, '-m', 'pip', 'download',
-            f'{pkg_name}==={pkg_ver}', '-f', torch_download_url,
-            '--platform', 'win_amd64', '--only-binary=:all:',
-            '--no-deps', '-d', self.dist_dir])
+        if sys.platform == 'win32' and sys.maxsize.bit_length() != 31:
+            subprocess.check_call(
+                [sys.executable, '-m', 'pip', 'download',
+                f'{pkg_name}==={pkg_ver}', '-f', torch_download_url,
+                '--platform', 'win_amd64', '--only-binary=:all:',
+                '--no-deps', '-d', self.dist_dir])
+        else:
+            raise UserWarning("Cannot find a binary package of PyTorch for your Python environment.")
 
 setup(
     name=pkg_name,
