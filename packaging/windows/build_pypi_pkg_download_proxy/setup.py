@@ -22,7 +22,7 @@ install_requires = [
 
 class install_torch(setuptools.command.install.install):
     def run(self):
-        if sys.maxsize.bit_length() == 31:
+        if sys.platform == 'win32' and sys.maxsize.bit_length() == 31:
             raise UserWarning("We don't support Python x86." \
                 "Please install Python x64 instead.")
 
