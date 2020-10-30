@@ -59,22 +59,31 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
 fi
 
+# rocm3.8 and later use TensileLibrary.dat
 if [[ $ROCM_VERSION == "rocm3.7" ]]; then
     TENSILE_LIBRARY_NAME=TensileLibrary.yaml
-elif [[ $ROCM_VERSION == "rocm3.8" ]]; then
+else
     TENSILE_LIBRARY_NAME=TensileLibrary.dat
 fi
 
-# NOTE: Some ROCm versions have identical dependencies.
-# To avoid copy/paste mistakes, version condition branches are combined.
+# in rocm3.9, libamd_comgr path changed from lib to lib64
 if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" ]]; then
+    COMGR_LIBDIR="lib"
+else
+    COMGR_LIBDIR="lib64"
+fi
+
+# NOTE: Some ROCm versions have identical dependencies, or very close deps.
+# To avoid copy/paste mistakes, version condition branches are combined.
+if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" || $ROCM_VERSION == "rocm3.9" ]]; then
+
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/libamdhip64.so.3"
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
-    "/opt/rocm/lib/libamd_comgr.so.1"
+    "/opt/rocm/${COMGR_LIBDIR}/libamd_comgr.so.1"
     "/opt/rocm/lib64/libhsakmt.so.1"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
