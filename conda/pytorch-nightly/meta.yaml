@@ -12,7 +12,7 @@ requirements:
 
   host:
     - python
-    - numpy 1.11.*
+    - numpy >=1.11.*
     - setuptools
     - pyyaml
     - mkl >=2019

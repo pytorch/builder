@@ -320,13 +320,21 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
+
+    ADDITIONAL_CHANNELS=""
+    # TODO: Remove ADDITIONAL_CHANNELS
+    # Nov, 2020: There's an issue with installing python 3.9 directly from
+    #            anaconda so we need to use conda-forge
+    if [[ ${py_ver} = "3.9" ]]; then
+      ADDITIONAL_CHANNELS="-c=conda-forge"
+    fi
     echo "Calling conda-build at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
-         conda build -c "$ANACONDA_USER" \
+         conda build -c "$ANACONDA_USER" ${ADDITIONAL_CHANNELS} \
                      --no-anaconda-upload \
                      --python "$py_ver" \
                      --output-folder "$output_folder" \
