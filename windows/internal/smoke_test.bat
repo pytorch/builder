@@ -146,6 +146,15 @@ echo Checking that CuDNN is available
 python -c "import torch; exit(0 if torch.backends.cudnn.is_available() else 1)"
 if ERRORLEVEL 1 exit /b 1
 
+echo Checking basic RNN, for cuda11, ensure the cudnn_adv_xxx64_8.dll exist
+python -c ^"import torch; import torch.nn as nn; rnn = nn.RNN(10, 20, 2).cuda(); input = torch.randn(5, 3, 10).cuda(); ^
+h0 = torch.randn(2, 3, 20).cuda(); output, hn = rnn(input, h0)^"
+if ERRORLEVEL 1 exit /b 1
+
+echo Checking basic CNN, for cuda11, ensure the cudnn_adv_xxx64_8.dll exist
+python internal\cnn_smoke.py
+if ERRORLEVEL 1 exit /b 1
+
 goto end
 
 :libtorch
