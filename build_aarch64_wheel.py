@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import time
+from typing import Tuple
 
 
 # CONSTANTS
@@ -37,6 +38,9 @@ def start_instance(ami = ubuntu18_04_ami, instance_type = 't4g.2xlarge'):
 def run_ssh(addr, args):
    subprocess.check_call(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"] + (args.split() if isinstance(args, str) else args))
 
+def list_dir(addr, path):
+   return subprocess.check_output(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "ls", "-1", path]).decode("utf-8").split("\n")
+
 
 def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
     import socket
@@ -68,13 +72,13 @@ def install_condaforge(addr):
     run_ssh(addr, ['sed','-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
 
 
-def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True):
+def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", do_not_terminate=False) -> Tuple[str, str]:
     inst = start_instance(ami)
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     if use_conda:
         install_condaforge(addr)
-        run_ssh(addr, "conda install -y numpy pyyaml")
+        run_ssh(addr, f"conda install -y python={python_version} numpy pyyaml")
     print('Configuring the system')
     update_apt_repo(addr)
 
@@ -98,16 +102,31 @@ def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True):
     run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install;popd")
     #run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 USE_OPENMP=1 -j8; sudo make NO_SHARED=1 USE_OPENMP=1 install;popd")
 
-    print('Checking out the repo')
+    print('Checking out PyTorch repo')
     run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch")
     print('Building PyTorch wheel')
     run_ssh(addr, "cd pytorch ; python3 setup.py bdist_wheel")
+    pytorch_wheel_name = list_dir(addr, "pytorch/dist")[0]
     print('Copying the wheel')
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:pytorch/dist/*.whl", "."])
+
+    print('Checking out TorchVision repo')
+    run_ssh(addr, "git clone https://github.com/pytorch/vision")
+    print('Installing PyTorch wheel')
+    run_ssh(addr, f"pip3 install pytorch/dist/{pytorch_wheel_name}")
+    print('Building TorchVision wheel')
+    run_ssh(addr, "cd vision; python3 setup.py bdist_wheel")
+    vision_wheel_name = list_dir(addr, "vision/dist")[0]
+    print('Copying TorchVision wheel')
+    subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:vision/dist/*.whl", "."])
+
+    if do_not_terminate:
+        return pytorch_wheel_name, vision_wheel_name
 
     print(f'Waiting for instance {inst.id} to terminate')
     inst.terminate()
     inst.wait_until_terminated()
+    return pytorch_wheel_name, vision_wheel_name
 
 def run_tests(ami, whl, branch='master'):
     inst = start_instance(ami)
@@ -146,9 +165,10 @@ def parse_arguments():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default = 'ubuntu20_04')
+    parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default = 'ubuntu18_04')
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
+    parser.add_argument("--keep-running", action="store_true")
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default = "t4g.2xlarge")
     parser.add_argument("--branch", type=str, default = "master")
@@ -175,4 +195,4 @@ if __name__ == '__main__':
       inst = start_instance(ami, args.instance_type)
       sys.exit(0)
 
-    start_build(ami, branch=args.branch)
+    start_build(ami, branch=args.branch, do_not_terminate=not args.keep_running)
