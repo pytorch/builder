@@ -94,11 +94,18 @@ fi
 if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
   # Create a new conda env in conda, or on MacOS
   conda create -yn test python="$py_dot" && source activate test
-  if [[ "$(python --version 2>&1)" == *3.6.* ]]; then
-    retry conda install -yq future numpy protobuf six requests dataclasses
-  else
-    retry conda install -yq future numpy protobuf six requests
-  fi
+  python_version=$(python --version 2>&1)
+  dependencies="numpy protobuf six requests"
+  case ${python_version} in
+    *3.6.*)
+      dependencies="${dependencies} future dataclasses"
+      ;;
+    # TODO: Remove this once Python 3.9 is workable through the default conda channels
+    *3.9.*)
+      dependencies="-c=conda-forge ${dependencies}"
+      ;;
+  esac
+  conda install -yq ${dependencies}
 else
   export PATH=/opt/python/${py_long}/bin:$PATH
   if [[ "$(python --version 2>&1)" == *3.6.* ]]; then
