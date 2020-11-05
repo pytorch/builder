@@ -137,10 +137,12 @@ export INSTALL_TEST=0 # dont install test binaries into site-packages
 export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
+CONDA_INSTALL_EXTRA_FLAGS=""
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
 case ${desired_python} in
     3.9)
+        CONDA_INSTALL_EXTRA_FLAGS="-c=conda-forge"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION=">=1.19"
@@ -153,13 +155,24 @@ case ${desired_python} in
         ;;
 esac
 
-retry conda install -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
-retry conda install -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
-retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
-
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
 export USE_DISTRIBUTED=1
-retry conda install -yq libuv pkg-config
+
+retry conda install ${CONDA_INSTALL_EXTRA_FLAGS} -c intel -yq \
+    "numpy${NUMPY_PINNED_VERSION}" \
+    "pyyaml${PYYAML_PINNED_VERSION}" \
+    "setuptools${SETUPTOOLS_PINNED_VERSION}" \
+    cffi \
+    cmake \
+    ninja \
+    mkl-include==2020.1 \
+    mkl-static==2020.1 \
+    libuv \
+    pkg-config \
+    nomkl \
+    requests \
+    typing_extensions
+retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
