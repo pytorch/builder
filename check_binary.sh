@@ -363,7 +363,6 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
     echo "Checking that CuDNN is available"
     python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
 
-
     echo "Checking that basic RNN works"
     python ${TEST_CODE_DIR}/rnn_smoke.py
 
