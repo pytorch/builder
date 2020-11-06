@@ -1,6 +1,6 @@
 r"""
-It's used to check basic rnn features in cuda.
-For example, it would throw exception if missing some components
+It's used to check basic rnn features with cuda.
+For example, it would throw exception if missing some components are missing
 """
 
 import torch

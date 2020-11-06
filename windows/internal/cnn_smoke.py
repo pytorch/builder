@@ -1,6 +1,6 @@
 r"""
-It's used to check basic rnn features in cuda.
-For example, it would throw exception if missing some components
+It's used to check basic rnn features with cuda.
+For example, it would throw exception if some components are missing
 """
 
 import torch
@@ -19,6 +19,7 @@ class SimpleCNN(nn.Module):
         output = output.view(1)
         return output
 
+# Mock one infer
 device = torch.device("cuda:0")
 net = SimpleCNN().to(device)
 net_inputs = torch.rand((1, 1, 5, 5), device=device)
