@@ -147,11 +147,11 @@ python -c "import torch; exit(0 if torch.backends.cudnn.is_available() else 1)"
 if ERRORLEVEL 1 exit /b 1
 
 echo Checking that basic RNN works
-python internal\rnn_smoke.py
+python %BUILDER_ROOT%\test_example_code\rnn_smoke.py
 if ERRORLEVEL 1 exit /b 1
 
 echo Checking that basic CNN works
-python internal\cnn_smoke.py
+python %BUILDER_ROOT%\test_example_code\cnn_smoke.py
 if ERRORLEVEL 1 exit /b 1
 
 goto end
