@@ -146,6 +146,14 @@ echo Checking that CuDNN is available
 python -c "import torch; exit(0 if torch.backends.cudnn.is_available() else 1)"
 if ERRORLEVEL 1 exit /b 1
 
+echo Checking that basic RNN works
+python %BUILDER_ROOT%\test_example_code\rnn_smoke.py
+if ERRORLEVEL 1 exit /b 1
+
+echo Checking that basic CNN works
+python %BUILDER_ROOT%\test_example_code\cnn_smoke.py
+if ERRORLEVEL 1 exit /b 1
+
 goto end
 
 :libtorch
