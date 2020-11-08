@@ -38,8 +38,11 @@ def start_instance(ami = ubuntu18_04_ami, instance_type = 't4g.2xlarge'):
 def run_ssh(addr, args):
    subprocess.check_call(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"] + (args.split() if isinstance(args, str) else args))
 
+def check_output(addr, args):
+   return subprocess.check_output(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"] + (args.split() if isinstance(args, str) else args)).decode("utf-8")
+
 def list_dir(addr, path):
-   return subprocess.check_output(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "ls", "-1", path]).decode("utf-8").split("\n")
+   return check_output(addr, ["ls", "-1", path]).split("\n")
 
 
 def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
@@ -72,7 +75,7 @@ def install_condaforge(addr):
     run_ssh(addr, ['sed','-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
 
 
-def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", do_not_terminate=False) -> Tuple[str, str]:
+def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
     inst = start_instance(ami)
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
@@ -99,13 +102,18 @@ def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_v
     # Build OpenBLAS
     print('Building OpenBLAS')
     run_ssh(addr, "git clone https://github.com/xianyi/OpenBLAS -b v0.3.10")
+    # TODO: Build with USE_OPENMP=1 support
     run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install;popd")
-    #run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 USE_OPENMP=1 -j8; sudo make NO_SHARED=1 USE_OPENMP=1 install;popd")
 
     print('Checking out PyTorch repo')
     run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch")
     print('Building PyTorch wheel')
-    run_ssh(addr, "cd pytorch ; python3 setup.py bdist_wheel")
+    if branch == 'nightly':
+        build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-","")
+        version = check_output(addr, "cat pytorch/version.txt").strip()[:-2]
+        run_ssh(addr, f"cd pytorch ; PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 python3 setup.py bdist_wheel")
+    else:
+        run_ssh(addr, "cd pytorch ; python3 setup.py bdist_wheel")
     pytorch_wheel_name = list_dir(addr, "pytorch/dist")[0]
     print('Copying the wheel')
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:pytorch/dist/*.whl", "."])
@@ -115,12 +123,16 @@ def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_v
     print('Installing PyTorch wheel')
     run_ssh(addr, f"pip3 install pytorch/dist/{pytorch_wheel_name}")
     print('Building TorchVision wheel')
-    run_ssh(addr, "cd vision; python3 setup.py bdist_wheel")
+    if branch == 'nightly':
+        version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
+        run_ssh(addr, f"cd vision; BUILD_VERSION={version}.dev{build_date} python3 setup.py bdist_wheel")
+    else:
+        run_ssh(addr, "cd vision; python3 setup.py bdist_wheel")
     vision_wheel_name = list_dir(addr, "vision/dist")[0]
     print('Copying TorchVision wheel')
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:vision/dist/*.whl", "."])
 
-    if do_not_terminate:
+    if keep_running:
         return pytorch_wheel_name, vision_wheel_name
 
     print(f'Waiting for instance {inst.id} to terminate')
@@ -149,6 +161,7 @@ def list_instances(instance_type: str ) -> None:
     for instance in ec2_instances_of_type(instance_type):
         print(f"{instance.id} {instance.public_dns_name} {instance.state['Name']}")
 
+
 def terminate_instances(instance_type: str ) -> None:
     print(f"Terminating all instances of type {instance_type}")
     instances = list(ec2_instances_of_type(instance_type))
@@ -159,19 +172,21 @@ def terminate_instances(instance_type: str ) -> None:
     for instance in instances:
         instance.wait_until_terminated()
 
+
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser("Builid and test AARCH64 wheels using EC2")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default = 'ubuntu18_04')
+    parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default='ubuntu18_04')
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8'], default='3.8')
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
     parser.add_argument("--keep-running", action="store_true")
     parser.add_argument("--terminate-instances", action="store_true")
-    parser.add_argument("--instance-type", type=str, default = "t4g.2xlarge")
-    parser.add_argument("--branch", type=str, default = "master")
+    parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
+    parser.add_argument("--branch", type=str, default="master")
     return parser.parse_args()
 
 
@@ -180,19 +195,19 @@ if __name__ == '__main__':
     ami = ubuntu20_04_ami if args.os == 'ubuntu20_04' else ubuntu18_04_ami
 
     if args.list_instances:
-      list_instances(args.instance_type)
-      sys.exit(0)
+        list_instances(args.instance_type)
+        sys.exit(0)
 
     if args.terminate_instances:
-      terminate_instances(args.instance_type)
-      sys.exit(0)
+        terminate_instances(args.instance_type)
+        sys.exit(0)
 
     if args.test_only:
-      run_tests(ami, args.test_only)
-      sys.exit(0)
+        run_tests(ami, args.test_only)
+        sys.exit(0)
 
     if args.alloc_instance:
-      inst = start_instance(ami, args.instance_type)
-      sys.exit(0)
+        inst = start_instance(ami, args.instance_type)
+        sys.exit(0)
 
-    start_build(ami, branch=args.branch, do_not_terminate=not args.keep_running)
+    start_build(ami, branch=args.branch, python_version=args.python_version, keep_running=args.keep_running)
