@@ -3,6 +3,7 @@ import subprocess
 
 import setuptools.command.install
 from setuptools import find_packages, setup
+from distutils.version import LooseVersion
 import wheel.bdist_wheel
 
 pkg_name = "torch"
@@ -10,6 +11,10 @@ pkg_ver = "{{GENERATE_TORCH_PKG_VER}}"
 torch_download_url = "https://download.pytorch.org/whl/torch_stable.html"
 
 python_min_version = (3, 6, 1)
+
+if LooseVersion(pkg_ver) > LooseVersion('1.7'):
+    python_min_version = (3, 6, 2)
+
 python_min_version_str = '.'.join((str(num) for num in python_min_version))
 
 install_requires = [
