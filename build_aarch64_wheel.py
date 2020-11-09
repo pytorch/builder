@@ -16,33 +16,48 @@ keyfile_path = os.path.join(os.path.expanduser("~"), ".ssh", "nshulga-key.pem")
 
 ec2 = boto3.resource("ec2")
 
-def ec2_get_instances(filter_name, filter_value):
-   return ec2.instances.filter(Filters=[{'Name': filter_name, 'Values' : [filter_value]}])
 
-def ec2_instances_of_type(instance_type = 't4g.2xlarge'):
-   return ec2_get_instances('instance-type', instance_type)
+def ec2_get_instances(filter_name, filter_value):
+    return ec2.instances.filter(Filters=[{'Name': filter_name, 'Values': [filter_value]}])
+
+
+def ec2_instances_of_type(instance_type='t4g.2xlarge'):
+    return ec2_get_instances('instance-type', instance_type)
+
 
 def ec2_instances_by_id(instance_id):
-   rc = list(ec2_get_instances('instance-id', instance_id))
-   return rc[0] if len(rc) > 0 else None
+    rc = list(ec2_get_instances('instance-id', instance_id))
+    return rc[0] if len(rc) > 0 else None
 
 
-def start_instance(ami = ubuntu18_04_ami, instance_type = 't4g.2xlarge'):
-    inst = ec2.create_instances(ImageId=ami, InstanceType=instance_type, SecurityGroups=['ssh-allworld'], KeyName='nshulga-key', MinCount=1, MaxCount=1)[0]
+def start_instance(ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
+    inst = ec2.create_instances(ImageId=ami,
+                                InstanceType=instance_type,
+                                SecurityGroups=['ssh-allworld'],
+                                KeyName='nshulga-key',
+                                MinCount=1,
+                                MaxCount=1)[0]
     print(f'Create instance {inst.id}')
     inst.wait_until_running()
     running_inst = ec2_instances_by_id(inst.id)
     print(f'Instance started at {running_inst.public_dns_name}')
     return running_inst
 
+
+def _gen_ssh_prefix(addr):
+    return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"]
+
+
 def run_ssh(addr, args):
-   subprocess.check_call(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"] + (args.split() if isinstance(args, str) else args))
+    subprocess.check_call(_gen_ssh_prefix(addr) + (args.split() if isinstance(args, str) else args))
+
 
 def check_output(addr, args):
-   return subprocess.check_output(["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"] + (args.split() if isinstance(args, str) else args)).decode("utf-8")
+    return subprocess.check_output(_gen_ssh_prefix(addr) + (args.split() if isinstance(args, str) else args)).decode("utf-8")
+
 
 def list_dir(addr, path):
-   return check_output(addr, ["ls", "-1", path]).split("\n")
+    return check_output(addr, ["ls", "-1", path]).split("\n")
 
 
 def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
@@ -52,7 +67,7 @@ def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
             with socket.create_connection((addr, port), timeout=timeout):
                 return
         except (ConnectionRefusedError, socket.timeout):
-            if i == attempt_cnt-1:
+            if i == attempt_cnt - 1:
                 raise
             time.sleep(timeout)
 
@@ -72,10 +87,10 @@ def install_condaforge(addr):
     print('Install conda-forge')
     run_ssh(addr, "curl -OL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh")
     run_ssh(addr, "sh -f Miniforge3-Linux-aarch64.sh -b")
-    run_ssh(addr, ['sed','-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
+    run_ssh(addr, ['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
 
 
-def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
+def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
     inst = start_instance(ami)
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
@@ -85,20 +100,20 @@ def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_v
     print('Configuring the system')
     update_apt_repo(addr)
 
-    run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake python3-dev gfortran")
+    run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake gfortran")
     if not use_conda:
-      run_ssh(addr, "sudo apt-get install -y python3-yaml python3-setuptools python3-wheel python3-pip")
+        run_ssh(addr, "sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
     run_ssh(addr, "pip3 install dataclasses")
     # Install and switch to gcc-8 on Ubuntu-18.04
     if ami == ubuntu18_04_ami:
-      run_ssh(addr, "sudo apt-get install -y g++-8 gfortran-8")
-      run_ssh(addr, "sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
-      run_ssh(addr, "sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
-      run_ssh(addr, "sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 100")
+        run_ssh(addr, "sudo apt-get install -y g++-8 gfortran-8")
+        run_ssh(addr, "sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
+        run_ssh(addr, "sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
+        run_ssh(addr, "sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 100")
     if not use_conda:
-      print("Installing Cython + numpy from PyPy")
-      run_ssh(addr, "sudo pip3 install Cython")
-      run_ssh(addr, "sudo pip3 install numpy")
+        print("Installing Cython + numpy from PyPy")
+        run_ssh(addr, "sudo pip3 install Cython")
+        run_ssh(addr, "sudo pip3 install numpy")
     # Build OpenBLAS
     print('Building OpenBLAS')
     run_ssh(addr, "git clone https://github.com/xianyi/OpenBLAS -b v0.3.10")
@@ -109,7 +124,7 @@ def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_v
     run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch")
     print('Building PyTorch wheel')
     if branch == 'nightly':
-        build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-","")
+        build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = check_output(addr, "cat pytorch/version.txt").strip()[:-2]
         run_ssh(addr, f"cd pytorch ; PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 python3 setup.py bdist_wheel")
     else:
@@ -140,6 +155,7 @@ def start_build(ami = ubuntu18_04_ami, branch="master", use_conda=True, python_v
     inst.wait_until_terminated()
     return pytorch_wheel_name, vision_wheel_name
 
+
 def run_tests(ami, whl, branch='master'):
     inst = start_instance(ami)
     addr = inst.public_dns_name
@@ -156,13 +172,13 @@ def run_tests(ami, whl, branch='master'):
     run_ssh(addr, "cd pytorch/test; python3 test_torch.py -v")
 
 
-def list_instances(instance_type: str ) -> None:
+def list_instances(instance_type: str) -> None:
     print(f"All instances of type {instance_type}")
     for instance in ec2_instances_of_type(instance_type):
         print(f"{instance.id} {instance.public_dns_name} {instance.state['Name']}")
 
 
-def terminate_instances(instance_type: str ) -> None:
+def terminate_instances(instance_type: str) -> None:
     print(f"Terminating all instances of type {instance_type}")
     instances = list(ec2_instances_of_type(instance_type))
     for instance in instances:
