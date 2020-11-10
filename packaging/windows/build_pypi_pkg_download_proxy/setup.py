@@ -14,6 +14,10 @@ python_min_version_str = '.'.join((str(num) for num in python_min_version))
 
 install_requires = [
    'pip',
+   'future',
+   'numpy',
+   'typing_extensions',
+   'dataclasses; python_version < "3.7"'
 ]
 
 class install_torch(setuptools.command.install.install):
