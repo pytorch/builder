@@ -75,7 +75,9 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
             retry conda install -yq cpuonly -c pytorch
         fi
     fi
-    if [[ "$(python --version 2>&1)" == *3.8.* ]]; then
+    if [[ "$(python --version 2>&1)" == *3.9.* ]]; then
+        retry conda install -yq -c conda-forge future hypothesis mkl>=2018 ninja numpy>=1.15 protobuf pytest setuptools six typing_extensions pyyaml
+    elif [[ "$(python --version 2>&1)" == *3.8.* ]]; then
         retry conda install -yq future hypothesis mkl>=2018 ninja numpy>=1.15 protobuf pytest setuptools six typing_extensions pyyaml
     elif [[ "$(python --version 2>&1)" == *3.6.* ]]; then
         retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing_extensions pyyaml requests dataclasses

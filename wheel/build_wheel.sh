@@ -109,10 +109,6 @@ fi
 wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-none-${mac_version}.whl"
 
 ###########################################################
-# Install into a fresh env
-tmp_env_name="wheel_py$python_nodot"
-conda create -yn "$tmp_env_name" python="$desired_python"
-source activate "$tmp_env_name"
 
 # Have a separate Pytorch repo clone
 if [[ ! -d "$pytorch_rootdir" ]]; then
@@ -137,30 +133,36 @@ export INSTALL_TEST=0 # dont install test binaries into site-packages
 export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
-SETUPTOOLS_PINNED_VERSION=""
-PYYAML_PINNED_VERSION=""
+SETUPTOOLS_PINNED_VERSION="=46.0.0"
+PYYAML_PINNED_VERSION="=5.3"
+EXTRA_CONDA_INSTALL_FLAGS=""
 case ${desired_python} in
-    3.5 | 2.7)
-        # setuptools and pyyaml discontinued support for python 3.5 and 2.7
-        continue
+    3.9)
+        EXTRA_CONDA_INSTALL_FLAGS="-c=conda-forge"
+        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+        PYYAML_PINNED_VERSION=">=5.3"
+        NUMPY_PINNED_VERSION=">=1.19"
         ;;
-    3*)
-        SETUPTOOLS_PINNED_VERSION="=46.0.0"
-        PYYAML_PINNED_VERSION="=5.3"
+    3.8)
+        NUMPY_PINNED_VERSION="=1.17"
+        ;;
+    *)
+        NUMPY_PINNED_VERSION="=1.11.3"
         ;;
 esac
 
-if [[ "$desired_python" == 3.8 ]]; then
-    retry conda install -yq cmake numpy=1.17 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" ninja
-else
-    retry conda install -yq cmake numpy==1.11.3 nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
-fi
-retry conda install -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
+# Install into a fresh env
+tmp_env_name="wheel_py$python_nodot"
+conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
+source activate "$tmp_env_name"
+
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
 export USE_DISTRIBUTED=1
-retry conda install -yq libuv pkg-config
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"

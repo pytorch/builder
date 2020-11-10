@@ -65,14 +65,16 @@ export CMAKE_INCLUDE_PATH="/opt/intel/include:$CMAKE_INCLUDE_PATH"
 # ever pass one python version, so we assume that DESIRED_PYTHON is not a list
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
-    if [[ "$DESIRED_PYTHON" == '2.7mu' ]]; then
-      DESIRED_PYTHON='cp27-cp27mu'
-    elif [[ "$DESIRED_PYTHON" == '3.8m' ]]; then
-      DESIRED_PYTHON='cp38-cp38'
-    else
-      python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
-    fi
+    python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
+    case ${DESIRED_PYTHON} in
+      3.[6-7])
+        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
+        ;;
+      # Should catch 3.8+
+      3.*)
+        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
+        ;;
+    esac
 fi
 py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:1}"
 pydir="/opt/python/$DESIRED_PYTHON"
@@ -108,13 +110,18 @@ fi
 #######################################################
 python setup.py clean
 retry pip install -qr requirements.txt
-if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
-    retry pip install -q numpy==1.15
-elif [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
-    retry pip install -q numpy==1.15
-else
+case ${DESIRED_PYTHON} in
+  cp36-cp36m)
     retry pip install -q numpy==1.11
-fi
+    ;;
+  cp3[7-8]*)
+    retry pip install -q numpy==1.15
+    ;;
+  # Should catch 3.9+
+  *)
+    retry pip install -q numpy==1.19.4
+    ;;
+esac
 
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
