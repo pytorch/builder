@@ -108,6 +108,7 @@ IF "%USE_SCCACHE%" == "1" (
 
 if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cudnn*64_%CUDNN_VERSION%.dll*" %SP_DIR%\torch\lib
+    copy "%CUDA_PATH%\include\cudnn*.h" %SP_DIR%\torch\include
 )
 
 exit /b 0
