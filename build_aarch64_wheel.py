@@ -90,6 +90,19 @@ def install_condaforge(addr):
     run_ssh(addr, ['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
 
 
+def embed_libgomp(addr, use_conda, wheel_name):
+    run_ssh(addr, "pip3 install auditwheel")
+    run_ssh(addr, "conda install -y patchelf" if use_conda else "sudo apt-get install -y patchelf")
+    from tempfile import NamedTemporaryFile
+    with NamedTemporaryFile() as tmp:
+        tmp.write(embed_library_script.encode('utf-8'))
+        tmp.flush()
+        subprocess.check_call(["scp", "-i", keyfile_path, tmp.name, f"ubuntu@{addr}:embed_library.py"])
+
+    print('Embedding libgomp into wheel')
+    run_ssh(addr, f"python3 embed_library.py {wheel_name}")
+
+
 def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
     inst = start_instance(ami)
     addr = inst.public_dns_name
@@ -100,7 +113,7 @@ def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_ver
     print('Configuring the system')
     update_apt_repo(addr)
 
-    run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake gfortran")
+    run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     if not use_conda:
         run_ssh(addr, "sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
     run_ssh(addr, "pip3 install dataclasses")
@@ -126,10 +139,11 @@ def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_ver
     if branch == 'nightly':
         build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = check_output(addr, "cat pytorch/version.txt").strip()[:-2]
-        run_ssh(addr, f"cd pytorch ; PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 python3 setup.py bdist_wheel")
+        run_ssh(addr, f"cd pytorch ; BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 python3 setup.py bdist_wheel")
     else:
         run_ssh(addr, "cd pytorch ; python3 setup.py bdist_wheel")
     pytorch_wheel_name = list_dir(addr, "pytorch/dist")[0]
+    embed_libgomp(addr, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:pytorch/dist/*.whl", "."])
 
@@ -154,6 +168,55 @@ def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_ver
     inst.terminate()
     inst.wait_until_terminated()
     return pytorch_wheel_name, vision_wheel_name
+
+
+embed_library_script = """
+#!/usr/bin/env python3
+
+from auditwheel.patcher import Patchelf
+from auditwheel.wheeltools import InWheelCtx
+from auditwheel.elfutils import elf_file_filter
+from auditwheel.repair import copylib
+from auditwheel.lddtree import lddtree
+import os
+import shutil
+import sys
+from tempfile import TemporaryDirectory
+
+
+def embed_library(whl_path, lib_soname):
+    patcher = Patchelf()
+    out_dir = TemporaryDirectory()
+    whl_name = os.path.basename(whl_path)
+    tmp_whl_name = os.path.join(out_dir.name, whl_name)
+    with InWheelCtx(whl_path) as ctx:
+        torchlib_path = os.path.join(ctx._tmpdir.name, 'torch', 'lib')
+        ctx.out_wheel=tmp_whl_name
+        new_lib_path, new_lib_soname = None, None
+        for filename, elf in elf_file_filter(ctx.iter_files()):
+            if not filename.startswith('torch/lib'):
+                continue
+            libtree = lddtree(filename)
+            if lib_soname not in libtree['needed']:
+                continue
+            lib_path = libtree['libs'][lib_soname]['path']
+            if lib_path is None:
+                print(f"Can't embed {lib_soname} as it could not be found")
+                break
+            if lib_path.startswith(torchlib_path):
+                continue
+
+            if new_lib_path is None:
+                new_lib_soname, new_lib_path = copylib(lib_path, torchlib_path, patcher)
+            patcher.replace_needed(filename, lib_soname, new_lib_soname)
+            print(f'Replacing {lib_soname} with {new_lib_soname} for {filename}')
+    shutil.move(tmp_whl_name, whl_path)
+
+
+if __name__ == '__main__':
+    whl_name='torch-1.8.0.dev20201108-cp38-cp38-linux_aarch64.whl'
+    embed_library(sys.argv[1], 'libgomp.so.1')
+"""
 
 
 def run_tests(ami, whl, branch='master'):
@@ -196,7 +259,7 @@ def parse_arguments():
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default='ubuntu18_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8'], default='3.8')
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
     parser.add_argument("--keep-running", action="store_true")
@@ -224,6 +287,13 @@ if __name__ == '__main__':
 
     if args.alloc_instance:
         inst = start_instance(ami, args.instance_type)
+        if args.python_version is None:
+            sys.exit(0)
+        addr = inst.public_dns_name
+        wait_for_connection(addr, 22)
+        install_condaforge(addr)
+        run_ssh(addr, f"conda install -y python={args.python_version} numpy pyyaml")
         sys.exit(0)
 
-    start_build(ami, branch=args.branch, python_version=args.python_version, keep_running=args.keep_running)
+    python_version = args.python_version if args.python_version is not None else '3.8'
+    start_build(ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running)
