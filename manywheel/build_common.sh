@@ -67,7 +67,7 @@ export CMAKE_INCLUDE_PATH="/opt/intel/include:$CMAKE_INCLUDE_PATH"
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
     case ${DESIRED_PYTHON} in
-      3.[6-7])
+      3.[6-7]*)
         DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
         ;;
       # Should catch 3.8+
