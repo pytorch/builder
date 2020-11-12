@@ -286,7 +286,7 @@ function prune_111 {
     # CUDA 11.1 prune visual tools
     #####################################################################################
     export CUDA_BASE="/usr/local/cuda-11.1/"
-    rm -rf $CUDA_BASE/libnsight $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/nsight-compute-2020.2.1 $CUDA_BASE/nsight-systems-2020.4.1
+    rm -rf $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/nsight-compute-2020.2.1 $CUDA_BASE/nsight-systems-2020.3.4
 }
 
 
