@@ -264,7 +264,7 @@ function prune_110 {
 function prune_111 {
     echo "Pruning CUDA 11.1 and CuDNN"
     #####################################################################################
-    # CUDA 11.0 prune static libs
+    # CUDA 11.1 prune static libs
     #####################################################################################
     export NVPRUNE="/usr/local/cuda-11.1/bin/nvprune"
     export CUDA_LIB_DIR="/usr/local/cuda-11.1/lib64"
