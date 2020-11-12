@@ -115,7 +115,29 @@ function install_110 {
     # install CUDA 11.0 CuDNN
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
-    wget -q https://developer.download.nvidia.com/compute/redist/cudnn/v8.0.4/cudnn-11.0-linux-x64-v8.0.4.30.tgz -O cudnn-8.0.tgz
+    wget -q https://developer.download.nvidia.com/compute/redist/cudnn/v8.0.5/cudnn-11.0-linux-x64-v8.0.5.39.tgz -O cudnn-8.0.tgz
+    tar xf cudnn-8.0.tgz
+    cp -a cuda/include/* /usr/local/cuda/include/
+    cp -a cuda/lib64/* /usr/local/cuda/lib64/
+    cd ..
+    rm -rf tmp_cudnn
+    ldconfig
+}
+
+function install_111 {
+    echo "Installing CUDA 11.1 and CuDNN"
+    rm -rf /usr/local/cuda-11.1 /usr/local/cuda
+    # install CUDA 11.1 in the same container
+    wget -q https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run
+    chmod +x cuda_11.1.1_455.32.00_linux.run
+    ./cuda_11.1.1_455.32.00_linux.run --toolkit --silent
+    rm -f cuda_11.1.1_455.32.00_linux.run
+    rm -f /usr/local/cuda && ln -s /usr/local/cuda-11.1 /usr/local/cuda
+
+    # install CUDA 11.1 CuDNN 8.0.5
+    # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
+    mkdir tmp_cudnn && cd tmp_cudnn
+    wget -q https://developer.download.nvidia.com/compute/redist/cudnn/v8.0.5/cudnn-11.1-linux-x64-v8.0.5.39.tgz -O cudnn-8.0.tgz
     tar xf cudnn-8.0.tgz
     cp -a cuda/include/* /usr/local/cuda/include/
     cp -a cuda/lib64/* /usr/local/cuda/lib64/
@@ -264,7 +286,7 @@ function prune_110 {
 function prune_111 {
     echo "Pruning CUDA 11.1 and CuDNN"
     #####################################################################################
-    # CUDA 11.0 prune static libs
+    # CUDA 11.1 prune static libs
     #####################################################################################
     export NVPRUNE="/usr/local/cuda-11.1/bin/nvprune"
     export CUDA_LIB_DIR="/usr/local/cuda-11.1/lib64"
