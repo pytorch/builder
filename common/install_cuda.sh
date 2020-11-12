@@ -127,7 +127,7 @@ function install_110 {
 function install_111 {
     echo "Installing CUDA 11.1 and CuDNN"
     rm -rf /usr/local/cuda-11.1 /usr/local/cuda
-    # # install CUDA 11.0 in the same container
+    # install CUDA 11.1 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run
     chmod +x cuda_11.1.1_455.32.00_linux.run
     ./cuda_11.1.1_455.32.00_linux.run --toolkit --silent
