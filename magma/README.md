@@ -27,3 +27,15 @@ anaconda upload -u pytorch --force output/*/magma-cuda*.bz2
 ```
 
 If you do not have upload permissions, please ping @seemethere or @soumith to gain access
+
+## New versions
+
+New CUDA versions can be added by copying / pasting the latest magma folder to the next desired version and then
+editing the `build.sh` and `meta.yml` files to reflect the new values
+
+Example:
+```bash
+cp -r magma/magma-cuda110 magma/magma-cuda111
+sed -i 's/11.0/11.1' magma/magma-cuda111/build.sh
+sed -i 's/110/111/' magma/magma-cuda111/meta.yaml
+```
