@@ -42,7 +42,7 @@ if [[ -n "$DESIRED_CUDA" ]]; then
         /builder/conda/switch_cuda_version.sh "${DESIRED_CUDA}"
     fi
 else
-    CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+    CUDA_VERSION=$(nvcc --version|grep release|cut -f5 -d" "|cut -f1 -d",")
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
