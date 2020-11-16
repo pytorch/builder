@@ -189,7 +189,7 @@ DEPS_SONAME=(
 )
 elif [[ $CUDA_VERSION == "11.1" ]]; then
 DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.1"
+    "/usr/local/cuda/lib64/libcudart.so.11.0"   # CUDA 11.1 usues libcudart11.0 for backwards compat
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.11.1"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
@@ -197,7 +197,7 @@ DEPS_LIST=(
 )
 
 DEPS_SONAME=(
-    "libcudart.so.11.1"
+    "libcudart.so.11.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.1"
     "libnvrtc-builtins.so"
