@@ -1,5 +1,5 @@
 r"""
-It's used to check basic rnn features with cuda.
+It's used to check basic cnn features with cuda.
 For example, it would throw exception if some components are missing
 """
 
@@ -26,7 +26,7 @@ net_inputs = torch.rand((1, 1, 5, 5), device=device)
 outputs = net(net_inputs)
 print(outputs)
 
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.1)
 
 # Mock one step training
