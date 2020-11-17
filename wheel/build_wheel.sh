@@ -196,8 +196,11 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     pip uninstall -y "$TORCH_PACKAGE_NAME" || true
     pip uninstall -y "$TORCH_PACKAGE_NAME" || true
 
-    # Only one binary is built, so it's safe to just specify the whl directory
-    pip install "$TORCH_PACKAGE_NAME" --no-index -f "$whl_tmp_dir" --no-dependencies -v
+    # Create new "clean" conda environment for testing
+    conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "test_conda_env" python="$desired_python"
+    conda activate test_conda_env
+
+    pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
 
     # Run the tests
     echo "$(date) :: Running tests"
@@ -234,9 +237,3 @@ else
     cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip"  \
        "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-latest.zip"
 fi
-
-# Now delete the temporary build folder and temporary env
-# $whl_tmp_dir is not deleted since it will be the only place to find the whl
-# if PYTORCH_FINAL_PACKAGE_DIR isn't specified
-source deactivate
-conda env remove -yn "$tmp_env_name"

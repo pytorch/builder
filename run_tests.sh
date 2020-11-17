@@ -76,7 +76,7 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
         fi
     fi
     if [[ "$(python --version 2>&1)" == *3.9.* ]]; then
-        retry conda install -yq -c conda-forge future hypothesis mkl>=2018 ninja numpy>=1.15 protobuf pytest setuptools six typing_extensions pyyaml
+        retry conda install -yq -c conda-forge future hypothesis ninja protobuf pytest setuptools six typing_extensions pyyaml
     elif [[ "$(python --version 2>&1)" == *3.8.* ]]; then
         retry conda install -yq future hypothesis mkl>=2018 ninja numpy>=1.15 protobuf pytest setuptools six typing_extensions pyyaml
     elif [[ "$(python --version 2>&1)" == *3.6.* ]]; then
