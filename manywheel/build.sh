@@ -53,7 +53,7 @@ case ${CUDA_VERSION} in
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     11.0)
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5;8.0"
+        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5;8.0;8.6"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     10.*)
