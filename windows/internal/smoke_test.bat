@@ -31,6 +31,7 @@ exit /b 1
 echo "install wheel package"
 
 set PYTHON_INSTALLER_URL=
+if "%DESIRED_PYTHON%" == "3.9" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.8" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.8.2/python-3.8.2-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.7" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.6" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.6.8/python-3.6.8-amd64.exe"
@@ -219,6 +220,20 @@ if "%NVIDIA_GPU_EXISTS%" == "0" (
 cl %BUILDER_ROOT%\test_example_code\check-torch-cuda.cpp torch_cpu.lib c10.lib torch_cuda.lib /EHsc /link /INCLUDE:?warp_size@cuda@at@@YAHXZ
 .\check-torch-cuda.exe
 if ERRORLEVEL 1 exit /b 1
+
+if NOT "%CUDA_PREFIX%" == "cpu" if "%NVIDIA_GPU_EXISTS%" == "1" (
+    echo Checking that CUDA archs are setup correctly
+    python -c "import torch; torch.randn([3,5]).cuda()"
+    if ERRORLEVEL 1 exit /b 1
+
+    echo Checking that magma is available
+    python -c "import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)"
+    if ERRORLEVEL 1 exit /b 1
+
+    echo Checking that CuDNN is available
+    python -c "import torch; exit(0 if torch.backends.cudnn.is_available() else 1)"
+    if ERRORLEVEL 1 exit /b 1
+)
 
 popd
 
