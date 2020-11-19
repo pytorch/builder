@@ -49,7 +49,7 @@ fi
 export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
     11.1)
-        export TORCH_CUDA_ARCH_LIST="5.0;7.0;8.0;8.6"   # removing some to prevent bloated binary size
+        export TORCH_CUDA_ARCH_LIST="5.0;8.6"   # removing some to prevent relocation marker issues
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     11.0)
