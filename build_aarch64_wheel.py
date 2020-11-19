@@ -11,7 +11,13 @@ from typing import Tuple
 # CONSTANTS
 ubuntu18_04_ami = "ami-0f2b111fdc1647918"
 ubuntu20_04_ami = "ami-0ea142bd244023692"
-keyfile_path = os.path.join(os.path.expanduser("~"), ".ssh", "nshulga-key.pem")
+
+def compute_keyfile_path(key_name="nshulga-key"):
+  homedir_path = os.path.expanduser("~")
+  default_path = os.path.join(homedir_path, ".ssh", f"{key_name}.pem")
+  return os.getenv("SSH_KEY_PATH", default_path)
+
+keyfile_path = compute_keyfile_path()
 
 
 ec2 = boto3.resource("ec2")
@@ -30,11 +36,11 @@ def ec2_instances_by_id(instance_id):
     return rc[0] if len(rc) > 0 else None
 
 
-def start_instance(ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
+def start_instance(ami=ubuntu18_04_ami, instance_type='t4g.2xlarge', key_name='nshulga-key'):
     inst = ec2.create_instances(ImageId=ami,
                                 InstanceType=instance_type,
                                 SecurityGroups=['ssh-allworld'],
-                                KeyName='nshulga-key',
+                                KeyName=key_name,
                                 MinCount=1,
                                 MaxCount=1)[0]
     print(f'Create instance {inst.id}')
@@ -103,8 +109,8 @@ def embed_libgomp(addr, use_conda, wheel_name):
     run_ssh(addr, f"python3 embed_library.py {wheel_name}")
 
 
-def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
-    inst = start_instance(ami)
+def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False, key_name="nshulga-key") -> Tuple[str, str]:
+    inst = start_instance(ami, key_name=key_name)
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     if use_conda:
@@ -265,6 +271,7 @@ def parse_arguments():
     parser.add_argument("--keep-running", action="store_true")
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
+    parser.add_argument("--key-name", type=str, default="nshulga-key")
     parser.add_argument("--branch", type=str, default="master")
     return parser.parse_args()
 
@@ -272,6 +279,7 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
     ami = ubuntu20_04_ami if args.os == 'ubuntu20_04' else ubuntu18_04_ami
+    keyfile_path = compute_keyfile_path(args.key_name)
 
     if args.list_instances:
         list_instances(args.instance_type)
@@ -286,7 +294,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.alloc_instance:
-        inst = start_instance(ami, args.instance_type)
+        inst = start_instance(ami, args.instance_type, args.key_name)
         if args.python_version is None:
             sys.exit(0)
         addr = inst.public_dns_name
@@ -296,4 +304,4 @@ if __name__ == '__main__':
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running)
+    start_build(ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running, key_name=args.key_name)
