@@ -2,9 +2,9 @@ export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$PREFIX
 export PATH=$PREFIX/bin:$PATH
 
-CUDA__VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
-if [ "$CUDA__VERSION" != "10.2" ]; then
-    echo "CUDA Version is not 10.2. CUDA Version found: $CUDA__VERSION"
+CUDA__VERSION=$(nvcc --version|sed -n 4p|cut -f5 -d" "|cut -f1 -d",")
+if [ "$CUDA__VERSION" != "$DESIRED_CUDA" ]; then
+    echo "CUDA Version is not $DESIRED_CUDA. CUDA Version found: $CUDA__VERSION"
     exit 1
 fi
 
