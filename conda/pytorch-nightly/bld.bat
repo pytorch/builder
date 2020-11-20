@@ -37,6 +37,9 @@ curl https://s3.amazonaws.com/ossci-windows/mkl_2020.0.166.7z -k -O
 set CMAKE_INCLUDE_PATH=%SRC_DIR%\mkl\include
 set LIB=%SRC_DIR%\mkl\lib;%LIB%
 
+set libuv_ROOT=%PREFIX%\Library
+echo libuv_ROOT=%libuv_ROOT%
+
 IF "%USE_SCCACHE%" == "1" (
     mkdir %SRC_DIR%\tmp_bin
     curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %SRC_DIR%\tmp_bin\sccache.exe
