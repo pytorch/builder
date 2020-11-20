@@ -10,7 +10,7 @@ fi
 
 mkdir build
 cd build
-cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX
+cmake .. -DUSE_FORTRAN=OFF -DGPU_TARGET="All" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCUDA_ARCH_LIST="$CUDA_ARCH_LIST"
 make -j$(getconf _NPROCESSORS_CONF)
 make install
 cd ..
