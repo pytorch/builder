@@ -61,18 +61,23 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
+    EXTRA_CONDA_FLAGS=""
+    if [[ "$(python --version 2>&1)" == *3.9.* ]]; then
+      EXTRA_CONDA_FLAGS="-c=conda-forge"
+    fi
+
     # Warning: if you've already manually installed the built conda package
     # your environment is probably inconsistent (because most of the packages
     # have a feature requirement).  If we post-facto install the feature,
     # that will make the environment consistent again.
     if [[ "$cuda_ver" != 'cpu' ]]; then
         # Windows CUDA 9.2 packages is not available in the defaults channel.
-        retry conda install -yq -c defaults -c numba/label/dev cudatoolkit=$cuda_ver_majmin
+        retry conda install -yq ${EXTRA_CONDA_FLAGS} -c defaults -c numba/label/dev cudatoolkit=$cuda_ver_majmin
     else
         # We DON'T want to install cpuonly, because it should not be
         # necessary for OS X PyTorch which is always cpu only by default
         if [[ "$(uname)" != Darwin  ]]; then
-            retry conda install -yq cpuonly -c pytorch
+            retry conda install -yq ${EXTRA_CONDA_FLAGS} cpuonly -c pytorch
         fi
     fi
     if [[ "$(python --version 2>&1)" == *3.9.* ]]; then
