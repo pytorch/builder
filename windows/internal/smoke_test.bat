@@ -68,6 +68,10 @@ echo "install conda package"
 set "CONDA_HOME=%CD%\conda"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
+set "CONDA_EXTRA_ARGS="
+if "%DESIRED_PYTHON%" == "3.9" (
+    set "CONDA_EXTRA_ARGS=-c=conda-forge"
+)
 
 rmdir /s /q conda
 del miniconda.exe
@@ -86,7 +90,7 @@ if errorlevel 1 exit /b 1
 if "%DESIRED_PYTHON%" == "3.6" (
     call conda install -yq future numpy protobuf six dataclasses
 ) else (
-    call conda install -yq future numpy protobuf six
+    call conda install %CONDA_EXTRA_ARGS% -yq future numpy protobuf six
 )
 if ERRORLEVEL 1 exit /b 1
 
@@ -101,22 +105,22 @@ if "%TEST_NIGHTLY_PACKAGE%" == "1" (
     goto smoke_test
 )
 
-for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install -y "%%i" --offline
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install %CONDA_EXTRA_ARGS% -y "%%i" --offline
 if ERRORLEVEL 1 exit /b 1
 
 if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
 if "%CUDA_VERSION_STR%" == "9.2" (
-    call conda install -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch -c defaults -c numba/label/dev
+    call conda install %CONDA_EXTRA_ARGS% -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch -c defaults -c numba/label/dev
 ) else (
-    call conda install -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch
+    call conda install %CONDA_EXTRA_ARGS% -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch
 )
 if ERRORLEVEL 1 exit /b 1
 
 goto smoke_test
 
 :install_cpu_torch
-call conda install -y cpuonly -c pytorch
+call conda install %CONDA_EXTRA_ARGS% -y cpuonly -c pytorch
 if ERRORLEVEL 1 exit /b 1
 
 :smoke_test
