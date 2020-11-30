@@ -137,7 +137,14 @@ def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_ver
     print('Building OpenBLAS')
     run_ssh(addr, "git clone https://github.com/xianyi/OpenBLAS -b v0.3.10")
     # TODO: Build with USE_OPENMP=1 support
-    run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install;popd")
+    run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install; popd")
+    
+    # Build FFTW
+    print("Building FFTW3")
+    run_ssh(addr, "sudo apt-get install -y ocaml ocamlbuild autoconf automake indent libtool fig2dev texinfo")
+    # TODO: fix a verison to build
+    run_ssh(addr, "git clone https://github.com/FFTW/fftw3") 
+    run_ssh(addr, "pushd fftw3; sh bootstrap.sh; make; sudo make install; popd")
 
     print('Checking out PyTorch repo')
     run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch")
