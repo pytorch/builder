@@ -51,7 +51,7 @@ IF "%USE_SCCACHE%" == "1" (
 
 IF "%build_with_cuda%" == "" goto cuda_end
 
-set MAGMA_VERSION=2.5.3
+set MAGMA_VERSION=2.5.4
 if "%desired_cuda%" == "9.2" set MAGMA_VERSION=2.5.2
 if "%desired_cuda%" == "10.0" set MAGMA_VERSION=2.5.2
 
