@@ -38,7 +38,7 @@ def ec2_instances_by_id(instance_id):
     return rc[0] if len(rc) > 0 else None
 
 
-def start_instance(ami=ubuntu18_04_ami, instance_type='t4g.2xlarge', key_name=None):
+def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
     inst = ec2.create_instances(ImageId=ami,
                                 InstanceType=instance_type,
                                 SecurityGroups=['ssh-allworld'],
@@ -111,8 +111,8 @@ def embed_libgomp(addr, use_conda, wheel_name):
     run_ssh(addr, f"python3 embed_library.py {wheel_name}")
 
 
-def start_build(ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False, key_name=None) -> Tuple[str, str]:
-    inst = start_instance(ami, key_name=key_name)
+def start_build(key_name, ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
+    inst = start_instance(key_name, ami=ami)
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     if use_conda:
@@ -305,7 +305,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if args.alloc_instance:
-        inst = start_instance(ami, args.instance_type, key_name)
+        inst = start_instance(key_name, ami, args.instance_type)
         if args.python_version is None:
             sys.exit(0)
         addr = inst.public_dns_name
@@ -315,4 +315,4 @@ if __name__ == '__main__':
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running, key_name=key_name)
+    start_build(key_name, ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running)
