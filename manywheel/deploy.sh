@@ -16,7 +16,7 @@ for rocm_version in 3.7 3.8 3.9; do
     )
 done
 
-for cuda_version in 9.2 10.1 10.2 11.0; do
+for cuda_version in 9.2 10.1 10.2 11.0 11.1; do
     (
         set -x
         DOCKER_BUILDKIT=1 docker build \

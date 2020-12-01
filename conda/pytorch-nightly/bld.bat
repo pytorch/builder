@@ -25,6 +25,7 @@ if "%desired_cuda%" == "10.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.
 if "%desired_cuda%" == "10.1" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
 if "%desired_cuda%" == "10.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
 if "%desired_cuda%" == "11.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0
+if "%desired_cuda%" == "11.1" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 
 :cuda_flags_end
@@ -35,6 +36,9 @@ curl https://s3.amazonaws.com/ossci-windows/mkl_2020.0.166.7z -k -O
 7z x -aoa mkl_2020.0.166.7z -omkl
 set CMAKE_INCLUDE_PATH=%SRC_DIR%\mkl\include
 set LIB=%SRC_DIR%\mkl\lib;%LIB%
+
+set libuv_ROOT=%PREFIX%\Library
+echo libuv_ROOT=%libuv_ROOT%
 
 IF "%USE_SCCACHE%" == "1" (
     mkdir %SRC_DIR%\tmp_bin

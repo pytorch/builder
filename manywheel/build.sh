@@ -42,13 +42,17 @@ if [[ -n "$DESIRED_CUDA" ]]; then
         /builder/conda/switch_cuda_version.sh "${DESIRED_CUDA}"
     fi
 else
-    CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",")
+    CUDA_VERSION=$(nvcc --version|grep release|cut -f5 -d" "|cut -f1 -d",")
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
 export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    11.*)
+    11.1)
+        export TORCH_CUDA_ARCH_LIST="5.0;7.0;8.0;8.6"   # removing some to prevent bloated binary size
+        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+        ;;
+    11.0)
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5;8.0"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
@@ -180,6 +184,22 @@ DEPS_SONAME=(
     "libcudart.so.11.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.0"
+    "libnvrtc-builtins.so"
+    "libgomp.so.1"
+)
+elif [[ $CUDA_VERSION == "11.1" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.11.0"   # CUDA 11.1 usues libcudart11.0 for backwards compat
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.11.1"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "$LIBGOMP_PATH"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.11.0"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.11.1"
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
