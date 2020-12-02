@@ -7,7 +7,6 @@ PACKAGE_DIR=magma/${PACKAGE_NAME}
 PACKAGE_FILES=magma/package_files
 mkdir ${PACKAGE_DIR}
 cp ${PACKAGE_FILES}/build.sh ${PACKAGE_DIR}/build.sh
-cp ${PACKAGE_FILES}/run_test.sh ${PACKAGE_DIR}/run_test.sh
 cp ${PACKAGE_FILES}/meta.yaml ${PACKAGE_DIR}/meta.yaml
 cp ${PACKAGE_FILES}/thread_queue.patch ${PACKAGE_DIR}/thread_queue.patch
 cp ${PACKAGE_FILES}/cmakelists.patch ${PACKAGE_DIR}/cmakelists.patch
