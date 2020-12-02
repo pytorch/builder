@@ -145,8 +145,9 @@ def start_build(key_name, ami=ubuntu18_04_ami, branch="master", use_conda=True, 
     print("Building FFTW3")
     run_ssh(addr, "sudo apt-get install -y ocaml ocamlbuild autoconf automake indent libtool fig2dev texinfo")
     # TODO: fix a verison to build
+    # TODO: consider adding flags --host=arm-linux-gnueabi --enable-single --enable-neon CC=arm-linux-gnueabi-gcc -march=armv7-a -mfloat-abi=softfp
     run_ssh(addr, "git clone https://github.com/FFTW/fftw3") 
-    run_ssh(addr, "pushd fftw3; sh bootstrap.sh; make; sudo make install; popd")
+    run_ssh(addr, "pushd fftw3; sh bootstrap.sh; make -j8; sudo make install; popd")
 
     print('Checking out PyTorch repo')
     run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch")
