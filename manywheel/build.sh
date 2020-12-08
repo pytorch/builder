@@ -2,6 +2,8 @@
 
 set -ex
 
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P ))"
+
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
 export NCCL_ROOT_DIR=/usr/local/cuda
 export TH_BINARY_BUILD=1
@@ -46,31 +48,47 @@ else
     echo "CUDA $CUDA_VERSION Detected"
 fi
 
-export TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
+cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
+
+torch_cuda_arch_list="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
     11.1)
-        export TORCH_CUDA_ARCH_LIST="5.0;7.0;8.0;8.6"   # removing some to prevent bloated binary size
+        torch_cuda_arch_list="5.0;7.0;8.0;8.6"  # removing some to prevent bloated binary size
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     11.0)
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5;8.0"
+        torch_cuda_arch_list="$TORCH_CUDA_ARCH_LIST;7.5;8.0"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     10.*)
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;7.5"
+        torch_cuda_arch_list="$TORCH_CUDA_ARCH_LIST;7.5"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     9.*)
-        export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
+        torch_cuda_arch_list="${TORCH_CUDA_ARCH_LIST}"
         ;;
     *)
         echo "unknown cuda version $CUDA_VERSION"
         exit 1
         ;;
 esac
-echo $TORCH_CUDA_ARCH_LIST
 
-cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
+if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
+    torch_cuda_arch_list="$OVERRIDE_TORCH_CUDA_ARCH_LIST"
+
+    # Prune CUDA again with new arch list. Unfortunately, we need to re-install CUDA to prune it again
+    override_gencode=""
+    for arch in ${torch_cuda_arch_list//;/ } ; do
+      arch_code=$(echo "$arch" | tr -d .)
+      override_gencode="${override_gencode}-gencode arch=compute_$arch_code,code=sm_$arch_code "
+    done
+
+    export OVERRIDE_GENCODE=$override_gencode
+    bash "$(dirname "$SCRIPTPATH")"/common/install_cuda.sh "${CUDA_VERSION}"
+fi
+
+export TORCH_CUDA_ARCH_LIST=$torch_cuda_arch_list
+echo "$TORCH_CUDA_ARCH_LIST"
 
 # Package directories
 WHEELHOUSE_DIR="wheelhouse$cuda_version_nodot"
