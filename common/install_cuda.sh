@@ -159,7 +159,6 @@ function prune_92 {
 
     if [[ -n "$OVERRIDE_GENCODE" ]]; then
         export GENCODE=$OVERRIDE_GENCODE
-        export GENCODE_CUDNN=$OVERRIDE_GENCODE_CUDNN
     fi
 
     # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
@@ -193,7 +192,6 @@ function prune_101 {
 
     if [[ -n "$OVERRIDE_GENCODE" ]]; then
         export GENCODE=$OVERRIDE_GENCODE
-        export GENCODE_CUDNN=$OVERRIDE_GENCODE_CUDNN
     fi
 
     # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
@@ -226,7 +224,6 @@ function prune_102 {
 
     if [[ -n "$OVERRIDE_GENCODE" ]]; then
         export GENCODE=$OVERRIDE_GENCODE
-        export GENCODE_CUDNN=$OVERRIDE_GENCODE_CUDNN
     fi
 
     # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
@@ -260,7 +257,6 @@ function prune_110 {
 
     if [[ -n "$OVERRIDE_GENCODE" ]]; then
         export GENCODE=$OVERRIDE_GENCODE
-        export GENCODE_CUDNN=$OVERRIDE_GENCODE_CUDNN
     fi
 
     # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)
@@ -293,7 +289,6 @@ function prune_111 {
 
     if [[ -n "$OVERRIDE_GENCODE" ]]; then
         export GENCODE=$OVERRIDE_GENCODE
-        export GENCODE_CUDNN=$OVERRIDE_GENCODE_CUDNN
     fi
 
     # all CUDA libs except CuDNN and CuBLAS (cudnn and cublas need arch 3.7 included)

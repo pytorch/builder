@@ -84,7 +84,6 @@ if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
     done
 
     export OVERRIDE_GENCODE=$override_gencode
-    export OVERRIDE_GENCODE_CUDNN=$override_gencode
     bash "$(dirname "$SCRIPTPATH")"/common/install_cuda.sh "${CUDA_VERSION}"
 fi
 
