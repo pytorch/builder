@@ -12,12 +12,14 @@ from typing import Tuple
 ubuntu18_04_ami = "ami-0f2b111fdc1647918"
 ubuntu20_04_ami = "ami-0ea142bd244023692"
 
+
 def compute_keyfile_path(key_name=None):
-  if key_name is None:
-      key_name = os.getenv("AWS_KEY_NAME")
-  homedir_path = os.path.expanduser("~")
-  default_path = os.path.join(homedir_path, ".ssh", f"{key_name}.pem")
-  return os.getenv("SSH_KEY_PATH", default_path), key_name
+    if key_name is None:
+        key_name = os.getenv("AWS_KEY_NAME")
+    homedir_path = os.path.expanduser("~")
+    default_path = os.path.join(homedir_path, ".ssh", f"{key_name}.pem")
+    return os.getenv("SSH_KEY_PATH", default_path), key_name
+
 
 keyfile_path = None
 
@@ -111,13 +113,20 @@ def embed_libgomp(addr, use_conda, wheel_name):
     run_ssh(addr, f"python3 embed_library.py {wheel_name}")
 
 
-def start_build(key_name, ami=ubuntu18_04_ami, branch="master", use_conda=True, python_version="3.8", keep_running=False) -> Tuple[str, str]:
+def start_build(key_name, *,
+                ami=ubuntu18_04_ami,
+                branch="master",
+                use_conda=True,
+                python_version="3.8",
+                keep_running=False,
+                shallow_clone=True) -> Tuple[str, str]:
     inst = start_instance(key_name, ami=ami)
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     if use_conda:
         install_condaforge(addr)
         run_ssh(addr, f"conda install -y python={python_version} numpy pyyaml")
+    git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     print('Configuring the system')
     update_apt_repo(addr)
 
@@ -137,20 +146,20 @@ def start_build(key_name, ami=ubuntu18_04_ami, branch="master", use_conda=True, 
         run_ssh(addr, "sudo pip3 install numpy")
     # Build OpenBLAS
     print('Building OpenBLAS')
-    run_ssh(addr, "git clone https://github.com/xianyi/OpenBLAS -b v0.3.10")
+    run_ssh(addr, f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.10 {git_clone_flags}")
     # TODO: Build with USE_OPENMP=1 support
     run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install; popd")
-    
+
     # Build FFTW
     print("Building FFTW3")
     run_ssh(addr, "sudo apt-get install -y ocaml ocamlbuild autoconf automake indent libtool fig2dev texinfo")
-    # TODO: fix a verison to build
+    # TODO: fix a version to build
     # TODO: consider adding flags --host=arm-linux-gnueabi --enable-single --enable-neon CC=arm-linux-gnueabi-gcc -march=armv7-a -mfloat-abi=softfp
-    run_ssh(addr, "git clone https://github.com/FFTW/fftw3") 
+    run_ssh(addr, f"git clone https://github.com/FFTW/fftw3 {git_clone_flags}")
     run_ssh(addr, "pushd fftw3; sh bootstrap.sh; make -j8; sudo make install; popd")
 
     print('Checking out PyTorch repo')
-    run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch")
+    run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
     print('Building PyTorch wheel')
     if branch == 'nightly':
         build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
@@ -164,7 +173,7 @@ def start_build(key_name, ami=ubuntu18_04_ami, branch="master", use_conda=True, 
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:pytorch/dist/*.whl", "."])
 
     print('Checking out TorchVision repo')
-    run_ssh(addr, "git clone https://github.com/pytorch/vision")
+    run_ssh(addr, f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
     run_ssh(addr, f"pip3 install pytorch/dist/{pytorch_wheel_name}")
     print('Building TorchVision wheel')
@@ -291,15 +300,6 @@ if __name__ == '__main__':
     ami = ubuntu20_04_ami if args.os == 'ubuntu20_04' else ubuntu18_04_ami
     keyfile_path, key_name = compute_keyfile_path(args.key_name)
 
-    if key_name is None:
-        raise Exception("""
-            Cannot start build without key_name, please specify 
-            --key-name argument or AWS_KEY_NAME environment variable.""")
-    if keyfile_path is None or not os.path.exists(keyfile_path):
-        raise Exception(f"""
-            Cannot find keyfile with name: [{key_name}] in path: [{keyfile_path}], please 
-            check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
-
     if args.list_instances:
         list_instances(args.instance_type)
         sys.exit(0)
@@ -307,6 +307,15 @@ if __name__ == '__main__':
     if args.terminate_instances:
         terminate_instances(args.instance_type)
         sys.exit(0)
+
+    if key_name is None:
+        raise Exception("""
+            Cannot start build without key_name, please specify
+            --key-name argument or AWS_KEY_NAME environment variable.""")
+    if keyfile_path is None or not os.path.exists(keyfile_path):
+        raise Exception(f"""
+            Cannot find keyfile with name: [{key_name}] in path: [{keyfile_path}], please
+            check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
 
     if args.test_only:
         run_tests(ami, args.test_only)
@@ -323,4 +332,4 @@ if __name__ == '__main__':
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(key_name, ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running)
+    start_build(key_name, ami=ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running)
