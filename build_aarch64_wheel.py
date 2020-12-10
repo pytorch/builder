@@ -161,27 +161,35 @@ def start_build(key_name, *,
     print('Checking out PyTorch repo')
     run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
     print('Building PyTorch wheel')
+    build_vars=""
     if branch == 'nightly':
         build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = check_output(addr, "cat pytorch/version.txt").strip()[:-2]
-        run_ssh(addr, f"cd pytorch ; BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 python3 setup.py bdist_wheel")
-    else:
-        run_ssh(addr, "cd pytorch ; python3 setup.py bdist_wheel")
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
+    if branch.startswith("v1."):
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
+    run_ssh(addr, f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = list_dir(addr, "pytorch/dist")[0]
     embed_libgomp(addr, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:pytorch/dist/*.whl", "."])
 
     print('Checking out TorchVision repo')
-    run_ssh(addr, f"git clone https://github.com/pytorch/vision {git_clone_flags}")
+    if branch.startswith("v1.7.1"):
+        run_ssh(addr, f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
+    else:
+        run_ssh(addr, f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
     run_ssh(addr, f"pip3 install pytorch/dist/{pytorch_wheel_name}")
     print('Building TorchVision wheel')
+    build_vars=""
     if branch == 'nightly':
         version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
-        run_ssh(addr, f"cd vision; BUILD_VERSION={version}.dev{build_date} python3 setup.py bdist_wheel")
-    else:
-        run_ssh(addr, "cd vision; python3 setup.py bdist_wheel")
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    if branch.startswith("v1.7.1"):
+        build_vars += f"BUILD_VERSION=0.8.2"
+
+    run_ssh(addr, f"cd vision; {build_vars} python3 setup.py bdist_wheel")
     vision_wheel_name = list_dir(addr, "vision/dist")[0]
     print('Copying TorchVision wheel')
     subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:vision/dist/*.whl", "."])
@@ -285,7 +293,7 @@ def parse_arguments():
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default='ubuntu18_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8'], default=None)
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
     parser.add_argument("--keep-running", action="store_true")
