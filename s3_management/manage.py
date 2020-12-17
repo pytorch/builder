@@ -112,22 +112,27 @@ class S3Index:
                 continue
             # Strip our prefix
             sanitized_obj = obj.replace(subdir, "", 1)
+            if sanitized_obj.startswith('/'):
+                sanitized_obj = sanitized_obj.lstrip("/")
             # we include objects at our root prefix so that users can still
             # install packages like torchaudio / torchtext even if they want
             # to install a specific GPU arch of torch / torchvision
             if not is_root and obj_at_root:
                 # strip root prefix
                 sanitized_obj = obj.replace(self.prefix, "", 1).lstrip("/")
-                sanitized_obj = f"/../{sanitized_obj}"
-            out.append(f"<a href={sanitized_obj}</a><br>")
+                sanitized_obj = f"../{sanitized_obj}"
+            out.append(f'<a href="{sanitized_obj}"</a>{sanitized_obj}<br>')
         return "\n".join(sorted(out))
 
     def upload_legacy_html(self) -> None:
         for subdir in self.subdirs:
+            print(f"INFO Uploading {subdir}/{self.html_name}")
             BUCKET.Object(
                 key=f"{subdir}/{self.html_name}"
             ).put(
                 ACL='public-read',
+                CacheControl='no-cache,no-store,must-revalidate',
+                ContentType='text/html',
                 Body=self.to_legacy_html(subdir=subdir)
             )
 
