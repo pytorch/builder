@@ -75,7 +75,7 @@ fi
 
 # NOTE: Some ROCm versions have identical dependencies, or very close deps.
 # To avoid copy/paste mistakes, version condition branches are combined.
-if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" || $ROCM_VERSION == "rocm3.9" || $ROCM_VERSION == "rocm3.10" ]]; then
+if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" || $ROCM_VERSION == "rocm3.9" || $ROCM_VERSION == "rocm3.10"  || $ROCM_VERSION == "rocm4.0" ]]; then
 
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
