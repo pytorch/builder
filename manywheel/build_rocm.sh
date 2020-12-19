@@ -73,13 +73,20 @@ else
     COMGR_LIBDIR="lib64"
 fi
 
+# in rocm4.0, libamdhip64.so.3 changed to *.so.4
+if [[ $ROCM_VERSION == "rocm4.0" ]]; then
+    LIBAMDHIP64=libamdhip64.so.4
+else
+    LIBAMDHIP64=libamdhip64.so.3
+fi;
+
 # NOTE: Some ROCm versions have identical dependencies, or very close deps.
 # To avoid copy/paste mistakes, version condition branches are combined.
 if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" || $ROCM_VERSION == "rocm3.9" || $ROCM_VERSION == "rocm3.10"  || $ROCM_VERSION == "rocm4.0" ]]; then
 
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
-    "/opt/rocm/hip/lib/libamdhip64.so.3"
+    "/opt/rocm/hip/lib/$LIBAMDHIP64"
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
@@ -99,7 +106,7 @@ DEPS_LIST=(
 
 DEPS_SONAME=(
     "libMIOpen.so.1"
-    "libamdhip64.so.3"
+    "$LIBAMDHIP64"
     "libhiprand.so.1"
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
