@@ -49,6 +49,9 @@ RUN bash ./install_cuda.sh 11.0
 FROM cuda as cuda111
 RUN bash ./install_cuda.sh 11.1
 
+FROM cuda as cuda112
+RUN bash ./install_cuda.sh 11.2
+
 # Install MNIST test data
 FROM base as mnist
 ADD ./common/install_mnist.sh install_mnist.sh
@@ -63,6 +66,7 @@ COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
 COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
 COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
 COPY --from=cuda111  /usr/local/cuda-11.1 /usr/local/cuda-11.1
+COPY --from=cuda112  /usr/local/cuda-11.2 /usr/local/cuda-11.2
 ADD ./java/jni.h     /usr/local/include/jni.h
 ENV PATH /opt/conda/bin:$PATH
 COPY --from=mnist  /usr/local/mnist /usr/local/mnist

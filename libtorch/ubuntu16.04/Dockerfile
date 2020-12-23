@@ -38,6 +38,10 @@ FROM cuda as cuda111
 RUN bash ./install_cuda.sh 11.1
 RUN bash ./install_magma.sh 11.1
 
+FROM cuda as cuda112
+RUN bash ./install_cuda.sh 11.2
+RUN bash ./install_magma.sh 11.2
+
 FROM base as final
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
@@ -54,5 +58,6 @@ COPY --from=cuda101  /usr/local/cuda-10.1 /usr/local/cuda-10.1
 COPY --from=cuda102  /usr/local/cuda-10.2 /usr/local/cuda-10.2
 COPY --from=cuda110  /usr/local/cuda-11.0 /usr/local/cuda-11.0
 COPY --from=cuda111  /usr/local/cuda-11.1 /usr/local/cuda-11.1
+COPY --from=cuda112  /usr/local/cuda-11.2 /usr/local/cuda-11.2
 COPY --from=intel /opt/intel /opt/intel
 ENV CUDA_HOME /usr/local/cuda
