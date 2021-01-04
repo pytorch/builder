@@ -121,7 +121,7 @@ class S3Index:
                 # strip root prefix
                 sanitized_obj = obj.replace(self.prefix, "", 1).lstrip("/")
                 sanitized_obj = f"../{sanitized_obj}"
-            out.append(f'<a href="{sanitized_obj}"</a>{sanitized_obj}<br>')
+            out.append(f'<a href="{sanitized_obj}">{sanitized_obj}</a><br>')
         return "\n".join(sorted(out))
 
     def upload_legacy_html(self) -> None:
