@@ -78,3 +78,7 @@ node_modules
 
 # mypy
 **/.mypy_cache/
+
+# Mac directory meta
+.DS_Store
+*/**/.DS_Store
