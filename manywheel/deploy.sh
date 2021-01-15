@@ -29,3 +29,14 @@ for cuda_version in 9.2 10.1 10.2 11.0 11.1 11.2; do
         docker push "pytorch/manylinux-cuda${cuda_version//./}"
     )
 done
+
+(
+    set -x
+    DOCKER_BUILDKIT=1 docker build \
+        -t "pytorch/manylinux-cpu" \
+        --build-arg "GPU_IMAGE=centos:7" \
+        --target cpu_final \
+        -f manywheel/Dockerfile \
+        .
+        docker push "pytorch/manylinux-cpu"
+)

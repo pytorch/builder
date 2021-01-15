@@ -109,7 +109,7 @@ COPY --from=libpng   /usr/local/include/libpng*            /usr/local/include/
 COPY --from=libpng   /usr/local/lib/libpng*                /usr/local/lib/
 COPY --from=libpng   /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 
-FROM common as cuda_final
+FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
@@ -125,6 +125,7 @@ RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &
 RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 
+FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
