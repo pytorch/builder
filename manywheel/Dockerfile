@@ -93,7 +93,11 @@ RUN yum install -y \
         wget \
         which \
         xz \
-        yasm \
+        yasm
+RUN yum install -y \
+    https://repo.ius.io/ius-release-el7.rpm \
+    https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+RUN yum swap -y git git224-core
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 COPY --from=python   /opt/python                           /opt/python
@@ -116,10 +120,6 @@ RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
 ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
-
-RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-    rpm -ivh epel-release-latest-7.noarch.rpm && \
-    rm -f epel-release-latest-7.noarch.rpm
 
 # cmake
 RUN yum install -y cmake3 && \
