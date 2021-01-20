@@ -29,11 +29,16 @@ fi
 # because in some cases a single Docker image can have multiple CUDA versions
 # on it, and `nvcc --version` might not show the CUDA version we want.
 if [[ -n "$DESIRED_CUDA" ]]; then
-    # cu90, cu92, cu100, cu101
-    if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
-        CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
-    elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
-        CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
+    # If the DESIRED_CUDA already matches the format that we expect
+    if [[ ${DESIRED_CUDA} =~ ^[0-9]+\.[0-9]+$ ]]; then
+        CUDA_VERSION=${DESIRED_CUDA}
+    else
+        # cu90, cu92, cu100, cu101
+        if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
+            CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
+        elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
+            CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
+        fi
     fi
     echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
 
