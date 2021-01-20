@@ -24,8 +24,12 @@ fi
 #
 # NOTE: We should first check `DESIRED_CUDA` when determining `ROCM_VERSION`
 if [[ -n "$DESIRED_CUDA" ]]; then
-    # rocm3.7, rocm3.5.1
-    ROCM_VERSION="$DESIRED_CUDA"
+    if ! echo "${DESIRED_CUDA}"| grep "^rocm" >/dev/null 2>/dev/null; then
+        ROCM_VERSION="rocm${DESIRED_CUDA}"
+    else
+        # rocm3.7, rocm3.5.1
+        ROCM_VERSION="$DESIRED_CUDA"
+    fi
     echo "Using $ROCM_VERSION as determined by DESIRED_CUDA"
 else
     echo "Must set DESIRED_CUDA"
