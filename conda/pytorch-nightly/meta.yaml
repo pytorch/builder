@@ -40,6 +40,7 @@ build:
   detect_binary_files_with_prefix: False
   string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
   script_env:
+    - BUILD_SPLIT_CUDA
     - CUDA_VERSION
     - CUDNN_VERSION
     - CONDA_CUDATOOLKIT_CONSTRAINT
