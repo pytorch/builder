@@ -74,6 +74,12 @@ set "CONDA_EXTRA_ARGS="
 if "%DESIRED_PYTHON%" == "3.9" (
     set "CONDA_EXTRA_ARGS=-c=conda-forge"
 )
+if "%CUDA_VERSION%" == "111" (
+    set "CONDA_EXTRA_ARGS=-c=conda-forge"
+)
+if "%CUDA_VERSION%" == "112" (
+    set "CONDA_EXTRA_ARGS=-c=conda-forge"
+)
 
 rmdir /s /q conda
 del miniconda.exe
