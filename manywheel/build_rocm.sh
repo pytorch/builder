@@ -2,6 +2,8 @@
 
 set -ex
 
+export MAGMA_HOME=/opt/rocm/magma
+
 # TODO Are these all used/needed?
 export TH_BINARY_BUILD=1
 export USE_STATIC_CUDNN=1
