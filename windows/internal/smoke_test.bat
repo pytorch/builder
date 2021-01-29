@@ -4,6 +4,7 @@ pushd %SRC_DIR%\..
 
 if "%CUDA_VERSION%" == "102" call internal\driver_update.bat
 if "%CUDA_VERSION%" == "110" call internal\driver_update.bat
+if "%CUDA_VERSION%" == "111" call internal\driver_update.bat
 if errorlevel 1 exit /b 1
 
 set "ORIG_PATH=%PATH%"
