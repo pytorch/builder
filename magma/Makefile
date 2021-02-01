@@ -6,14 +6,14 @@ CUDA_POINTER_ATTR_PATCH ?=
 CUDA_ARCH_LIST ?= -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
 
 DOCKER_RUN = set -eou pipefail; docker run --rm -i \
-    -v $(shell git rev-parse --show-toplevel):/builder \
-    -w /builder \
-    -e DESIRED_CUDA=${DESIRED_CUDA} \
+	-v $(shell git rev-parse --show-toplevel):/builder \
+	-w /builder \
+	-e DESIRED_CUDA=${DESIRED_CUDA} \
 	-e PACKAGE_NAME=${PACKAGE_NAME} \
 	-e CUDA_POINTER_ATTR_PATCH=${CUDA_POINTER_ATTR_PATCH} \
 	-e CUDA_ARCH_LIST="${CUDA_ARCH_LIST}" \
-    "pytorch/conda-cuda:latest" \
-    magma/build_magma.sh
+	"pytorch/conda-cuda:latest" \
+	magma/build_magma.sh
 
 .PHONY: all
 all: magma-cuda112
@@ -22,6 +22,11 @@ all: magma-cuda110
 all: magma-cuda102
 all: magma-cuda101
 all: magma-cuda92
+
+.PHONY:
+clean:
+	$(RM) -r magma-*
+	$(RM) -r output
 
 .PHONY: magma-cuda112
 magma-cuda112: DESIRED_CUDA := 11.2
