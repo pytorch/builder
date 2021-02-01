@@ -246,9 +246,9 @@ else
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.1,<11.2 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda111 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.0" ]]; then
-        # cudatoolkit < 11.0.3 is bugged and gives a libcublas error
+        # cudatoolkit == 11.0.221 is bugged and gives a libcublas error
         # see: https://github.com/pytorch/pytorch/issues/51080
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.0.3,<11.1 # [not osx]"
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.0,<11.1,!=11.0.221 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda110 # [not osx and not win]"
     elif [[ "$desired_cuda" == "10.2" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.2,<10.3 # [not osx]"
