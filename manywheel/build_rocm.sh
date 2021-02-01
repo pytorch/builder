@@ -62,30 +62,49 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
 fi
 
-# rocm3.8 and later use TensileLibrary.dat
-if [[ $ROCM_VERSION == "rocm3.7" ]]; then
-    TENSILE_LIBRARY_NAME=TensileLibrary.yaml
+# NOTE: Some ROCm versions have identical dependencies, or very close deps.
+# We conditionalize as generically as possible, capturing only what changes
+# from version to version.
+
+# To make version comparison easier, create an integer representation.
+ROCM_VERSION_CLEAN=$(echo ${ROCM_VERSION} | sed s/rocm//)
+save_IFS="$IFS"
+IFS=. ROCM_VERSION_ARRAY=(${ROCM_VERSION_CLEAN})
+IFS="$save_IFS"
+if [[ ${#ROCM_VERSION_ARRAY[@]} == 2 ]]; then
+    ROCM_VERSION_MAJOR=${ROCM_VERSION_ARRAY[0]}
+    ROCM_VERSION_MINOR=${ROCM_VERSION_ARRAY[1]}
+    ROCM_VERSION_PATCH=0
+elif [[ ${#ROCM_VERSION_ARRAY[@]} == 3 ]]; then
+    ROCM_VERSION_MAJOR=${ROCM_VERSION_ARRAY[0]}
+    ROCM_VERSION_MINOR=${ROCM_VERSION_ARRAY[1]}
+    ROCM_VERSION_PATCH=${ROCM_VERSION_ARRAY[2]}
 else
+    echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
+    exit 1
+fi
+ROCM_INT=$(($ROCM_VERSION_MAJOR * 10000 + $ROCM_VERSION_MINOR * 100 + $ROCM_VERSION_PATCH))
+
+# rocm3.8 and later use TensileLibrary.dat
+if [[ $ROCM_INT -ge 30800 ]]; then
     TENSILE_LIBRARY_NAME=TensileLibrary.dat
+else
+    TENSILE_LIBRARY_NAME=TensileLibrary.yaml
 fi
 
 # in rocm3.9, libamd_comgr path changed from lib to lib64
-if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" ]]; then
-    COMGR_LIBDIR="lib"
-else
+if [[ $ROCM_INT -ge 30900 ]]; then
     COMGR_LIBDIR="lib64"
+else
+    COMGR_LIBDIR="lib"
 fi
 
 # in rocm4.0, libamdhip64.so.3 changed to *.so.4
-if [[ $ROCM_VERSION == "rocm4.0" ]]; then
+if [[ $ROCM_INT -ge 40000 ]]; then
     LIBAMDHIP64=libamdhip64.so.4
 else
     LIBAMDHIP64=libamdhip64.so.3
 fi;
-
-# NOTE: Some ROCm versions have identical dependencies, or very close deps.
-# To avoid copy/paste mistakes, version condition branches are combined.
-if [[ $ROCM_VERSION == "rocm3.7" || $ROCM_VERSION == "rocm3.8" || $ROCM_VERSION == "rocm3.9" || $ROCM_VERSION == "rocm3.10"  || $ROCM_VERSION == "rocm4.0" ]]; then
 
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
@@ -150,11 +169,6 @@ DEPS_AUX_DSTLIST=(
     "lib/library/TensileLibrary_gfx908.co"
     "lib/library/$TENSILE_LIBRARY_NAME"
 )
-
-else
-    echo "Unknown ROCm version $ROCM_VERSION"
-    exit 1
-fi
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
