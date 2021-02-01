@@ -6,12 +6,12 @@
   - `git add pytorch-$BUILD_VERSION`
 - Run `./build_pytorch.sh` on an OSX machine and a Linux machine
 
-## build base docker image
+## build base docker images
 
 ```sh
-cd ..
-docker build -t soumith/conda-cuda -f conda/Dockerfile .
-docker push soumith/conda-cuda
+conda/build_all_docker.sh
+# Will push all of the images
+docker push pytorch/conda-builder
 ```
 
 ## building pytorch / torchvision etc.
