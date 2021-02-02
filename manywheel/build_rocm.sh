@@ -2,6 +2,8 @@
 
 set -ex
 
+export MAGMA_HOME=/opt/rocm/magma
+
 # TODO Are these all used/needed?
 export TH_BINARY_BUILD=1
 export USE_STATIC_CUDNN=1
@@ -109,16 +111,19 @@ fi;
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
+    "/opt/rocm/hipblas/lib/libhipblas.so.0"
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
     "/opt/rocm/${COMGR_LIBDIR}/libamd_comgr.so.1"
     "/opt/rocm/lib64/libhsakmt.so.1"
+    "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
     "/opt/rocm/rocfft/lib/librocfft-device.so.0"
     "/opt/rocm/rocfft/lib/librocfft.so.0"
     "/opt/rocm/rocrand/lib/librocrand.so.1"
+    "/opt/rocm/rocsolver/lib/librocsolver.so.0"
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
     "/opt/rocm/roctracer/lib/libroctx64.so.1"
     "$LIBGOMP_PATH"
@@ -129,16 +134,19 @@ DEPS_LIST=(
 DEPS_SONAME=(
     "libMIOpen.so.1"
     "$LIBAMDHIP64"
+    "libhipblas.so.0"
     "libhiprand.so.1"
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
     "libamd_comgr.so.1"
     "libhsakmt.so.1"
+    "libmagma.so"
     "librccl.so.1"
     "librocblas.so.0"
     "librocfft-device.so.0"
     "librocfft.so.0"
     "librocrand.so.1"
+    "librocsolver.so.0"
     "librocsparse.so.0"
     "libroctx64.so.1"
     "libgomp.so.1"
