@@ -6,6 +6,8 @@ export CMAKE_PREFIX_PATH=$PREFIX
 export TH_BINARY_BUILD=1 # links CPU BLAS libraries thrice in a row (was needed for some MKL static linkage)
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
+# Explicitly state _GLIBCXX_USE_CXX11_ABI=0
+export _GLIBCXX_USE_CXX11_ABI=0
 
 # Why do we disable Ninja when ninja is included in the meta.yaml? Well, using
 # ninja in the conda builds leads to a system python2.7 library being called
