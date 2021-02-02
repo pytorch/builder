@@ -75,7 +75,7 @@ outputs:
   - name: gpu
     version: 1.0
     build:
-      string: {{ desired_cuda }}
+      string: "{{ desired_cuda }}"
 {% if desired_cuda != "cpu" %}
     requirements:
       run:
