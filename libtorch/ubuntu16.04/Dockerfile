@@ -51,6 +51,7 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 ENV PATH /opt/conda/bin:$PATH
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
+RUN /opt/conda/bin/conda install -y cmake=3.14
 
 RUN rm -rf /usr/local/cuda-*
 COPY --from=cuda92   /usr/local/cuda-9.2  /usr/local/cuda-9.2
