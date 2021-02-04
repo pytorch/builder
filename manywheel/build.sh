@@ -232,7 +232,7 @@ DEPS_SONAME=(
 )
 elif [[ $CUDA_VERSION == "11.2" ]]; then
 DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.2.72"
+    "/usr/local/cuda/lib64/libcudart.so.11.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.11.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
@@ -240,7 +240,7 @@ DEPS_LIST=(
 )
 
 DEPS_SONAME=(
-    "libcudart.so.11.2.72"
+    "libcudart.so.11.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.2"
     "libnvrtc-builtins.so"
