@@ -230,13 +230,7 @@ else
   done
 fi
 
-TEST_CODE_DIR="$(dirname ${BASH_SOURCE[0]})/test_example_code"
-build_and_run_example_cpp () {
-  if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-    GLIBCXX_USE_CXX11_ABI=1
-  else
-    GLIBCXX_USE_CXX11_ABI=0
-  fi
+setup_link_flags () {
   REF_LIB="-Wl,-R${install_root}/lib"
   if [[ "$(uname)" == 'Darwin' ]]; then
     REF_LIB="-Wl,-rpath ${install_root}/lib"
@@ -256,7 +250,20 @@ build_and_run_example_cpp () {
   TORCH_CUDA_LINK_FLAGS=""
   if [ -f "${install_root}/lib/libtorch_cuda.so" ] || [ -f "${install_root}/lib/libtorch_cuda.dylib" ]; then
     TORCH_CUDA_LINK_FLAGS="-ltorch_cuda"
+  elif [ -f "${install_root}/lib/libtorch_cuda_cpp.so" ] && [ -f "${install_root}/lib/libtorch_cuda_cpp.so" ] || \
+    [ -f "${install_root}/lib/libtorch_cuda_cu.dylib" ] && [ -f "${install_root}/lib/libtorch_cuda_cu.dylib" ]; then
+    TORCH_CUDA_LINK_FLAGS="-ltorch_cuda_cpp -ltorch_cuda_cu"
   fi
+}
+
+TEST_CODE_DIR="$(dirname ${BASH_SOURCE[0]})/test_example_code"
+build_and_run_example_cpp () {
+  if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    GLIBCXX_USE_CXX11_ABI=1
+  else
+    GLIBCXX_USE_CXX11_ABI=0
+  fi
+  setup_link_flags
   g++ ${TEST_CODE_DIR}/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
   ./$1
 }
@@ -268,26 +275,7 @@ build_example_cpp_with_incorrect_abi () {
     GLIBCXX_USE_CXX11_ABI=1
   fi
   set +e
-  REF_LIB="-Wl,-R${install_root}/lib"
-  if [[ "$(uname)" == 'Darwin' ]]; then
-    REF_LIB="-Wl,-rpath ${install_root}/lib"
-  fi
-  ADDITIONAL_LINKER_FLAGS=""
-  if [[ "$(uname)" == 'Linux' ]]; then
-    ADDITIONAL_LINKER_FLAGS="-Wl,--no-as-needed"
-  fi
-  C10_LINK_FLAGS=""
-  if [ -f "${install_root}/lib/libc10.so" ] || [ -f "${install_root}/lib/libc10.dylib" ]; then
-    C10_LINK_FLAGS="-lc10"
-  fi
-  TORCH_CPU_LINK_FLAGS=""
-  if [ -f "${install_root}/lib/libtorch_cpu.so" ] || [ -f "${install_root}/lib/libtorch_cpu.dylib" ]; then
-    TORCH_CPU_LINK_FLAGS="-ltorch_cpu"
-  fi
-  TORCH_CUDA_LINK_FLAGS=""
-  if [ -f "${install_root}/lib/libtorch_cuda.so" ] || [ -f "${install_root}/lib/libtorch_cuda.dylib" ]; then
-    TORCH_CUDA_LINK_FLAGS="-ltorch_cuda"
-  fi
+  setup_link_flags
   g++ ${TEST_CODE_DIR}/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
   ERRCODE=$?
   set -e
