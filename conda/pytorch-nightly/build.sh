@@ -15,6 +15,11 @@ export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 # it. It would be nice to use ninja in the builds of the conda binaries as well
 export USE_NINJA=OFF
 export INSTALL_TEST=0 # dont install test binaries into site-packages
+# Building with USE_KINETO=1 currently causes a conflict between GNU and LLVM
+# OpenMP due to `libgomp` being installed when using conda-forge (which is necessary for
+# some builds including CUDA 11.2 and Python 3.9).
+# See: https://github.com/pytorch/pytorch/issues/51026
+export USE_KINETO=0
 
 # MacOS build is simple, and will not be for CUDA
 if [[ "$OSTYPE" == "darwin"* ]]; then
