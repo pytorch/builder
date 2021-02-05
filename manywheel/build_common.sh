@@ -226,6 +226,23 @@ make_wheel_record() {
     fi
 }
 
+replace_needed_sofiles() {
+    find $1 -name '*.so*' | while read sofile; do
+        origname=$2
+        patchedname=$3
+        if [[ "$origname" != "$patchedname" ]]; then
+            set +e
+            $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
+            ERRCODE=$?
+            set -e
+            if [ "$ERRCODE" -eq "0" ]; then
+                echo "patching $sofile entry $origname to $patchedname"
+                $PATCHELF_BIN --replace-needed $origname $patchedname $sofile
+            fi
+        fi
+    done
+}
+
 echo 'Built this wheel:'
 ls /tmp/$WHEELHOUSE_DIR
 mkdir -p "/$WHEELHOUSE_DIR"
@@ -282,20 +299,11 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
 
         echo "patching to fix the so names to the hashed names"
         for ((i=0;i<${#DEPS_LIST[@]};++i)); do
-            find $PREFIX -name '*.so*' | while read sofile; do
-                origname=${DEPS_SONAME[i]}
-                patchedname=${patched[i]}
-                if [[ "$origname" != "$patchedname" ]]; then
-                    set +e
-                    $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
-                    ERRCODE=$?
-                    set -e
-                    if [ "$ERRCODE" -eq "0" ]; then
-                        echo "patching $sofile entry $origname to $patchedname"
-                        $PATCHELF_BIN --replace-needed $origname $patchedname $sofile
-                    fi
-                fi
-            done
+            replace_needed_sofiles $PREFIX ${DEPS_SONAME[i]} ${patched[i]}
+            # do the same for caffe2, if it exists
+            if [[ -d caffe2 ]]; then
+                replace_needed_sofiles caffe2 ${DEPS_SONAME[i]} ${patched[i]}
+            fi
         done
 
         # copy over needed auxiliary files
