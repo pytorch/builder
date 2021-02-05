@@ -91,7 +91,6 @@ for %%v in (
                     )
                     set CUDA_VERSION=%%c
                     set CUDA_PREFIX=cuda!CUDA_VERSION!
-                    set CUDNN_VERSION=7
                 ) else (
                     set CUDA_PREFIX=cpu
                 )
