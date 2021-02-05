@@ -141,7 +141,6 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     :: Set Flags
     if not "%CUDA_VERSION%"=="cpu" (
         set MAGMA_HOME=%cd%\magma_%CUDA_PREFIX%_%BUILD_TYPE%
-        set CUDNN_VERSION=7
     )
     call %CUDA_PREFIX%.bat
     if ERRORLEVEL 1 exit /b 1
