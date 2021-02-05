@@ -30,7 +30,6 @@ requirements:
     - numpy >=1.11
     - mkl >=2018
     - dataclasses # [py36]
-    - ninja
     - typing_extensions
     - blas * mkl
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
