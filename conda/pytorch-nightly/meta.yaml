@@ -12,7 +12,9 @@ requirements:
 
   host:
     - python
-    - numpy >=1.11.*
+    # Conda has some pretty unpredictable behavior when it comes to channel priority
+    # so to be safe on which numpy version we want we default to the defaults
+    - defaults::numpy >=1.11.*
     - setuptools
     - pyyaml
     - mkl >=2019
@@ -27,7 +29,7 @@ requirements:
 
   run:
     - python
-    - numpy >=1.11
+    - defaults::numpy >=1.11.*
     - mkl >=2018
     - dataclasses # [py36]
     - libuv # [win]
