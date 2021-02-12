@@ -185,7 +185,10 @@ def start_build(key_name, *,
     print('Building TorchVision wheel')
     build_vars=""
     if branch == 'nightly':
-        version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
+        version = check_output(addr, ["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
+        if len(version) == 0:
+            # In older revisions, version was embedded in setup.py
+            version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.7.1"):
         build_vars += f"BUILD_VERSION=0.8.2"
