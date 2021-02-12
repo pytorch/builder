@@ -134,7 +134,7 @@ def start_build(key_name, *,
     run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     if not use_conda:
         run_ssh(addr, "sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
-    run_ssh(addr, "pip3 install dataclasses")
+    run_ssh(addr, "pip3 install dataclasses typing-extensions")
     # Install and switch to gcc-8 on Ubuntu-18.04
     if ami == ubuntu18_04_ami and compiler == 'gcc-8':
         run_ssh(addr, "sudo apt-get install -y g++-8 gfortran-8")
