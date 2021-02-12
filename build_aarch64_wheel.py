@@ -116,6 +116,7 @@ def embed_libgomp(addr, use_conda, wheel_name):
 def start_build(key_name, *,
                 ami=ubuntu18_04_ami,
                 branch="master",
+                compiler="gcc-8",
                 use_conda=True,
                 python_version="3.8",
                 keep_running=False,
@@ -133,9 +134,9 @@ def start_build(key_name, *,
     run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     if not use_conda:
         run_ssh(addr, "sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
-    run_ssh(addr, "pip3 install dataclasses")
+    run_ssh(addr, "pip3 install dataclasses typing-extensions")
     # Install and switch to gcc-8 on Ubuntu-18.04
-    if ami == ubuntu18_04_ami:
+    if ami == ubuntu18_04_ami and compiler == 'gcc-8':
         run_ssh(addr, "sudo apt-get install -y g++-8 gfortran-8")
         run_ssh(addr, "sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
         run_ssh(addr, "sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
@@ -184,7 +185,10 @@ def start_build(key_name, *,
     print('Building TorchVision wheel')
     build_vars=""
     if branch == 'nightly':
-        version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
+        version = check_output(addr, ["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
+        if len(version) == 0:
+            # In older revisions, version was embedded in setup.py
+            version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.7.1"):
         build_vars += f"BUILD_VERSION=0.8.2"
@@ -300,6 +304,7 @@ def parse_arguments():
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
     parser.add_argument("--branch", type=str, default="master")
+    parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     return parser.parse_args()
 
 
@@ -340,4 +345,4 @@ if __name__ == '__main__':
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(key_name, ami=ami, branch=args.branch, python_version=python_version, keep_running=args.keep_running)
+    start_build(key_name, ami=ami, branch=args.branch, compiler=args.compiler, python_version=python_version, keep_running=args.keep_running)
