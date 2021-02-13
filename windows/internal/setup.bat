@@ -75,6 +75,8 @@ IF "%DEBUG%" == "" (
 )
 
 7z a -tzip "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" libtorch\*
+:: Cleanup raw data to save space
+rmdir /s /q libtorch
 
 if not exist ..\output mkdir ..\output
 copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" "%PYTORCH_FINAL_PACKAGE_DIR%\"
