@@ -11,6 +11,8 @@ if "%USE_CUDA%" == "0" (
 ) else (
     set build_with_cuda=1
     set desired_cuda=%CUDA_VERSION%
+    :: Set up nodot version for use with magma
+    set desired_cuda_nodot=%CUDA_VERSION:.=%
 )
 
 if "%build_with_cuda%" == "" goto cuda_flags_end
@@ -56,9 +58,9 @@ set MAGMA_VERSION=2.5.4
 if "%desired_cuda%" == "9.2" set MAGMA_VERSION=2.5.2
 if "%desired_cuda%" == "10.0" set MAGMA_VERSION=2.5.2
 
-curl https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_cuda%CUDA_VERSION%_release.7z -k -O
-7z x -aoa magma_%MAGMA_VERSION%_cuda%CUDA_VERSION%_release.7z -omagma_cuda%CUDA_VERSION%_release
-set MAGMA_HOME=%cd%\magma_cuda%CUDA_VERSION%_release
+curl https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_cuda%desired_cuda_nodot%_release.7z -k -O
+7z x -aoa magma_%MAGMA_VERSION%_cuda%desired_cuda_nodot%_release.7z -omagma_cuda%desired_cuda_nodot%_release
+set MAGMA_HOME=%cd%\magma_cuda%desired_cuda_nodot%_release
 
 IF "%USE_SCCACHE%" == "1" (
     set CUDA_NVCC_EXECUTABLE=%SRC_DIR%\tmp_bin\nvcc
@@ -66,7 +68,7 @@ IF "%USE_SCCACHE%" == "1" (
 
 set "PATH=%CUDA_BIN_PATH%;%PATH%"
 
-if "%CUDA_VERSION%" == "80" (
+if "%desired_cuda_nodot%" == "80" (
     :: Only if you use Ninja with CUDA 8
     set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
 )
