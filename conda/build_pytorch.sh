@@ -125,6 +125,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # through gloo). This dependency is made available through meta.yaml, so
     # we can override the default and set USE_DISTRIBUTED=1.
     export USE_DISTRIBUTED=1
+
+    # testing cross compilation
+    if [[ "$DESIRED_PYTHON" == "3.8" ]]; then
+        export CMAKE_OSX_ARCHITECTURES=arm64
+        export USE_MKLDNN=OFF
+        export USE_NNPACK=OFF
+        export USE_QNNPACK=OFF
+        export BUILD_TEST=OFF
+    fi
 fi
 
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"

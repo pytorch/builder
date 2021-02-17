@@ -52,6 +52,11 @@ build:
     - USE_FBGEMM
     - USE_SCCACHE # [win]
     - USE_DISTRIBUTED # [unix]
+    - CMAKE_OSX_ARCHITECTURES # [arm64]
+    - USE_MKLDNN # [arm64]
+    - USE_NNPACK # [arm64]
+    - USE_QNNPACK # [arm64]
+    - BUILD_TEST # [arm64]
   features:
 {{ environ.get('CONDA_CPU_ONLY_FEATURE') }}
 

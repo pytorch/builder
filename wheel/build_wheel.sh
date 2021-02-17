@@ -164,6 +164,14 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
+if [[ "$desired_python" == 3.8 ]]; then
+    export CMAKE_OSX_ARCHITECTURES=arm64
+    export USE_MKLDNN=OFF
+    export USE_NNPACK=OFF
+    export USE_QNNPACK=OFF
+    export BUILD_TEST=OFF
+fi
+
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
 
