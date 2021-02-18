@@ -209,13 +209,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     conda activate test_conda_env
 
     pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
-
-    # Run the tests
-    echo "$(date) :: Running tests"
-    pushd "$pytorch_rootdir"
-    "${SOURCE_DIR}/../run_tests.sh" 'wheel' "$desired_python" 'cpu'
-    popd
-    echo "$(date) :: Finished tests"
 else
     pushd "$pytorch_rootdir"
     mkdir -p build
