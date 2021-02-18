@@ -127,7 +127,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     export USE_DISTRIBUTED=1
 
     # testing cross compilation
-    if [[ "$DESIRED_PYTHON" == "3.8" ]]; then
+    if [[ "$CROSS_COMPILE_ARM64" == "1" ]]; then
         export CMAKE_OSX_ARCHITECTURES=arm64
         export USE_MKLDNN=OFF
         export USE_NNPACK=OFF

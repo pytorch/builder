@@ -164,7 +164,7 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-if [[ "$desired_python" == 3.8 ]]; then
+if [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
     export CMAKE_OSX_ARCHITECTURES=arm64
     export USE_MKLDNN=OFF
     export USE_NNPACK=OFF
