@@ -229,6 +229,7 @@ if "%NVIDIA_GPU_EXISTS%" == "0" (
     goto end
 )
 
+set BUILD_SPLIT_CUDA=
 if exist "%install_root%\lib\torch_cuda_cu.lib" if exist "%install_root%\lib\torch_cuda_cpp.lib" set BUILD_SPLIT_CUDA=ON
 
 if "%BUILD_SPLIT_CUDA%" == "ON" (
