@@ -125,6 +125,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # through gloo). This dependency is made available through meta.yaml, so
     # we can override the default and set USE_DISTRIBUTED=1.
     export USE_DISTRIBUTED=1
+
+    # testing cross compilation
+    if [[ "$CROSS_COMPILE_ARM64" == "1" ]]; then
+        export CMAKE_OSX_ARCHITECTURES=arm64
+        export USE_MKLDNN=OFF
+        export USE_NNPACK=OFF
+        export USE_QNNPACK=OFF
+        export BUILD_TEST=OFF
+    fi
 fi
 
 echo "Will build for all Pythons: ${DESIRED_PYTHON[@]}"
@@ -372,16 +381,18 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     conda install -y "$built_package"
 
-    # Run tests
-    echo "$(date) :: Running tests"
-    pushd "$pytorch_rootdir"
-    if [[ "$cpu_only" == 1 ]]; then
-        "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" 'cpu'
-    else
-        "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" "cu$cuda_nodot"
+    if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
+        # Run tests, unless it's for mac cross compiled arm64
+        echo "$(date) :: Running tests"
+        pushd "$pytorch_rootdir"
+        if [[ "$cpu_only" == 1 ]]; then
+            "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" 'cpu'
+        else
+            "${SOURCE_DIR}/../run_tests.sh" 'conda' "$py_ver" "cu$cuda_nodot"
+        fi
+        popd
+        echo "$(date) :: Finished tests"
     fi
-    popd
-    echo "$(date) :: Finished tests"
 
     # Clean up test folder
     source deactivate

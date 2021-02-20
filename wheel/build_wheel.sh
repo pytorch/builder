@@ -164,6 +164,14 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
+if [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
+    export CMAKE_OSX_ARCHITECTURES=arm64
+    export USE_MKLDNN=OFF
+    export USE_NNPACK=OFF
+    export USE_QNNPACK=OFF
+    export BUILD_TEST=OFF
+fi
+
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
 
@@ -202,12 +210,14 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
 
     pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
 
-    # Run the tests
-    echo "$(date) :: Running tests"
-    pushd "$pytorch_rootdir"
-    "${SOURCE_DIR}/../run_tests.sh" 'wheel' "$desired_python" 'cpu'
-    popd
-    echo "$(date) :: Finished tests"
+    if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
+        # Run the tests, unless it's cross compiled arm64
+        echo "$(date) :: Running tests"
+        pushd "$pytorch_rootdir"
+        "${SOURCE_DIR}/../run_tests.sh" 'wheel' "$desired_python" 'cpu'
+        popd
+        echo "$(date) :: Finished tests"
+    fi
 else
     pushd "$pytorch_rootdir"
     mkdir -p build
