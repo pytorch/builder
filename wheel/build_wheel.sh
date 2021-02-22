@@ -101,6 +101,8 @@ if [[ "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
 elif [[ "$desired_python" == 2.7 ]]; then
     mac_version='macosx_10_7_x86_64'
+elif [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
+    mac_version='macosx_11_1_arm64'
 else
     mac_version='macosx_10_9_x86_64'
 fi

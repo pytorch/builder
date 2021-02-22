@@ -65,6 +65,12 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     build_version="$OVERRIDE_PACKAGE_VERSION"
     build_number=0
 fi
+
+# testing cross compilation
+if [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
+    build_version="$build_version.arm64"
+fi
+
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
@@ -127,7 +133,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     export USE_DISTRIBUTED=1
 
     # testing cross compilation
-    if [[ "$CROSS_COMPILE_ARM64" == "1" ]]; then
+    if [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
         export CMAKE_OSX_ARCHITECTURES=arm64
         export USE_MKLDNN=OFF
         export USE_NNPACK=OFF
