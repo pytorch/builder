@@ -101,7 +101,7 @@ if [[ "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
 elif [[ "$desired_python" == 2.7 ]]; then
     mac_version='macosx_10_7_x86_64'
-elif [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
+elif [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     mac_version='macosx_11_1_arm64'
 else
     mac_version='macosx_10_9_x86_64'
@@ -166,7 +166,7 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-if [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
+if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export CMAKE_OSX_ARCHITECTURES=arm64
     export USE_MKLDNN=OFF
     export USE_NNPACK=OFF
