@@ -385,10 +385,10 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         cp "$built_package" "$PYTORCH_FINAL_PACKAGE_DIR/"
     fi
 
-    conda install -y "$built_package"
-
+    # Install the built package and run tests, unless it's for mac cross compiled arm64
     if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
-        # Run tests, unless it's for mac cross compiled arm64
+        conda install -y "$built_package"
+
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"
         if [[ "$cpu_only" == 1 ]]; then

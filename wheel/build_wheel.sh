@@ -202,18 +202,17 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     cp "$whl_tmp_dir/$wheel_filename_gen" "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new"
 
     ##########################
-    # now test the binary
-    pip uninstall -y "$TORCH_PACKAGE_NAME" || true
-    pip uninstall -y "$TORCH_PACKAGE_NAME" || true
-
-    # Create new "clean" conda environment for testing
-    conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "test_conda_env" python="$desired_python"
-    conda activate test_conda_env
-
-    pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
-
+    # now test the binary, unless it's cross compiled arm64
     if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
-        # Run the tests, unless it's cross compiled arm64
+        pip uninstall -y "$TORCH_PACKAGE_NAME" || true
+        pip uninstall -y "$TORCH_PACKAGE_NAME" || true
+
+        # Create new "clean" conda environment for testing
+        conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "test_conda_env" python="$desired_python"
+        conda activate test_conda_env
+
+        pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
+
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"
         "${SOURCE_DIR}/../run_tests.sh" 'wheel' "$desired_python" 'cpu'
