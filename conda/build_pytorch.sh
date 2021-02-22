@@ -65,6 +65,12 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
     build_version="$OVERRIDE_PACKAGE_VERSION"
     build_number=0
 fi
+
+# differentiate package name for cross compilation to avoid collision
+if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+    build_version="$build_version.arm64"
+fi
+
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
@@ -127,7 +133,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     export USE_DISTRIBUTED=1
 
     # testing cross compilation
-    if [[ "$CROSS_COMPILE_ARM64" == "1" ]]; then
+    if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
         export CMAKE_OSX_ARCHITECTURES=arm64
         export USE_MKLDNN=OFF
         export USE_NNPACK=OFF
@@ -379,10 +385,10 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         cp "$built_package" "$PYTORCH_FINAL_PACKAGE_DIR/"
     fi
 
-    conda install -y "$built_package"
-
+    # Install the built package and run tests, unless it's for mac cross compiled arm64
     if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
-        # Run tests, unless it's for mac cross compiled arm64
+        conda install -y "$built_package"
+
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"
         if [[ "$cpu_only" == 1 ]]; then

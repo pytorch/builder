@@ -101,6 +101,8 @@ if [[ "$desired_python" == 3.5 ]]; then
     mac_version='macosx_10_6_x86_64'
 elif [[ "$desired_python" == 2.7 ]]; then
     mac_version='macosx_10_7_x86_64'
+elif [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+    mac_version='macosx_11_1_arm64'
 else
     mac_version='macosx_10_9_x86_64'
 fi
@@ -164,7 +166,7 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-if [[ "$CROSS_COMPILE_ARM64" == 1 ]]; then
+if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export CMAKE_OSX_ARCHITECTURES=arm64
     export USE_MKLDNN=OFF
     export USE_NNPACK=OFF
@@ -200,18 +202,17 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     cp "$whl_tmp_dir/$wheel_filename_gen" "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new"
 
     ##########################
-    # now test the binary
-    pip uninstall -y "$TORCH_PACKAGE_NAME" || true
-    pip uninstall -y "$TORCH_PACKAGE_NAME" || true
-
-    # Create new "clean" conda environment for testing
-    conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "test_conda_env" python="$desired_python"
-    conda activate test_conda_env
-
-    pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
-
+    # now test the binary, unless it's cross compiled arm64
     if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
-        # Run the tests, unless it's cross compiled arm64
+        pip uninstall -y "$TORCH_PACKAGE_NAME" || true
+        pip uninstall -y "$TORCH_PACKAGE_NAME" || true
+
+        # Create new "clean" conda environment for testing
+        conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "test_conda_env" python="$desired_python"
+        conda activate test_conda_env
+
+        pip install "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new" -v
+
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"
         "${SOURCE_DIR}/../run_tests.sh" 'wheel' "$desired_python" 'cpu'
