@@ -95,11 +95,7 @@ if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
-if "%DESIRED_PYTHON%" == "3.6" (
-    call conda install -yq future numpy protobuf six dataclasses
-) else (
-    call conda install %CONDA_EXTRA_ARGS% -yq future numpy protobuf six
-)
+call conda install %CONDA_EXTRA_ARGS% -yq future protobuf six
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
