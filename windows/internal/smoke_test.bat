@@ -118,11 +118,8 @@ if ERRORLEVEL 1 exit /b 1
 
 if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
-if "%CUDA_VERSION_STR%" == "9.2" (
-    call conda install %CONDA_EXTRA_ARGS% -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch -c defaults -c numba/label/dev
-) else (
-    call conda install %CONDA_EXTRA_ARGS% -y "cudatoolkit=%CUDA_VERSION_STR%" -c pytorch
-)
+:: We do an update --all here since that will install the dependencies for any package that's installed offline
+call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
 if ERRORLEVEL 1 exit /b 1
 
 goto smoke_test
