@@ -61,35 +61,24 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
-    EXTRA_CONDA_FLAGS=""
-    if [[ "$(python --version 2>&1)" == *3.9.* || "$DESIRED_CUDA" == cu111 || "$DESIRED_CUDA" == cu112 ]]; then
-      EXTRA_CONDA_FLAGS="-c=conda-forge"
-    fi
-
-    # Warning: if you've already manually installed the built conda package
-    # your environment is probably inconsistent (because most of the packages
-    # have a feature requirement).  If we post-facto install the feature,
-    # that will make the environment consistent again.
-    if [[ "$cuda_ver" != 'cpu' ]]; then
-        # Windows CUDA 9.2 packages is not available in the defaults channel.
-        retry conda install -yq ${EXTRA_CONDA_FLAGS} -c defaults -c numba/label/dev cudatoolkit=$cuda_ver_majmin
+    EXTRA_CONDA_FLAGS="-c=conda-forge"
+    # Why are there two different ways to install dependencies after installing an offline package?
+    # The "cpu" conda package for pytorch doesn't actually depend on "cpuonly" which means that
+    # when we attempt to update dependencies using "conda update --all" it will attempt to install
+    # whatever "cudatoolkit" your current computer relies on (which is sometimes none). When conda
+    # tries to install this cudatoolkit that correlates with your current hardware it will also
+    # overwrite the currently installed "local" pytorch package meaning you aren't actually testing
+    # the right package.
+    # TODO (maybe): Make the "cpu" package of pytorch depend on "cpuonly"
+    if [[ "$cuda_ver" = 'cpu' ]]; then
+      # Installing cpuonly will also install dependencies as well
+      retry conda install -y -c pytorch ${EXTRA_CONDA_FLAGS} cpuonly
     else
-        # We DON'T want to install cpuonly, because it should not be
-        # necessary for OS X PyTorch which is always cpu only by default
-        if [[ "$(uname)" != Darwin  ]]; then
-            retry conda install -yq ${EXTRA_CONDA_FLAGS} cpuonly -c pytorch
-        fi
+      # Install dependencies from installing the pytorch conda package offline
+      retry conda update -yq --all -c defaults -c pytorch -c numba/label/dev ${EXTRA_CONDA_FLAGS}
     fi
-    if [[ "$(python --version 2>&1)" == *3.9.* ]]; then
-        retry conda install -yq ${EXTRA_CONDA_FLAGS} future hypothesis ninja protobuf pytest setuptools six typing_extensions pyyaml
-    elif [[ "$(python --version 2>&1)" == *3.8.* ]]; then
-        retry conda install -yq future hypothesis mkl>=2018 ninja numpy>=1.15 protobuf pytest setuptools six typing_extensions pyyaml
-    elif [[ "$(python --version 2>&1)" == *3.6.* ]]; then
-        retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing_extensions pyyaml requests dataclasses
-    else
-        retry conda install -yq cffi future hypothesis mkl>=2018 ninja numpy>=1.11 protobuf pytest setuptools six typing_extensions pyyaml requests
-    fi
-
+    # Install the testing dependencies
+    retry conda install -yq ${EXTRA_CONDA_FLAGS} future hypothesis ninja protobuf pytest setuptools six typing_extensions pyyaml
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
