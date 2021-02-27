@@ -35,8 +35,8 @@ set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 
 set DISTUTILS_USE_SDK=1
 
-curl https://s3.amazonaws.com/ossci-windows/mkl_2020.0.166.7z -k -O
-7z x -aoa mkl_2020.0.166.7z -omkl
+curl https://s3.amazonaws.com/ossci-windows/mkl_2020.2.254.7z -k -O
+7z x -aoa mkl_2020.2.254.7z -omkl
 set CMAKE_INCLUDE_PATH=%SRC_DIR%\mkl\include
 set LIB=%SRC_DIR%\mkl\lib;%LIB%
 
