@@ -236,8 +236,24 @@ def start_build(host: RemoteHost, *,
     build_OpenBLAS(host, git_clone_flags)
     # build_FFTW(host, git_clone_flags)
 
+    if host.using_docker():
+        print("Move libgfortant.a into a standard location")
+        # HACK: pypa gforntran.a is compiled without PIC, which leads to the following error
+        #libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'
+        # Workaround by copying gfortran library from the host
+        host.run_ssh_cmd("sudo apt-get install -y gfortran-8")
+        host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/8")
+        host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/8/libgfortran.a", f"{host.container_id}:/usr/lib/gcc/aarch64-linux-gnu/8/"])
+        #host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu")
+        #host.run_cmd("ln -sf  /opt/rh/devtoolset-9/root/usr/lib/gcc/aarch64-redhat-linux/9 /usr/lib/gcc/aarch64-linux-gnu/")
+
     print('Checking out PyTorch repo')
     host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
+
+    # Patch FindBLAS.cmake
+    # To be removed after https://github.com/pytorch/pytorch/pull/53168 is merged
+    host.run_cmd("sed -i s/OpenBLAS_FOUND/NO/  pytorch/cmake/Modules/FindBLAS.cmake")
+
     print('Building PyTorch wheel')
     build_vars = ""
     if branch == 'nightly':
