@@ -54,7 +54,8 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
 class RemoteHost:
     addr: str
     keyfile_path: str
-    container_id: Optional[str]
+    container_id: Optional[str] = None
+    ami: Optional[str] = None
 
     def __init__(self, addr: str, keyfile_path: str):
         self.addr = addr
@@ -63,13 +64,15 @@ class RemoteHost:
     def _gen_ssh_prefix(self) -> List[str]:
         return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"ubuntu@{self.addr}", "--"]
 
+    @staticmethod
+    def _split_cmd(args: Union[str, List[str]]) -> List[str]:
+        return args.split() if isinstance(args, str) else args
+
     def run_ssh_cmd(self, args: Union[str, List[str]]) -> None:
-        subprocess.check_call(self._gen_ssh_prefix() + (args.split() if isinstance(args, str) else args))
+        subprocess.check_call(self._gen_ssh_prefix() + self._split_cmd(args))
 
     def check_ssh_output(self, args: Union[str, List[str]]) -> str:
-        if isinstance(args, str):
-            args = args.split()
-        return subprocess.check_output(self._gen_ssh_prefix() + args).decode("utf-8")
+        return subprocess.check_output(self._gen_ssh_prefix() + self._split_cmd(args)).decode("utf-8")
 
     def scp_upload_file(self, local_file: str, remote_file: str) -> None:
         subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"ubuntu@{self.addr}:{remote_file}"])
@@ -79,23 +82,52 @@ class RemoteHost:
             local_file = "."
         subprocess.check_call(["scp", "-i", self.keyfile_path, f"ubuntu@{self.addr}:{remote_file}", local_file])
 
-    def install_docker(self, image="quay.io/pypa/manylinux2014_aarch64:latest") -> None:
+    def start_docker(self, image="quay.io/pypa/manylinux2014_aarch64:latest") -> None:
         self.run_ssh_cmd("sudo apt-get install -y docker.io")
         self.run_ssh_cmd("sudo usermod -a -G docker ubuntu")
         self.run_ssh_cmd("sudo service docker start")
         self.run_ssh_cmd(f"docker pull {image}")
+        self.container_id = self.check_ssh_output(f"docker run -t -d -w /root {image}").strip()
+
+    def using_docker(self) -> bool:
+        return self.container_id is not None
 
     def run_cmd(self, args: Union[str, List[str]]) -> None:
-        return self.run_ssh_cmd(args)
+        if not self.using_docker():
+            return self.run_ssh_cmd(args)
+        docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
+        p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE)
+        p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
+        rc = p.wait()
+        if rc != 0:
+            raise subprocess.CalledProcessError(rc, docker_cmd)
 
     def check_output(self, args: Union[str, List[str]]) -> str:
-        return self.check_ssh_output(args)
+        if not self.using_docker():
+            return self.check_ssh_output(args)
+        docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
+        p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        (out, err) = p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
+        rc = p.wait()
+        if rc != 0:
+            raise subprocess.CalledProcessError(rc, docker_cmd, output=out, stderr = err)
+        return out.decode("utf-8")
 
     def upload_file(self, local_file: str, remote_file: str) -> None:
-        return self.scp_upload_file(local_file, remote_file)
+        if not self.using_docker():
+            return self.scp_upload_file(local_file, remote_file)
+        tmp_file = os.path.join("/tmp", os.path.basename(local_file))
+        self.scp_upload_file(local_file, tmp_file)
+        self.run_ssh_cmd(["docker", "cp", tmp_file, f"{self.container_id}:/root/{remote_file}"])
+        self.run_ssh_cmd(["rm", tmp_file])
 
     def download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
-        return self.scp_download_file(remote_file, local_file)
+        if not self.using_docker():
+            return self.scp_download_file(remote_file, local_file)
+        tmp_file=os.path.join("/tmp", os.path.basename(remote_file))
+        self.run_ssh_cmd(["docker", "cp", f"{self.container_id}:/root/{remote_file}", tmp_file])
+        self.scp_download_file(tmp_file, local_file)
+        self.run_ssh_cmd(["rm", tmp_file])
 
     def list_dir(self, path: str) -> List[str]:
         return self.check_output(["ls", "-1", path]).split("\n")
@@ -128,7 +160,10 @@ def install_condaforge(host: RemoteHost) -> None:
     print('Install conda-forge')
     host.run_cmd("curl -OL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh")
     host.run_cmd("sh -f Miniforge3-Linux-aarch64.sh -b")
-    host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
+    if host.using_docker():
+        host.run_cmd("echo 'PATH=$HOME/miniforge3/bin:$PATH'>>.bashrc")
+    else:
+        host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
 
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -167,19 +202,28 @@ def start_build(host: RemoteHost, *,
                 python_version="3.8",
                 keep_running=False,
                 shallow_clone=True) -> Tuple[str, str]:
+    if host.using_docker() and not use_conda:
+        print("Auto-selecting conda option for docker images")
+        use_conda = True
+
     if use_conda:
         install_condaforge(host)
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     print('Configuring the system')
-    update_apt_repo(host)
+    if not host.using_docker():
+        update_apt_repo(host)
+        host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
+    else:
+        host.run_cmd("yum install -y sudo")
+        host.run_cmd("conda install -y ninja")
 
-    host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     if not use_conda:
         host.run_cmd("sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
     host.run_cmd("pip3 install dataclasses typing-extensions")
     # Install and switch to gcc-8 on Ubuntu-18.04
-    if ami == ubuntu18_04_ami and compiler == 'gcc-8':
+    if not host.using_docker() and host.ami == ubuntu18_04_ami and compiler == 'gcc-8':
         host.run_cmd("sudo apt-get install -y g++-8 gfortran-8")
         host.run_cmd("sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
         host.run_cmd("sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
@@ -333,6 +377,7 @@ def parse_arguments():
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
     parser.add_argument("--branch", type=str, default="master")
+    parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     return parser.parse_args()
 
@@ -364,6 +409,10 @@ if __name__ == '__main__':
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     host = RemoteHost(addr, keyfile_path)
+    host.ami = ami
+    if args.use_docker:
+        update_apt_repo(host)
+        host.start_docker()
 
     if args.test_only:
         run_tests(host, args.test_only)
