@@ -195,7 +195,10 @@ def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
         host.upload_file(tmp.name, "embed_library.py")
 
     print('Embedding libgomp into wheel')
-    host.run_cmd(f"python3 embed_library.py {wheel_name}")
+    if host.using_docker():
+        host.run_cmd(f"python3 embed_library.py {wheel_name} --update-tag")
+    else:
+        host.run_cmd(f"python3 embed_library.py {wheel_name}")
 
 
 def start_build(host: RemoteHost, *,
@@ -319,7 +322,20 @@ import sys
 from tempfile import TemporaryDirectory
 
 
-def embed_library(whl_path, lib_soname):
+def replace_tag(filename):
+   with open(filename, 'r') as f:
+     lines = f.read().split("\\n")
+   for i,line in enumerate(lines):
+       if not line.startswith("Tag: "):
+           continue
+       lines[i] = line.replace("-linux_", "-manylinux2014_")
+       print(f'Updated tag from {line} to {lines[i]}')
+
+   with open(filename, 'w') as f:
+       f.write("\\n".join(lines))
+
+
+def embed_library(whl_path, lib_soname, update_tag=False):
     patcher = Patchelf()
     out_dir = TemporaryDirectory()
     whl_name = os.path.basename(whl_path)
@@ -345,11 +361,17 @@ def embed_library(whl_path, lib_soname):
                 new_lib_soname, new_lib_path = copylib(lib_path, torchlib_path, patcher)
             patcher.replace_needed(filename, lib_soname, new_lib_soname)
             print(f'Replacing {lib_soname} with {new_lib_soname} for {filename}')
+        if update_tag:
+            # Add manylinux2014 tag
+            for filename in ctx.iter_files():
+                if os.path.basename(filename) != 'WHEEL':
+                    continue
+                replace_tag(filename)
     shutil.move(tmp_whl_name, whl_path)
 
 
 if __name__ == '__main__':
-    embed_library(sys.argv[1], 'libgomp.so.1')
+    embed_library(sys.argv[1], 'libgomp.so.1', len(sys.argv) > 2 and sys.argv[2] == '--update-tag')
 """
 
 
