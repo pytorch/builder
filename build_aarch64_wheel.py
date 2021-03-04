@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import time
-from typing import Tuple
+from typing import List, Optional, Tuple, Union
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
@@ -13,15 +13,15 @@ ubuntu18_04_ami = "ami-0f2b111fdc1647918"
 ubuntu20_04_ami = "ami-0ea142bd244023692"
 
 
-def compute_keyfile_path(key_name=None):
+def compute_keyfile_path(key_name: Optional[str] = None) -> Tuple[str, str]:
     if key_name is None:
         key_name = os.getenv("AWS_KEY_NAME")
+        if key_name is None:
+            return os.getenv("SSH_KEY_PATH", ""), ""
+
     homedir_path = os.path.expanduser("~")
     default_path = os.path.join(homedir_path, ".ssh", f"{key_name}.pem")
     return os.getenv("SSH_KEY_PATH", default_path), key_name
-
-
-keyfile_path = None
 
 
 ec2 = boto3.resource("ec2")
@@ -54,20 +54,86 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
     return running_inst
 
 
-def _gen_ssh_prefix(addr):
-    return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", keyfile_path, f"ubuntu@{addr}", "--"]
+class RemoteHost:
+    addr: str
+    keyfile_path: str
+    container_id: Optional[str] = None
+    ami: Optional[str] = None
 
+    def __init__(self, addr: str, keyfile_path: str):
+        self.addr = addr
+        self.keyfile_path = keyfile_path
 
-def run_ssh(addr, args):
-    subprocess.check_call(_gen_ssh_prefix(addr) + (args.split() if isinstance(args, str) else args))
+    def _gen_ssh_prefix(self) -> List[str]:
+        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"ubuntu@{self.addr}", "--"]
 
+    @staticmethod
+    def _split_cmd(args: Union[str, List[str]]) -> List[str]:
+        return args.split() if isinstance(args, str) else args
 
-def check_output(addr, args):
-    return subprocess.check_output(_gen_ssh_prefix(addr) + (args.split() if isinstance(args, str) else args)).decode("utf-8")
+    def run_ssh_cmd(self, args: Union[str, List[str]]) -> None:
+        subprocess.check_call(self._gen_ssh_prefix() + self._split_cmd(args))
 
+    def check_ssh_output(self, args: Union[str, List[str]]) -> str:
+        return subprocess.check_output(self._gen_ssh_prefix() + self._split_cmd(args)).decode("utf-8")
 
-def list_dir(addr, path):
-    return check_output(addr, ["ls", "-1", path]).split("\n")
+    def scp_upload_file(self, local_file: str, remote_file: str) -> None:
+        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"ubuntu@{self.addr}:{remote_file}"])
+
+    def scp_download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
+        if local_file is None:
+            local_file = "."
+        subprocess.check_call(["scp", "-i", self.keyfile_path, f"ubuntu@{self.addr}:{remote_file}", local_file])
+
+    def start_docker(self, image="quay.io/pypa/manylinux2014_aarch64:latest") -> None:
+        self.run_ssh_cmd("sudo apt-get install -y docker.io")
+        self.run_ssh_cmd("sudo usermod -a -G docker ubuntu")
+        self.run_ssh_cmd("sudo service docker start")
+        self.run_ssh_cmd(f"docker pull {image}")
+        self.container_id = self.check_ssh_output(f"docker run -t -d -w /root {image}").strip()
+
+    def using_docker(self) -> bool:
+        return self.container_id is not None
+
+    def run_cmd(self, args: Union[str, List[str]]) -> None:
+        if not self.using_docker():
+            return self.run_ssh_cmd(args)
+        docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
+        p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE)
+        p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
+        rc = p.wait()
+        if rc != 0:
+            raise subprocess.CalledProcessError(rc, docker_cmd)
+
+    def check_output(self, args: Union[str, List[str]]) -> str:
+        if not self.using_docker():
+            return self.check_ssh_output(args)
+        docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
+        p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        (out, err) = p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
+        rc = p.wait()
+        if rc != 0:
+            raise subprocess.CalledProcessError(rc, docker_cmd, output=out, stderr = err)
+        return out.decode("utf-8")
+
+    def upload_file(self, local_file: str, remote_file: str) -> None:
+        if not self.using_docker():
+            return self.scp_upload_file(local_file, remote_file)
+        tmp_file = os.path.join("/tmp", os.path.basename(local_file))
+        self.scp_upload_file(local_file, tmp_file)
+        self.run_ssh_cmd(["docker", "cp", tmp_file, f"{self.container_id}:/root/{remote_file}"])
+        self.run_ssh_cmd(["rm", tmp_file])
+
+    def download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
+        if not self.using_docker():
+            return self.scp_download_file(remote_file, local_file)
+        tmp_file=os.path.join("/tmp", os.path.basename(remote_file))
+        self.run_ssh_cmd(["docker", "cp", f"{self.container_id}:/root/{remote_file}", tmp_file])
+        self.scp_download_file(tmp_file, local_file)
+        self.run_ssh_cmd(["rm", tmp_file])
+
+    def list_dir(self, path: str) -> List[str]:
+        return self.check_output(["ls", "-1", path]).split("\n")
 
 
 def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
@@ -82,121 +148,156 @@ def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
             time.sleep(timeout)
 
 
-def update_apt_repo(addr):
+def update_apt_repo(host: RemoteHost) -> None:
     time.sleep(5)
-    run_ssh(addr, "sudo systemctl stop apt-daily.service || true")
-    run_ssh(addr, "sudo systemctl stop unattended-upgrades.service || true")
-    run_ssh(addr, "while systemctl is-active --quiet apt-daily.service; do sleep 1; done")
-    run_ssh(addr, "while systemctl is-active --quiet unattended-upgrades.service; do sleep 1; done")
-    run_ssh(addr, "sudo apt-get update")
+    host.run_cmd("sudo systemctl stop apt-daily.service || true")
+    host.run_cmd("sudo systemctl stop unattended-upgrades.service || true")
+    host.run_cmd("while systemctl is-active --quiet apt-daily.service; do sleep 1; done")
+    host.run_cmd("while systemctl is-active --quiet unattended-upgrades.service; do sleep 1; done")
+    host.run_cmd("sudo apt-get update")
     time.sleep(3)
-    run_ssh(addr, "sudo apt-get update")
+    host.run_cmd("sudo apt-get update")
 
 
-def install_condaforge(addr):
+def install_condaforge(host: RemoteHost) -> None:
     print('Install conda-forge')
-    run_ssh(addr, "curl -OL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh")
-    run_ssh(addr, "sh -f Miniforge3-Linux-aarch64.sh -b")
-    run_ssh(addr, ['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
+    host.run_cmd("curl -OL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh")
+    host.run_cmd("sh -f Miniforge3-Linux-aarch64.sh -b")
+    if host.using_docker():
+        host.run_cmd("echo 'PATH=$HOME/miniforge3/bin:$PATH'>>.bashrc")
+    else:
+        host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
 
 
-def embed_libgomp(addr, use_conda, wheel_name):
-    run_ssh(addr, "pip3 install auditwheel")
-    run_ssh(addr, "conda install -y patchelf" if use_conda else "sudo apt-get install -y patchelf")
+def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
+    print('Building OpenBLAS')
+    host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.10 {git_clone_flags}")
+    # TODO: Build with USE_OPENMP=1 support
+    host.run_cmd("pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install; popd")
+
+
+def build_FFTW(host: RemoteHost, git_clone_flags: str = "") -> None:
+    print("Building FFTW3")
+    host.run_cmd("sudo apt-get install -y ocaml ocamlbuild autoconf automake indent libtool fig2dev texinfo")
+    # TODO: fix a version to build
+    # TODO: consider adding flags --host=arm-linux-gnueabi --enable-single --enable-neon CC=arm-linux-gnueabi-gcc -march=armv7-a -mfloat-abi=softfp
+    host.run_cmd(f"git clone https://github.com/FFTW/fftw3 {git_clone_flags}")
+    host.run_cmd("pushd fftw3; sh bootstrap.sh; make -j8; sudo make install; popd")
+
+
+def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
+    host.run_cmd("pip3 install auditwheel")
+    host.run_cmd("conda install -y patchelf" if use_conda else "sudo apt-get install -y patchelf")
     from tempfile import NamedTemporaryFile
     with NamedTemporaryFile() as tmp:
         tmp.write(embed_library_script.encode('utf-8'))
         tmp.flush()
-        subprocess.check_call(["scp", "-i", keyfile_path, tmp.name, f"ubuntu@{addr}:embed_library.py"])
+        host.upload_file(tmp.name, "embed_library.py")
 
     print('Embedding libgomp into wheel')
-    run_ssh(addr, f"python3 embed_library.py {wheel_name}")
+    if host.using_docker():
+        host.run_cmd(f"python3 embed_library.py {wheel_name} --update-tag")
+    else:
+        host.run_cmd(f"python3 embed_library.py {wheel_name}")
 
 
-def start_build(key_name, *,
-                ami=ubuntu18_04_ami,
+def start_build(host: RemoteHost, *,
                 branch="master",
                 compiler="gcc-8",
                 use_conda=True,
                 python_version="3.8",
                 keep_running=False,
                 shallow_clone=True) -> Tuple[str, str]:
-    inst = start_instance(key_name, ami=ami)
-    addr = inst.public_dns_name
-    wait_for_connection(addr, 22)
+    if host.using_docker() and not use_conda:
+        print("Auto-selecting conda option for docker images")
+        use_conda = True
+
     if use_conda:
-        install_condaforge(addr)
-        run_ssh(addr, f"conda install -y python={python_version} numpy pyyaml")
+        install_condaforge(host)
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     print('Configuring the system')
-    update_apt_repo(addr)
+    if not host.using_docker():
+        update_apt_repo(host)
+        host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
+    else:
+        host.run_cmd("yum install -y sudo")
+        host.run_cmd("conda install -y ninja")
 
-    run_ssh(addr, "sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     if not use_conda:
-        run_ssh(addr, "sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
-    run_ssh(addr, "pip3 install dataclasses typing-extensions")
+        host.run_cmd("sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
+    host.run_cmd("pip3 install dataclasses typing-extensions")
     # Install and switch to gcc-8 on Ubuntu-18.04
-    if ami == ubuntu18_04_ami and compiler == 'gcc-8':
-        run_ssh(addr, "sudo apt-get install -y g++-8 gfortran-8")
-        run_ssh(addr, "sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
-        run_ssh(addr, "sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
-        run_ssh(addr, "sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 100")
+    if not host.using_docker() and host.ami == ubuntu18_04_ami and compiler == 'gcc-8':
+        host.run_cmd("sudo apt-get install -y g++-8 gfortran-8")
+        host.run_cmd("sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
+        host.run_cmd("sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
+        host.run_cmd("sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 100")
     if not use_conda:
         print("Installing Cython + numpy from PyPy")
-        run_ssh(addr, "sudo pip3 install Cython")
-        run_ssh(addr, "sudo pip3 install numpy")
-    # Build OpenBLAS
-    print('Building OpenBLAS')
-    run_ssh(addr, f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.10 {git_clone_flags}")
-    # TODO: Build with USE_OPENMP=1 support
-    run_ssh(addr, "pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install; popd")
+        host.run_cmd("sudo pip3 install Cython")
+        host.run_cmd("sudo pip3 install numpy")
 
-    # Build FFTW
-    print("Building FFTW3")
-    run_ssh(addr, "sudo apt-get install -y ocaml ocamlbuild autoconf automake indent libtool fig2dev texinfo")
-    # TODO: fix a version to build
-    # TODO: consider adding flags --host=arm-linux-gnueabi --enable-single --enable-neon CC=arm-linux-gnueabi-gcc -march=armv7-a -mfloat-abi=softfp
-    run_ssh(addr, f"git clone https://github.com/FFTW/fftw3 {git_clone_flags}")
-    run_ssh(addr, "pushd fftw3; sh bootstrap.sh; make -j8; sudo make install; popd")
+    build_OpenBLAS(host, git_clone_flags)
+    # build_FFTW(host, git_clone_flags)
+
+    if host.using_docker():
+        print("Move libgfortant.a into a standard location")
+        # HACK: pypa gforntran.a is compiled without PIC, which leads to the following error
+        #libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'
+        # Workaround by copying gfortran library from the host
+        host.run_ssh_cmd("sudo apt-get install -y gfortran-8")
+        host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/8")
+        host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/8/libgfortran.a", f"{host.container_id}:/usr/lib/gcc/aarch64-linux-gnu/8/"])
+        #host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu")
+        #host.run_cmd("ln -sf  /opt/rh/devtoolset-9/root/usr/lib/gcc/aarch64-redhat-linux/9 /usr/lib/gcc/aarch64-linux-gnu/")
 
     print('Checking out PyTorch repo')
-    run_ssh(addr, f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
+    host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
+
+    # Patch FindBLAS.cmake
+    # To be removed after https://github.com/pytorch/pytorch/pull/53168 is merged
+    host.run_cmd("sed -i s/OpenBLAS_FOUND/NO/  pytorch/cmake/Modules/FindBLAS.cmake")
+
     print('Building PyTorch wheel')
-    build_vars=""
+    build_vars = ""
     if branch == 'nightly':
-        build_date = check_output(addr, "cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
-        version = check_output(addr, "cat pytorch/version.txt").strip()[:-2]
+        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        version = host.check_output("cat pytorch/version.txt").strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
     if branch.startswith("v1."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
-    run_ssh(addr, f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
-    pytorch_wheel_name = list_dir(addr, "pytorch/dist")[0]
-    embed_libgomp(addr, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
+    host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+    pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
-    subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:pytorch/dist/*.whl", "."])
+    host.download_file(os.path.join('pytorch', 'dist', pytorch_wheel_name))
 
     print('Checking out TorchVision repo')
     if branch.startswith("v1.7.1"):
-        run_ssh(addr, f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
+    if branch.startswith("v1.8.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
     else:
-        run_ssh(addr, f"git clone https://github.com/pytorch/vision {git_clone_flags}")
+        host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
-    run_ssh(addr, f"pip3 install pytorch/dist/{pytorch_wheel_name}")
+    host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
     print('Building TorchVision wheel')
-    build_vars=""
+    build_vars = ""
     if branch == 'nightly':
-        version = check_output(addr, ["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
+        version = host.check_output(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
         if len(version) == 0:
             # In older revisions, version was embedded in setup.py
-            version = check_output(addr, ["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
+            version = host.check_output(["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.7.1"):
         build_vars += f"BUILD_VERSION=0.8.2"
 
-    run_ssh(addr, f"cd vision; {build_vars} python3 setup.py bdist_wheel")
-    vision_wheel_name = list_dir(addr, "vision/dist")[0]
+    host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
+    vision_wheel_name = host.list_dir("vision/dist")[0]
     print('Copying TorchVision wheel')
-    subprocess.check_call(["scp", "-i", keyfile_path, f"ubuntu@{addr}:vision/dist/*.whl", "."])
+    host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
 
     if keep_running:
         return pytorch_wheel_name, vision_wheel_name
@@ -221,7 +322,20 @@ import sys
 from tempfile import TemporaryDirectory
 
 
-def embed_library(whl_path, lib_soname):
+def replace_tag(filename):
+   with open(filename, 'r') as f:
+     lines = f.read().split("\\n")
+   for i,line in enumerate(lines):
+       if not line.startswith("Tag: "):
+           continue
+       lines[i] = line.replace("-linux_", "-manylinux2014_")
+       print(f'Updated tag from {line} to {lines[i]}')
+
+   with open(filename, 'w') as f:
+       f.write("\\n".join(lines))
+
+
+def embed_library(whl_path, lib_soname, update_tag=False):
     patcher = Patchelf()
     out_dir = TemporaryDirectory()
     whl_name = os.path.basename(whl_path)
@@ -247,29 +361,31 @@ def embed_library(whl_path, lib_soname):
                 new_lib_soname, new_lib_path = copylib(lib_path, torchlib_path, patcher)
             patcher.replace_needed(filename, lib_soname, new_lib_soname)
             print(f'Replacing {lib_soname} with {new_lib_soname} for {filename}')
+        if update_tag:
+            # Add manylinux2014 tag
+            for filename in ctx.iter_files():
+                if os.path.basename(filename) != 'WHEEL':
+                    continue
+                replace_tag(filename)
     shutil.move(tmp_whl_name, whl_path)
 
 
 if __name__ == '__main__':
-    whl_name='torch-1.8.0.dev20201108-cp38-cp38-linux_aarch64.whl'
-    embed_library(sys.argv[1], 'libgomp.so.1')
+    embed_library(sys.argv[1], 'libgomp.so.1', len(sys.argv) > 2 and sys.argv[2] == '--update-tag')
 """
 
 
-def run_tests(ami, whl, branch='master'):
-    inst = start_instance(ami)
-    addr = inst.public_dns_name
-    wait_for_connection(addr, 22)
+def run_tests(host: RemoteHost, whl: str, branch='master') -> None:
     print(f'Configuring the system')
-    update_apt_repo(addr)
-    run_ssh(addr, "sudo apt-get install -y python3-pip git")
-    run_ssh(addr, "sudo pip3 install Cython")
-    run_ssh(addr, "sudo pip3 install numpy")
-    subprocess.check_call(["scp", "-i", keyfile_path, whl, f"ubuntu@{addr}:"])
-    run_ssh(addr, f"sudo pip3 install {whl}")
-    run_ssh(addr, "python3 -c 'import torch;print(torch.rand((3,3))'")
-    run_ssh(addr, f"git clone -b {branch} https://github.com/pytorch/pytorch")
-    run_ssh(addr, "cd pytorch/test; python3 test_torch.py -v")
+    update_apt_repo(host)
+    host.run_cmd("sudo apt-get install -y python3-pip git")
+    host.run_cmd("sudo pip3 install Cython")
+    host.run_cmd("sudo pip3 install numpy")
+    host.upload_file(whl, ".")
+    host.run_cmd(f"sudo pip3 install {whl}")
+    host.run_cmd("python3 -c 'import torch;print(torch.rand((3,3))'")
+    host.run_cmd(f"git clone -b {branch} https://github.com/pytorch/pytorch")
+    host.run_cmd("cd pytorch/test; python3 test_torch.py -v")
 
 
 def list_instances(instance_type: str) -> None:
@@ -304,6 +420,7 @@ def parse_arguments():
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
     parser.add_argument("--branch", type=str, default="master")
+    parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     return parser.parse_args()
 
@@ -321,28 +438,35 @@ if __name__ == '__main__':
         terminate_instances(args.instance_type)
         sys.exit(0)
 
-    if key_name is None:
+    if len(key_name) == 0:
         raise Exception("""
             Cannot start build without key_name, please specify
             --key-name argument or AWS_KEY_NAME environment variable.""")
-    if keyfile_path is None or not os.path.exists(keyfile_path):
+    if len(keyfile_path) == 0 or not os.path.exists(keyfile_path):
         raise Exception(f"""
             Cannot find keyfile with name: [{key_name}] in path: [{keyfile_path}], please
             check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
 
+    # Starting the instance
+    inst = start_instance(key_name, ami=ami)
+    addr = inst.public_dns_name
+    wait_for_connection(addr, 22)
+    host = RemoteHost(addr, keyfile_path)
+    host.ami = ami
+    if args.use_docker:
+        update_apt_repo(host)
+        host.start_docker()
+
     if args.test_only:
-        run_tests(ami, args.test_only)
+        run_tests(host, args.test_only)
         sys.exit(0)
 
     if args.alloc_instance:
-        inst = start_instance(key_name, ami, args.instance_type)
         if args.python_version is None:
             sys.exit(0)
-        addr = inst.public_dns_name
-        wait_for_connection(addr, 22)
-        install_condaforge(addr)
-        run_ssh(addr, f"conda install -y python={args.python_version} numpy pyyaml")
+        install_condaforge(host)
+        host.run_cmd(f"conda install -y python={args.python_version} numpy pyyaml")
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(key_name, ami=ami, branch=args.branch, compiler=args.compiler, python_version=python_version, keep_running=args.keep_running)
+    start_build(host, branch=args.branch, compiler=args.compiler, python_version=python_version, keep_running=args.keep_running)
