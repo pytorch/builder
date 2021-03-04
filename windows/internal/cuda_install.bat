@@ -154,7 +154,7 @@ if not exist "%SRC_DIR%\temp_build\NvToolsExt.7z" (
     if errorlevel 1 exit /b 1
 )
 
-if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.7z" (
+if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
     curl -k -L "https://drive.google.com/u/0/uc?id=1injUyo3lnarMgWyRcXqKg4UGnN0ysmuq&export=download" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
     if errorlevel 1 exit /b 1
 )
