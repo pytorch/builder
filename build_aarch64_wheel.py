@@ -274,6 +274,8 @@ def start_build(host: RemoteHost, *,
     print('Checking out TorchVision repo')
     if branch.startswith("v1.7.1"):
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
+    if branch.startswith("v1.8.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
