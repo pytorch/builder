@@ -15,7 +15,10 @@ ubuntu20_04_ami = "ami-0ea142bd244023692"
 
 def compute_keyfile_path(key_name: Optional[str] = None) -> Tuple[str, str]:
     if key_name is None:
-        key_name = os.getenv("AWS_KEY_NAME", "")
+        key_name = os.getenv("AWS_KEY_NAME")
+        if key_name is None:
+            return os.getenv("SSH_KEY_PATH", ""), ""
+
     homedir_path = os.path.expanduser("~")
     default_path = os.path.join(homedir_path, ".ssh", f"{key_name}.pem")
     return os.getenv("SSH_KEY_PATH", default_path), key_name
@@ -411,11 +414,11 @@ if __name__ == '__main__':
         terminate_instances(args.instance_type)
         sys.exit(0)
 
-    if key_name is None:
+    if len(key_name) == 0:
         raise Exception("""
             Cannot start build without key_name, please specify
             --key-name argument or AWS_KEY_NAME environment variable.""")
-    if keyfile_path is None or not os.path.exists(keyfile_path):
+    if len(keyfile_path) == 0 or not os.path.exists(keyfile_path):
         raise Exception(f"""
             Cannot find keyfile with name: [{key_name}] in path: [{keyfile_path}], please
             check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
