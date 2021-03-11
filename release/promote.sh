@@ -3,12 +3,12 @@
 set -eou pipefail
 
 # Make sure to update these versions when doing a release first
-PYTORCH_VERSION=${PYTORCH_VERSION:-1.6.0}
-TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.7.0}
-TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-0.6.0}
-TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.7.0}
+PYTORCH_VERSION=${PYTORCH_VERSION:-1.8.0}
+TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.9.0}
+TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-0.8.0}
+TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.9.0}
 TORCHSERVE_VERSION=${TORCHSERVE_VERSION:-0.2.1}
-TORCHCSPRNG_VERSION=${TORCHCSPRNG_VERSION:-0.1.2}
+TORCHCSPRNG_VERSION=${TORCHCSPRNG_VERSION:-0.2.0}
 
 PYTORCH_DIR=${PYTORCH_DIR:-~/pytorch}
 
@@ -69,27 +69,33 @@ promote_pypi() {
     echo
 }
 
-promote_s3 torch whl "${PYTORCH_VERSION}"
-promote_s3 torchvision whl "${TORCHVISION_VERSION}"
-promote_s3 torchaudio whl "${TORCHAUDIO_VERSION}"
-promote_s3 torchtext whl "${TORCHTEXT_VERSION}"
-promote_s3 torchserve whl "${TORCHSERVE_VERSION}"
-promote_s3 torch_model_archiver whl "${TORCHSERVE_VERSION}"
-promote_s3 torchcsprng whl "${TORCHCSPRNG_VERSION}"
+# promote_s3 torch whl "${PYTORCH_VERSION}"
+# promote_s3 torchvision whl "${TORCHVISION_VERSION}"
+# promote_s3 torchaudio whl "${TORCHAUDIO_VERSION}"
+# promote_s3 torchtext whl "${TORCHTEXT_VERSION}"
+# promote_s3 torchserve whl "${TORCHSERVE_VERSION}"
+# promote_s3 torch_model_archiver whl "${TORCHSERVE_VERSION}"
+# promote_s3 torchcsprng whl "${TORCHCSPRNG_VERSION}"
 
-promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
+# promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
 
-promote_conda pytorch conda "${PYTORCH_VERSION}"
-promote_conda torchvision conda "${TORCHVISION_VERSION}"
-promote_conda torchaudio conda "${TORCHAUDIO_VERSION}"
-promote_conda torchtext conda "${TORCHTEXT_VERSION}"
-promote_conda torchserve conda "${TORCHSERVE_VERSION}"
-promote_conda torch-model-archiver conda "${TORCHSERVE_VERSION}"
-promote_conda torchcsprng conda "${TORCHCSPRNG_VERSION}"
+# promote_conda pytorch conda "${PYTORCH_VERSION}"
+# promote_conda torchvision conda "${TORCHVISION_VERSION}"
+# promote_conda torchaudio conda "${TORCHAUDIO_VERSION}"
+# promote_conda torchtext conda "${TORCHTEXT_VERSION}"
+# promote_conda torchserve conda "${TORCHSERVE_VERSION}"
+# promote_conda torch-model-archiver conda "${TORCHSERVE_VERSION}"
+# promote_conda torchcsprng conda "${TORCHCSPRNG_VERSION}"
 
 # Uncomment these to promote to pypi
-# promote_pypi torch "${PYTORCH_VERSION}"
-# promote_pypi torchvision "${TORCHVISION_VERSION}"
+# LINUX_VERSION_SUFFIX="%2Bcu102"
+# WIN_VERSION_SUFFIX="%2Bcpu"
+# PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torch "${PYTORCH_VERSION}"
+# PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torch "${PYTORCH_VERSION}"
+# PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}"
+# PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torchvision "${TORCHVISION_VERSION}"
+# PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torchvision "${TORCHVISION_VERSION}"
+# PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torchvision "${TORCHVISION_VERSION}"
 # promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
 # promote_pypi torchtext "${TORCHTEXT_VERSION}"
 # promote_pypi torchcsprng "${TORCHCSPRNG_VERSION}"
