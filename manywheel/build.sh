@@ -68,7 +68,6 @@ case ${CUDA_VERSION} in
     10.*)
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-        export BUILD_CAFFE2_OPS="False"
         ;;
     9.*)
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
