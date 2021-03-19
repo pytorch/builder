@@ -140,7 +140,6 @@ PYYAML_PINNED_VERSION="=5.3"
 EXTRA_CONDA_INSTALL_FLAGS=""
 case ${desired_python} in
     3.9)
-        EXTRA_CONDA_INSTALL_FLAGS="-c=conda-forge"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="=1.19"
