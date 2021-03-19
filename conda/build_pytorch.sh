@@ -349,12 +349,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     conda install -y "conda-package-handling=1.6.0"
 
     ADDITIONAL_CHANNELS=""
-    # TODO: Remove ADDITIONAL_CHANNELS
-    # Nov, 2020: There's an issue with installing python 3.9 directly from
-    #            anaconda so we need to use conda-forge
-    if [[ ${py_ver} = "3.9" ]]; then
-      ADDITIONAL_CHANNELS="-c=conda-forge"
-    fi
     echo "Calling conda-build at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
