@@ -56,8 +56,6 @@ fi
 cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
-# CAFFE2 is deprecated, disable CAFFE2_OPS to save space in the wheels
-export BUILD_CAFFE2_OPS="False"
 case ${CUDA_VERSION} in
     11.[12])
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
