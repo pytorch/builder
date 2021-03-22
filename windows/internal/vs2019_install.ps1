@@ -6,6 +6,10 @@ $VS_INSTALL_ARGS = @("--nocache","--quiet","--wait", "--add Microsoft.VisualStud
                                                      "--add Microsoft.VisualStudio.Component.VC.Redist.14.Latest",
                                                      "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64")
 
+if ($args.Count -ne 0) {
+    $VS_INSTALL_ARGS += "--add Microsoft.VisualStudio.Component.VC.Tools.$($args[0])"
+}
+
 curl.exe --retry 3 -kL $VS_DOWNLOAD_LINK --output vs_installer.exe
 if ($LASTEXITCODE -ne 0) {
     echo "Download of the VS 2019 installer failed"
