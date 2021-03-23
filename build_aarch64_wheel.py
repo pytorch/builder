@@ -9,8 +9,12 @@ from typing import List, Optional, Tuple, Union
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
-ubuntu18_04_ami = "ami-0f2b111fdc1647918"
-ubuntu20_04_ami = "ami-0ea142bd244023692"
+os_amis = {
+        'ubuntu18_04': "ami-0f2b111fdc1647918", # login_name: ubuntu
+        'ubuntu20_04': "ami-0ea142bd244023692", # login_name: ubuntu
+        'redhat8':  "ami-0698b90665a2ddcf1", # login_name: ec2-user
+        }
+ubuntu18_04_ami = os_amis['ubuntu18_04']
 
 
 def compute_keyfile_path(key_name: Optional[str] = None) -> Tuple[str, str]:
@@ -424,7 +428,7 @@ def parse_arguments():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default='ubuntu18_04')
+    parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
     parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
@@ -439,7 +443,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    ami = ubuntu20_04_ami if args.os == 'ubuntu20_04' else ubuntu18_04_ami
+    ami = os_amis[args.os]
     keyfile_path, key_name = compute_keyfile_path(args.key_name)
 
     if args.list_instances:
