@@ -274,6 +274,8 @@ def start_build(host: RemoteHost, *,
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
     if branch.startswith("v1."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
     host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
@@ -285,6 +287,8 @@ def start_build(host: RemoteHost, *,
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
     if branch.startswith("v1.8.0"):
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
+    if branch.startswith("v1.8.1"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.1-rc1 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
@@ -299,6 +303,12 @@ def start_build(host: RemoteHost, *,
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.7.1"):
         build_vars += f"BUILD_VERSION=0.8.2"
+    if branch.startswith("v1.8.0"):
+        build_vars += f"BUILD_VERSION=0.9.0"
+    if branch.startswith("v1.8.1"):
+        build_vars += f"BUILD_VERSION=0.9.1"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
     host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
     vision_wheel_name = host.list_dir("vision/dist")[0]
