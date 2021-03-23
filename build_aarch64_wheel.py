@@ -388,10 +388,20 @@ def run_tests(host: RemoteHost, whl: str, branch='master') -> None:
     host.run_cmd("cd pytorch/test; python3 test_torch.py -v")
 
 
+
+def get_instance_name(instance) -> Optional[str]:
+    if instance.tags is None:
+        return None
+    for tag in instance.tags:
+        if tag['Key'] == 'Name':
+            return tag['Value']
+    return None
+
+
 def list_instances(instance_type: str) -> None:
     print(f"All instances of type {instance_type}")
     for instance in ec2_instances_of_type(instance_type):
-        print(f"{instance.id} {instance.public_dns_name} {instance.state['Name']}")
+        print(f"{instance.id} {get_instance_name(instance)} {instance.public_dns_name} {instance.state['Name']}")
 
 
 def terminate_instances(instance_type: str) -> None:
@@ -449,6 +459,13 @@ if __name__ == '__main__':
 
     # Starting the instance
     inst = start_instance(key_name, ami=ami)
+    instance_name = f'{args.key_name}-{args.os}'
+    if args.python_version is not None:
+        instance_name += f'-py{args.python_version}'
+    inst.create_tags(DryRun=False, Tags=[{
+        'Key' : 'Name',
+        'Value': instance_name,
+        }])
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     host = RemoteHost(addr, keyfile_path)
