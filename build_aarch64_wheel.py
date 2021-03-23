@@ -57,15 +57,17 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
 class RemoteHost:
     addr: str
     keyfile_path: str
+    login_name: str
     container_id: Optional[str] = None
     ami: Optional[str] = None
 
-    def __init__(self, addr: str, keyfile_path: str):
+    def __init__(self, addr: str, keyfile_path: str, login_name: str = 'ubuntu'):
         self.addr = addr
         self.keyfile_path = keyfile_path
+        self.login_name = login_name
 
     def _gen_ssh_prefix(self) -> List[str]:
-        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"ubuntu@{self.addr}", "--"]
+        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"{self.login_name}@{self.addr}", "--"]
 
     @staticmethod
     def _split_cmd(args: Union[str, List[str]]) -> List[str]:
@@ -78,16 +80,16 @@ class RemoteHost:
         return subprocess.check_output(self._gen_ssh_prefix() + self._split_cmd(args)).decode("utf-8")
 
     def scp_upload_file(self, local_file: str, remote_file: str) -> None:
-        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"ubuntu@{self.addr}:{remote_file}"])
+        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"{self.login_name}@{self.addr}:{remote_file}"])
 
     def scp_download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
         if local_file is None:
             local_file = "."
-        subprocess.check_call(["scp", "-i", self.keyfile_path, f"ubuntu@{self.addr}:{remote_file}", local_file])
+        subprocess.check_call(["scp", "-i", self.keyfile_path, f"{self.login_name}@{self.addr}:{remote_file}", local_file])
 
     def start_docker(self, image="quay.io/pypa/manylinux2014_aarch64:latest") -> None:
         self.run_ssh_cmd("sudo apt-get install -y docker.io")
-        self.run_ssh_cmd("sudo usermod -a -G docker ubuntu")
+        self.run_ssh_cmd(f"sudo usermod -a -G docker {self.login_name}")
         self.run_ssh_cmd("sudo service docker start")
         self.run_ssh_cmd(f"docker pull {image}")
         self.container_id = self.check_ssh_output(f"docker run -t -d -w /root {image}").strip()
