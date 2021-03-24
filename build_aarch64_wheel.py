@@ -9,8 +9,12 @@ from typing import List, Optional, Tuple, Union
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
-ubuntu18_04_ami = "ami-0f2b111fdc1647918"
-ubuntu20_04_ami = "ami-0ea142bd244023692"
+os_amis = {
+        'ubuntu18_04': "ami-0f2b111fdc1647918", # login_name: ubuntu
+        'ubuntu20_04': "ami-0ea142bd244023692", # login_name: ubuntu
+        'redhat8':  "ami-0698b90665a2ddcf1", # login_name: ec2-user
+        }
+ubuntu18_04_ami = os_amis['ubuntu18_04']
 
 
 def compute_keyfile_path(key_name: Optional[str] = None) -> Tuple[str, str]:
@@ -57,15 +61,17 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
 class RemoteHost:
     addr: str
     keyfile_path: str
+    login_name: str
     container_id: Optional[str] = None
     ami: Optional[str] = None
 
-    def __init__(self, addr: str, keyfile_path: str):
+    def __init__(self, addr: str, keyfile_path: str, login_name: str = 'ubuntu'):
         self.addr = addr
         self.keyfile_path = keyfile_path
+        self.login_name = login_name
 
     def _gen_ssh_prefix(self) -> List[str]:
-        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"ubuntu@{self.addr}", "--"]
+        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"{self.login_name}@{self.addr}", "--"]
 
     @staticmethod
     def _split_cmd(args: Union[str, List[str]]) -> List[str]:
@@ -78,16 +84,16 @@ class RemoteHost:
         return subprocess.check_output(self._gen_ssh_prefix() + self._split_cmd(args)).decode("utf-8")
 
     def scp_upload_file(self, local_file: str, remote_file: str) -> None:
-        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"ubuntu@{self.addr}:{remote_file}"])
+        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"{self.login_name}@{self.addr}:{remote_file}"])
 
     def scp_download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
         if local_file is None:
             local_file = "."
-        subprocess.check_call(["scp", "-i", self.keyfile_path, f"ubuntu@{self.addr}:{remote_file}", local_file])
+        subprocess.check_call(["scp", "-i", self.keyfile_path, f"{self.login_name}@{self.addr}:{remote_file}", local_file])
 
     def start_docker(self, image="quay.io/pypa/manylinux2014_aarch64:latest") -> None:
         self.run_ssh_cmd("sudo apt-get install -y docker.io")
-        self.run_ssh_cmd("sudo usermod -a -G docker ubuntu")
+        self.run_ssh_cmd(f"sudo usermod -a -G docker {self.login_name}")
         self.run_ssh_cmd("sudo service docker start")
         self.run_ssh_cmd(f"docker pull {image}")
         self.container_id = self.check_ssh_output(f"docker run -t -d -w /root {image}").strip()
@@ -268,6 +274,8 @@ def start_build(host: RemoteHost, *,
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
     if branch.startswith("v1."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
     host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
@@ -279,6 +287,8 @@ def start_build(host: RemoteHost, *,
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
     if branch.startswith("v1.8.0"):
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
+    if branch.startswith("v1.8.1"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.1-rc1 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
@@ -293,9 +303,16 @@ def start_build(host: RemoteHost, *,
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.7.1"):
         build_vars += f"BUILD_VERSION=0.8.2"
+    if branch.startswith("v1.8.0"):
+        build_vars += f"BUILD_VERSION=0.9.0"
+    if branch.startswith("v1.8.1"):
+        build_vars += f"BUILD_VERSION=0.9.1"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
     host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
     vision_wheel_name = host.list_dir("vision/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
     print('Copying TorchVision wheel')
     host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
 
@@ -316,6 +333,7 @@ from auditwheel.wheeltools import InWheelCtx
 from auditwheel.elfutils import elf_file_filter
 from auditwheel.repair import copylib
 from auditwheel.lddtree import lddtree
+from subprocess import check_call
 import os
 import shutil
 import sys
@@ -335,8 +353,16 @@ def replace_tag(filename):
        f.write("\\n".join(lines))
 
 
+class AlignedPatchelf(Patchelf):
+    def set_soname(self, file_name: str, new_soname: str) -> None:
+        check_call(['patchelf', '--page-size', '65536', '--set-soname', new_soname, file_name])
+
+    def replace_needed(self, file_name: str, soname: str, new_soname: str) -> None:
+        check_call(['patchelf', '--page-size', '65536', '--replace-needed', soname, new_soname, file_name])
+
+
 def embed_library(whl_path, lib_soname, update_tag=False):
-    patcher = Patchelf()
+    patcher = AlignedPatchelf()
     out_dir = TemporaryDirectory()
     whl_name = os.path.basename(whl_path)
     tmp_whl_name = os.path.join(out_dir.name, whl_name)
@@ -388,10 +414,20 @@ def run_tests(host: RemoteHost, whl: str, branch='master') -> None:
     host.run_cmd("cd pytorch/test; python3 test_torch.py -v")
 
 
+
+def get_instance_name(instance) -> Optional[str]:
+    if instance.tags is None:
+        return None
+    for tag in instance.tags:
+        if tag['Key'] == 'Name':
+            return tag['Value']
+    return None
+
+
 def list_instances(instance_type: str) -> None:
     print(f"All instances of type {instance_type}")
     for instance in ec2_instances_of_type(instance_type):
-        print(f"{instance.id} {instance.public_dns_name} {instance.state['Name']}")
+        print(f"{instance.id} {get_instance_name(instance)} {instance.public_dns_name} {instance.state['Name']}")
 
 
 def terminate_instances(instance_type: str) -> None:
@@ -412,7 +448,7 @@ def parse_arguments():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--os", type=str, choices=['ubuntu18_04', 'ubuntu20_04'], default='ubuntu18_04')
+    parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
     parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
@@ -427,7 +463,7 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    ami = ubuntu20_04_ami if args.os == 'ubuntu20_04' else ubuntu18_04_ami
+    ami = os_amis[args.os]
     keyfile_path, key_name = compute_keyfile_path(args.key_name)
 
     if args.list_instances:
@@ -449,6 +485,13 @@ if __name__ == '__main__':
 
     # Starting the instance
     inst = start_instance(key_name, ami=ami)
+    instance_name = f'{args.key_name}-{args.os}'
+    if args.python_version is not None:
+        instance_name += f'-py{args.python_version}'
+    inst.create_tags(DryRun=False, Tags=[{
+        'Key' : 'Name',
+        'Value': instance_name,
+        }])
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     host = RemoteHost(addr, keyfile_path)
