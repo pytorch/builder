@@ -111,8 +111,12 @@ fi;
 # in rocm4.1, libamd_comgr.so.1 changed to *.so.2
 if [[ $ROCM_INT -ge 40100 ]]; then
     LIBAMDCOMGR=libamd_comgr.so.2
+    KERNELGFX906=gfx906-xnack-
+    KERNELGFX908=gfx908-xnack-
 else
     LIBAMDCOMGR=libamd_comgr.so.1
+    KERNELGFX906=gfx906
+    KERNELGFX908=gfx908
 fi;
 
 DEPS_LIST=(
@@ -164,8 +168,8 @@ DEPS_SONAME=(
 DEPS_AUX_SRCLIST=(
     "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx803.hsaco"
     "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx900.hsaco"
-    "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx906.hsaco"
-    "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx908.hsaco"
+    "/opt/rocm/rocblas/lib/library/Kernels.so-000-${KERNELGFX906}.hsaco"
+    "/opt/rocm/rocblas/lib/library/Kernels.so-000-${KERNELGFX908}.hsaco"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx803.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx900.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx906.co"
@@ -176,8 +180,8 @@ DEPS_AUX_SRCLIST=(
 DEPS_AUX_DSTLIST=(
     "lib/library/Kernels.so-000-gfx803.hsaco"
     "lib/library/Kernels.so-000-gfx900.hsaco"
-    "lib/library/Kernels.so-000-gfx906.hsaco"
-    "lib/library/Kernels.so-000-gfx908.hsaco"
+    "lib/library/Kernels.so-000-${KERNELGFX906}.hsaco"
+    "lib/library/Kernels.so-000-${KERNELGFX908}.hsaco"
     "lib/library/TensileLibrary_gfx803.co"
     "lib/library/TensileLibrary_gfx900.co"
     "lib/library/TensileLibrary_gfx906.co"
