@@ -33,6 +33,9 @@ if [[ $ROCM_INT -lt 40001 ]]; then
     exit 0
 fi
 
+# Uninstall existing package, to avoid errors during later yum install indicating packages did not change.
+yum remove -y miopen-hip
+
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
