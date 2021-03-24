@@ -36,7 +36,7 @@ echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
 # overwrite original LIB, because it's wrong; it's missing start/end-group
 echo 'LIB = -Wl,--start-group -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -Wl,--end-group -lpthread -lstdc++ -lm -lgomp' >> make.inc
 echo 'LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm/lib -Wl,--rpath,$(MKLROOT)/lib -Wl,--rpath,/opt/rocm/magma/lib' >> make.inc
-echo 'DEVCCFLAGS += --amdgpu-target=gfx803 --amdgpu-target=gfx900 --amdgpu-target=gfx906 --amdgpu-target=gfx908' >> make.inc
+echo 'DEVCCFLAGS += --amdgpu-target=gfx803 --amdgpu-target=gfx900 --amdgpu-target=gfx906 --amdgpu-target=gfx908 --gpu-max-threads-per-block=256' >> make.inc
 export PATH="${PATH}:/opt/rocm/bin"
 make -f make.gen.hipMAGMA -j $(nproc)
 make lib/libmagma.so -j $(nproc) MKLROOT=/opt/intel
