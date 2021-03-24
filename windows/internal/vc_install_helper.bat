@@ -14,5 +14,4 @@ if not "%VC_VERSION%" == "" (
     set VSDEVCMD_ARGS=-vcvars_ver=%VC_VERSION%
 )
 if "%VC_YEAR%" == "2017" powershell windows/internal/vs2017_install.ps1 %VC_VERSION%
-if "%VC_YEAR%" == "2019" powershell windows/internal/vs2019_install.ps1 %VC_VERSION%
 if errorlevel 1 exit /b 1
