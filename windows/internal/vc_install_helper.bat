@@ -6,10 +6,6 @@ if "%VC_YEAR%" == "2017" if "%CUDA_VERSION%" == "92" (
     )
 )
 
-if "%VC_YEAR%" == "2019" (
-    set VC_VERSION=14.27
-)
-
 if not "%VC_VERSION%" == "" (
     set VSDEVCMD_ARGS=-vcvars_ver=%VC_VERSION%
 )
