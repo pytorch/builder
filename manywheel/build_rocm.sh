@@ -110,13 +110,13 @@ fi;
 
 # in rocm4.1, libamd_comgr.so.1 changed to *.so.2
 if [[ $ROCM_INT -ge 40100 ]]; then
-    LIBAMDCOMGR=libamd_comgr.so.1
-else
     LIBAMDCOMGR=libamd_comgr.so.2
+else
+    LIBAMDCOMGR=libamd_comgr.so.1
 fi;
 
 DEPS_LIST=(
-o   "/opt/rocm/miopen/lib/libMIOpen.so.1"
+    "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
     "/opt/rocm/hipblas/lib/libhipblas.so.0"
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
