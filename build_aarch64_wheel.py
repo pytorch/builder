@@ -312,6 +312,7 @@ def start_build(host: RemoteHost, *,
 
     host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
     vision_wheel_name = host.list_dir("vision/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
     print('Copying TorchVision wheel')
     host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
 
