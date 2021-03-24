@@ -108,14 +108,21 @@ else
     LIBAMDHIP64=libamdhip64.so.3
 fi;
 
+# in rocm4.1, libamd_comgr.so.1 changed to *.so.2
+if [[ $ROCM_INT -ge 40100 ]]; then
+    LIBAMDCOMGR=libamd_comgr.so.1
+else
+    LIBAMDCOMGR=libamd_comgr.so.2
+fi;
+
 DEPS_LIST=(
-    "/opt/rocm/miopen/lib/libMIOpen.so.1"
+o   "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
     "/opt/rocm/hipblas/lib/libhipblas.so.0"
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
-    "/opt/rocm/${COMGR_LIBDIR}/libamd_comgr.so.1"
+    "/opt/rocm/${COMGR_LIBDIR}/${LIBAMDCOMGR}"
     "/opt/rocm/lib64/libhsakmt.so.1"
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
@@ -138,7 +145,7 @@ DEPS_SONAME=(
     "libhiprand.so.1"
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
-    "libamd_comgr.so.1"
+    "${LIBAMDCOMGR}"
     "libhsakmt.so.1"
     "libmagma.so"
     "librccl.so.1"
