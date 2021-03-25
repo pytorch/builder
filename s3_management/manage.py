@@ -62,7 +62,7 @@ class S3Index:
         # sorting, sorts in reverse to put the most recent versions first
         all_sorted_packages = sorted(
             {self.normalize_package_version(obj) for obj in self.objects},
-            key=lambda v: parse(v.split('-')[1]),
+            key=lambda name_ver: parse(name_ver.split('-', 1)[-1]),
             reverse=True,
         )
         packages: Dict[str, int] = defaultdict(int)
