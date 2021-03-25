@@ -7,6 +7,7 @@ from os import path
 from collections import defaultdict
 from typing import List, Type, Dict, Set, TypeVar, Generator, Optional
 from re import sub, match
+from packaging.version import parse
 
 import botocore
 import boto3
@@ -61,6 +62,7 @@ class S3Index:
         # sorting, sorts in reverse to put the most recent versions first
         all_sorted_packages = sorted(
             {self.normalize_package_version(obj) for obj in self.objects},
+            key=lambda name_ver: parse(name_ver.split('-', 1)[-1]),
             reverse=True,
         )
         packages: Dict[str, int] = defaultdict(int)
