@@ -109,20 +109,26 @@ else
 fi;
 
 # in rocm4.1, libamd_comgr.so.1 changed to *.so.2
+# hipfft is a new package, separate from rocfft
 if [[ $ROCM_INT -ge 40100 ]]; then
     LIBAMDCOMGR=libamd_comgr.so.2
     KERNELGFX906=gfx906-xnack-
     KERNELGFX908=gfx908-xnack-
+    HIPFFT_DEP=/opt/rocm/hipfft/lib/libhipfft.so
+    HIPFFT_SO=libhipfft.so
 else
     LIBAMDCOMGR=libamd_comgr.so.1
     KERNELGFX906=gfx906
     KERNELGFX908=gfx908
+    HIPFFT_DEP=
+    HIPFFT_SO=
 fi;
 
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
     "/opt/rocm/hipblas/lib/libhipblas.so.0"
+    ${HIPFFT_DEP}
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
@@ -146,6 +152,7 @@ DEPS_SONAME=(
     "libMIOpen.so.1"
     "$LIBAMDHIP64"
     "libhipblas.so.0"
+    ${HIPFFT_SO}
     "libhiprand.so.1"
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
