@@ -33,6 +33,9 @@ if [[ $ROCM_INT -lt 40001 ]]; then
     exit 0
 fi
 
+# Uninstall existing package, to avoid errors during later yum install indicating packages did not change.
+yum remove -y miopen-hip
+
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
@@ -89,6 +92,9 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 if [[ ${ROCM_VERSION} == 4.0.1 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
     MIOPEN_BRANCH="rocm-4.0.1"
+elif [[ ${ROCM_VERSION} == 4.1 ]]; then
+    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
+    MIOPEN_BRANCH="rocm-4.1.x"
 else
     echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
     exit 1
