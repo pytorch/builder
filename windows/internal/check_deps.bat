@@ -30,7 +30,7 @@ IF "%VC_YEAR%" == "2017" (
     set VC_VERSION_UPPER=16
 )
 
-if NOT "%VS15INSTALLDIR%" == "" if exist "%VS15INSTALLDIR%VC\Auxiliary\Build\vcvarsall.bat" (
+if NOT "%VS15INSTALLDIR%" == "" if exist "%VS15INSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" (
     set "VS15VCVARSALL=%VS15INSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat"
     goto vswhere
 )
