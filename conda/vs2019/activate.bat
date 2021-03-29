@@ -13,6 +13,11 @@ set "MSYS2_ENV_CONV_EXCL=CL"
 :: http://stevedower.id.au/blog/building-for-python-3-5-part-two/ for more info
 set "PY_VCRUNTIME_REDIST=%PREFIX%\\bin\\vcruntime140.dll"
 
+if NOT "%VS15INSTALLDIR%" == "" if exist "%VS15INSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" (
+    set "VSINSTALLDIR=%VS15INSTALLDIR%\"
+    goto :vswhere
+)
+
 for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [16^,17^) -property installationPath`) do (
     if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
         set "VSINSTALLDIR=%%i\"
