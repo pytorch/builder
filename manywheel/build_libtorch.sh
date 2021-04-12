@@ -125,9 +125,14 @@ fi
         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
         # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
         CFLAGS='-Wno-deprecated-declarations' \
+        REL_WITH_DEB_INFO=1 \
         python setup.py install
 
     mkdir -p libtorch/{lib,bin,include,share}
+
+    # Make debug folder separate so it doesn't get zipped up with the rest of
+    # libtorch
+    mkdir debug
 
     # Copy over all lib files
     cp -rv build/lib/*                libtorch/lib/
@@ -139,6 +144,26 @@ fi
 
     # Copy over all of the cmake files
     cp -rv build/lib*/torch/share/*   libtorch/share/
+
+    # Split libtorch into debug / release version
+    cp libtorch/lib/libtorch_cpu.so libtorch/lib/libtorch_cpu.so.dbg
+
+    # Remove debug symbols on release lib
+    strip libtorch/lib/libtorch_cpu.so
+
+    # Keep debug symbols on debug lib
+    strip --only-keep-debug libtorch/lib/libtorch_cpu.so.dbg
+
+    # Add a debug link to the release lib to the debug lib (debuggers will then
+    # search for symbols in a file called libtorch_cpu.so.dbg in some 
+    # predetermined locations)
+    cd libtorch/lib
+    objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
+    cd ../..
+
+    # Move the debug symbols to its own directory so it doesn't get processed /
+    # zipped with all the other libraries
+    mv libtorch/lib/libtorch_cpu.so.dbg debug/libtorch_cpu.so.dbg
 
     echo "${PYTORCH_BUILD_VERSION}" > libtorch/build-version
     echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
@@ -155,6 +180,17 @@ fi
     set -x
 
     mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
+
+    # objcopy installs a CRC32 into libtorch above (it can be extracted with the
+    # command:
+    #    readelf --hex-dump=.gnu_debuglink a.stripped | tail -n 2 | head -n 1 | awk '{print $4}'
+    # so, so add that to the name here
+    CRC32=$(cat debug/libtorch_cpu.so.dbg | gzip -c | tail -c8 | hexdump -n4 -e '"%x"')
+
+    # Zip debug symbols
+    zip /tmp/$LIBTORCH_HOUSE_DIR/debug-libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION-$CRC32.zip debug/libtorch_cpu.so.dbg
+
+    # Zip and copy libtorch
     zip -rq /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip libtorch
     cp /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION.zip \
        /tmp/$LIBTORCH_HOUSE_DIR/libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-latest.zip
@@ -299,5 +335,7 @@ done
 
 # Copy wheels to host machine for persistence before testing
 if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
+    find /$LIBTORCH_HOUSE_DIR
     cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
+    cp /$LIBTORCH_HOUSE_DIR/debug-libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
 fi
