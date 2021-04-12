@@ -120,7 +120,7 @@ if [[ ! -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
         export PYTORCH_BRANCH="$last_commit"
     fi
     git checkout "$PYTORCH_BRANCH"
-    git submodule update
+    git submodule update --jobs 0
     popd
 fi
 

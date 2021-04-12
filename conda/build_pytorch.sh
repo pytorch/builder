@@ -182,7 +182,7 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
     popd
 fi
 pushd "$pytorch_rootdir"
-git submodule update --init --recursive
+git submodule update --init --recursive --jobs 0
 echo "Using Pytorch from "
 git --no-pager log --max-count 1
 popd

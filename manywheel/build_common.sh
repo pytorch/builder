@@ -95,7 +95,7 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
 else
     pushd $pytorch_rootdir
 fi
-git submodule update --init --recursive
+git submodule update --init --recursive --jobs 0
 
 export PATCHELF_BIN=/usr/local/bin/patchelf
 patchelf_version=`$PATCHELF_BIN --version`
