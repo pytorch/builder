@@ -83,7 +83,7 @@ if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
 
     # Prune CUDA again with new arch list. Unfortunately, we need to re-install CUDA to prune it again
     override_gencode=""
-    for arch in ${torch_cuda_arch_list//;/ } ; do
+    for arch in ${TORCH_CUDA_ARCH_LIST//;/ } ; do
       arch_code=$(echo "$arch" | tr -d .)
       override_gencode="${override_gencode}-gencode arch=compute_$arch_code,code=sm_$arch_code "
     done
