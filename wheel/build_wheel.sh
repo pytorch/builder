@@ -222,7 +222,8 @@ else
     pushd "$pytorch_rootdir"
     mkdir -p build
     pushd build
-    python ../tools/build_libtorch.py
+    # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
+    CFLAGS='-Wno-deprecated-declarations' python ../tools/build_libtorch.py
     popd
 
     mkdir -p libtorch/{lib,bin,include,share}
