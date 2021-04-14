@@ -123,6 +123,8 @@ fi
 
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
+        # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
+        CFLAGS='-Wno-deprecated-declarations' \
         python setup.py install
 
     mkdir -p libtorch/{lib,bin,include,share}
