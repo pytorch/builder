@@ -149,14 +149,14 @@ fi
     cp libtorch/lib/libtorch_cpu.so libtorch/lib/libtorch_cpu.so.dbg
 
     # Remove debug symbols on release lib
-    strip libtorch/lib/libtorch_cpu.so
+    strip --strip-debug libtorch/lib/libtorch_cpu.so
 
     # Keep debug symbols on debug lib
     strip --only-keep-debug libtorch/lib/libtorch_cpu.so.dbg
 
     # Add a debug link to the release lib to the debug lib (debuggers will then
     # search for symbols in a file called libtorch_cpu.so.dbg in some 
-    # predetermined locations)
+    # predetermined locations) and embed a CRC32 of the debug library into the .so
     cd libtorch/lib
     objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
     cd ../..
@@ -335,7 +335,6 @@ done
 
 # Copy wheels to host machine for persistence before testing
 if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
-    find /$LIBTORCH_HOUSE_DIR
     cp /$LIBTORCH_HOUSE_DIR/libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
     cp /$LIBTORCH_HOUSE_DIR/debug-libtorch*.zip "$PYTORCH_FINAL_PACKAGE_DIR"
 fi
