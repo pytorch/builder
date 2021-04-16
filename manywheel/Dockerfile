@@ -130,6 +130,9 @@ RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 
+# Install LLVM version
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
+
 FROM common as rocm_final
 ARG ROCM_VERSION=3.7
 # Install ROCm
@@ -142,4 +145,3 @@ RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 ADD ./common/install_miopen.sh install_miopen.sh
 RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
-
