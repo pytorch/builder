@@ -49,6 +49,9 @@ FROM cuda as cuda11.2
 RUN bash ./install_cuda.sh 11.2
 RUN bash ./install_magma.sh 11.2
 
+# Install LLVM
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
+
 FROM ${BASE_TARGET} as final
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
