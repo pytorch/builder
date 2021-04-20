@@ -40,7 +40,7 @@ echo 'LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm/lib -Wl,--rpath,$(MKLR
 echo 'DEVCCFLAGS += --amdgpu-target=gfx803 --amdgpu-target=gfx900 --amdgpu-target=gfx906 --amdgpu-target=gfx908 --gpu-max-threads-per-block=256' >> make.inc
 export PATH="${PATH}:/opt/rocm/bin"
 make -f make.gen.hipMAGMA -j $(nproc)
-make lib/libmagma.so -j $(nproc) MKLROOT=/opt/intel
+LANG=C.UTF-8 make lib/libmagma.so -j $(nproc) MKLROOT=/opt/intel
 make testing/testing_dgemm -j $(nproc) MKLROOT=/opt/intel
 popd
 mv magma /opt/rocm
