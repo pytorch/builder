@@ -134,6 +134,8 @@ export TH_BINARY_BUILD=1
 export INSTALL_TEST=0 # dont install test binaries into site-packages
 export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
+export USE_LLVM="/opt/llvm"
+export LLVM_DIR="/opt/llvm/lib/cmake/llvm"
 
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
@@ -171,6 +173,7 @@ if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export USE_NNPACK=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
+    export USE_LLVM=OFF
 fi
 
 pushd "$pytorch_rootdir"
