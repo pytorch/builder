@@ -29,9 +29,10 @@ yum install -y \
                  roctracer-dev
 
 # "install" hipMAGMA into /opt/rocm/magma by copying after build
-git clone https://bitbucket.org/icl/magma.git -b hipMAGMA
+git clone https://bitbucket.org/icl/magma.git
+git checkout 878b1ce02e9cfe4a829be22c8f911e9c0b6bd88f
 pushd magma
-cp make.inc-examples/make.inc.hip-mkl-gcc make.inc
+cp make.inc-examples/make.inc.hip-gcc-mkl make.inc
 echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
 # overwrite original LIB, because it's wrong; it's missing start/end-group
 echo 'LIB = -Wl,--start-group -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -Wl,--end-group -lpthread -lstdc++ -lm -lgomp' >> make.inc
