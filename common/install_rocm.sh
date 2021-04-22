@@ -40,6 +40,8 @@ echo 'LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm/lib -Wl,--rpath,$(MKLR
 echo 'DEVCCFLAGS += --amdgpu-target=gfx803 --amdgpu-target=gfx900 --amdgpu-target=gfx906 --amdgpu-target=gfx908 --gpu-max-threads-per-block=256' >> make.inc
 # hipcc with openmp flag causes isnan() on __device__ not to be found; depending on context, compiler may attempt to match with host definition
 sed -i 's/^FOPENMP/#FOPENMP/g' make.inc
+# hipblas and hipsparse libraries need to be added to LDFLAGS
+echo 'LDFLAGS += -lhipblas -lhipsparse' >> make.inc
 export PATH="${PATH}:/opt/rocm/bin"
 make -f make.gen.hipMAGMA -j $(nproc)
 LANG=C.UTF-8 make lib/libmagma.so -j $(nproc) MKLROOT=/opt/intel
