@@ -38,6 +38,8 @@ echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
 echo 'LIB = -Wl,--start-group -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -Wl,--end-group -lpthread -lstdc++ -lm -lgomp' >> make.inc
 echo 'LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm/lib -Wl,--rpath,$(MKLROOT)/lib -Wl,--rpath,/opt/rocm/magma/lib' >> make.inc
 echo 'DEVCCFLAGS += --amdgpu-target=gfx803 --amdgpu-target=gfx900 --amdgpu-target=gfx906 --amdgpu-target=gfx908 --gpu-max-threads-per-block=256' >> make.inc
+# hipcc with openmp flag causes isnan() on __device__ not to be found; depending on context, compiler may attempt to match with host definition
+sed -i 's/^FOPENMP/#FOPENMP/g' make.inc
 export PATH="${PATH}:/opt/rocm/bin"
 make -f make.gen.hipMAGMA -j $(nproc)
 LANG=C.UTF-8 make lib/libmagma.so -j $(nproc) MKLROOT=/opt/intel
