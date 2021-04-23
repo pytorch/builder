@@ -25,6 +25,14 @@ RUN yum install -y cmake3 && \
 
 RUN yum install -y autoconf aclocal automake make
 
+FROM base as openssl
+# Install openssl (this must precede `build python` step)
+# (In order to have a proper SSL module, Python is compiled
+# against a recent openssl [see env vars above], which is linked
+# statically. We delete openssl afterwards.)
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh
+
 FROM base as python
 # build python
 COPY manywheel/build_scripts /build_scripts

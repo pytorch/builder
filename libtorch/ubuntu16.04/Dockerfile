@@ -10,6 +10,10 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
+# Install openssl
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh
+
 FROM base as intel
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
