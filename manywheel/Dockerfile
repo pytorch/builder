@@ -111,7 +111,7 @@ ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 # Install LLVM version
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm                             /opt/llvm
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi                /opt/llvm_no_cxx11_abi
-COPY --from=openssl            /opt/openssl                          /openssl
+COPY --from=openssl            /opt/openssl                          /opt/openssl
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
 COPY --from=python             /opt/python/cp36-cp36m/bin/auditwheel /usr/local/bin/auditwheel
