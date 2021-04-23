@@ -2,9 +2,6 @@
 # Helper utilities for build
 
 PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
-# XXX: the official https server at www.openssl.org cannot be reached
-# with the old versions of openssl and curl in Centos 5.11 hence the fallback
-# to the ftp mirror:
 OPENSSL_DOWNLOAD_URL=https://www.openssl.org/source/
 # Ditto the curl sources
 CURL_DOWNLOAD_URL=http://curl.askapache.com/download
