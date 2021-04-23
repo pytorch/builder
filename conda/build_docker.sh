@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eou pipefail
+
 export DOCKER_BUILDKIT=1
 TOPDIR=$(git rev-parse --show-toplevel)
 
@@ -31,11 +33,21 @@ esac
     ${TOPDIR}
 )
 
-if [[ ${DOCKER_TAG} =~ ^cuda* ]]; then
+if [[ "${DOCKER_TAG}" =~ ^cuda* ]]; then
   # Meant for legacy scripts since they only do the version without the "."
   # TODO: Eventually remove this
   (
     set -x
-    docker tag "pytorch/conda-builder:${DOCKER_TAG}" pytorch/conda-builder:cuda${CUDA_VERSION/./}
+    docker tag "pytorch/conda-builder:${DOCKER_TAG}" "pytorch/conda-builder:cuda${CUDA_VERSION/./}"
+  )
+fi
+
+if [[ -n "${WITH_PUSH:-}" ]]; then
+  (
+    set -x
+    docker push "pytorch/conda-builder:${DOCKER_TAG}"
+    if [[ "${DOCKER_TAG}" =~ ^cuda* ]]; then
+      docker push "pytorch/conda-builder:cuda${CUDA_VERSION/./}"
+    fi
   )
 fi

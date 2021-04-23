@@ -11,6 +11,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
 # Install openssl
+FROM base as openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
 
@@ -53,11 +54,11 @@ FROM cuda as cuda11.2
 RUN bash ./install_cuda.sh 11.2
 RUN bash ./install_magma.sh 11.2
 
-# Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx_abi /opt/llvm_no_cxx_abi
-
 FROM ${BASE_TARGET} as final
+# Install LLVM
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
+COPY --from=openssl            /opt/openssl           /opt/openssl
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh

@@ -7,6 +7,10 @@ set -ex
 # Python versions to be installed in /opt/$VERSION_NO
 CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.6.6 3.7.5 3.8.1 3.9.0"}
 
+# openssl version to build, with expected sha256 hash of .tar.gz
+# archive
+OPENSSL_ROOT=openssl-1.0.2k
+OPENSSL_HASH=6b3977c61f2aedf0f96367dcfb5c6e578cf37e7b8d913b4ecb6643c3cb88d8c0
 DEVTOOLS_HASH=a8ebeb4bed624700f727179e6ef771dafe47651131a00a78b342251415646acc
 PATCHELF_HASH=d9afdff4baeacfbc64861454f368b7f2c15c44d245293f7587bbf726bfe722fb
 CURL_ROOT=curl-7.49.1
@@ -36,6 +40,10 @@ build_autoconf $AUTOCONF_ROOT $AUTOCONF_HASH
 autoconf --version
 
 # Compile the latest Python releases.
+# (In order to have a proper SSL module, Python is compiled
+# against a recent openssl [see env vars above], which is linked
+# statically. We delete openssl afterwards.)
+build_openssl $OPENSSL_ROOT $OPENSSL_HASH
 mkdir -p /opt/python
 build_cpythons $CPYTHON_VERSIONS
 

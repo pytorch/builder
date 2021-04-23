@@ -83,14 +83,14 @@ COPY --from=cuda11.0  /usr/local/cuda-11.0 /usr/local/cuda-11.0
 COPY --from=cuda11.1  /usr/local/cuda-11.1 /usr/local/cuda-11.1
 COPY --from=cuda11.2  /usr/local/cuda-11.2 /usr/local/cuda-11.2
 
-# Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx_abi /opt/llvm_no_cxx_abi
-
 FROM ${BASE_TARGET} as final
-COPY --from=patchelf /patchelf            /usr/local/bin/patchelf
-COPY --from=conda    /opt/conda           /opt/conda
-ADD  ./java/jni.h    /usr/local/include/jni.h
+# Install LLVM
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
+COPY --from=openssl            /opt/openssl           /opt/openssl
+COPY --from=patchelf           /patchelf              /usr/local/bin/patchelf
+COPY --from=conda              /opt/conda             /opt/conda
+ADD  ./java/jni.h /usr/local/include/jni.h
 ENV  PATH /opt/conda/bin:$PATH
 COPY --from=mnist  /usr/local/mnist /usr/local/mnist
 RUN rm -rf /usr/local/cuda

@@ -44,6 +44,6 @@ RUN cmake -G "Unix Makefiles" \
 RUN make -j"$(nproc --ignore=2)" && make install
 
 
-FROM scratch as final
+FROM alpine as final
 COPY --from=dev /opt/llvm /opt/llvm
 COPY --from=dev /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
