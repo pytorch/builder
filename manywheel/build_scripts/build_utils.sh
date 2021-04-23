@@ -2,7 +2,6 @@
 # Helper utilities for build
 
 PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
-OPENSSL_DOWNLOAD_URL=https://www.openssl.org/source/
 # Ditto the curl sources
 CURL_DOWNLOAD_URL=http://curl.askapache.com/download
 
