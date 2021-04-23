@@ -85,6 +85,7 @@ COPY --from=cuda11.2  /usr/local/cuda-11.2 /usr/local/cuda-11.2
 
 # Install LLVM
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx_abi /opt/llvm_no_cxx_abi
 
 FROM ${BASE_TARGET} as final
 COPY --from=patchelf /patchelf            /usr/local/bin/patchelf

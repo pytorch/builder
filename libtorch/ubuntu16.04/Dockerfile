@@ -55,6 +55,7 @@ RUN bash ./install_magma.sh 11.2
 
 # Install LLVM
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx_abi /opt/llvm_no_cxx_abi
 
 FROM ${BASE_TARGET} as final
 # Install patchelf
