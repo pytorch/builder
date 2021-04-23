@@ -26,3 +26,10 @@ esac
     -f "${TOPDIR}/libtorch/ubuntu16.04/Dockerfile" \
     ${TOPDIR}
 )
+
+if [[ -n "${WITH_PUSH}" ]]; then
+  (
+    set -x
+    docker push pytorch/libtorch-cxx11-builder:${DOCKER_TAG}
+  )
+fi
