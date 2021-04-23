@@ -2,12 +2,12 @@
 
 set -ex
 
-OPENSSL=OpenSSL_1_1_1k
+OPENSSL=openssl-1.1.1k
 
-wget -q -O ${OPENSSL}.tar.gz https://github.com/openssl/openssl/archive/${OPENSSL}.tar.gz
+wget -q -O ${OPENSSL}.tar.gz https://www.openssl.org/source/${OPENSSL}.tar.gz
 tar xf ${OPENSSL}.tar.gz
-cd openssl-${OPENSSL}
+cd ${OPENSSL}
 ./config -d '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'
 make install
 cd ..
-rm -rf openssl-${OPENSSL}
+rm -rf ${OPENSSL}
