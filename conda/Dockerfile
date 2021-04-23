@@ -28,11 +28,6 @@ FROM base as patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh && cp $(which patchelf) /patchelf
 
-FROM base as openssl
-# Install openssl
-ADD ./common/install_openssl.sh install_openssl.sh
-RUN bash ./install_openssl.sh && rm install_openssl.sh
-
 FROM base as conda
 # Install Anaconda
 ADD ./common/install_conda.sh install_conda.sh
@@ -75,6 +70,11 @@ FROM base as mnist
 ADD ./common/install_mnist.sh install_mnist.sh
 RUN bash ./install_mnist.sh
 
+FROM base as openssl
+# Install openssl
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh
+
 FROM base as all_cuda
 COPY --from=cuda9.2   /usr/local/cuda-9.2  /usr/local/cuda-9.2
 COPY --from=cuda10.1  /usr/local/cuda-10.1 /usr/local/cuda-10.1
@@ -97,3 +97,19 @@ RUN chmod o+rw /usr/local
 RUN touch /.condarc && \
     chmod o+rw /.condarc && \
     chmod -R o+rw /opt/conda
+
+COPY --from=openssl  /usr/local/lib64/libcrypto.so.1.1       /usr/local/lib64/libcrypto.so.1.1
+COPY --from=openssl  /usr/local/lib64/libssl.so.1.1          /usr/local/lib64/libssl.so.1.1
+COPY --from=openssl  /usr/local/include/openssl/*            /usr/local/include/openssl/
+COPY --from=openssl  /usr/local/lib64/libcrypto.a            /usr/local/lib64/libcrypto.a
+COPY --from=openssl  /usr/local/lib64/libssl.a               /usr/local/lib64/libssl.a
+COPY --from=openssl  /usr/local/lib64/pkgconfig/libcrypto.pc /usr/local/lib64/pkgconfig/libcrypto.pc
+COPY --from=openssl  /usr/local/lib64/pkgconfig/libssl.pc    /usr/local/lib64/pkgconfig/libssl.pc
+COPY --from=openssl  /usr/local/lib64/pkgconfig/openssl.pc   /usr/local/lib64/pkgconfig/openssl.pc
+COPY --from=openssl  /usr/local/lib64/engines-1.1/afalg.so   /usr/local/lib64/engines-1.1/afalg.so
+COPY --from=openssl  /usr/local/lib64/engines-1.1/capi.so    /usr/local/lib64/engines-1.1/capi.so
+COPY --from=openssl  /usr/local/lib64/engines-1.1/padlock.so /usr/local/lib64/engines-1.1/padlock.so
+COPY --from=openssl  /usr/local/bin/openssl                  /usr/local/bin/openssl
+COPY --from=openssl  /usr/local/bin/c_rehash                 /usr/local/bin/c_rehash
+RUN ln -s /usr/local/lib64/libcrypto.so.1.1                  /usr/local/lib64/libcrypto.so
+RUN ln -s /usr/local/lib64/libssl.so.1.1                     /usr/local/lib64/libssl.so

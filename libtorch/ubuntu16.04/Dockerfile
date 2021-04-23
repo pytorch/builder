@@ -10,6 +10,7 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
+FROM base as openssl
 # Install openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
@@ -64,3 +65,19 @@ COPY --from=intel /opt/intel /opt/intel
 # Install Anaconda
 COPY --from=conda /opt/conda /opt/conda
 ENV PATH /opt/conda/bin:$PATH
+
+COPY --from=openssl  /usr/local/lib/libcrypto.so.1.1       /usr/local/lib/libcrypto.so.1.1
+COPY --from=openssl  /usr/local/lib/libssl.so.1.1          /usr/local/lib/libssl.so.1.1
+COPY --from=openssl  /usr/local/include/openssl/*          /usr/local/include/openssl/
+COPY --from=openssl  /usr/local/lib/libcrypto.a            /usr/local/lib/libcrypto.a
+COPY --from=openssl  /usr/local/lib/libssl.a               /usr/local/lib/libssl.a
+COPY --from=openssl  /usr/local/lib/pkgconfig/libcrypto.pc /usr/local/lib/pkgconfig/libcrypto.pc
+COPY --from=openssl  /usr/local/lib/pkgconfig/libssl.pc    /usr/local/lib/pkgconfig/libssl.pc
+COPY --from=openssl  /usr/local/lib/pkgconfig/openssl.pc   /usr/local/lib/pkgconfig/openssl.pc
+COPY --from=openssl  /usr/local/lib/engines-1.1/afalg.so   /usr/local/lib/engines-1.1/afalg.so
+COPY --from=openssl  /usr/local/lib/engines-1.1/capi.so    /usr/local/lib/engines-1.1/capi.so
+COPY --from=openssl  /usr/local/lib/engines-1.1/padlock.so /usr/local/lib/engines-1.1/padlock.so
+COPY --from=openssl  /usr/local/bin/openssl                /usr/local/bin/openssl
+COPY --from=openssl  /usr/local/bin/c_rehash               /usr/local/bin/c_rehash
+RUN ln -s /usr/local/lib/libcrypto.so.1.1                  /usr/local/lib/libcrypto.so
+RUN ln -s /usr/local/lib/libssl.so.1.1                     /usr/local/lib/libssl.so

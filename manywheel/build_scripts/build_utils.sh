@@ -2,6 +2,7 @@
 # Helper utilities for build
 
 PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
+OPENSSL_DOWNLOAD_URL=https://www.openssl.org/source/
 # Ditto the curl sources
 CURL_DOWNLOAD_URL=http://curl.askapache.com/download
 
@@ -90,8 +91,8 @@ function build_cpythons {
 
 
 function do_openssl_build {
-    ./config -d '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)' > /dev/null
-    make install > /dev/null
+    ./config no-ssl2 no-shared -fPIC --prefix=/usr/local/ssl > /dev/null
+    make install_sw > /dev/null # Only install the OpenSSL software components.
 }
 
 

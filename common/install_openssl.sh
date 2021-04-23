@@ -8,6 +8,6 @@ wget -q -O ${OPENSSL}.tar.gz https://www.openssl.org/source/${OPENSSL}.tar.gz
 tar xf ${OPENSSL}.tar.gz
 cd ${OPENSSL}
 ./config -d '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)'
-make install
+make install_sw # Only install the OpenSSL software components.
 cd ..
 rm -rf ${OPENSSL}
