@@ -108,18 +108,22 @@ RUN yum install -y \
 RUN yum swap -y git git224-core
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
-COPY --from=python   /opt/python                           /opt/python
-COPY --from=python   /opt/_internal                        /opt/_internal
-COPY --from=python   /opt/python/cp36-cp36m/bin/auditwheel /usr/local/bin/auditwheel
-COPY --from=intel    /opt/intel                            /opt/intel
-COPY --from=patchelf /usr/local/bin/patchelf               /usr/local/bin/patchelf
-COPY --from=jni      /usr/local/include/jni.h              /usr/local/include/jni.h
-COPY --from=libpng   /usr/local/bin/png*                   /usr/local/bin/
-COPY --from=libpng   /usr/local/bin/libpng*                /usr/local/bin/
-COPY --from=libpng   /usr/local/include/png*               /usr/local/include/
-COPY --from=libpng   /usr/local/include/libpng*            /usr/local/include/
-COPY --from=libpng   /usr/local/lib/libpng*                /usr/local/lib/
-COPY --from=libpng   /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
+# Install LLVM version
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm                             /opt/llvm
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi                /opt/llvm_no_cxx11_abi
+COPY --from=openssl            /opt/openssl                          /openssl
+COPY --from=python             /opt/python                           /opt/python
+COPY --from=python             /opt/_internal                        /opt/_internal
+COPY --from=python             /opt/python/cp36-cp36m/bin/auditwheel /usr/local/bin/auditwheel
+COPY --from=intel              /opt/intel                            /opt/intel
+COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
+COPY --from=jni                /usr/local/include/jni.h              /usr/local/include/jni.h
+COPY --from=libpng             /usr/local/bin/png*                   /usr/local/bin/
+COPY --from=libpng             /usr/local/bin/libpng*                /usr/local/bin/
+COPY --from=libpng             /usr/local/include/png*               /usr/local/include/
+COPY --from=libpng             /usr/local/include/libpng*            /usr/local/include/
+COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/lib/
+COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1
@@ -137,10 +141,6 @@ FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
-
-# Install LLVM version
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 
 FROM common as rocm_final
 ARG ROCM_VERSION=3.7
