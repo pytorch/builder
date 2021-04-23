@@ -5,7 +5,7 @@ PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 # XXX: the official https server at www.openssl.org cannot be reached
 # with the old versions of openssl and curl in Centos 5.11 hence the fallback
 # to the ftp mirror:
-OPENSSL_DOWNLOAD_URL=ftp://ftp.openssl.org/source/old/1.0.2/
+OPENSSL_DOWNLOAD_URL=https://github.com/openssl/openssl/archive/
 # Ditto the curl sources
 CURL_DOWNLOAD_URL=http://curl.askapache.com/download
 
@@ -94,8 +94,7 @@ function build_cpythons {
 
 
 function do_openssl_build {
-    ./config no-ssl2 no-shared -fPIC --prefix=/usr/local/ssl > /dev/null
-    make > /dev/null
+    ./config -d '-Wl,--enable-new-dtags,-rpath,$(LIBRPATH)' > /dev/null
     make install > /dev/null
 }
 
@@ -121,7 +120,7 @@ function build_openssl {
     curl -sLO ${OPENSSL_DOWNLOAD_URL}/${openssl_fname}.tar.gz
     check_sha256sum ${openssl_fname}.tar.gz ${openssl_sha256}
     tar -xzf ${openssl_fname}.tar.gz
-    (cd ${openssl_fname} && do_openssl_build)
+    (cd openssl-${openssl_fname} && do_openssl_build)
     rm -rf ${openssl_fname} ${openssl_fname}.tar.gz
 }
 
