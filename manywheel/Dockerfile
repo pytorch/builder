@@ -132,6 +132,7 @@ COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BAS
 
 # Install LLVM version
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm /opt/llvm
+COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 
 FROM common as rocm_final
 ARG ROCM_VERSION=3.7
