@@ -28,6 +28,11 @@ FROM base as patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh && cp $(which patchelf) /patchelf
 
+FROM base as openssl
+# Install openssl
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh
+
 FROM base as conda
 # Install Anaconda
 ADD ./common/install_conda.sh install_conda.sh
@@ -92,8 +97,3 @@ RUN chmod o+rw /usr/local
 RUN touch /.condarc && \
     chmod o+rw /.condarc && \
     chmod -R o+rw /opt/conda
-
-FROM base as openssl
-# Install openssl
-ADD ./common/install_openssl.sh install_openssl.sh
-RUN bash ./install_openssl.sh && rm install_openssl.sh
