@@ -158,6 +158,12 @@ fi
     # search for symbols in a file called libtorch_cpu.so.dbg in some 
     # predetermined locations) and embed a CRC32 of the debug library into the .so
     cd libtorch/lib
+
+    # Clean out debug symbols from the rest of the libs
+    strip ./*.so.1
+    strip ./*.so
+    strip ./*.a
+
     objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
     cd ../..
 
@@ -185,7 +191,7 @@ fi
     # command:
     #    readelf --hex-dump=.gnu_debuglink a.stripped | tail -n 2 | head -n 1 | awk '{print $4}'
     # so, so add that to the name here
-    CRC32=$(cat debug/libtorch_cpu.so.dbg | gzip -c | tail -c8 | hexdump -n4 -e '"%x"')
+    CRC32=$(cat debug/libtorch_cpu.so.dbg | gzip -c | tail -c8 | xxd -l 4 -p)
 
     # Zip debug symbols
     zip /tmp/$LIBTORCH_HOUSE_DIR/debug-libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION-$CRC32.zip debug/libtorch_cpu.so.dbg
