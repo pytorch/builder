@@ -60,3 +60,6 @@ COPY --from=intel /opt/intel /opt/intel
 # Install Anaconda
 COPY --from=conda /opt/conda /opt/conda
 ENV PATH /opt/conda/bin:$PATH
+# Install openssl
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh

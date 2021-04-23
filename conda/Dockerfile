@@ -92,3 +92,8 @@ RUN chmod o+rw /usr/local
 RUN touch /.condarc && \
     chmod o+rw /.condarc && \
     chmod -R o+rw /opt/conda
+
+FROM base as openssl
+# Install openssl
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh

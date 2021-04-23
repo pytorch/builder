@@ -145,3 +145,8 @@ RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 ADD ./common/install_miopen.sh install_miopen.sh
 RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
+
+FROM base as openssl
+# Install openssl
+ADD ./common/install_openssl.sh install_openssl.sh
+RUN bash ./install_openssl.sh && rm install_openssl.sh
