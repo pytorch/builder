@@ -16,12 +16,15 @@ case ${CUDA_VERSION} in
     ;;
 esac
 
+OPENSSL_ROOT_DIR=/opt/openssl
+
 (
   set -x
   docker build \
     --target final \
     --build-arg "BASE_TARGET=${BASE_TARGET}" \
     --build-arg "CUDA_VERSION=${CUDA_VERSION}" \
+    --build-arg "OPENSSL_ROOT_DIR=${OPENSSL_ROOT_DIR}" \
     -t "pytorch/libtorch-cxx11-builder:${DOCKER_TAG}" \
     -f "${TOPDIR}/libtorch/ubuntu16.04/Dockerfile" \
     ${TOPDIR}
