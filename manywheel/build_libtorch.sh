@@ -187,11 +187,8 @@ fi
 
     mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
 
-    # objcopy installs a CRC32 into libtorch above (it can be extracted with the
-    # command:
-    #    readelf --hex-dump=.gnu_debuglink a.stripped | tail -n 2 | head -n 1 | awk '{print $4}'
-    # so, so add that to the name here
-    CRC32=$(cat debug/libtorch_cpu.so.dbg | gzip -c | tail -c8 | xxd -l 4 -p)
+    # objcopy installs a CRC32 into libtorch_cpu above so, so add that to the name here
+    CRC32=$(readelf --wide --debug-dump libtorch_cpu.so | grep CRC | sed 's/.*CRC value: 0x//g')
 
     # Zip debug symbols
     zip /tmp/$LIBTORCH_HOUSE_DIR/debug-libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION-$CRC32.zip debug/libtorch_cpu.so.dbg
