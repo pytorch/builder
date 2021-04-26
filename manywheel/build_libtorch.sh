@@ -148,9 +148,6 @@ fi
     # Split libtorch into debug / release version
     cp libtorch/lib/libtorch_cpu.so libtorch/lib/libtorch_cpu.so.dbg
 
-    # Remove debug symbols on release lib
-    strip --strip-debug libtorch/lib/libtorch_cpu.so
-
     # Keep debug symbols on debug lib
     strip --only-keep-debug libtorch/lib/libtorch_cpu.so.dbg
 
@@ -159,10 +156,9 @@ fi
     # predetermined locations) and embed a CRC32 of the debug library into the .so
     cd libtorch/lib
 
-    # Clean out debug symbols from the rest of the libs
-    find . -name "*.so.1" -exec strip {} \;
-    find . -name "*.a" -exec strip {} \;
-    find . -name "*.so" -exec strip {} \;
+    # Clean out debug symbols from all the libs
+    find . -name "*.so*" -exec strip --strip-debug {} \;
+    find . -name "*.a" -exec strip --strip-debug {} \;
 
     objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
     cd ../..
