@@ -160,9 +160,9 @@ fi
     cd libtorch/lib
 
     # Clean out debug symbols from the rest of the libs
-    strip ./*.so.1
-    strip ./*.so
-    strip ./*.a
+    find . -name "*.so.1" -exec strip {} \;
+    find . -name "*.a" -exec strip {} \;
+    find . -name "*.so" -exec strip {} \;
 
     objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
     cd ../..
