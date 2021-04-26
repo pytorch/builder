@@ -157,7 +157,8 @@ fi
     cd libtorch/lib
 
     # Clean out debug symbols from all the libs
-    find . -name "*.so*" -exec strip --strip-debug {} \;
+    find . -name "*.so.1" -exec strip --strip-debug {} \;
+    find . -name "*.so" -exec strip --strip-debug {} \;
     find . -name "*.a" -exec strip --strip-debug {} \;
 
     objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
