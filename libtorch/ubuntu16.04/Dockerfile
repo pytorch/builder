@@ -54,6 +54,10 @@ FROM cuda as cuda11.2
 RUN bash ./install_cuda.sh 11.2
 RUN bash ./install_magma.sh 11.2
 
+FROM cuda as cuda11.3
+RUN bash ./install_cuda.sh 11.3
+RUN bash ./install_magma.sh 11.3
+
 FROM ${BASE_TARGET} as final
 # Install LLVM
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
