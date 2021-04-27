@@ -70,6 +70,10 @@ FROM cuda as cuda11.2
 RUN bash ./install_cuda.sh 11.2
 ENV DESIRED_CUDA=11.2
 
+FROM cuda as cuda11.3
+RUN bash ./install_cuda.sh 11.3
+ENV DESIRED_CUDA=11.3
+
 # Install MNIST test data
 FROM base as mnist
 ADD ./common/install_mnist.sh install_mnist.sh
@@ -82,6 +86,7 @@ COPY --from=cuda10.2  /usr/local/cuda-10.2 /usr/local/cuda-10.2
 COPY --from=cuda11.0  /usr/local/cuda-11.0 /usr/local/cuda-11.0
 COPY --from=cuda11.1  /usr/local/cuda-11.1 /usr/local/cuda-11.1
 COPY --from=cuda11.2  /usr/local/cuda-11.2 /usr/local/cuda-11.2
+COPY --from=cuda11.3  /usr/local/cuda-11.3 /usr/local/cuda-11.3
 
 FROM ${BASE_TARGET} as final
 # Install LLVM
