@@ -12,10 +12,11 @@ DOCKER_RUN = set -eou pipefail; docker run --rm -i \
 	-e PACKAGE_NAME=${PACKAGE_NAME} \
 	-e CUDA_POINTER_ATTR_PATCH=${CUDA_POINTER_ATTR_PATCH} \
 	-e CUDA_ARCH_LIST="${CUDA_ARCH_LIST}" \
-	"pytorch/conda-cuda:latest" \
+	"pytorch/conda-builder:cuda${DESIRED_CUDA}" \
 	magma/build_magma.sh
 
 .PHONY: all
+all: magma-cuda113
 all: magma-cuda112
 all: magma-cuda111
 all: magma-cuda110
@@ -27,6 +28,14 @@ all: magma-cuda92
 clean:
 	$(RM) -r magma-*
 	$(RM) -r output
+
+.PHONY: magma-cuda113
+magma-cuda113: DESIRED_CUDA := 11.3
+magma-cuda113: PACKAGE_NAME := magma-cuda113
+magma-cuda113: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
+magma-cuda113: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
+magma-cuda113:
+	$(DOCKER_RUN)
 
 .PHONY: magma-cuda112
 magma-cuda112: DESIRED_CUDA := 11.2
