@@ -27,9 +27,20 @@ esac
     ${TOPDIR}
 )
 
+
 if [[ -n "${WITH_PUSH:-}" ]]; then
   (
     set -x
     docker push pytorch/libtorch-cxx11-builder:${DOCKER_TAG}
   )
+  # For legacy .circleci/config.yml generation scripts
+  if [[ "${CUDA_VERSION}" != "cpu" ]]; then
+    (
+      set -x
+      docker tag \
+        pytorch/libtorch-cxx11-builder:${DOCKER_TAG} \
+        pytorch/libtorch-cxx11-builder:${DOCKER_TAG/./}
+      docker push pytorch/libtorch-cxx11-builder:${DOCKER_TAG/./}
+    )
+  fi
 fi
