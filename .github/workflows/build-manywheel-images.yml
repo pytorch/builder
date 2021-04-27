@@ -10,10 +10,6 @@ env:
   DOCKER_REGISTRY: "docker.io"
   DOCKER_BUILDKIT: 1
 
-defaults:
-  run:
-    working-directory: manywheel
-
 jobs:
   build-docker-cuda:
     runs-on: linux.2xlarge
