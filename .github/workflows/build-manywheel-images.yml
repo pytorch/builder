@@ -1,0 +1,60 @@
+on:
+  pull_request:
+    paths:
+      - manywheel/Dockerfile
+      - 'common/*'
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+
+defaults:
+  working-directory: manywheel
+
+jobs:
+  build-docker-cuda:
+    runs-on: linux.2xlarge
+    strategy:
+      matrix:
+        cuda_version: ["10.2", "11.1"]
+    env:
+      cuda_version: ${{ matrix.cuda_version }}
+    steps:
+      - name: Build Docker Image
+        runs: |
+          DOCKER_IMAGE="${DOCKER_REGISTRY}/pytorch/manylinux-cuda${cuda_version//./}"
+          docker build \
+              -t "${DOCKER_IMAGE}" \
+              --build-arg "BASE_CUDA_VERSION=${cuda_version}" \
+              --build-arg "GPU_IMAGE=nvidia/cuda:${cuda_version}-devel-centos7" \
+              --target cuda_final \
+              -f manywheel/Dockerfile \
+  build-docker-rocm:
+    runs-on: linux.2xlarge
+    strategy:
+      matrix:
+        rocm_version: ["4.0.1", "4.1"]
+    env:
+      rocm_version: ${{ matrix.rocm_version }}
+    steps:
+      - name: Build Docker Image
+        runs: |
+          DOCKER_IMAGE="${DOCKER_REGISTRY}/pytorch/manylinux-rocm:${rocm_version}"
+          docker build \
+              -t "${DOCKER_IMAGE}" \
+              --build-arg "ROCM_VERSION=${rocm_version}" \
+              --build-arg "GPU_IMAGE=rocm/dev-centos-7:${rocm_version}" \
+              --target rocm_final \
+              -f manywheel/Dockerfile \
+              .
+  build-docker-cpu:
+    runs-on: linux.2xlarge
+    steps:
+      - name: Build Docker Image
+        runs: |
+          docker build \
+              -t "pytorch/manylinux-cpu" \
+              --build-arg "GPU_IMAGE=centos:7" \
+              --target cpu_final \
+              -f manywheel/Dockerfile \
+              .
