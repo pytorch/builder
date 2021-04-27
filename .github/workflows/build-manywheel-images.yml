@@ -21,7 +21,7 @@ jobs:
       cuda_version: ${{ matrix.cuda_version }}
     steps:
       - name: Build Docker Image
-        runs: |
+        run: |
           DOCKER_IMAGE="${DOCKER_REGISTRY}/pytorch/manylinux-cuda${cuda_version//./}"
           docker build \
               -t "${DOCKER_IMAGE}" \
@@ -38,7 +38,7 @@ jobs:
       rocm_version: ${{ matrix.rocm_version }}
     steps:
       - name: Build Docker Image
-        runs: |
+        run: |
           DOCKER_IMAGE="${DOCKER_REGISTRY}/pytorch/manylinux-rocm:${rocm_version}"
           docker build \
               -t "${DOCKER_IMAGE}" \
@@ -51,7 +51,7 @@ jobs:
     runs-on: linux.2xlarge
     steps:
       - name: Build Docker Image
-        runs: |
+        run: |
           docker build \
               -t "pytorch/manylinux-cpu" \
               --build-arg "GPU_IMAGE=centos:7" \
