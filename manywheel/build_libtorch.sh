@@ -185,7 +185,7 @@ fi
     mkdir -p /tmp/$LIBTORCH_HOUSE_DIR
 
     # objcopy installs a CRC32 into libtorch_cpu above so, so add that to the name here
-    CRC32=$(readelf --wide --debug-dump libtorch_cpu.so | grep CRC | sed 's/.*CRC value: 0x//g')
+    CRC32=$(objcopy --dump-section .gnu_debuglink=>(tail -c4 | od -t x4 -An | xargs echo) libtorch_cpu.so)
 
     # Zip debug symbols
     zip /tmp/$LIBTORCH_HOUSE_DIR/debug-libtorch-$LIBTORCH_ABI$LIBTORCH_VARIANT-$PYTORCH_BUILD_VERSION-$CRC32.zip debug/libtorch_cpu.so.dbg
