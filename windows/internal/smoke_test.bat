@@ -71,14 +71,11 @@ set "CONDA_HOME=%CD%\conda"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
 set "CONDA_EXTRA_ARGS="
-if "%DESIRED_PYTHON%" == "3.9" (
-    set "CONDA_EXTRA_ARGS=-c=conda-forge"
-)
 if "%CUDA_VERSION%" == "111" (
-    set "CONDA_EXTRA_ARGS=-c=conda-forge"
+    set "CONDA_EXTRA_ARGS=-c=nvidia"
 )
 if "%CUDA_VERSION%" == "112" (
-    set "CONDA_EXTRA_ARGS=-c=conda-forge"
+    set "CONDA_EXTRA_ARGS=-c=nvidia"
 )
 
 rmdir /s /q conda
