@@ -100,10 +100,6 @@ if [[ "$PACKAGE_TYPE" == 'conda' || "$(uname)" == 'Darwin' ]]; then
     *3.6.*)
       dependencies="${dependencies} future dataclasses"
       ;;
-    # TODO: Remove this once Python 3.9 is workable through the default conda channels
-    *3.9.*)
-      dependencies="-c=conda-forge ${dependencies}"
-      ;;
   esac
   conda install -yq ${dependencies}
 else
@@ -137,9 +133,9 @@ which python
 #  retry curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
 #fi
 
-# CUDA Toolkit 11.1 and 11.2 are both in conda-forge
+# CUDA Toolkit 11.1 and 11.2 are both in nvidia
 if [[ "$DESIRED_CUDA" == cu111 || "$DESIRED_CUDA" == cu112 ]]; then
-  EXTRA_CONDA_FLAGS="-c=conda-forge"
+  EXTRA_CONDA_FLAGS="-c=nvidia"
 elif
   EXTRA_CONDA_FLAGS=""
 fi
