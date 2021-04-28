@@ -10,6 +10,7 @@ export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 # set OPENSSL_ROOT_DIR=/opt/openssl if it exists
 if [[ -e /opt/openssl ]]; then
     export OPENSSL_ROOT_DIR=/opt/openssl
+    export CMAKE_INCLUDE_PATH="/opt/openssl/include":$CMAKE_INCLUDE_PATH
 fi
 
 # Why do we disable Ninja when ninja is included in the meta.yaml? Well, using
