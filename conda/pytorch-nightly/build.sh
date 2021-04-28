@@ -7,6 +7,11 @@ export TH_BINARY_BUILD=1 # links CPU BLAS libraries thrice in a row (was needed 
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 
+# set OPENSSL_ROOT_DIR=/opt/openssl if it exists
+if [[ -e /opt/openssl ]]; then
+    export OPENSSL_ROOT_DIR=/opt/openssl
+fi
+
 # Why do we disable Ninja when ninja is included in the meta.yaml? Well, using
 # ninja in the conda builds leads to a system python2.7 library being called
 # which leads to ascii decode errors when building third_party/onnx. Is the
