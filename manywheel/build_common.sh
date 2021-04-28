@@ -61,6 +61,7 @@ export CMAKE_INCLUDE_PATH="/opt/intel/include:$CMAKE_INCLUDE_PATH"
 
 if [[ -e /opt/openssl ]]; then
     export OPENSSL_ROOT_DIR=/opt/openssl
+    export CMAKE_INCLUDE_PATH="/opt/openssl/include":$CMAKE_INCLUDE_PATH
 fi
 
 # If given a python version like 3.6m or 2.7mu, convert this to the format we
