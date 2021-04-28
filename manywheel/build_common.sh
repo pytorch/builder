@@ -59,6 +59,9 @@ export PYTORCH_BUILD_NUMBER=$build_number
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel/include:$CMAKE_INCLUDE_PATH"
 
+if [[ -e /opt/openssl ]]; then
+    export OPENSSL_ROOT_DIR=/opt/openssl
+fi
 
 # If given a python version like 3.6m or 2.7mu, convert this to the format we
 # expect. The binary CI jobs pass in python versions like this; they also only

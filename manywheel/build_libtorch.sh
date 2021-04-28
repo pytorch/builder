@@ -50,6 +50,10 @@ export PYTORCH_BUILD_NUMBER=$build_number
 export CMAKE_LIBRARY_PATH="/opt/intel/lib:/lib:$CMAKE_LIBRARY_PATH"
 export CMAKE_INCLUDE_PATH="/opt/intel/include:$CMAKE_INCLUDE_PATH"
 
+# set OPENSSL_ROOT_DIR=/opt/openssl if it exists
+if [[ -e /opt/openssl ]]; then
+    export OPENSSL_ROOT_DIR=/opt/openssl
+fi
 
 # If given a python version like 3.6m or 2.7mu, convert this to the format we
 # expect. The binary CI jobs pass in python versions like this; they also only
@@ -152,7 +156,7 @@ fi
     strip --only-keep-debug libtorch/lib/libtorch_cpu.so.dbg
 
     # Add a debug link to the release lib to the debug lib (debuggers will then
-    # search for symbols in a file called libtorch_cpu.so.dbg in some 
+    # search for symbols in a file called libtorch_cpu.so.dbg in some
     # predetermined locations) and embed a CRC32 of the debug library into the .so
     cd libtorch/lib
 
