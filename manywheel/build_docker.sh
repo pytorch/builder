@@ -11,11 +11,6 @@ GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
 
 WITH_PUSH=${WITH_PUSH:-}
 
-tag_legacy_image() {
-    current_docker_image=$1
-    legacy_docker_image=${DOCKER_REGISTRY}/pytorch/manylinux-rocm:${GPU_ARCH_VERSION}
-}
-
 case ${GPU_ARCH_TYPE} in
     cpu)
         TARGET=cpu_final
