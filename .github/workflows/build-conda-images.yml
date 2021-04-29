@@ -1,0 +1,26 @@
+name: Build conda docker images
+
+on:
+  pull_request:
+    paths:
+      - conda/Dockerfile
+      - 'common/*'
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build-docker:
+    runs-on: linux.2xlarge
+    strategy:
+      matrix:
+        cuda_version: ["10.2", "11.1", "11.3", "cpu"]
+    env:
+      CUDA_VERSION: ${{ matrix.cuda_version }}
+    steps:
+      - name: Checkout PyTorch
+        uses: actions/checkout@v2
+      - name: Build Docker Image
+        run: |
+          conda/build_docker.sh
