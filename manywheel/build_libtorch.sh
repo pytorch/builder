@@ -130,7 +130,7 @@ fi
         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
         # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
         CFLAGS='-Wno-deprecated-declarations' \
-        REL_WITH_DEB_INFO=1 \
+        BUILD_LIBTORCH_CPU_WITH_DEBUG=1 \
         python setup.py install
 
     mkdir -p libtorch/{lib,bin,include,share}
@@ -156,15 +156,13 @@ fi
     # Keep debug symbols on debug lib
     strip --only-keep-debug libtorch/lib/libtorch_cpu.so.dbg
 
+    # Remove debug info from release lib
+    strip --strip-debug libtorch/lib/libtorch_cpu.so
+
     # Add a debug link to the release lib to the debug lib (debuggers will then
     # search for symbols in a file called libtorch_cpu.so.dbg in some
     # predetermined locations) and embed a CRC32 of the debug library into the .so
     cd libtorch/lib
-
-    # Clean out debug symbols from all the libs
-    find . -name "*.so.1" -exec strip --strip-debug {} \;
-    find . -name "*.so" -exec strip --strip-debug {} \;
-    find . -name "*.a" -exec strip --strip-debug {} \;
 
     objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
     cd ../..
