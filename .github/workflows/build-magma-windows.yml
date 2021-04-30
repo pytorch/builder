@@ -24,3 +24,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Install CUDA Toolkit
         run: windows/internal/cuda_install.bat
+      - name: Build MAGMA and push to AWS
+        run: windows/internal/build_magma.bat
