@@ -51,7 +51,7 @@ set MKLROOT=
 cd magma
 mkdir build && cd build
 
-:: curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output ninja.exe
+curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output ninja.exe
 
 IF "%CUVER_NODOT%" == "80" (
   set GPU_TARGET=sm_35 sm_50 sm_52 sm_37 sm_53 sm_60 sm_61
