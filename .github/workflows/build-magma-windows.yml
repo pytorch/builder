@@ -26,5 +26,9 @@ jobs:
         uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
       - name: Install CUDA Toolkit
         run: windows/internal/cuda_install.bat
-      - name: Build MAGMA and push to AWS
+      - name: Build MAGMA
         run: windows/internal/build_magma.bat
+      - name: Save as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: magma_*_cuda*_*.7z

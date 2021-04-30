@@ -14,12 +14,6 @@ echo Building for configuration: %CONFIG_LOWERCASE%, %CUVER%
 :: Download Ninja
 curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output C:\Tools\ninja.exe
 
-
-FOR /F "tokens=* USEBACKQ" %%F IN (`where cl`) DO (
-SET CL_EXE=%%F
-)
-echo %CL_EXE%
-
 dir C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC
 set "PATH=C:\Tools;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\libnvvp;%PATH%"
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%
@@ -46,23 +40,13 @@ if not exist magma (
   rmdir /S /Q magma\install
 )
 
-IF "%CUVER_NODOT%" == "80" (
-  set "CUDAHOSTCXX=C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/bin/x86_amd64/cl.exe"
-) ELSE (
-  set CUDAHOSTCXX=
-)
-
+set CUDAHOSTCXX=
 set MKLROOT=
 
 cd magma
 mkdir build && cd build
 
-IF "%CUVER_NODOT%" == "80" (
-  set GPU_TARGET=sm_35 sm_50 sm_52 sm_37 sm_53 sm_60 sm_61
-) ELSE (
-  set GPU_TARGET=All
-)
-
+set GPU_TARGET=All
 set CUDA_ARCH_LIST= -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
 
 IF "%CUVER_NODOT%" == "110" (
@@ -101,8 +85,8 @@ cd ..\..\..
 :: Create
 7z a magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %cd%\magma_cuda%CUVER_NODOT%\magma\install\*
 
-:: Push to AWS
-aws s3 cp magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %OSSCI_WINDOWS_S3% --acl public-read
+:: Push to AWS - Disabled for now
+:: aws s3 cp magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %OSSCI_WINDOWS_S3% --acl public-read
 
 rmdir /S /Q magma_cuda%CUVER_NODOT%\
 @endlocal
