@@ -81,8 +81,8 @@ IF "%CUVER_NODOT%" == "113" (
   set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
 )
 
-set CC=cl
-set CXX=cl
+set CC=cl.exe
+set CXX=cl.exe
 
 cmake .. -DGPU_TARGET="%GPU_TARGET%" ^
             -DUSE_FORTRAN=0 ^
