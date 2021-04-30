@@ -1,0 +1,28 @@
+name: Build MAGMA for Windows
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/build-magma-windows.yml
+      - windows/internal/build_magma.bat
+
+env:
+  OSSCI_WINDOWS_S3: s3://ossci-windows/
+
+jobs:
+  build-windows-magma:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        cuda_version: ["113"]
+        config: ["Release", "Debug"]
+    env:
+      CUDA_VERSION: ${{ matrix.cuda_version }}
+      CONFIG: ${{ matrix.config }}
+    steps:
+      - name: Checkout pytorch/builder
+        uses: actions/checkout@v2
+      - name: Install CUDA Toolkit
+        run: windows/internal/cuda_install.bat
+      - name: Build MAGMA and push to AWS
+        run: manywheel/build_docker.sh
