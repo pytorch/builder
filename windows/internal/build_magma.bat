@@ -74,6 +74,9 @@ IF "%CUVER_NODOT%" == "113" (
   set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
 )
 
+set CC=cl.exe
+set CXX=cl.exe
+
 cmake .. -DGPU_TARGET="%GPU_TARGET%" ^
             -DUSE_FORTRAN=0 ^
             -DCMAKE_CXX_FLAGS="/FS /Zf" ^
@@ -83,8 +86,6 @@ cmake .. -DGPU_TARGET="%GPU_TARGET%" ^
             -DCUDA_ARCH_LIST="%CUDA_ARCH_LIST%"
 if errorlevel 1 exit /b 1
 
-set CC=cl.exe
-set CXX=cl.exe
 cmake --build . --target install --config %CONFIG% -- -j%NUMBER_OF_PROCESSORS%
 if errorlevel 1 exit /b 1
 
