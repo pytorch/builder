@@ -14,8 +14,14 @@ echo Building for configuration: %CONFIG_LOWERCASE%, %CUVER%
 :: Download Ninja
 curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output C:\Tools\ninja.exe
 
+
+FOR /F "tokens=* USEBACKQ" %%F IN (`where cl`) DO (
+SET CL_EXE=%%F
+)
+echo %CL_EXE%
+
 dir C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC
-set "PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\bin;C:\Tools;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\libnvvp;%PATH%"
+set "PATH=C:\Tools;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\libnvvp;%PATH%"
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%
 set NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt
 
@@ -75,8 +81,8 @@ IF "%CUVER_NODOT%" == "113" (
   set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
 )
 
-set CC=cl.exe
-set CXX=cl.exe
+set CC=cl
+set CXX=cl
 
 cmake .. -DGPU_TARGET="%GPU_TARGET%" ^
             -DUSE_FORTRAN=0 ^
