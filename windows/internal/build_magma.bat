@@ -2,10 +2,8 @@
 
 set MAGMA_VERSION=2.5.4
 
-REM set CUVER_NODOT=%~1
+set CUVER_NODOT=%CUDA_VERSION%
 set CUVER=%CUVER_NODOT:~0,-1%.%CUVER_NODOT:~-1,1%
-
-REM set CONFIG=Debug
 
 set CONFIG_LOWERCASE=%CONFIG:D=d%
 set CONFIG_LOWERCASE=%CONFIG_LOWERCASE:R=r%
@@ -13,14 +11,15 @@ set CONFIG_LOWERCASE=%CONFIG_LOWERCASE:M=m%
 
 echo Building for configuration: %CONFIG_LOWERCASE%, %CUVER%
 
-mkdir magma_cuda%CUVER_NODOT%
-cd magma_cuda%CUVER_NODOT%
+:: Download Ninja
+curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output C:\Tools\ninja.exe
 
-REM set "PATH=C:\Program Files\CMake\bin\;C:\Program Files\7-Zip\;C:\curl-7.57.0-win64-mingw\bin\;%PATH%"
-
-set "PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\libnvvp;%PATH%"
+set "PATH=C:\Tools;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\libnvvp;%PATH%"
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%
 set NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt
+
+mkdir magma_cuda%CUVER_NODOT%
+cd magma_cuda%CUVER_NODOT%
 
 :: First install MKL, which provides BLAS and LAPACK API
 :: Download and install from:
@@ -50,8 +49,6 @@ set MKLROOT=
 
 cd magma
 mkdir build && cd build
-
-curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output ninja.exe
 
 IF "%CUVER_NODOT%" == "80" (
   set GPU_TARGET=sm_35 sm_50 sm_52 sm_37 sm_53 sm_60 sm_61
