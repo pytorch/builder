@@ -13,8 +13,8 @@ echo Building for configuration: %CONFIG_LOWERCASE%, %CUVER%
 
 :: Download Ninja
 curl -k https://s3.amazonaws.com/ossci-windows/ninja_1.8.2.exe --output C:\Tools\ninja.exe
+if errorlevel 1 exit /b 1
 
-dir C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC
 set "PATH=C:\Tools;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%\libnvvp;%PATH%"
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUVER%
 set NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt
@@ -22,26 +22,14 @@ set NVTOOLSEXT_PATH=C:\Program Files\NVIDIA Corporation\NvToolsExt
 mkdir magma_cuda%CUVER_NODOT%
 cd magma_cuda%CUVER_NODOT%
 
-:: First install MKL, which provides BLAS and LAPACK API
-:: Download and install from:
-:: curl https://s3.amazonaws.com/ossci-windows/w_mkl_2018.2.185.exe -k -O
-:: .\w_mkl_2018.2.185.exe
-:: Follow the installer steps and install MKL to default path
-
-pushd %CD%
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
-popd
-
 if not exist magma (
   :: MAGMA 2.5.4 from http://icl.utk.edu/projectsfiles/magma/downloads/ with applied patches from our magma folder
   git clone https://github.com/peterjc123/magma.git magma
+  if errorlevel 1 exit /b 1
 ) else (
   rmdir /S /Q magma\build
   rmdir /S /Q magma\install
 )
-
-set CUDAHOSTCXX=
-set MKLROOT=
 
 cd magma
 mkdir build && cd build
@@ -85,8 +73,11 @@ cd ..\..\..
 :: Create
 7z a magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %cd%\magma_cuda%CUVER_NODOT%\magma\install\*
 
-:: Push to AWS - Disabled for now
-:: aws s3 cp magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %OSSCI_WINDOWS_S3% --acl public-read
+:: Push to AWS
+IF DEFINED %WITH_PUSH% (
+    aws s3 cp magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %OSSCI_WINDOWS_S3% --acl public-read
+    if errorlevel 1 exit /b 1
+)
 
 rmdir /S /Q magma_cuda%CUVER_NODOT%\
 @endlocal
