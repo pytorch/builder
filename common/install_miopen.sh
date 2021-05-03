@@ -56,7 +56,7 @@ fi
 ## MIOpen minimum requirements
 
 ### Boost; No viable yum package exists. Must use static linking with PIC.
-retry wget https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz
+retry wget https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.gz
 tar xzf boost_1_72_0.tar.gz
 pushd boost_1_72_0
 ./bootstrap.sh
