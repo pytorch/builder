@@ -3,7 +3,6 @@ name: Build MAGMA for Windows
 on:
   pull_request:
     paths:
-      - .github/workflows/build-magma-windows.yml
       - windows/internal/build_magma.bat
 
 env:
@@ -28,6 +27,9 @@ jobs:
         run: windows/internal/cuda_install.bat
       - name: Build MAGMA
         run: windows/internal/build_magma.bat
+        with:
+          aws_access_key_id: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY }}
       - name: Save as artifact
         uses: actions/upload-artifact@v2
         with:
