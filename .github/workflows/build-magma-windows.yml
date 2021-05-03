@@ -3,8 +3,6 @@ name: Build MAGMA for Windows
 on:
   pull_request:
     paths:
-      # Including this file itself as it doesn't trigger by default
-      - .github/workflows/build-magma-windows.yml
       - windows/internal/build_magma.bat
 
 env:
