@@ -74,6 +74,7 @@ cd ..\..\..
 7z a magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %cd%\magma_cuda%CUVER_NODOT%\magma\install\*
 
 :: Push to AWS
+set AWS_EC2_METADATA_DISABLED=true
 IF DEFINED WITH_PUSH (
     aws s3 cp magma_%MAGMA_VERSION%_cuda%CUVER_NODOT%_%CONFIG_LOWERCASE%.7z %OSSCI_WINDOWS_S3% --acl public-read
     if errorlevel 1 exit /b 1
