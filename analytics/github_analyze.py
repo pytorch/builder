@@ -166,6 +166,9 @@ def build_commit_dict(commits: List[GitCommit]) -> Dict[str, GitCommit]:
 
 def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     headers = {'Accept': 'application/vnd.github.v3+json'}
+    token = os.environ.get("GITHUB_TOKEN")
+    if token is not None and url.startswith('https://api.github.com/'):
+        headers['Authorization'] = f'token {token}'
     if params is not None and len(params) > 0:
         url += '?' + '&'.join(f"{name}={val}" for name, val in params.items())
     try:
