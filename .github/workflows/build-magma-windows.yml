@@ -19,24 +19,21 @@ jobs:
       CUDA_VERSION: ${{ matrix.cuda_version }}
       CONFIG: ${{ matrix.config }}
     steps:
-      # - name: Checkout pytorch/builder
-      #   uses: actions/checkout@v2
-      # - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
-      #   uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
-      # - name: Install CUDA Toolkit
-      #   run: windows/internal/cuda_install.bat
-      # - name: Build MAGMA and push to S3
-      #   run: windows/internal/build_magma.bat
-      - name: Make file
-        run: New-Item -Path "$env:CONFIG.txt" -ItemType File
+      - name: Checkout pytorch/builder
+        uses: actions/checkout@v2
+      - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
+        uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
+      - name: Install CUDA Toolkit
+        run: windows/internal/cuda_install.bat
+      - name: Build MAGMA and push to S3
+        run: windows/internal/build_magma.bat
       - name: Save as artifact
         uses: actions/upload-artifact@v2
         with:
-          path: ./*.txt
-          # path: magma_*_cuda*_*.7z
+          path: magma_*_cuda*_*.7z
   push-windows-magma:
-    # if: ${{ github.event_name == 'push' }}
-    # environment: magma
+    if: ${{ github.event_name == 'push' }}
+    environment: magma
     runs-on: ubuntu-18.04
     needs: build-windows-magma
     steps:
@@ -45,9 +42,8 @@ jobs:
       - name: Push MAGMA to S3
         run: |
           # Setting the following variable avoids errors in GHA https://github.com/aws/aws-cli/issues/5623
-          # export AWS_EC2_METADATA_DISABLED=true
-          # aws s3 cp **/magma_*_cuda*.7z $OSSCI_WINDOWS_S3 --acl public-read
-          ls **/*.txt
+          export AWS_EC2_METADATA_DISABLED=true
+          aws s3 cp **/magma_*_cuda*.7z $OSSCI_WINDOWS_S3 --acl public-read
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY }}
