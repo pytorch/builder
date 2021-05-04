@@ -1,7 +1,7 @@
 name: Build MAGMA for Windows
 
 on:
-  pull_request:
+  pull_request_target:
     paths:
       - windows/internal/build_magma.bat
 
@@ -22,14 +22,14 @@ jobs:
     steps:
       - name: Checkout pytorch/builder
         uses: actions/checkout@v2
-      # - name: Enable MSVC dev commands to enable cl.exe
-      #   uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
-      # - name: Install CUDA Toolkit
-      #   run: windows/internal/cuda_install.bat
+      - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
+        uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
+      - name: Install CUDA Toolkit
+        run: windows/internal/cuda_install.bat
       - name: Build MAGMA and push to S3
         run: windows/internal/build_magma.bat
         env:
-          AWS_ACCESS_KEY_ID: beef # ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY }}
       - name: Save as artifact
         uses: actions/upload-artifact@v2
