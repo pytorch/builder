@@ -1,12 +1,12 @@
 name: Build MAGMA for Windows
 
 on:
-  pull_request_target:
+  push:
+    branches:
+      master
+  pull_request:
     paths:
       - windows/internal/build_magma.bat
-
-env:
-  OSSCI_WINDOWS_S3: s3://ossci-windows/
 
 jobs:
   build-windows-magma:
@@ -18,7 +18,6 @@ jobs:
     env:
       CUDA_VERSION: ${{ matrix.cuda_version }}
       CONFIG: ${{ matrix.config }}
-      WITH_PUSH: True
     steps:
       - name: Checkout pytorch/builder
         uses: actions/checkout@v2
@@ -28,10 +27,26 @@ jobs:
         run: windows/internal/cuda_install.bat
       - name: Build MAGMA and push to S3
         run: windows/internal/build_magma.bat
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY }}
       - name: Save as artifact
         uses: actions/upload-artifact@v2
         with:
           path: magma_*_cuda*_*.7z
+  push-windows-magma:
+    if: ${{ github.event_name == 'push' }}
+    environment: magma
+    runs-on: ubuntu-18.04
+    needs: build-windows-magma
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v2
+      - name: Push MAGMA to S3
+        run: |
+          # Setting the following variable avoids errors in GHA https://github.com/aws/aws-cli/issues/5623
+          export AWS_EC2_METADATA_DISABLED=true
+          aws s3 cp **/magma_*_cuda*.7z $OSSCI_WINDOWS_S3 --acl public-read
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY }}
+          OSSCI_WINDOWS_S3: s3://ossci-windows/
+
+
