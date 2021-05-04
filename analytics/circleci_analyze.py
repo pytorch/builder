@@ -73,6 +73,7 @@ def is_workflow_in_progress(workflow: Dict) -> bool:
 
 
 def str2date(val: str) -> datetime:
+    assert val is not None
     return datetime.fromisoformat(val[:-1] if val.endswith('Z') else val)
 
 
@@ -315,7 +316,7 @@ def fetch_status(branch=None, item_count=50):
     print(f"About to fetch {item_count} latest pipelines against {branch if branch is not None else 'all branches'}")
     pipelines = ci_cache.get_pipelines(branch=branch, item_count=item_count)
     total_price, total_master_price = 0, 0
-    for pipeline in pipelines:
+    for pipeline_idx, pipeline in enumerate(pipelines):
         revision = pipeline['vcs']['revision']
         branch = pipeline['vcs']['branch']
         workflows = ci_cache.get_pipeline_workflows(pipeline['id'])
@@ -350,8 +351,11 @@ def fetch_status(branch=None, item_count=50):
                     continue
                 job_on_gpu = 'gpu' in resource_class
                 job_on_win = 'windows' in resource_class
-                duration = str2date(job_info['stopped_at']) - str2date(job_info['started_at'])
-                job_credits = get_executor_price_rate(job_executor) * int(job_info['duration']) * 1e-3 / 60
+                if job_status != 'infrastructure_fail':
+                    duration = str2date(job_info['stopped_at']) - str2date(job_info['started_at'])
+                    job_credits = get_executor_price_rate(job_executor) * int(job_info['duration']) * 1e-3 / 60
+                else:
+                    job_credits, duration = 0, 0
                 job_cost = job_credits * price_per_credit
                 total_credits += job_credits
                 if 'test' in job_name or job_name.startswith('smoke_'):
@@ -374,7 +378,8 @@ def fetch_status(branch=None, item_count=50):
             # skip small jobs
             if total_credits * price_per_credit < .1:
                 continue
-            workflow_status = f'{url} {workflow["name"]} status:{workflow["status"]}'
+            workflow_status = f'[{pipeline_idx}/{len(pipelines)}]'
+            workflow_status += f' {url} {workflow["name"]} status:{workflow["status"]}'
             workflow_status += f' price: ${total_credits * price_per_credit:.2f}'
             workflow_status += ' (Rerun?)' if rerun else ''
             workflow_status += f'\n\t\tdate: {workflow["created_at"]} branch:{branch} revision:{revision}'
