@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Iterable, Optional, Union
 from urllib.request import urlopen, Request
+from urllib.error import HTTPError
 import json
 import enum
 import os
@@ -170,10 +171,10 @@ def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[s
     try:
         with urlopen(Request(url, headers=headers)) as data:
             return json.load(data)
-    except Exception as err:
-        print(err)
-        import pdb
-        pdb.set_trace()
+    except HTTPError as err:
+        if err.code == 403 and all(key in err.headers for key in ['X-RateLimit-Limit', 'X-RateLimit-Used']):
+            print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
+        raise
 
 
 def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
@@ -281,18 +282,36 @@ def analyze_reverts(commits: List[GitCommit]):
                 print(f"{k} {orig_sm[k]}->{revert_sm[k]}")
 
 
+def parse_arguments():
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="Print GitHub repo stats")
+    parser.add_argument("--repo-path",
+                        type=str,
+                        help="Path to PyTorch git checkout",
+                        default=os.path.expanduser("~/git/pytorch/pytorch"))
+    parser.add_argument("--analyze-reverts", action="store_true")
+    return parser.parse_args()
+
+
 def main():
-    path = os.path.expanduser("~/git/pytorch/pytorch")
-    remotes = get_git_remotes(path)
+    import time
+    args = parse_arguments()
+    remotes = get_git_remotes(args.repo_path)
     # Pick best remote
     remote = next(iter(remotes.keys()))
     for key in remotes:
         if remotes[key] == 'https://github.com/pytorch/pytorch':
             remote = key
 
-    repo = GitRepo(path, remote)
+    repo = GitRepo(args.repo_path, remote)
+    print("Parsing git history...", end='', flush=True)
+    start_time = time.time()
     x = repo._run_git_log(f"{remote}/master")
-    print_monthly_stats(x)
+    print(f"done in {time.time()-start_time:.1f} sec")
+    if args.analyze_reverts:
+        analyze_reverts(x)
+    else:
+        print_monthly_stats(x)
 
 
 if __name__ == "__main__":
