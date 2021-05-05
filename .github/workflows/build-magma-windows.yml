@@ -42,8 +42,9 @@ jobs:
       - name: Push MAGMA to S3
         run: |
           # Setting the following variable avoids errors in GHA https://github.com/aws/aws-cli/issues/5623
+          cd artifact
           export AWS_EC2_METADATA_DISABLED=true
-          aws s3 cp **/magma_*_cuda*.7z $OSSCI_WINDOWS_S3 --acl public-read
+          aws s3 cp . $OSSCI_WINDOWS_S3 --exclude="*" --include="magma_*_cuda*.7z" --recursive --acl public-read
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_OSSCI_S3_ACCESS_KEY }}
