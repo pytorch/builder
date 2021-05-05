@@ -29,7 +29,6 @@ requirements:
 
   run:
     - python
-    - numpy >=1.19
     - mkl >=2018
     - dataclasses # [py36]
     - libuv # [win]
