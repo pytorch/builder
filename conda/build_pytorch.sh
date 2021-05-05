@@ -372,6 +372,11 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Extract the package for testing
     ls -lah "$output_folder"
     built_package="$(find $output_folder/ -name '*pytorch*.tar.bz2')"
+    # Set correct platform for cross compiled package
+    if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+      conda convert "$built_package" -p osx-arm64 -f --output-dir "$output_folder"
+      built_package="$(find $output_folder/osx-arm64 -name '*pytorch*.tar.bz2')"
+    fi
 
     # Copy the built package to the host machine for persistence before testing
     if [[ -n "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
