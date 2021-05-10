@@ -138,6 +138,7 @@ if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
     python tools/amd_build/build_amd.py
 fi
 
+pip install ninja
 export CMAKE_GENERATOR=Ninja
 
 echo "Calling setup.py bdist at $(date)"
