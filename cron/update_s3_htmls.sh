@@ -9,7 +9,7 @@ set -e
 
 # Upload for all CUDA/cpu versions if not given one to use
 if [[ -z "$CUDA_VERSIONS" ]]; then
-    export CUDA_VERSIONS=('cpu' 'cu92' 'cu100' 'cu101' 'cu102' 'cu110' 'rocm3.7' 'rocm3.8' 'rocm3.9' 'rocm3.10' 'rocm4.0.1' 'rocm4.1')
+    export CUDA_VERSIONS=('cpu' 'cu92' 'cu100' 'cu101' 'cu102' 'cu110' 'rocm4.0.1' 'rocm4.1' 'rocm4.2')
 fi
 
 if [[ -z "$HTML_NAME" ]]; then
