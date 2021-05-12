@@ -29,7 +29,7 @@ jobs:
     runs-on: linux.2xlarge
     strategy:
       matrix:
-        rocm_version: ["4.0.1", "4.1"]
+        rocm_version: ["4.0.1", "4.1", "4.2"]
     env:
       GPU_ARCH_TYPE: rocm
       GPU_ARCH_VERSION: ${{ matrix.rocm_version }}
