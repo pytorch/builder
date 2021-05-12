@@ -95,6 +95,9 @@ if [[ ${ROCM_VERSION} == 4.0.1 ]]; then
 elif [[ ${ROCM_VERSION} == 4.1 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
     MIOPEN_BRANCH="rocm-4.1.x-staging"
+elif [[ ${ROCM_VERSION} == 4.2 ]]; then
+    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
+    MIOPEN_BRANCH="rocm-4.2.x"
 else
     echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
     exit 1
