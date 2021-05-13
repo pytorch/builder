@@ -242,6 +242,9 @@ DEPS_SONAME=(
     "libnvrtc-builtins.so"
     "libgomp.so.1"
 )
+
+# Try parallelizing nvcc as well
+export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
 else
     echo "Unknown cuda version $CUDA_VERSION"
     exit 1
