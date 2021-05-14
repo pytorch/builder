@@ -15,7 +15,7 @@ jobs:
     runs-on: linux.2xlarge
     strategy:
       matrix:
-        cuda_version: ["10.2", "11.1"]
+        cuda_version: ["11.3"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
@@ -25,6 +25,8 @@ jobs:
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
+        env:
+          WITH_PUSH: true
   build-docker-rocm:
     runs-on: linux.2xlarge
     strategy:
