@@ -138,7 +138,8 @@ RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 
 # ninja
-RUN pip install ninja
+RUN yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-1.noarch.rpm
+RUN yum install -y ninja-build
 
 FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
