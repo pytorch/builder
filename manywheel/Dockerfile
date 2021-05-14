@@ -137,6 +137,9 @@ ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/roo
 RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 
+# ninja
+RUN pip install ninja
+
 FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
