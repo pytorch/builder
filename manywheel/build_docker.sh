@@ -60,7 +60,6 @@ DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-builder:${DOCKER_TAG}
 if [[ "${WITH_PUSH}" == true ]]; then
     (
         set -x
-        echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
         docker push "${DOCKER_IMAGE}"
         docker push "${LEGACY_DOCKER_IMAGE}"
     )

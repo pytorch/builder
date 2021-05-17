@@ -4,6 +4,8 @@ on:
   push:
     branches:
       master
+    paths:
+      - windows/internal/build_magma.bat
   pull_request:
     paths:
       - windows/internal/build_magma.bat
