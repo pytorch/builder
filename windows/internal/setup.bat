@@ -66,6 +66,7 @@ move /Y torch\test\*.* libtorch\test\
 
 move /Y libtorch\bin\*.dll libtorch\lib\
 
+echo "%PYTORCH_BUILD_VERSION%" > libtorch\build-version
 git rev-parse HEAD > libtorch\build-hash
 
 IF "%DEBUG%" == "" (
