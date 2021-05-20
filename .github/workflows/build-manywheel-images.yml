@@ -5,12 +5,16 @@ on:
     branches:
       master
     paths:
+      - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/build_docker.sh
       - 'common/*'
   pull_request:
     paths:
+      - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
       - 'common/*'
+      - manywheel/build_docker.sh
 
 env:
   DOCKER_REGISTRY: "docker.io"
