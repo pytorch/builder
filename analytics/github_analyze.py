@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Iterable, Optional, Union
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
@@ -138,7 +138,7 @@ class GitRepo:
         self.repo_dir = path
         self.remote = remote
 
-    def _run_git_log(self, revision_range):
+    def _run_git_log(self, revision_range) -> List[GitCommit]:
         log = _check_output(["git", "-C", self.repo_dir, "log", '--format=fuller', '--date=unix', revision_range]).split("\n")
         rc = []
         cur_msg = []
@@ -285,6 +285,25 @@ def analyze_reverts(commits: List[GitCommit]):
                 print(f"{k} {orig_sm[k]}->{revert_sm[k]}")
 
 
+def print_contributor_stats(commits, delta: Optional[timedelta] = None) -> None:
+    authors: Dict[str, int] = {}
+    now = datetime.now()
+    # Default delta is one non-leap year
+    if delta is None:
+        delta = timedelta(days=365)
+    for commit in commits:
+        date, author = commit.commit_date, commit.author
+        if now - date > delta:
+            break
+        if author not in authors:
+            authors[author] = 0
+        authors[author] += 1
+
+    print(f"{len(authors)} contributors made {sum(authors.values())} commits in last {delta.days} days")
+    for count, author in sorted(((commit, author) for author, commit in authors.items()), reverse=True):
+        print(f"{author}: {count}")
+
+
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser(description="Print GitHub repo stats")
@@ -293,6 +312,7 @@ def parse_arguments():
                         help="Path to PyTorch git checkout",
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
     parser.add_argument("--analyze-reverts", action="store_true")
+    parser.add_argument("--contributor-stats", action="store_true")
     return parser.parse_args()
 
 
@@ -313,6 +333,8 @@ def main():
     print(f"done in {time.time()-start_time:.1f} sec")
     if args.analyze_reverts:
         analyze_reverts(x)
+    elif args.contributor_stats:
+        print_contributor_stats(x)
     else:
         print_monthly_stats(x)
 
