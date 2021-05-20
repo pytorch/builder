@@ -57,7 +57,7 @@ DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-builder:${DOCKER_TAG}
     docker tag ${DOCKER_IMAGE} ${LEGACY_DOCKER_IMAGE}
 )
 
-if [[ -n ${WITH_PUSH} ]]; then
+if [[ "${WITH_PUSH}" == true ]]; then
     (
         set -x
         docker push "${DOCKER_IMAGE}"

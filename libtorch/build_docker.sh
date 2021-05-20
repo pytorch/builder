@@ -28,7 +28,7 @@ esac
 )
 
 
-if [[ -n "${WITH_PUSH:-}" ]]; then
+if [[ "${WITH_PUSH:-}" == true ]]; then
   (
     set -x
     docker push pytorch/libtorch-cxx11-builder:${DOCKER_TAG}

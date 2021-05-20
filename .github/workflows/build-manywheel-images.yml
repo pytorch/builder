@@ -1,6 +1,12 @@
 name: Build manywheel docker images
 
 on:
+  push:
+    branches:
+      master
+    paths:
+      - manywheel/Dockerfile
+      - 'common/*'
   pull_request:
     paths:
       - manywheel/Dockerfile
@@ -9,6 +15,9 @@ on:
 env:
   DOCKER_REGISTRY: "docker.io"
   DOCKER_BUILDKIT: 1
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  WITH_PUSH: ${{ github.event_name == 'push' }}
 
 jobs:
   build-docker-cuda:
@@ -22,6 +31,11 @@ jobs:
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v2
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
+          fi
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
@@ -36,6 +50,11 @@ jobs:
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v2
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
+          fi
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
@@ -44,6 +63,11 @@ jobs:
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v2
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
+          fi
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
