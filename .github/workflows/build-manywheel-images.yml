@@ -38,7 +38,7 @@ jobs:
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
-            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
           fi
       - name: Build Docker Image
         run: |
@@ -57,7 +57,7 @@ jobs:
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
-            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
           fi
       - name: Build Docker Image
         run: |
@@ -70,7 +70,7 @@ jobs:
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
-            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password--stdin
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
           fi
       - name: Build Docker Image
         run: |
