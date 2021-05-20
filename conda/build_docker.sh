@@ -42,7 +42,7 @@ if [[ "${DOCKER_TAG}" =~ ^cuda* ]]; then
   )
 fi
 
-if [[ -n "${WITH_PUSH:-}" ]]; then
+if [[ "${WITH_PUSH:-}" == true ]]; then
   (
     set -x
     docker push "pytorch/conda-builder:${DOCKER_TAG}"
