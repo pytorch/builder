@@ -4,6 +4,7 @@
 set -ex
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+
 # Require only one python installation
 if [[ -z "$DESIRED_PYTHON" ]]; then
     echo "Need to set DESIRED_PYTHON env variable"
@@ -141,6 +142,7 @@ fi
 echo "Calling setup.py bdist at $(date)"
 time CMAKE_ARGS=${CMAKE_ARGS[@]} \
      EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+     BUILD_LIBTORCH_CPU_WITH_DEBUG=1 \
      python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
 echo "Finished setup.py bdist at $(date)"
 
@@ -343,6 +345,32 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
             echo $(make_wheel_record $fname) >>$record_file
         done
     fi
+
+    pushd "$PREFIX/lib"
+
+    # Duplicate library into debug lib
+    cp libtorch_cpu.so libtorch_cpu.so.dbg
+
+    # Keep debug symbols on debug lib
+    strip --only-keep-debug libtorch_cpu.so.dbg
+
+    # Remove debug info from release lib
+    strip --strip-debug libtorch_cpu.so
+
+    objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
+
+    # Zip up debug info
+    mkdir -p /tmp/debug
+    mv libtorch_cpu.so.dbg /tmp/debug/libtorch_cpu.so.dbg
+    CRC32=$(objcopy --dump-section .gnu_debuglink=>(tail -c4 | od -t x4 -An | xargs echo) libtorch_cpu.so)
+
+    pushd /tmp
+    PKG_NAME=$(basename "$pkg" | sed 's/\.whl$//g')
+    zip /tmp/debug-whl-libtorch-"$PKG_NAME"-"$CRC32".zip /tmp/debug/libtorch_cpu.so.dbg
+    cp /tmp/debug-whl-libtorch-"$PKG_NAME"-"$CRC32".zip "$PYTORCH_FINAL_PACKAGE_DIR"
+    popd
+
+    popd
 
     # zip up the wheel back
     zip -rq $(basename $pkg) $PREIX*
