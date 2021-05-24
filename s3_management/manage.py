@@ -3,7 +3,7 @@
 import argparse
 import tempfile
 
-from os import path
+from os import path, makedirs
 from collections import defaultdict
 from typing import List, Type, Dict, Set, TypeVar, Generator, Optional
 from re import sub, match
@@ -25,8 +25,9 @@ ACCEPTED_SUBDIR_PATTERNS = [
 ]
 PREFIXES_WITH_HTML = {
     "whl": "torch_stable.html",
+    "whl/lts/1.8": "torch_lts.html",
+    "whl/nightly": "torch_nightly.html",
     "whl/test": "torch_test.html",
-    "whl/nightly": "torch_nightly.html"
 }
 
 # How many packages should we keep of a specific package?
@@ -138,6 +139,12 @@ class S3Index:
                 Body=self.to_legacy_html(subdir=subdir)
             )
 
+    def save_legacy_html(self) -> None:
+        for subdir in self.subdirs:
+            print(f"INFO Saving {subdir}/{self.html_name}")
+            makedirs(subdir, exist_ok=True)
+            with open(path.join(subdir, self.html_name), mode="w", encoding="utf-8") as f:
+                f.write(self.to_legacy_html(subdir=subdir))
 
     @classmethod
     def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
@@ -163,20 +170,28 @@ def create_parser() -> argparse.ArgumentParser:
         type=str,
         choices=list(PREFIXES_WITH_HTML.keys()) + ["all"]
     )
+    parser.add_argument("--do-not-upload", action="store_true")
     return parser
 
 def main():
     parser = create_parser()
     args = parser.parse_args()
+    action = "Saving" if args.do_not_upload else "Uploading"
     if args.prefix == 'all':
         for prefix in PREFIXES_WITH_HTML.keys():
-            print(f"INFO: Uploading indices for '{prefix}'")
+            print(f"INFO: {action} indices for '{prefix}'")
             idx = S3Index.from_S3(prefix=prefix)
-            idx.upload_legacy_html()
+            if args.do_not_upload:
+                idx.save_legacy_html()
+            else:
+                idx.upload_legacy_html()
     else:
-        print(f"INFO: Uploading indices for '{args.prefix}'")
+        print(f"INFO: {action} indices for '{args.prefix}'")
         idx = S3Index.from_S3(prefix=args.prefix)
-        idx.upload_legacy_html()
+        if args.do_not_upload:
+            idx.save_legacy_html()
+        else:
+            idx.upload_legacy_html()
 
 if __name__ == "__main__":
     main()
