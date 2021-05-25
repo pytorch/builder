@@ -139,10 +139,20 @@ if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
     python tools/amd_build/build_amd.py
 fi
 
+# This value comes from binary_linux_build.sh (and should only be set to true
+# for master / release branches)
+BUILD_DEBUG_INFO=${BUILD_DEBUG_INFO:=0}
+
+if [[ $BUILD_DEBUG_INFO == "1" ]]; then
+    echo "Building wheel and debug info"
+else
+    echo "BUILD_DEBUG_INFO was not set, skipping debug info"
+fi
+
 echo "Calling setup.py bdist at $(date)"
 time CMAKE_ARGS=${CMAKE_ARGS[@]} \
      EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-     BUILD_LIBTORCH_CPU_WITH_DEBUG=1 \
+     BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
      python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
 echo "Finished setup.py bdist at $(date)"
 
@@ -346,31 +356,33 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         done
     fi
 
-    pushd "$PREFIX/lib"
+    if [[ $BUILD_DEBUG_INFO == "1" ]]; then
+        pushd "$PREFIX/lib"
 
-    # Duplicate library into debug lib
-    cp libtorch_cpu.so libtorch_cpu.so.dbg
+        # Duplicate library into debug lib
+        cp libtorch_cpu.so libtorch_cpu.so.dbg
 
-    # Keep debug symbols on debug lib
-    strip --only-keep-debug libtorch_cpu.so.dbg
+        # Keep debug symbols on debug lib
+        strip --only-keep-debug libtorch_cpu.so.dbg
 
-    # Remove debug info from release lib
-    strip --strip-debug libtorch_cpu.so
+        # Remove debug info from release lib
+        strip --strip-debug libtorch_cpu.so
 
-    objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
+        objcopy libtorch_cpu.so --add-gnu-debuglink=libtorch_cpu.so.dbg
 
-    # Zip up debug info
-    mkdir -p /tmp/debug
-    mv libtorch_cpu.so.dbg /tmp/debug/libtorch_cpu.so.dbg
-    CRC32=$(objcopy --dump-section .gnu_debuglink=>(tail -c4 | od -t x4 -An | xargs echo) libtorch_cpu.so)
+        # Zip up debug info
+        mkdir -p /tmp/debug
+        mv libtorch_cpu.so.dbg /tmp/debug/libtorch_cpu.so.dbg
+        CRC32=$(objcopy --dump-section .gnu_debuglink=>(tail -c4 | od -t x4 -An | xargs echo) libtorch_cpu.so)
 
-    pushd /tmp
-    PKG_NAME=$(basename "$pkg" | sed 's/\.whl$//g')
-    zip /tmp/debug-whl-libtorch-"$PKG_NAME"-"$CRC32".zip /tmp/debug/libtorch_cpu.so.dbg
-    cp /tmp/debug-whl-libtorch-"$PKG_NAME"-"$CRC32".zip "$PYTORCH_FINAL_PACKAGE_DIR"
-    popd
+        pushd /tmp
+        PKG_NAME=$(basename "$pkg" | sed 's/\.whl$//g')
+        zip /tmp/debug-whl-libtorch-"$PKG_NAME"-"$CRC32".zip /tmp/debug/libtorch_cpu.so.dbg
+        cp /tmp/debug-whl-libtorch-"$PKG_NAME"-"$CRC32".zip "$PYTORCH_FINAL_PACKAGE_DIR"
+        popd
 
-    popd
+        popd
+    fi
 
     # zip up the wheel back
     zip -rq $(basename $pkg) $PREIX*
