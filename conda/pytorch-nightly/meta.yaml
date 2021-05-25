@@ -25,7 +25,7 @@ requirements:
     - libuv # [win]
     - libuv # [unix]
     - pkg-config # [unix]
-{{ environ.get('MAGMA_PACKAGE') }}
+{{ environ.get('MAGMA_PACKAGE', '') }}
 
   run:
     - python
@@ -36,10 +36,10 @@ requirements:
     - ninja
     - typing_extensions
     - blas * mkl
-{{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT') }}
+{{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
 
 build:
-  number: {{ environ.get('PYTORCH_BUILD_NUMBER') }}
+  number: {{ environ.get('PYTORCH_BUILD_NUMBER', '1') }}
   detect_binary_files_with_prefix: False
   string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
   script_env:
@@ -61,7 +61,7 @@ build:
     - USE_QNNPACK # [unix]
     - BUILD_TEST # [unix]
   features:
-{{ environ.get('CONDA_CPU_ONLY_FEATURE') }}
+{{ environ.get('CONDA_CPU_ONLY_FEATURE', '    - cpuonly # [not osx]') }}
 
 test:
  imports:
