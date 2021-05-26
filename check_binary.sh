@@ -360,3 +360,16 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
     popd
   fi # if libtorch
 fi # if cuda
+
+###############################################################################
+# Check PyTorch supports TCP_TLS gloo transport
+###############################################################################
+
+if [[ "$(uname)" == 'Linux' ]]; then
+	GLOO_DEVICE_TRANSPORT=TCP_TLS MASTER_ADDR=localhost MASTER_PORT=63945 python -c "import torch; import torch.distributed as dist; print(torch.__version__); dist.init_process_group('gloo', rank=0, world_size=1)" > /dev/null 2>&1
+  RESULT=$?
+  if [ $RESULT -eq 139 ]; then
+    echo "PyTorch doesn't support TLS_TCP transport, please set USE_GLOO_WITH_OPENSSL=1"
+    exit 1
+  fi
+fi
