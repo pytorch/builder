@@ -307,8 +307,6 @@ if [[ "$OSTYPE" == "msys" && "$USE_SCCACHE" == "1" ]]; then
     mkdir -p /c/cb/pytorch_1000000000000
     export CONDA_BLD_PATH="C:\\cb"
     export CONDA_BUILD_EXTRA_ARGS="--dirty"
-elif [[ "$OSTYPE" == "darwin" && "$DESIRED_PYTHON" == "3.9" ]]; then
-    export CONDA_BUILD_EXTRA_ARGS="--build-only"
 else
     export CONDA_BUILD_EXTRA_ARGS=""
 fi
