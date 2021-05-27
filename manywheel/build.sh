@@ -226,11 +226,11 @@ DEPS_SONAME=(
     "libnvrtc-builtins.so.11.1"
     "libgomp.so.1"
 )
-elif [[ $CUDA_VERSION == "11.2" || $CUDA_VERSION == "11.3" ]]; then
+elif [[ $CUDA_VERSION == "11.2" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.11.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.3, it links to 11.3.58
+    "/usr/local/cuda/lib64/libnvrtc.so.11.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.2"
     "$LIBGOMP_PATH"
 )
@@ -240,6 +240,22 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.2"
     "libnvrtc-builtins.so.11.2"
+    "libgomp.so.1"
+)
+elif [[ $CUDA_VERSION == "11.3" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.11.0"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.3, it links to 11.3.58
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.3"
+    "$LIBGOMP_PATH"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.11.0"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.11.2"
+    "libnvrtc-builtins.so.11.3"
     "libgomp.so.1"
 )
 
