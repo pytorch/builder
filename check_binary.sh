@@ -366,7 +366,13 @@ fi # if cuda
 ###############################################################################
 
 if [[ "$(uname)" == 'Linux' ]]; then
-  GLOO_DEVICE_TRANSPORT=TCP_TLS MASTER_ADDR=localhost MASTER_PORT=63945 python -c "import torch; import torch.distributed as dist; print(torch.__version__); dist.init_process_group('gloo', rank=0, world_size=1)" | grep "unsupported gloo device" &> /dev/null
+  GLOO_CHECK="import torch.distributed as dist
+try:
+    dist.init_process_group('gloo', rank=0, world_size=1)
+except e:
+    print(e.what())
+"
+  GLOO_DEVICE_TRANSPORT=TCP_TLS MASTER_ADDR=localhost MASTER_PORT=63945 python -c "$GLOO_CHECK" | grep "unsupported gloo device" &> /dev/null
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
     echo "PyTorch doesn't support TLS_TCP transport, please set USE_GLOO_WITH_OPENSSL=1"
