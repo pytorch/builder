@@ -53,6 +53,7 @@ build:
     - DEVELOPER_DIR
     - DEBUG
     - USE_FBGEMM
+    - USE_GLOO_WITH_OPENSSL # [unix]
     - USE_SCCACHE # [win]
     - USE_DISTRIBUTED # [unix]
     - CMAKE_OSX_ARCHITECTURES # [unix]
