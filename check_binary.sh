@@ -365,7 +365,7 @@ fi # if cuda
 # Check PyTorch supports TCP_TLS gloo transport
 ###############################################################################
 
-if [[ "$(uname)" == 'Linux' ]]; then
+if [[ "$(uname)" == 'Linux' && "$PACKAGE_TYPE" != 'libtorch' ]]; then
   GLOO_CHECK="import torch.distributed as dist
 try:
     dist.init_process_group('gloo', rank=0, world_size=1)
@@ -374,7 +374,7 @@ except RuntimeError as e:
         print('gloo transport is not supported')
 "
   RESULT=`GLOO_DEVICE_TRANSPORT=TCP_TLS MASTER_ADDR=localhost MASTER_PORT=63945 python -c "$GLOO_CHECK"`
-  if [ $RESULT -eq 'gloo transport is not supported' ]; then
+  if [[ "$RESULT" == 'gloo transport is not supported' ]]; then
     echo "PyTorch doesn't support TLS_TCP transport, please build with USE_GLOO_WITH_OPENSSL=1"
     exit 1
   fi
