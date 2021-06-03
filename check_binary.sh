@@ -369,8 +369,8 @@ if [[ "$(uname)" == 'Linux' ]]; then
   GLOO_CHECK="import torch.distributed as dist
 try:
     dist.init_process_group('gloo', rank=0, world_size=1)
-except e:
-    print(e.what())
+except RuntimeError as e:
+    print(e)
 "
   GLOO_DEVICE_TRANSPORT=TCP_TLS MASTER_ADDR=localhost MASTER_PORT=63945 python -c "$GLOO_CHECK" | grep "unsupported gloo device" &> /dev/null
   RESULT=$?
