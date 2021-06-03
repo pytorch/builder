@@ -370,11 +370,11 @@ if [[ "$(uname)" == 'Linux' && "$PACKAGE_TYPE" != 'libtorch' ]]; then
 try:
     dist.init_process_group('gloo', rank=0, world_size=1)
 except RuntimeError as e:
-    if 'unsupported gloo device' in str(e):
-        print('gloo transport is not supported')
+    print(e)
 "
   RESULT=`GLOO_DEVICE_TRANSPORT=TCP_TLS MASTER_ADDR=localhost MASTER_PORT=63945 python -c "$GLOO_CHECK"`
-  if [[ "$RESULT" == 'gloo transport is not supported' ]]; then
+  GLOO_TRANSPORT_IS_NOT_SUPPORTED='gloo transport is not supported'
+  if [[ "$RESULT" =~ "$GLOO_TRANSPORT_IS_NOT_SUPPORTED" ]]; then
     echo "PyTorch doesn't support TLS_TCP transport, please build with USE_GLOO_WITH_OPENSSL=1"
     exit 1
   fi
