@@ -10,10 +10,10 @@ from typing import List, Optional, Tuple, Union
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
 os_amis = {
-        'ubuntu18_04': "ami-0f2b111fdc1647918", # login_name: ubuntu
-        'ubuntu20_04': "ami-0ea142bd244023692", # login_name: ubuntu
-        'redhat8':  "ami-0698b90665a2ddcf1", # login_name: ec2-user
-        }
+    'ubuntu18_04': "ami-0f2b111fdc1647918",  # login_name: ubuntu
+    'ubuntu20_04': "ami-0ea142bd244023692",  # login_name: ubuntu
+    'redhat8': "ami-0698b90665a2ddcf1",  # login_name: ec2-user
+}
 ubuntu18_04_ami = os_amis['ubuntu18_04']
 
 
@@ -71,7 +71,8 @@ class RemoteHost:
         self.login_name = login_name
 
     def _gen_ssh_prefix(self) -> List[str]:
-        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path, f"{self.login_name}@{self.addr}", "--"]
+        return ["ssh", "-o", "StrictHostKeyChecking=no", "-i", self.keyfile_path,
+                f"{self.login_name}@{self.addr}", "--"]
 
     @staticmethod
     def _split_cmd(args: Union[str, List[str]]) -> List[str]:
@@ -84,12 +85,14 @@ class RemoteHost:
         return subprocess.check_output(self._gen_ssh_prefix() + self._split_cmd(args)).decode("utf-8")
 
     def scp_upload_file(self, local_file: str, remote_file: str) -> None:
-        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file, f"{self.login_name}@{self.addr}:{remote_file}"])
+        subprocess.check_call(["scp", "-i", self.keyfile_path, local_file,
+                              f"{self.login_name}@{self.addr}:{remote_file}"])
 
     def scp_download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
         if local_file is None:
             local_file = "."
-        subprocess.check_call(["scp", "-i", self.keyfile_path, f"{self.login_name}@{self.addr}:{remote_file}", local_file])
+        subprocess.check_call(["scp", "-i", self.keyfile_path,
+                              f"{self.login_name}@{self.addr}:{remote_file}", local_file])
 
     def start_docker(self, image="quay.io/pypa/manylinux2014_aarch64:latest") -> None:
         self.run_ssh_cmd("sudo apt-get install -y docker.io")
@@ -104,6 +107,7 @@ class RemoteHost:
     def run_cmd(self, args: Union[str, List[str]]) -> None:
         if not self.using_docker():
             return self.run_ssh_cmd(args)
+        assert self.container_id is not None
         docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
         p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE)
         p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
@@ -114,12 +118,13 @@ class RemoteHost:
     def check_output(self, args: Union[str, List[str]]) -> str:
         if not self.using_docker():
             return self.check_ssh_output(args)
+        assert self.container_id is not None
         docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
         p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         (out, err) = p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
         rc = p.wait()
         if rc != 0:
-            raise subprocess.CalledProcessError(rc, docker_cmd, output=out, stderr = err)
+            raise subprocess.CalledProcessError(rc, docker_cmd, output=out, stderr=err)
         return out.decode("utf-8")
 
     def upload_file(self, local_file: str, remote_file: str) -> None:
@@ -133,7 +138,7 @@ class RemoteHost:
     def download_file(self, remote_file: str, local_file: Optional[str] = None) -> None:
         if not self.using_docker():
             return self.scp_download_file(remote_file, local_file)
-        tmp_file=os.path.join("/tmp", os.path.basename(remote_file))
+        tmp_file = os.path.join("/tmp", os.path.basename(remote_file))
         self.run_ssh_cmd(["docker", "cp", f"{self.container_id}:/root/{remote_file}", tmp_file])
         self.scp_download_file(tmp_file, local_file)
         self.run_ssh_cmd(["rm", tmp_file])
@@ -177,9 +182,9 @@ def install_condaforge(host: RemoteHost) -> None:
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
-    host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.10 {git_clone_flags}")
+    host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.15 {git_clone_flags}")
     # TODO: Build with USE_OPENMP=1 support
-    host.run_cmd("pushd OpenBLAS; make NO_SHARED=1 -j8; sudo make NO_SHARED=1 install; popd")
+    host.run_cmd("pushd OpenBLAS; make USE_OPENMP=1 NO_SHARED=1 -j8; sudo make USE_OPENMP=1 NO_SHARED=1 install; popd")
 
 
 def build_FFTW(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -205,6 +210,51 @@ def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
         host.run_cmd(f"python3 embed_library.py {wheel_name} --update-tag")
     else:
         host.run_cmd(f"python3 embed_library.py {wheel_name}")
+
+
+def build_torchvision(host: RemoteHost, *,
+                      branch: str = "master",
+                      use_conda: bool = True,
+                      git_clone_flags: str) -> str:
+    print('Checking out TorchVision repo')
+    if branch.startswith("v1.7.1"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
+    elif branch.startswith("v1.8.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
+    elif branch.startswith("v1.8.1"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.1-rc1 {git_clone_flags}")
+    elif branch.startswith("v1.9.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.10.0-rc1 {git_clone_flags}")
+    else:
+        host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
+    print('Building TorchVision wheel')
+    build_vars = ""
+    if branch == 'nightly':
+        version = host.check_output(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
+        if len(version) == 0:
+            # In older revisions, version was embedded in setup.py
+            version = host.check_output(["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
+        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    if branch.startswith("v1.7.1"):
+        build_vars += "BUILD_VERSION=0.8.2"
+    elif branch.startswith("v1.8.0"):
+        build_vars += "BUILD_VERSION=0.9.0"
+    elif branch.startswith("v1.8.1"):
+        build_vars += "BUILD_VERSION=0.9.1"
+    elif branch.startswith("v1.9.0"):
+        build_vars += "BUILD_VERSION=0.10.0"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
+
+    host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
+    vision_wheel_name = host.list_dir("vision/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
+
+    print('Copying TorchVision wheel')
+    host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
+
+    return vision_wheel_name
 
 
 def start_build(host: RemoteHost, *,
@@ -251,16 +301,16 @@ def start_build(host: RemoteHost, *,
     if host.using_docker():
         print("Move libgfortant.a into a standard location")
         # HACK: pypa gforntran.a is compiled without PIC, which leads to the following error
-        #libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'
+        # libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'
         # Workaround by copying gfortran library from the host
         host.run_ssh_cmd("sudo apt-get install -y gfortran-8")
         host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/8")
-        host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/8/libgfortran.a", f"{host.container_id}:/usr/lib/gcc/aarch64-linux-gnu/8/"])
-        #host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu")
-        #host.run_cmd("ln -sf  /opt/rh/devtoolset-9/root/usr/lib/gcc/aarch64-redhat-linux/9 /usr/lib/gcc/aarch64-linux-gnu/")
+        host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/8/libgfortran.a",
+                         f"{host.container_id}:/opt/rh/devtoolset-9/root/usr/lib/gcc/aarch64-redhat-linux/9/"
+                          ])
 
     print('Checking out PyTorch repo')
-    host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
+    host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/malfet/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
     build_vars = ""
@@ -278,43 +328,10 @@ def start_build(host: RemoteHost, *,
     print('Copying the wheel')
     host.download_file(os.path.join('pytorch', 'dist', pytorch_wheel_name))
 
-    print('Checking out TorchVision repo')
-    if branch.startswith("v1.7.1"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
-    elif branch.startswith("v1.8.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
-    elif branch.startswith("v1.8.1"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.1-rc1 {git_clone_flags}")
-    elif branch.startswith("v1.9.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.10.0-rc1 {git_clone_flags}")
-    else:
-        host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Installing PyTorch wheel')
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
-    print('Building TorchVision wheel')
-    build_vars = ""
-    if branch == 'nightly':
-        version = host.check_output(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
-        if len(version) == 0:
-            # In older revisions, version was embedded in setup.py
-            version = host.check_output(["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
-        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    if branch.startswith("v1.7.1"):
-        build_vars += f"BUILD_VERSION=0.8.2"
-    elif branch.startswith("v1.8.0"):
-        build_vars += f"BUILD_VERSION=0.9.0"
-    elif branch.startswith("v1.8.1"):
-        build_vars += f"BUILD_VERSION=0.9.1"
-    elif branch.startswith("v1.9.0"):
-        build_vars += f"BUILD_VERSION=0.10.0"
-    if host.using_docker():
-        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
-    host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
-    vision_wheel_name = host.list_dir("vision/dist")[0]
-    embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
-    print('Copying TorchVision wheel')
-    host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
+    vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
 
     if keep_running:
         return pytorch_wheel_name, vision_wheel_name
@@ -402,7 +419,7 @@ if __name__ == '__main__':
 
 
 def run_tests(host: RemoteHost, whl: str, branch='master') -> None:
-    print(f'Configuring the system')
+    print('Configuring the system')
     update_apt_repo(host)
     host.run_cmd("sudo apt-get install -y python3-pip git")
     host.run_cmd("sudo pip3 install Cython")
@@ -412,7 +429,6 @@ def run_tests(host: RemoteHost, whl: str, branch='master') -> None:
     host.run_cmd("python3 -c 'import torch;print(torch.rand((3,3))'")
     host.run_cmd(f"git clone -b {branch} https://github.com/pytorch/pytorch")
     host.run_cmd("cd pytorch/test; python3 test_torch.py -v")
-
 
 
 def get_instance_name(instance) -> Optional[str]:
@@ -436,7 +452,7 @@ def terminate_instances(instance_type: str) -> None:
     for instance in instances:
         print(f"Terminating {instance.id}")
         instance.terminate()
-    print(f"Waiting for termination to complete")
+    print("Waiting for termination to complete")
     for instance in instances:
         instance.wait_until_terminated()
 
@@ -489,9 +505,9 @@ if __name__ == '__main__':
     if args.python_version is not None:
         instance_name += f'-py{args.python_version}'
     inst.create_tags(DryRun=False, Tags=[{
-        'Key' : 'Name',
+        'Key': 'Name',
         'Value': instance_name,
-        }])
+    }])
     addr = inst.public_dns_name
     wait_for_connection(addr, 22)
     host = RemoteHost(addr, keyfile_path)
@@ -512,4 +528,8 @@ if __name__ == '__main__':
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(host, branch=args.branch, compiler=args.compiler, python_version=python_version, keep_running=args.keep_running)
+    start_build(host,
+                branch=args.branch,
+                compiler=args.compiler,
+                python_version=python_version,
+                keep_running=args.keep_running)
