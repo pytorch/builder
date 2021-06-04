@@ -257,6 +257,68 @@ def build_torchvision(host: RemoteHost, *,
     return vision_wheel_name
 
 
+def build_torchtext(host: RemoteHost, *,
+                    branch: str = "master",
+                    use_conda: bool = True,
+                    git_clone_flags: str = "") -> str:
+    print('Checking out TorchText repo')
+    git_clone_flags += " --recurse-submodules"
+    if branch.startswith("v1.9.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/text -b v0.10.0-rc1 {git_clone_flags}")
+    else:
+        host.run_cmd(f"git clone https://github.com/pytorch/text {git_clone_flags}")
+    print('Building TorchText wheel')
+    build_vars = ""
+    if branch == 'nightly':
+        version = host.check_output(["if [ -f text/version.txt ]; then cat text/version.txt; fi"]).strip()
+        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    if branch.startswith("v1.9.0"):
+        build_vars += "BUILD_VERSION=0.10.0"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
+
+    host.run_cmd(f"cd text; {build_vars} python3 setup.py bdist_wheel")
+    wheel_name = host.list_dir("text/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('text', 'dist', wheel_name))
+
+    print('Copying TorchText wheel')
+    host.download_file(os.path.join('text', 'dist', wheel_name))
+
+    return wheel_name
+
+
+def build_torchaudio(host: RemoteHost, *,
+                     branch: str = "master",
+                     use_conda: bool = True,
+                     git_clone_flags: str = "") -> str:
+    print('Checking out TorchAudio repo')
+    git_clone_flags += " --recurse-submodules"
+    if branch.startswith("v1.9.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.9.0-rc1 {git_clone_flags}")
+    else:
+        host.run_cmd(f"git clone https://github.com/pytorch/audio {git_clone_flags}")
+    print('Building TorchText wheel')
+    build_vars = ""
+    if branch == 'nightly':
+        version = host.check_output(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
+        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    if branch.startswith("v1.9.0"):
+        build_vars += "BUILD_VERSION=0.9.0"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
+
+    host.run_cmd(f"cd audio; {build_vars} python3 setup.py bdist_wheel")
+    wheel_name = host.list_dir("audio/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('audio', 'dist', wheel_name))
+
+    print('Copying TorchAudio wheel')
+    host.download_file(os.path.join('audio', 'dist', wheel_name))
+
+    return wheel_name
+
+
 def start_build(host: RemoteHost, *,
                 branch="master",
                 compiler="gcc-8",
@@ -332,6 +394,8 @@ def start_build(host: RemoteHost, *,
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
 
     vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
 
     if keep_running:
         return pytorch_wheel_name, vision_wheel_name
