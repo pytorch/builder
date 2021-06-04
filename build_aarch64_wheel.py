@@ -262,10 +262,6 @@ def start_build(host: RemoteHost, *,
     print('Checking out PyTorch repo')
     host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
-    # Patch FindBLAS.cmake
-    # To be removed after https://github.com/pytorch/pytorch/pull/53168 is merged
-    host.run_cmd("sed -i s/OpenBLAS_FOUND/NO/  pytorch/cmake/Modules/FindBLAS.cmake")
-
     print('Building PyTorch wheel')
     build_vars = ""
     if branch == 'nightly':
