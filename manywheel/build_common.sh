@@ -211,7 +211,9 @@ fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
-    if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
+    # Do not rename nvrtc-builtins.so as they are dynamically loaded
+    # by libnvrts.so
+    if [[ $BASENAME == "libnvrtc-builtins.s"* ]]; then
         echo $1
     else
         INITNAME=$(echo $BASENAME | cut -f1 -d".")
