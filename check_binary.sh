@@ -351,6 +351,10 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
     echo "Checking that CuDNN is available"
     python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
 
+    # Validates builds is free of linker regressions reported in https://github.com/pytorch/pytorch/issues/57744
+    echo "Checking that exception handling works"
+    python -c "import torch; from unittest import TestCase;TestCase().assertRaises(RuntimeError, lambda:torch.eye(7, 7, device='cuda:7'))"
+
     echo "Checking that basic RNN works"
     python ${TEST_CODE_DIR}/rnn_smoke.py
 
