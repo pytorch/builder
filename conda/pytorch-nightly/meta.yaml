@@ -60,6 +60,7 @@ build:
     - USE_MKLDNN # [unix]
     - USE_NNPACK # [unix]
     - USE_QNNPACK # [unix]
+    - USE_WHOLE_CUDNN # [unix]
     - BUILD_TEST # [unix]
   features:
 {{ environ.get('CONDA_CPU_ONLY_FEATURE', '    - cpuonly # [not osx]') }}
