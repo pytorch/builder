@@ -183,7 +183,6 @@ def install_condaforge(host: RemoteHost) -> None:
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.15 {git_clone_flags}")
-    # TODO: Build with USE_OPENMP=1 support
     host.run_cmd("pushd OpenBLAS; make USE_OPENMP=1 NO_SHARED=1 -j8; sudo make USE_OPENMP=1 NO_SHARED=1 install; popd")
 
 
@@ -295,7 +294,7 @@ def build_torchaudio(host: RemoteHost, *,
     print('Checking out TorchAudio repo')
     git_clone_flags += " --recurse-submodules"
     if branch.startswith("v1.9.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.9.0-rc1 {git_clone_flags}")
+        host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.9.0-rc2 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/audio {git_clone_flags}")
     print('Building TorchText wheel')
@@ -372,7 +371,7 @@ def start_build(host: RemoteHost, *,
                           ])
 
     print('Checking out PyTorch repo')
-    host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/malfet/pytorch {git_clone_flags}")
+    host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
     build_vars = ""
