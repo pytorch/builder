@@ -51,7 +51,7 @@ class S3Index:
         """Finding packages to show based on a threshold we specify
 
         Basically takes our S3 packages, normalizes the version for easier
-        comparisons, then iterates over normalized versions untill we reach a
+        comparisons, then iterates over normalized versions until we reach a
         threshold and then starts adding package to delete after that threshold
         has been reached
 
