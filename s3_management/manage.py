@@ -5,7 +5,7 @@ import tempfile
 
 from os import path, makedirs
 from collections import defaultdict
-from typing import List, Type, Dict, Set, TypeVar, Generator, Optional
+from typing import Iterator, List, Type, Dict, Set, TypeVar, Optional
 from re import sub, match
 from packaging.version import parse
 
@@ -79,6 +79,25 @@ class S3Index:
             if self.normalize_package_version(obj) in to_hide
         })
 
+    def is_obj_at_root(self, obj:str) -> bool:
+        return path.dirname(obj) == self.prefix
+
+    def _resolve_subdir(self, subdir: Optional[str] = None) -> str:
+        if not subdir:
+            subdir = self.prefix
+        # make sure we strip any trailing slashes
+        return subdir.rstrip("/")
+
+    def gen_file_list(self, subdir: Optional[str] = None) -> Iterator[str]:
+        objects = (
+            self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
+            else self.objects
+        )
+        subdir = self._resolve_subdir(subdir)
+        for obj in objects:
+            if self.is_obj_at_root(obj) or obj.startswith(subdir):
+                yield obj
+
     def normalize_package_version(self: S3IndexType, obj: str) -> str:
         # removes the GPU specifier from the package name as well as
         # unnecessary things like the file extension, architecture name, etc.
@@ -99,20 +118,10 @@ class S3Index:
 
         NOTE: These are not PEP 503 compliant but are here for legacy purposes
         """
-        objects = (
-            self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
-            else self.objects
-        )
         out: List[str] = []
-        if not subdir:
-            subdir = self.prefix
-        # make sure we strip any trailing slashes
-        subdir = subdir.rstrip("/")
+        subdir = self._resolve_subdir(subdir)
         is_root = subdir == self.prefix
-        for obj in objects:
-            obj_at_root = path.dirname(obj) == self.prefix
-            if not obj_at_root and not obj.startswith(subdir):
-                continue
+        for obj in self.gen_file_list(subdir):
             # Strip our prefix
             sanitized_obj = obj.replace(subdir, "", 1)
             if sanitized_obj.startswith('/'):
@@ -120,11 +129,11 @@ class S3Index:
             # we include objects at our root prefix so that users can still
             # install packages like torchaudio / torchtext even if they want
             # to install a specific GPU arch of torch / torchvision
-            if not is_root and obj_at_root:
+            if not is_root and self.is_obj_at_root(obj):
                 # strip root prefix
                 sanitized_obj = obj.replace(self.prefix, "", 1).lstrip("/")
                 sanitized_obj = f"../{sanitized_obj}"
-            out.append(f'<a href="{sanitized_obj}">{sanitized_obj}</a><br>')
+            out.append(f'<a href="{sanitized_obj}">{sanitized_obj}</a><br/>')
         return "\n".join(sorted(out))
 
     def upload_legacy_html(self) -> None:
