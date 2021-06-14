@@ -98,6 +98,12 @@ class S3Index:
             if self.is_obj_at_root(obj) or obj.startswith(subdir):
                 yield obj
 
+    def get_package_names(self, subdir: Optional[str] = None) -> List[str]:
+        out: Set[str] = set()
+        for obj in self.gen_file_list(subdir):
+            out.add(self.normalize_package_version(obj).split('-', 1)[0])
+        return sorted(list(out))
+
     def normalize_package_version(self: S3IndexType, obj: str) -> str:
         # removes the GPU specifier from the package name as well as
         # unnecessary things like the file extension, architecture name, etc.
