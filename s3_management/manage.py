@@ -2,6 +2,7 @@
 
 import argparse
 import tempfile
+import time
 
 from os import path, makedirs
 from collections import defaultdict
@@ -88,21 +89,25 @@ class S3Index:
         # make sure we strip any trailing slashes
         return subdir.rstrip("/")
 
-    def gen_file_list(self, subdir: Optional[str] = None) -> Iterator[str]:
+    def gen_file_list(
+        self,
+        subdir: Optional[str]=None,
+        package_name: Optional[str] = None
+    ) -> Iterator[str]:
         objects = (
             self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
             else self.objects
         )
         subdir = self._resolve_subdir(subdir)
         for obj in objects:
+            if package_name is not None:
+                if self.obj_to_package_name(obj) != package_name:
+                    continue
             if self.is_obj_at_root(obj) or obj.startswith(subdir):
                 yield obj
 
     def get_package_names(self, subdir: Optional[str] = None) -> List[str]:
-        out: Set[str] = set()
-        for obj in self.gen_file_list(subdir):
-            out.add(self.normalize_package_version(obj).split('-', 1)[0])
-        return sorted(list(out))
+        return sorted(set(self.obj_to_package_name(obj) for obj in self.gen_file_list(subdir)))
 
     def normalize_package_version(self: S3IndexType, obj: str) -> str:
         # removes the GPU specifier from the package name as well as
@@ -112,6 +117,9 @@ class S3Index:
             "",
             "-".join(path.basename(obj).split("-")[:2])
         )
+
+    def obj_to_package_name(self, obj: str) -> str:
+        return path.basename(obj).split('-', 1)[0]
 
     def to_legacy_html(
         self,
@@ -142,6 +150,46 @@ class S3Index:
             out.append(f'<a href="{sanitized_obj}">{sanitized_obj}</a><br/>')
         return "\n".join(sorted(out))
 
+    def to_simple_package_html(
+        self,
+        subdir: Optional[str],
+        package_name: str
+    ) -> str:
+        """Generates a string that can be used as the package simple HTML index
+        """
+        out: List[str] = []
+        # Adding html header
+        out.append('<!DOCTYPE html>')
+        out.append('<html>')
+        out.append('  <body>')
+        out.append('    <h1>Links for {}</h1>'.format(package_name))
+        for obj in sorted(self.gen_file_list(subdir, package_name)):
+            out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+        # Adding html footer
+        out.append('  </body>')
+        out.append('</html>')
+        out.append('<!--TIMESTAMP {}-->'.format(int(time.time())))
+        return '\n'.join(out)
+
+    def to_simple_packages_html(
+        self,
+        subdir: Optional[str],
+    ) -> str:
+        """Generates a string that can be used as the simple HTML index
+        """
+        out: List[str] = []
+        # Adding html header
+        out.append('<!DOCTYPE html>')
+        out.append('<html>')
+        out.append('  <body>')
+        for pkg_name in sorted(self.get_package_names(subdir)):
+            out.append(f'    <a href="{pkg_name}/">{pkg_name}</a><br/>')
+        # Adding html footer
+        out.append('  </body>')
+        out.append('</html>')
+        out.append('<!--TIMESTAMP {}-->'.format(int(time.time())))
+        return '\n'.join(out)
+
     def upload_legacy_html(self) -> None:
         for subdir in self.subdirs:
             print(f"INFO Uploading {subdir}/{self.html_name}")
@@ -154,12 +202,46 @@ class S3Index:
                 Body=self.to_legacy_html(subdir=subdir)
             )
 
+    def upload_pep503_htmls(self) -> None:
+        for subdir in self.subdirs:
+            print(f"INFO Uploading {subdir}/index.html")
+            BUCKET.Object(
+                key=f"{subdir}/index.html"
+            ).put(
+                ACL='public-read',
+                CacheControl='no-cache,no-store,must-revalidate',
+                ContentType='text/html',
+                Body=self.to_simple_packages_html(subdir=subdir)
+            )
+            for pkg_name in self.get_package_names(subdir=subdir):
+                print(f"INFO Uploading {subdir}/{pkg_name}/index.html")
+                BUCKET.Object(
+                    key=f"{subdir}/{pkg_name}/index.html"
+                ).put(
+                    ACL='public-read',
+                    CacheControl='no-cache,no-store,must-revalidate',
+                    ContentType='text/html',
+                    Body=self.to_simple_package_html(subdir=subdir, package_name=pkg_name)
+                )
+
+
     def save_legacy_html(self) -> None:
         for subdir in self.subdirs:
             print(f"INFO Saving {subdir}/{self.html_name}")
             makedirs(subdir, exist_ok=True)
             with open(path.join(subdir, self.html_name), mode="w", encoding="utf-8") as f:
                 f.write(self.to_legacy_html(subdir=subdir))
+
+    def save_pep503_htmls(self) -> None:
+        for subdir in self.subdirs:
+            print(f"INFO Saving {subdir}/index.html")
+            makedirs(subdir, exist_ok=True)
+            with open(path.join(subdir, "index.html"), mode="w", encoding="utf-8") as f:
+                f.write(self.to_simple_packages_html(subdir=subdir))
+            for pkg_name in self.get_package_names(subdir=subdir):
+                makedirs(path.join(subdir, pkg_name), exist_ok=True)
+                with open(path.join(subdir, pkg_name, "index.html"), mode="w", encoding="utf-8") as f:
+                    f.write(self.to_simple_package_html(subdir=subdir, package_name=pkg_name))
 
     @classmethod
     def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
@@ -186,6 +268,7 @@ def create_parser() -> argparse.ArgumentParser:
         choices=list(PREFIXES_WITH_HTML.keys()) + ["all"]
     )
     parser.add_argument("--do-not-upload", action="store_true")
+    parser.add_argument("--generate-pep503", action="store_true")
     return parser
 
 def main():
@@ -205,8 +288,12 @@ def main():
         idx = S3Index.from_S3(prefix=args.prefix)
         if args.do_not_upload:
             idx.save_legacy_html()
+            if args.generate_pep503:
+                idx.save_pep503_htmls()
         else:
             idx.upload_legacy_html()
+            if args.generate_pep503:
+                idx.upload_pep503_htmls()
 
 if __name__ == "__main__":
     main()
