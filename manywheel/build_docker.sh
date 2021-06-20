@@ -8,6 +8,7 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
 GPU_ARCH_TYPE=${GPU_ARCH_TYPE:-cpu}
 GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
+MANY_LINUX_VERSION=${MANY_LINUX_VERSION:-}
 
 WITH_PUSH=${WITH_PUSH:-}
 
@@ -41,58 +42,51 @@ case ${GPU_ARCH_TYPE} in
 esac
 
 IMAGES=''
-for DOCKER_NAME in manylinux manylinux2014; do
-    DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/${DOCKER_NAME}-builder:${DOCKER_TAG}
-    case ${DOCKER_NAME} in
-        manylinux2014*)
-            LEGACY_DOCKER_IMAGE=''
-            DOCKERFILE_SUFFIX=_2014
-            ;;
-        *)
-            DOCKERFILE_SUFFIX=''
-            ;;
-    esac
+DOCKER_NAME=manylinux${MANY_LINUX_VERSION}
+DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/${DOCKER_NAME}-builder:${DOCKER_TAG}
+if [[ -n ${MANY_LINUX_VERSION} ]]; then
+    DOCKERFILE_SUFFIX=_${MANY_LINUX_VERSON}
+    LEGACY_DOCKER_IMAGE=''
+fi
+(
+    set -x
+    DOCKER_BUILDKIT=1 docker build \
+        -t "${DOCKER_IMAGE}" \
+        ${DOCKER_GPU_BUILD_ARG} \
+        --build-arg "GPU_IMAGE=${GPU_IMAGE}" \
+        --target "${TARGET}" \
+        -f "${TOPDIR}/manywheel/Dockerfile${DOCKERFILE_SUFFIX}" \
+        "${TOPDIR}"
+)
+
+GITHUB_REF=${GITHUB_REF:-$(git symbolic-ref -q HEAD || git describe --tags --exact-match)}
+GIT_BRANCH_NAME=${GITHUB_REF##*/}
+GIT_COMMIT_SHA=${GITHUB_SHA:-$(git rev-parse HEAD)}
+DOCKER_IMAGE_BRANCH_TAG=${DOCKER_IMAGE}-${GIT_BRANCH_NAME}
+DOCKER_IMAGE_SHA_TAG=${DOCKER_IMAGE}-${GIT_COMMIT_SHA}
+
+(
+    set -x
+    if [[ -n ${LEGACY_DOCKER_IMAGE} ]]; then
+        docker tag ${DOCKER_IMAGE} ${LEGACY_DOCKER_IMAGE}
+    fi
+    if [[ -n ${GITHUB_REF} ]]; then
+        docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_BRANCH_TAG}
+        docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_SHA_TAG}
+    fi
+)
+
+if [[ "${WITH_PUSH}" == true ]]; then
     (
         set -x
-        DOCKER_BUILDKIT=1 docker build \
-            -t "${DOCKER_IMAGE}" \
-            ${DOCKER_GPU_BUILD_ARG} \
-            --build-arg "GPU_IMAGE=${GPU_IMAGE}" \
-            --target "${TARGET}" \
-            -f "${TOPDIR}/manywheel/Dockerfile${DOCKERFILE_SUFFIX}" \
-            "${TOPDIR}"
-    )
-
-    GITHUB_REF=${GITHUB_REF:-$(git symbolic-ref -q HEAD || git describe --tags --exact-match)}
-    GIT_BRANCH_NAME=${GITHUB_REF##*/}
-    GIT_COMMIT_SHA=${GITHUB_SHA:-$(git rev-parse HEAD)}
-    DOCKER_IMAGE_BRANCH_TAG=${DOCKER_IMAGE}-${GIT_BRANCH_NAME}
-    DOCKER_IMAGE_SHA_TAG=${DOCKER_IMAGE}-${GIT_COMMIT_SHA}
-
-    (
-        set -x
+        docker push "${DOCKER_IMAGE}"
         if [[ -n ${LEGACY_DOCKER_IMAGE} ]]; then
-            docker tag ${DOCKER_IMAGE} ${LEGACY_DOCKER_IMAGE}
+            docker push "${LEGACY_DOCKER_IMAGE}"
         fi
         if [[ -n ${GITHUB_REF} ]]; then
-            docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_BRANCH_TAG}
-            docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_SHA_TAG}
+            docker push "${DOCKER_IMAGE_BRANCH_TAG}"
+            docker push "${DOCKER_IMAGE_SHA_TAG}"
         fi
     )
+fi
 
-    if [[ "${WITH_PUSH}" == true ]]; then
-        (
-            set -x
-            docker push "${DOCKER_IMAGE}"
-            if [[ -n ${LEGACY_DOCKER_IMAGE} ]]; then
-                docker push "${LEGACY_DOCKER_IMAGE}"
-            fi
-            if [[ -n ${GITHUB_REF} ]]; then
-                docker push "${DOCKER_IMAGE_BRANCH_TAG}"
-                docker push "${DOCKER_IMAGE_SHA_TAG}"
-            fi
-        )
-    fi
-    IMAGES="${IMAGES} ${DOCKER_IMAGE}"
-done
-echo created ${IMAGES}
