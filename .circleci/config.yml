@@ -152,20 +152,6 @@ jobs:
           paths:
             - ./*.tar.gz
 
-  ffmpeg_upload:
-    <<: *binary_common
-    docker:
-      - image: "pytorch/conda-cuda"
-    resource_class: 2xlarge+
-    steps:
-      - attach_workspace:
-          at: /tmp/workspace
-      - run:
-          name: Upload FFmpeg packages to PyTorch Anaconda channel
-          command: |
-            anaconda -t "${CONDA_PYTORCHBOT_TOKEN}" upload -u pytorch --force $(find /tmp/workspace -name "ffmpeg*.bz2" -type f)
-
-
 workflows:
   ffmpeg:
     jobs:
@@ -178,16 +164,3 @@ workflows:
           is-python3: true
           name: ffmpeg_build_win
           python_version: '3.7'
-      - hold:
-          type: approval
-          requires:
-            - ffmpeg_linux
-            - ffmpeg_build_win
-      - ffmpeg_upload:
-          context: org-member
-          cu_version: cpu
-          is-python3: true
-          name: ffmpeg_upload
-          python_version: '3.7'
-          requires:
-            - hold
