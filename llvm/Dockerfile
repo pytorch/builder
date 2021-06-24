@@ -26,6 +26,7 @@ RUN cmake -G "Unix Makefiles" \
         -DLLVM_BUILD_UTILS=ON \
         -DLLVM_INSTALL_UTILS=ON \
         -DLLVM_ENABLE_RTTI=ON \
+        -DLLVM_ENABLE_PROJECTS=clang \
         -DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=ON \
         ../
 RUN make -j"$(nproc --ignore=2)" && make install
