@@ -1,0 +1,42 @@
+name: Build llvm docker images
+
+on:
+  push:
+    branches:
+      master
+    paths:
+      - llvm/*
+      - .github/workflows/build-llvm-images.yml
+  pull_request:
+    paths:
+      - llvm/*
+      - .github/workflows/build-llvm-images.yml
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  WITH_PUSH: ${{ github.event_name == 'push' }}
+  FORCE_PUSH: yes
+
+jobs:
+  build:
+    runs-on: linux.2xlarge
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
+      - name: Build Docker Image
+        working-directory: llvm
+        run: |
+          ./build.sh
+      - name: Push image
+        working-directory: llvm
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          ./deploy.sh
