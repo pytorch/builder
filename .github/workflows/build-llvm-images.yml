@@ -32,9 +32,11 @@ jobs:
             echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
           fi
       - name: Build Docker Image
+        working-directory: llvm
         run: |
-          llvm/build.sh
+          ./build.sh
       - name: Push image
+        working-directory: llvm
         if: ${{ github.event_name == 'push' }}
         run: |
-          llvm/deploy.sh
+          ./deploy.sh
