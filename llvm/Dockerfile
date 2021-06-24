@@ -1,6 +1,6 @@
 FROM ubuntu:focal as dev
 ARG LLVM_VERSION=9.0.1
-ENV LLVM_URL https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz
+ENV LLVM_URL https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_VERSION}/llvm-project-${LLVM_VERSION}.src.tar.xz
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 # Build LLVM with CXX11 ABI (default)
 RUN mkdir -p /opt/llvm /tmp/llvm/build
 WORKDIR /tmp/llvm
-RUN curl -fL -o llvm.tar.xz "${LLVM_URL}" && \
-        tar -xf llvm.tar.xz --strip-components=1
+RUN curl -fL -o llvm-project.tar.xz "${LLVM_URL}" && \
+        tar -xf llvm-project.tar.xz --strip-components=1
 WORKDIR /tmp/llvm/build
 RUN cmake -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=MinSizeRel \
@@ -28,7 +28,7 @@ RUN cmake -G "Unix Makefiles" \
         -DLLVM_ENABLE_RTTI=ON \
         -DLLVM_ENABLE_PROJECTS=clang \
         -DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=ON \
-        ../
+        ../llvm/
 RUN make -j"$(nproc --ignore=2)" && make install
 
 # Build LLVM without CXX11 ABI
@@ -43,7 +43,7 @@ RUN cmake -G "Unix Makefiles" \
         -DLLVM_BUILD_UTILS=OFF \
         -DLLVM_TEMPORARILY_ALLOW_OLD_TOOLCHAIN=ON \
         -DCMAKE_CXX_FLAGS=-D_GLIBCXX_USE_CXX11_ABI=0 \
-        ../
+        ../llvm/
 RUN make -j"$(nproc --ignore=2)" && make install
 
 
