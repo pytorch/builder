@@ -90,8 +90,7 @@ copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" "%PYTORCH_FINAL_PACKAGE_
 goto build_end
 
 :pytorch
-:: This stores in e.g. D:/_work/1/s/windows/output/cpu
-pip wheel -vvv -e . --no-deps --wheel-dir "%PYTORCH_FINAL_PACKAGE_DIR%"
+python setup.py bdist_wheel -d "%PYTORCH_FINAL_PACKAGE_DIR%"
 
 :build_end
 IF ERRORLEVEL 1 exit /b 1
