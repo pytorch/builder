@@ -62,6 +62,10 @@ ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 RUN cp $(which patchelf) /patchelf
 
+FROM base as breakpad
+ADD ./common/install_breakpad.sh install_breakpad.sh
+RUN bash ./install_breakpad.sh
+
 FROM base as magma
 ARG BASE_CUDA_VERSION=10.1
 # Install magma
@@ -124,6 +128,8 @@ COPY --from=libpng             /usr/local/include/png*               /usr/local/
 COPY --from=libpng             /usr/local/include/libpng*            /usr/local/include/
 COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/lib/
 COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
+COPY --from=breakpad           /usr/local/lib/libbreakpad*           /usr/local/lib
+COPY --from=breakpad           /usr/local/include/breakpad           /usr/local/include/
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1
