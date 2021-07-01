@@ -129,7 +129,7 @@ COPY --from=libpng             /usr/local/include/libpng*            /usr/local/
 COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/lib/
 COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 COPY --from=breakpad           /usr/local/lib/libbreakpad*           /usr/local/lib
-COPY --from=breakpad           /usr/local/include/breakpad           /usr/local/include/
+COPY --from=breakpad           /usr/local/include/breakpad           /usr/local/include/breakpad
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1
