@@ -28,7 +28,7 @@ jobs:
     runs-on: linux.2xlarge
     strategy:
       matrix:
-        cuda_version: ["11.3"]
+        cuda_version: ["11.3", "11.1", "10.2"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
