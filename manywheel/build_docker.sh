@@ -47,6 +47,8 @@ DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/${DOCKER_NAME}-builder:${DOCKER_TAG}
 if [[ -n ${MANY_LINUX_VERSION} ]]; then
     DOCKERFILE_SUFFIX=_${MANY_LINUX_VERSON}
     LEGACY_DOCKER_IMAGE=''
+else
+    DOCKERFILE_SUFFIX=''
 fi
 (
     set -x
