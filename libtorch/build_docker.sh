@@ -16,14 +16,16 @@ case ${CUDA_VERSION} in
     ;;
 esac
 
+DOCKER=${DOCKER:-docker}
+
 (
   set -x
-  docker build \
+  ${DOCKER} build \
     --target final \
     --build-arg "BASE_TARGET=${BASE_TARGET}" \
     --build-arg "CUDA_VERSION=${CUDA_VERSION}" \
     -t "pytorch/libtorch-cxx11-builder:${DOCKER_TAG}" \
-    -f "${TOPDIR}/libtorch/ubuntu16.04/Dockerfile" \
+    -f "${TOPDIR}/libtorch/Dockerfile" \
     ${TOPDIR}
 )
 
@@ -35,25 +37,25 @@ DOCKER_IMAGE_BRANCH_TAG=${DOCKER_IMAGE}-${GIT_BRANCH_NAME}
 DOCKER_IMAGE_SHA_TAG=${DOCKER_IMAGE}-${GIT_COMMIT_SHA}
 
 if [[ -n ${GITHUB_REF} ]]; then
-    docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_BRANCH_TAG}
-    docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_SHA_TAG}
+    ${DOCKER} tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_BRANCH_TAG}
+    ${DOCKER} tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_SHA_TAG}
 fi
 
 if [[ "${WITH_PUSH:-}" == true ]]; then
   (
     set -x
-    docker push "${DOCKER_IMAGE}"
+    ${DOCKER} push "${DOCKER_IMAGE}"
     if [[ -n ${GITHUB_REF} ]]; then
-        docker push "${DOCKER_IMAGE_BRANCH_TAG}"
-        docker push "${DOCKER_IMAGE_SHA_TAG}"
+        ${DOCKER} push "${DOCKER_IMAGE_BRANCH_TAG}"
+        ${DOCKER} push "${DOCKER_IMAGE_SHA_TAG}"
     fi
   )
   # For legacy .circleci/config.yml generation scripts
   if [[ "${CUDA_VERSION}" != "cpu" ]]; then
     (
       set -x
-      docker tag ${DOCKER_IMAGE} pytorch/libtorch-cxx11-builder:${DOCKER_TAG/./}
-      docker push pytorch/libtorch-cxx11-builder:${DOCKER_TAG/./}
+      ${DOCKER} tag ${DOCKER_IMAGE} pytorch/libtorch-cxx11-builder:${DOCKER_TAG/./}
+      ${DOCKER} push pytorch/libtorch-cxx11-builder:${DOCKER_TAG/./}
     )
   fi
 fi
