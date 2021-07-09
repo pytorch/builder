@@ -1,5 +1,7 @@
 ARG BASE_TARGET=base
-FROM nvidia/cuda:9.2-devel-ubuntu16.04 as base
+FROM nvidia/cuda:10.2-devel-ubuntu18.04 as base
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get clean && apt-get update
 RUN apt-get install -y curl locales git-all autoconf automake make cmake wget unzip
