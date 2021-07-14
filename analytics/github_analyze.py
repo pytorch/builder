@@ -283,7 +283,7 @@ def print_contributor_stats(commits, repo, delta: Optional[timedelta] = None) ->
     authors: Dict[str, int] = {}
     now = datetime.now()
     if delta is None:
-        delta = timedelta(days=365) #till July 1 2020
+        delta = timedelta(days=365)
     for commit in commits:
         date, author = commit.commit_date, commit.author
         if now - date > delta:
