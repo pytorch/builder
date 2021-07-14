@@ -64,11 +64,8 @@ def parse_medium_format(lines: Union[str, List[str]]) -> GitCommit:
         commit <sha1>
         Author: <author>
         Date:   <author date>
-
         <title line>
-
         <full commit message>
-
     """
     if isinstance(lines, str):
         lines = lines.split("\n")
@@ -96,11 +93,8 @@ def parse_fuller_format(lines: Union[str, List[str]]) -> GitCommit:
         AuthorDate: <author date>
         Commit:     <committer>
         CommitDate: <committer date>
-
         <title line>
-
         <full commit message>
-
     """
     if isinstance(lines, str):
         lines = lines.split("\n")
@@ -285,12 +279,11 @@ def analyze_reverts(commits: List[GitCommit]):
                 print(f"{k} {orig_sm[k]}->{revert_sm[k]}")
 
 
-def print_contributor_stats(commits, delta: Optional[timedelta] = None) -> None:
+def print_contributor_stats(commits, repo, delta: Optional[timedelta] = None) -> None:
     authors: Dict[str, int] = {}
     now = datetime.now()
-    # Default delta is one non-leap year
     if delta is None:
-        delta = timedelta(days=365)
+        delta = timedelta(days=365) #till July 1 2020
     for commit in commits:
         date, author = commit.commit_date, commit.author
         if now - date > delta:
@@ -301,7 +294,7 @@ def print_contributor_stats(commits, delta: Optional[timedelta] = None) -> None:
 
     print(f"{len(authors)} contributors made {sum(authors.values())} commits in last {delta.days} days")
     for count, author in sorted(((commit, author) for author, commit in authors.items()), reverse=True):
-        print(f"{author}: {count}")
+        print(f"{repo}: {author}: {count}")
 
 
 def parse_arguments():
@@ -319,22 +312,25 @@ def parse_arguments():
 def main():
     import time
     args = parse_arguments()
+
+    print("Getting telemetry for", args.repo_path)
     remotes = get_git_remotes(args.repo_path)
-    # Pick best remote
     remote = next(iter(remotes.keys()))
     for key in remotes:
-        if remotes[key] == 'https://github.com/pytorch/pytorch':
+        if remotes[key] == 'https://github.com/pytorch/{repo_path}':
             remote = key
-
     repo = GitRepo(args.repo_path, remote)
     print("Parsing git history...", end='', flush=True)
     start_time = time.time()
-    x = repo._run_git_log(f"{remote}/master")
+    if repo_path == "ort":
+        x = repo._run_git_log(f"{remote}/main")
+    else:
+        x = repo._run_git_log(f"{remote}/master")
     print(f"done in {time.time()-start_time:.1f} sec")
     if args.analyze_reverts:
         analyze_reverts(x)
     elif args.contributor_stats:
-        print_contributor_stats(x)
+        print_contributor_stats(x,args.repo_path)
     else:
         print_monthly_stats(x)
 
