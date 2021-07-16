@@ -124,6 +124,13 @@ else
     HIPFFT_SO=
 fi;
 
+PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908"
+if [[ $ROCM_INT -ge 40300 ]]; then
+    PYTORCH_ROCM_ARCH="${PYTORCH_ROCM_ARCH};gfx90a;gfx1030"
+fi
+export PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH}
+echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
+
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
