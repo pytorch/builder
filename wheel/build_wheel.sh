@@ -238,7 +238,7 @@ else
         cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
     fi
     cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
-    if [[ -d $(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib ]]; then
+    if [[ -x "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" ]]; then
         cp -r "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" "$(pwd)/libtorch/lib/"
     else
         cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
