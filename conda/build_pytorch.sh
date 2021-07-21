@@ -353,7 +353,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
-    conda install -y "conda-package-handling=1.7.3"
+    conda install -y conda-package-handling
 
     ADDITIONAL_CHANNELS=""
     echo "Calling conda-build at $(date)"
