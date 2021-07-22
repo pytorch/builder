@@ -87,8 +87,6 @@ COPY --from=cuda11.3  /usr/local/cuda-11.3 /usr/local/cuda-11.3
 
 FROM ${BASE_TARGET} as final
 # Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl           /opt/openssl
 COPY --from=patchelf           /patchelf              /usr/local/bin/patchelf
 COPY --from=conda              /opt/conda             /opt/conda
