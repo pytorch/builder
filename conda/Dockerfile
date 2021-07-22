@@ -37,9 +37,6 @@ FROM base as conda
 # Install Anaconda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
-# conda-package-handling fails out for larger tarballs,
-# see: https://github.com/conda/conda-package-handling/issues/71
-RUN /opt/conda/bin/conda install -y conda-package-handling=1.6.0
 
 # Install CUDA
 FROM base as cuda
