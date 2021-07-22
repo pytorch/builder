@@ -353,6 +353,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
+    conda env list
+    python --version
     # There was a bug that was introduced in conda-package-handling >= 1.6.1 that makes archives
     # above a certain size fail out when attempting to extract
     # see: https://github.com/conda/conda-package-handling/issues/71
