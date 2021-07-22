@@ -109,6 +109,7 @@ else
     retry pip install -q numpy==1.11
 fi
 
+export USE_VULKAN=1
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
 else

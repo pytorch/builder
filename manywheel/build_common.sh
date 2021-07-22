@@ -128,6 +128,7 @@ case ${DESIRED_PYTHON} in
     ;;
 esac
 
+export USE_VULKAN=1
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
 else
