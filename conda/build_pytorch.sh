@@ -355,10 +355,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     conda config --set anaconda_upload no
     conda env list
     python --version
-    # There was a bug that was introduced in conda-package-handling >= 1.6.1 that makes archives
-    # above a certain size fail out when attempting to extract
-    # see: https://github.com/conda/conda-package-handling/issues/71
-    conda install -y "conda-package-handling=1.6.0"
+    conda install -y "conda-package-handling=1.7.3"
 
     ADDITIONAL_CHANNELS=""
     echo "Calling conda-build at $(date)"
