@@ -110,6 +110,8 @@ else
 fi
 
 export USE_VULKAN=1
+source /opt/vulkansdk/setup-env.sh
+
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
 else

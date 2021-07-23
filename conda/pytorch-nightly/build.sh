@@ -7,6 +7,8 @@ export TH_BINARY_BUILD=1 # links CPU BLAS libraries thrice in a row (was needed 
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 export USE_VULKAN=1
+export LD_LIBRARY_PATH=/opt/conda/lib:$LD_LIBRARY_PATH
+source /opt/vulkansdk/setup-env.sh
 
 # set OPENSSL_ROOT_DIR=/opt/openssl if it exists
 if [[ -e /opt/openssl ]]; then

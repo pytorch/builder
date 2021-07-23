@@ -36,7 +36,7 @@ RUN bash ./install_openssl.sh && rm install_openssl.sh
 FROM base as vulkansdk
 # Install vulkan sdk
 ADD ./common/install_vulkan_sdk.sh install_vulkan_sdk.sh
-RUN VULKAN_SDK_VERSION=1.2.162.1 bash ./install_vulkan_sdk.sh && rm install_vulkan_sdk.sh
+RUN bash ./install_vulkan_sdk.sh 1.2.162.1 && rm install_vulkan_sdk.sh
 
 FROM base as conda
 # Install Anaconda
@@ -92,11 +92,11 @@ COPY --from=cuda11.3  /usr/local/cuda-11.3 /usr/local/cuda-11.3
 
 FROM ${BASE_TARGET} as final
 # Install LLVM
-RUN echo "hello world"
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl           /opt/openssl
 COPY --from=patchelf           /patchelf              /usr/local/bin/patchelf
+COPY --from=vulkansdk          /opt/vulkansdk         /opt/vulkansdk
 COPY --from=conda              /opt/conda             /opt/conda
 ADD  ./java/jni.h /usr/local/include/jni.h
 ENV  PATH /opt/conda/bin:$PATH

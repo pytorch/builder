@@ -66,6 +66,11 @@ FROM base as breakpad
 ADD ./common/install_breakpad.sh install_breakpad.sh
 RUN bash ./install_breakpad.sh
 
+FROM base as vulkansdk
+# Install vulkan sdk
+ADD ./common/install_vulkan_sdk.sh install_vulkan_sdk.sh
+RUN bash ./install_vulkan_sdk.sh 1.2.162.1 && rm install_vulkan_sdk.sh
+
 FROM base as magma
 ARG BASE_CUDA_VERSION=10.1
 # Install magma
@@ -130,6 +135,7 @@ COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/
 COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 COPY --from=breakpad           /usr/local/lib/libbreakpad*           /usr/local/lib
 COPY --from=breakpad           /usr/local/include/breakpad           /usr/local/include/breakpad
+COPY --from=vulkansdk          /opt/vulkansdk         /opt/vulkansdk
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1

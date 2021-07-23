@@ -2,14 +2,14 @@
 
 set -ex
 
-VULKAN_SDK_VERSION=1.2.162.1
+VULKAN_SDK_VERSION=$1
 [ -n "${VULKAN_SDK_VERSION}" ]
 
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
-_vulkansdk_dir=/var/lib/jenkins/vulkansdk
+_vulkansdk_dir=/opt/vulkansdk
 _tmp_vulkansdk_targz=/tmp/vulkansdk.tar.gz
 
 curl \
