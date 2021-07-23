@@ -33,6 +33,11 @@ FROM base as openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
 
+FROM base as vulkansdk
+# Install vulkan sdk
+ADD ./common/install_vulkan_sdk.sh install_vulkan_sdk.sh
+RUN VULKAN_SDK_VERSION=1.2.162.1 bash ./install_vulkan_sdk.sh && rm install_vulkan_sdk.sh
+
 FROM base as conda
 # Install Anaconda
 ADD ./common/install_conda.sh install_conda.sh
