@@ -36,6 +36,7 @@ if [[ -z "$USE_CUDA" || "$USE_CUDA" == 1 ]]; then
     build_with_cuda=1
 fi
 if [[ -n "$build_with_cuda" ]]; then
+    export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
     export TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
     if [[ $CUDA_VERSION == 8.0* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
@@ -51,8 +52,10 @@ if [[ -n "$build_with_cuda" ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
     elif [[ $CUDA_VERSION == 11.2* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
+    elif [[ $CUDA_VERSION == 11.3* ]]; then
+        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
+	export TORCH_CUDA_NVCC_FLAGS="-Xfatbin -compress-all --threads 2" 
     fi
-    export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
     export NCCL_ROOT_DIR=/usr/local/cuda
     export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)
     export USE_STATIC_NCCL=1  # links nccl statically (driven by tools/setup_helpers/nccl.py, some of the NCCL cmake files such as FindNCCL.cmake and gloo/FindNCCL.cmake)
