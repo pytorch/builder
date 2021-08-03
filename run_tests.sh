@@ -61,7 +61,6 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
-    EXTRA_CONDA_FLAGS="-c=conda-forge"
     # Why are there two different ways to install dependencies after installing an offline package?
     # The "cpu" conda package for pytorch doesn't actually depend on "cpuonly" which means that
     # when we attempt to update dependencies using "conda update --all" it will attempt to install
