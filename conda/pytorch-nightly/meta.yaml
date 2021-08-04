@@ -1,3 +1,5 @@
+{% set build_variant = environ.get('PYTORCH_BUILD_VARIANT', 'cuda') %}
+
 package:
   name: pytorch
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
@@ -35,6 +37,7 @@ requirements:
     - intel-openmp # [win]
     - typing_extensions
     - blas * mkl
+    - pytorch-mutex 1.0 {{ build_variant }}
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
 
 build:
@@ -61,8 +64,6 @@ build:
     - USE_QNNPACK # [unix]
     - USE_WHOLE_CUDNN # [unix]
     - BUILD_TEST # [unix]
-  features:
-{{ environ.get('CONDA_CPU_ONLY_FEATURE', '    - cpuonly # [not osx]') }}
 
 test:
  imports:
