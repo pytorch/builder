@@ -24,7 +24,6 @@ docker run --rm -it \
     -e DESIRED_PYTHON=3.8 \
     -e PYTORCH_BUILD_VERSION=1.5.0 \
     -e PYTORCH_BUILD_NUMBER=1 \
-    -e OVERRIDE_PACKAGE_VERSION=1.5.0
     -e TORCH_CONDA_BUILD_FOLDER=pytorch-nightly \
     -v /path/to/pytorch:/pytorch \
     -v /path/to/builder:/builder \
