@@ -54,7 +54,6 @@ if [[ -n "$build_with_cuda" ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
     elif [[ $CUDA_VERSION == 11.3* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
-	export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2" 
     fi
     export NCCL_ROOT_DIR=/usr/local/cuda
     export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)
