@@ -186,14 +186,14 @@ echo Installing CUDA toolkit...
 pushd "%SRC_DIR%\temp_build\cuda"
 
 rem Why find ":", if no process, the output is INFO: No tasks are running which match the specified criteria.
-tasklist /fi "imagename eq msiexec.exe" | find ":" > nul
+tasklist /fi "imagename eq msiexec.exe" | find ":"
 if %ERRORLEVEL% NEQ 0 (
     echo There's another installer running.
 )
 
 start /wait setup.exe -s %ARGS%
 
-tasklist /fi "imagename eq setup.exe" | find ":" > nul
+tasklist /fi "imagename eq setup.exe" | find ":"
 if %ERRORLEVEL% NEQ 0 (
     echo start /wait not working.
 )
