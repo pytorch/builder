@@ -191,7 +191,7 @@ if %ERRORLEVEL% NEQ 0 (
     echo There's another installer running.
 )
 
-start /wait setup.exe -s %ARGS%
+start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 
 tasklist /fi "imagename eq setup.exe" | find ":"
 if %ERRORLEVEL% NEQ 0 (
