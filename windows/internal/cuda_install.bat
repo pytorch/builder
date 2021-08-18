@@ -193,7 +193,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 echo %errorlevel%
-type "%cd%/cuda_install_logs"
+
     
 tasklist /fi "imagename eq setup.exe" | find ":"
 if %ERRORLEVEL% NEQ 0 (
@@ -228,6 +228,8 @@ set "NVTOOLSEXT_PATH=%ProgramFiles%\NVIDIA Corporation\NvToolsExt"
 
 if not exist "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
     echo CUDA %CUDA_VERSION_STR% installed failed.
+    type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.RunDll32.exe.log"
+    type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.setup.exe.log"
     exit /b 1
 )
 
