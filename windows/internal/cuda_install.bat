@@ -191,6 +191,10 @@ if %ERRORLEVEL% NEQ 0 (
     echo There's another installer running.
 )
 
+sc query wususerv
+net stop wuauserv
+sc query wususerv
+
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 echo %errorlevel%
 
