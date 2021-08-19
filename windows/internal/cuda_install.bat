@@ -185,10 +185,7 @@ echo Installing CUDA toolkit...
 7z x %CUDA_SETUP_FILE% -o"%SRC_DIR%\temp_build\cuda"
 pushd "%SRC_DIR%\temp_build\cuda"
 
-sc query wususerv
 sc config wuauserv start= disabled
-sc query wususerv
-
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 echo %errorlevel%
 
