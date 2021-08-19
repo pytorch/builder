@@ -192,7 +192,7 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 sc query wususerv
-net stop wuauserv
+sc config wuauserv start= disabled
 sc query wususerv
 
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
