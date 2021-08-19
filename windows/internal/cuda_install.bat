@@ -185,12 +185,6 @@ echo Installing CUDA toolkit...
 7z x %CUDA_SETUP_FILE% -o"%SRC_DIR%\temp_build\cuda"
 pushd "%SRC_DIR%\temp_build\cuda"
 
-rem Why find ":", if no process, the output is INFO: No tasks are running which match the specified criteria.
-tasklist /fi "imagename eq msiexec.exe" | find ":"
-if %ERRORLEVEL% NEQ 0 (
-    echo There's another installer running.
-)
-
 sc query wususerv
 sc config wuauserv start= disabled
 sc query wususerv
@@ -198,14 +192,7 @@ sc query wususerv
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 echo %errorlevel%
 
-    
-tasklist /fi "imagename eq setup.exe" | find ":"
-if %ERRORLEVEL% NEQ 0 (
-    echo start /wait not working.
-)
-
 popd
-
 
 echo Installing VS integration...
 if "%VC_YEAR%" == "2017" (
