@@ -4,9 +4,6 @@
 # Stop at any error, show all commands
 set -ex
 
-# Python versions to be installed in /opt/$VERSION_NO
-CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.6.6 3.7.5 3.8.1 3.9.0"}
-
 # openssl version to build, with expected sha256 hash of .tar.gz
 # archive
 OPENSSL_ROOT=openssl-1.0.2k
@@ -44,8 +41,7 @@ autoconf --version
 # against a recent openssl [see env vars above], which is linked
 # statically. We delete openssl afterwards.)
 build_openssl $OPENSSL_ROOT $OPENSSL_HASH
-mkdir -p /opt/python
-build_cpythons $CPYTHON_VERSIONS
+/build_scripts/install_cpython.sh
 
 PY36_BIN=/opt/python/cp36-cp36m/bin
 
