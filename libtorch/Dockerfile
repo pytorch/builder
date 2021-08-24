@@ -17,6 +17,11 @@ FROM base as openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
 
+# Install python
+FROM base as python
+COPY manywheel/build_scripts /build_scripts
+RUN bash build_scripts/build.sh && rm -r build_scripts
+
 FROM base as intel
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
