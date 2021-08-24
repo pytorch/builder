@@ -19,8 +19,14 @@ RUN bash ./install_openssl.sh && rm install_openssl.sh
 
 # Install python
 FROM base as python
-COPY manywheel/build_scripts /build_scripts
-RUN bash build_scripts/build.sh && rm -r build_scripts
+ADD common/install_cpython.sh install_cpython.sh
+RUN apt-get update -y && \
+    apt-get install build-essential gdb lcov libbz2-dev libffi-dev \
+        libgdbm-dev liblzma-dev libncurses5-dev libreadline6-dev \
+        libsqlite3-dev libssl-dev lzma lzma-dev tk-dev uuid-dev zlib1g-dev -y && \
+    bash ./install_cpython.sh && \
+    rm install_cpython.sh && \
+    apt-get clean
 
 FROM base as intel
 # Install MKL
@@ -76,4 +82,7 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 COPY --from=intel /opt/intel /opt/intel
 # Install Anaconda
 COPY --from=conda /opt/conda /opt/conda
+# Install python
+COPY --from=python /opt/python    /opt/python
+COPY --from=python /opt/_internal /opt/_internal
 ENV PATH /opt/conda/bin:$PATH
