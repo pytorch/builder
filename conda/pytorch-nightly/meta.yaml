@@ -61,6 +61,7 @@ build:
     - USE_QNNPACK # [unix]
     - USE_WHOLE_CUDNN # [unix]
     - BUILD_TEST # [unix]
+    - USE_PYTORCH_METAL_EXPORT # [macos]
   features:
 {{ environ.get('CONDA_CPU_ONLY_FEATURE', '    - cpuonly # [not osx]') }}
 
