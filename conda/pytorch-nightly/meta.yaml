@@ -72,6 +72,7 @@ build:
     - USE_QNNPACK # [unix]
     - USE_WHOLE_CUDNN # [unix]
     - BUILD_TEST # [unix]
+    - USE_PYTORCH_METAL_EXPORT # [osx]
 
 test:
  imports:

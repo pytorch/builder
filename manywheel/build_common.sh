@@ -130,8 +130,12 @@ esac
 
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
+    export USE_LLVM="/opt/llvm"
+    export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 else
     export _GLIBCXX_USE_CXX11_ABI=0
+    export USE_LLVM="/opt/llvm_no_cxx11_abi"
+    export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 fi
 
 if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then

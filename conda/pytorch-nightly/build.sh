@@ -6,6 +6,8 @@ export CMAKE_PREFIX_PATH=$PREFIX
 export TH_BINARY_BUILD=1 # links CPU BLAS libraries thrice in a row (was needed for some MKL static linkage)
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
+export USE_LLVM="/opt/llvm_no_cxx11_abi"
+export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 
 # set OPENSSL_ROOT_DIR=/opt/openssl if it exists
 if [[ -e /opt/openssl ]]; then
@@ -54,7 +56,6 @@ if [[ -n "$build_with_cuda" ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
     elif [[ $CUDA_VERSION == 11.3* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
-	export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2" 
     fi
     export NCCL_ROOT_DIR=/usr/local/cuda
     export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)

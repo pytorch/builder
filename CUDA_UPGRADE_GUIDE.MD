@@ -19,7 +19,7 @@ There are three types of Docker containers we maintain in order to build Linux b
     3. Push the images to Docker Hub. Find someone who has access to Docker and the credentials to Docker Hub and have them build, tag, and push the images. This step will be automated soon with the help with GitHub Actions in the `pytorch/builder` repo. Make sure to update the `cuda_version` to the version you're adding in respective YAMLs, such as `.github/workflows/build-manywheel-images.yml`.
 
 ## 2. Modify code to install the new CUDA for Windows
-**Code reference**: [PR 728](https://github.com/pytorch/builder/pull/728) and followup fixes in [PR 751](https://github.com/pytorch/builder/pull/751) and [PR 755](https://github.com/pytorch/builder/pull/755)
+**Code reference**: [PR 728](https://github.com/pytorch/builder/pull/728) and followup fixes in [PR 751](https://github.com/pytorch/builder/pull/751), [PR 755](https://github.com/pytorch/builder/pull/755), and [PR 806](https://github.com/pytorch/builder/pull/806)
 1. To get the CUDA install link, just like with Linux, go [here](https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local) and upload that `.exe` file to our S3 bucket.
 2. To get the cuDNN install link, you could ask NVIDIA, but you could also just sign up for an NVIDIA account and access the needed `.zip` file at this [link](https://developer.nvidia.com/rdp/cudnn-download). First click on `cuDNN Library for Windows (x86)` and then upload that zip file to our S3 bucket.
 3. NOTE: When you upload files to S3, make sure to make these objects publicly readable so that our CI can access them!
@@ -47,5 +47,12 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 1. The difficulty in this task is NOT changing the config--you only need to modify this [line](https://github.com/pytorch/pytorch/blob/master/.circleci/cimodel/data/dimensions.py#L6)--but the debugging process that ensues.
 2. Since this change should not touch other build jobs and it is very likely you would be running these jobs on the CI frequently, I'd advise reducing the config to only the build jobs for the new CI version and to use your own fork of `pytorch/builder`. **Code reference**: [PR 57522](https://github.com/pytorch/pytorch/pull/57522).
 3. Don't be afraid to ask questions when you're stuck on any bug!
+
+## 6. Add the new version to torchvision CI.
+Torchvision is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
+propagate the CI changes so that torchvision can be packaged for the new CUDA version as well.
+1. A code sample can be found in [PR 4248](https://github.com/pytorch/vision/pull/4248) of the torchvision repo.
+2. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
+builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
 Congrats! PyTorch now has support for a new CUDA version and you made it happen!
