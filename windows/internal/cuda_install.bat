@@ -91,6 +91,15 @@ if not exist "%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip" (
     set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip"
 )
 
+rem I tested, it's only necessary for cu102.
+if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
+    curl -k -L "https://ossci-windows.s3.us-east-1.amazonaws.com/builder/additional_dlls.zip" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
+    if errorlevel 1 exit /b 1
+)
+
+echo Installing GPU driver DLLs
+7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
+
 goto cuda_common
 
 :cuda110
@@ -167,17 +176,10 @@ if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
 
 goto cuda_common
 
-
-
 :cuda_common
 
 if not exist "%SRC_DIR%\temp_build\NvToolsExt.7z" (
-    curl -k -L https://www.dropbox.com/s/9mcolalfdj4n979/NvToolsExt.7z?dl=1 --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
-    if errorlevel 1 exit /b 1
-)
-
-if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
-    curl -k -L "https://drive.google.com/u/0/uc?id=1injUyo3lnarMgWyRcXqKg4UGnN0ysmuq&export=download" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
+    curl -k -L https://ossci-windows.s3.us-east-1.amazonaws.com/builder/NvToolsExt.7z --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
     if errorlevel 1 exit /b 1
 )
 
@@ -234,9 +236,6 @@ echo Installing cuDNN...
 xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\bin\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin"
 xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\lib\x64\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\lib\x64"
 xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\include\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\include"
-
-echo Installing GPU driver DLLs
-7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
 
 echo Cleaning temp files
 rd /s /q "%SRC_DIR%\temp_build" || ver > nul
