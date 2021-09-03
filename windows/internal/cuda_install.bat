@@ -91,15 +91,6 @@ if not exist "%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip" (
     set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\cudnn-10.2-windows10-x64-v7.6.5.32.zip"
 )
 
-rem I tested, it's only necessary for cu102.
-if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
-    curl -k -L "https://ossci-windows.s3.us-east-1.amazonaws.com/builder/additional_dlls.zip" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
-    if errorlevel 1 exit /b 1
-)
-
-echo Installing GPU driver DLLs
-7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
-
 goto cuda_common
 
 :cuda110
