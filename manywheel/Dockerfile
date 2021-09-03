@@ -36,6 +36,7 @@ RUN bash ./install_openssl.sh && rm install_openssl.sh
 FROM base as python
 # build python
 COPY manywheel/build_scripts /build_scripts
+ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 RUN bash build_scripts/build.sh && rm -r build_scripts
 
 # remove unncessary python versions
@@ -61,10 +62,6 @@ FROM base as patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 RUN cp $(which patchelf) /patchelf
-
-FROM base as breakpad
-ADD ./common/install_breakpad.sh install_breakpad.sh
-RUN bash ./install_breakpad.sh
 
 FROM base as magma
 ARG BASE_CUDA_VERSION=10.1
@@ -128,8 +125,6 @@ COPY --from=libpng             /usr/local/include/png*               /usr/local/
 COPY --from=libpng             /usr/local/include/libpng*            /usr/local/include/
 COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/lib/
 COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
-COPY --from=breakpad           /usr/local/lib/libbreakpad*           /usr/local/lib
-COPY --from=breakpad           /usr/local/include/breakpad           /usr/local/include/breakpad
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1

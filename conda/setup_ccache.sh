@@ -27,3 +27,4 @@ fi
 
 export PATH=~/ccache/lib:$PATH
 export CUDA_NVCC_EXECUTABLE=~/ccache/cuda/nvcc
+export CMAKE_CUDA_COMPILER_LAUNCHER=~/ccache/bin/ccache
