@@ -188,9 +188,6 @@ pushd "%SRC_DIR%\temp_build\cuda"
 sc config wuauserv start= disabled
 sc stop wuauserv
 sc query wuauserv
-sc config WinDefend start= disabled
-sc stop WinDefend
-sc query WinDefend
 
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 echo %errorlevel%
@@ -240,4 +237,4 @@ echo Cleaning temp files
 rd /s /q "%SRC_DIR%\temp_build" || ver > nul
 
 sc config wuauserv start= auto
-sc config WinDefend start= auto
+sc query wuauserv
