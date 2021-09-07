@@ -26,6 +26,8 @@ export INSTALL_TEST=0 # dont install test binaries into site-packages
 
 # MacOS build is simple, and will not be for CUDA
 if [[ "$OSTYPE" == "darwin"* ]]; then
+    export USE_LLVM=$CMAKE_PREFIX_PATH
+    export LLVM_DIR=$USE_LLVM/lib/cmake/llvm
     MACOSX_DEPLOYMENT_TARGET=10.9 \
         CXX=clang++ \
         CC=clang \
