@@ -26,7 +26,13 @@ class GitCommit:
     author_date: datetime
     commit_date: Optional[datetime]
 
-    def __init__(self, commit_hash: str, author: str, author_date: datetime, title: str, body: str, commit_date: Optional[datetime] = None) -> None:
+    def __init__(self,
+                 commit_hash: str,
+                 author: str,
+                 author_date: datetime,
+                 title: str,
+                 body: str,
+                 commit_date: Optional[datetime] = None) -> None:
         self.commit_hash = commit_hash
         self.author = author
         self.author_date = author_date
@@ -139,9 +145,10 @@ class GitRepo:
         self.remote = remote
 
     def _run_git_log(self, revision_range) -> List[GitCommit]:
-        log = _check_output(["git", "-C", self.repo_dir, "log", '--format=fuller', '--date=unix', revision_range]).split("\n")
-        rc = []
-        cur_msg = []
+        log = _check_output(['git', '-C', self.repo_dir, 'log',
+                             '--format=fuller', '--date=unix', revision_range, '--', '.']).split("\n")
+        rc: List[GitCommit] = []
+        cur_msg: List[str] = []
         for line in log:
             if line.startswith("commit"):
                 if len(cur_msg) > 0:
@@ -304,6 +311,29 @@ def print_contributor_stats(commits, delta: Optional[timedelta] = None) -> None:
         print(f"{author}: {count}")
 
 
+def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, milestone_idx: int) -> None:
+    def get_commits_dict(x, y):
+        return build_commit_dict(repo.get_commit_list(x, y))
+    master_commits = get_commits_dict(orig_branch, 'master')
+    release_commits = get_commits_dict(orig_branch, branch)
+    print(f"len(master_commits)={len(master_commits)}")
+    print(f"len(release_commits)={len(release_commits)}")
+    print("URL;Title;Status")
+    for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
+        html_url, state = issue["html_url"], issue["state"]
+        # Skip closed states if they were landed before merge date
+        if state == "closed":
+            mentioned_after_cut = any(html_url in commit_message for commit_message in master_commits.values())
+            # If issue is not mentioned after cut, that it must be present in release branch
+            if not mentioned_after_cut:
+                continue
+            mentioned_in_release = any(html_url in commit_message for commit_message in release_commits.values())
+            # if Issue is mentioned is release branch, than it was picked already
+            if mentioned_in_release:
+                continue
+        print(f'{html_url};{issue["title"]};{state}')
+
+
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser(description="Print GitHub repo stats")
@@ -311,8 +341,11 @@ def parse_arguments():
                         type=str,
                         help="Path to PyTorch git checkout",
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
+    parser.add_argument("--milestone-id", type=str)
+    parser.add_argument("--branch", type=str)
     parser.add_argument("--analyze-reverts", action="store_true")
     parser.add_argument("--contributor-stats", action="store_true")
+    parser.add_argument("--missing-in-branch", action="store_true")
     return parser.parse_args()
 
 
@@ -323,11 +356,32 @@ def main():
     # Pick best remote
     remote = next(iter(remotes.keys()))
     for key in remotes:
-        if remotes[key] == 'https://github.com/pytorch/pytorch':
+        if remotes[key].endswith('github.com/pytorch/pytorch'):
             remote = key
 
     repo = GitRepo(args.repo_path, remote)
-    print("Parsing git history...", end='', flush=True)
+
+    if args.missing_in_branch:
+        # Use milestone idx or search it along milestone titles
+        try:
+            milestone_idx = int(args.milestone_id)
+        except ValueError:
+            milestone_idx = -1
+            milestones = gh_get_milestones()
+            for milestone in milestones:
+                if milestone.get('title', '') == args.milestone_id:
+                    milestone_idx = int(milestone.get('number', '-2'))
+            if milestone_idx < 0:
+                print(f'Could not find milestone {args.milestone_id}')
+                return
+
+        commits_missing_in_branch(repo,
+                                  args.branch,
+                                  f'orig/{args.branch}',
+                                  milestone_idx)
+        return
+
+    print('Parsing git history...', end='', flush=True)
     start_time = time.time()
     x = repo._run_git_log(f"{remote}/master")
     print(f"done in {time.time()-start_time:.1f} sec")
