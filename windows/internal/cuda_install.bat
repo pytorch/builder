@@ -237,7 +237,3 @@ echo Installing GPU driver DLLs
 
 echo Cleaning temp files
 rd /s /q "%SRC_DIR%\temp_build" || ver > nul
-
-sc config wuauserv start= auto
-sc start wuauserv
-sc query wuauserv
