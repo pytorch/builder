@@ -362,7 +362,7 @@ def main():
         # Pick best remote
         remote = next(iter(remotes.keys()))
         for key in remotes:
-            if remotes[key] == 'https://github.com/pytorch/pytorch':
+            if remotes[key].endswith('github.com/pytorch/pytorch'):
                 remote = key
 
     repo = GitRepo(args.repo_path, remote)
