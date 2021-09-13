@@ -343,6 +343,10 @@ def parse_arguments():
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
     parser.add_argument("--milestone-id", type=str)
     parser.add_argument("--branch", type=str)
+    parser.add_argument("--remote",
+                        type=str,
+                        help="Remote to base off of",
+                        default="")
     parser.add_argument("--analyze-reverts", action="store_true")
     parser.add_argument("--contributor-stats", action="store_true")
     parser.add_argument("--missing-in-branch", action="store_true")
@@ -352,12 +356,14 @@ def parse_arguments():
 def main():
     import time
     args = parse_arguments()
-    remotes = get_git_remotes(args.repo_path)
-    # Pick best remote
-    remote = next(iter(remotes.keys()))
-    for key in remotes:
-        if remotes[key].endswith('github.com/pytorch/pytorch'):
-            remote = key
+    remote = args.remote
+    if not remote:
+        remotes = get_git_remotes(args.repo_path)
+        # Pick best remote
+        remote = next(iter(remotes.keys()))
+        for key in remotes:
+            if remotes[key].endswith('github.com/pytorch/pytorch'):
+                remote = key
 
     repo = GitRepo(args.repo_path, remote)
 
@@ -381,7 +387,7 @@ def main():
                                   milestone_idx)
         return
 
-    print('Parsing git history...', end='', flush=True)
+    print(f"Parsing git history with remote {remote}...", end='', flush=True)
     start_time = time.time()
     x = repo._run_git_log(f"{remote}/master")
     print(f"done in {time.time()-start_time:.1f} sec")
