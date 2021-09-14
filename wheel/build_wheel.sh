@@ -158,7 +158,6 @@ conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_p
 source activate "$tmp_env_name"
 
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
@@ -166,7 +165,6 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-export USE_LLVM="${CONDA_PREFIX}"
 if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export CMAKE_OSX_ARCHITECTURES=arm64
     export USE_MKLDNN=OFF
@@ -178,6 +176,9 @@ if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     git clone https://github.com/malfet/pocketfft --depth 1 --branch cpp
     popd
     export POCKETFFT_HOME="${HOME}/pocketfft"
+else
+    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
+    export USE_LLVM="${CONDA_PREFIX}"
 fi
 
 pushd "$pytorch_rootdir"
