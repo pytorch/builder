@@ -168,6 +168,8 @@ retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
 export USE_LLVM="${CONDA_PREFIX}"
 if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+    # NS: If this helps, investigate why updating from 10.0.0 to 12.0.0 changes the link order 
+    retry conda install -yq libcxx==10.0.0
     export CMAKE_OSX_ARCHITECTURES=arm64
     export USE_MKLDNN=OFF
     export USE_NNPACK=OFF
