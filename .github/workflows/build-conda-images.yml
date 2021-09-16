@@ -3,7 +3,7 @@ name: Build conda docker images
 on:
   push:
     branches:
-      master
+      main
     paths:
       - conda/Dockerfile
       - 'common/*'

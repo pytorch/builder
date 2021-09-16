@@ -3,7 +3,7 @@ name: Build llvm docker images
 on:
   push:
     branches:
-      master
+      main
     paths:
       - llvm/*
       - .github/workflows/build-llvm-images.yml
