@@ -58,10 +58,12 @@ if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
     LIBNUMA_PATH="/usr/lib64/libnuma.so.1"
     LIBELF_PATH="/usr/lib64/libelf.so.1"
+    LIBTINFO_PATH="/usr/lib64/libtinfo.so.5"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
     LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
+    LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.5"
 fi
 
 # NOTE: Some ROCm versions have identical dependencies, or very close deps.
@@ -146,6 +148,7 @@ DEPS_LIST=(
     "$LIBGOMP_PATH"
     "$LIBNUMA_PATH"
     "$LIBELF_PATH"
+    "$LIBTINFO_PATH"
 )
 
 DEPS_SONAME=(
@@ -170,6 +173,7 @@ DEPS_SONAME=(
     "libgomp.so.1"
     "libnuma.so.1"
     "libelf.so.1"
+    "libtinfo.so.5"
 )
 
 DEPS_AUX_SRCLIST=(

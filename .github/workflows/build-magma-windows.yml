@@ -3,7 +3,7 @@ name: Build MAGMA for Windows
 on:
   push:
     branches:
-      master
+      main
     paths:
       - windows/internal/build_magma.bat
   pull_request:

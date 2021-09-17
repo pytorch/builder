@@ -3,7 +3,7 @@ name: Build libtorch docker images
 on:
   push:
     branches:
-      master
+      main
     paths:
       - libtorch/Dockerfile
       - 'common/*'

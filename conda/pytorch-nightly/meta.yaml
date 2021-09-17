@@ -24,6 +24,7 @@ requirements:
     - typing_extensions
     - dataclasses # [py36]
     - ninja
+    - llvmdev=9
     - libuv # [win]
     - libuv # [unix]
     - pkg-config # [unix]
@@ -73,6 +74,9 @@ build:
     - USE_WHOLE_CUDNN # [unix]
     - BUILD_TEST # [unix]
     - USE_PYTORCH_METAL_EXPORT # [osx]
+    - USE_COREML_DELEGATE # [osx]
+  features:
+{{ environ.get('CONDA_CPU_ONLY_FEATURE', '    - cpuonly # [not osx]') }}
 
 test:
  imports:

@@ -98,7 +98,7 @@ class S3Index:
             self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
             else self.objects
         )
-        subdir = self._resolve_subdir(subdir)
+        subdir = self._resolve_subdir(subdir) + '/'
         for obj in objects:
             if package_name is not None:
                 if self.obj_to_package_name(obj) != package_name:

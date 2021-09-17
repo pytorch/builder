@@ -172,12 +172,12 @@ goto cuda_common
 :cuda_common
 
 if not exist "%SRC_DIR%\temp_build\NvToolsExt.7z" (
-    curl -k -L https://www.dropbox.com/s/9mcolalfdj4n979/NvToolsExt.7z?dl=1 --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
+    curl -k -L https://ossci-windows.s3.us-east-1.amazonaws.com/builder/NvToolsExt.7z --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
     if errorlevel 1 exit /b 1
 )
 
 if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
-    curl -k -L "https://drive.google.com/u/0/uc?id=1injUyo3lnarMgWyRcXqKg4UGnN0ysmuq&export=download" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
+    curl -k -L "https://ossci-windows.s3.us-east-1.amazonaws.com/builder/additional_dlls.zip" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
     if errorlevel 1 exit /b 1
 )
 
@@ -186,6 +186,9 @@ echo Installing CUDA toolkit...
 pushd "%SRC_DIR%\temp_build\cuda"
 
 sc config wuauserv start= disabled
+sc stop wuauserv
+sc query wuauserv
+
 start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
 echo %errorlevel%
 
@@ -216,8 +219,10 @@ set "NVTOOLSEXT_PATH=%ProgramFiles%\NVIDIA Corporation\NvToolsExt"
 
 if not exist "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
     echo CUDA %CUDA_VERSION_STR% installed failed.
-    type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.RunDll32.exe.log"
+    echo --------- setup.exe.log -------
     type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.setup.exe.log"
+    echo --------- RunDll32.exe.log
+    type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.RunDll32.exe.log"
     exit /b 1
 )
 
