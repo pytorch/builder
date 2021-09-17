@@ -1,3 +1,5 @@
+{% set build_variant = environ.get('PYTORCH_BUILD_VARIANT', 'cuda') %}
+
 package:
   name: pytorch
   version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
@@ -36,7 +38,16 @@ requirements:
     - intel-openmp # [win]
     - typing_extensions
     - blas * mkl
+    - pytorch-mutex 1.0 {{ build_variant }}
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
+
+  {% if build_variant == 'cpu' %}
+  run_constrained:
+    - cpuonly
+  {% else %}
+  run_constrained:
+     - cpuonly <0
+  {% endif %}
 
 build:
   number: {{ environ.get('PYTORCH_BUILD_NUMBER', '1') }}

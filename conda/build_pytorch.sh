@@ -254,13 +254,12 @@ if [[ -n "$cpu_only" ]]; then
     if [[ "$OSTYPE" != "darwin"* ]]; then
         build_string_suffix="cpu_${build_string_suffix}"
     fi
-    # on Linux, advertise that the package sets the cpuonly feature
-    export CONDA_CPU_ONLY_FEATURE="    - cpuonly # [not osx]"
+    export PYTORCH_BUILD_VARIANT="cpu"
 else
     # Switch the CUDA version that /usr/local/cuda points to. This script also
     # sets CUDA_VERSION and CUDNN_VERSION
     echo "Switching to CUDA version $desired_cuda"
-    export CONDA_CPU_ONLY_FEATURE=""
+    export PYTORCH_BUILD_VARIANT="cuda"
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
