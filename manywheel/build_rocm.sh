@@ -126,6 +126,28 @@ else
     HIPFFT_SO=
 fi;
 
+# in rocm4.3, rocfft refactored their device libs
+# hipfft is a new package, separate from rocfft
+if [[ $ROCM_INT -ge 40300 ]]; then
+    DEP_ROCFFT_DEVICE=
+    DEP_ROCFFT_DEVICE_MISC=/opt/rocm/rocfft/lib/librocfft-device-misc.so.0
+    DEP_ROCFFT_DEVICE_SINGLE=/opt/rocm/rocfft/lib/librocfft-device-single.so.0
+    DEP_ROCFFT_DEVICE_DOUBLE=/opt/rocm/rocfft/lib/librocfft-device-double.so.0
+    SO_ROCFFT_DEVICE=
+    SO_ROCFFT_DEVICE_MISC=librocfft-device-misc.so.0
+    SO_ROCFFT_DEVICE_SINGLE=librocfft-device-single.so.0
+    SO_ROCFFT_DEVICE_DOUBLE=librocfft-device-double.so.0
+else
+    DEP_ROCFFT_DEVICE=/opt/rocm/rocfft/lib/librocfft-device.so.0
+    DEP_ROCFFT_DEVICE_MISC=
+    DEP_ROCFFT_DEVICE_SINGLE=
+    DEP_ROCFFT_DEVICE_DOUBLE=
+    SO_ROCFFT_DEVICE=librocfft-device.so.0
+    SO_ROCFFT_DEVICE_MISC=
+    SO_ROCFFT_DEVICE_SINGLE=
+    SO_ROCFFT_DEVICE_DOUBLE=
+fi;
+
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
@@ -139,7 +161,10 @@ DEPS_LIST=(
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
-    "/opt/rocm/rocfft/lib/librocfft-device.so.0"
+    ${DEP_ROCFFT_DEVICE}
+    ${DEP_ROCFFT_DEVICE_MISC}
+    ${DEP_ROCFFT_DEVICE_SINGLE}
+    ${DEP_ROCFFT_DEVICE_DOUBLE}
     "/opt/rocm/rocfft/lib/librocfft.so.0"
     "/opt/rocm/rocrand/lib/librocrand.so.1"
     "/opt/rocm/rocsolver/lib/librocsolver.so.0"
@@ -164,7 +189,10 @@ DEPS_SONAME=(
     "libmagma.so"
     "librccl.so.1"
     "librocblas.so.0"
-    "librocfft-device.so.0"
+    ${SO_ROCFFT_DEVICE}
+    ${SO_ROCFFT_DEVICE_MISC}
+    ${SO_ROCFFT_DEVICE_SINGLE}
+    ${SO_ROCFFT_DEVICE_DOUBLE}
     "librocfft.so.0"
     "librocrand.so.1"
     "librocsolver.so.0"
