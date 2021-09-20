@@ -75,8 +75,6 @@ build:
     - BUILD_TEST # [unix]
     - USE_PYTORCH_METAL_EXPORT # [osx]
     - USE_COREML_DELEGATE # [osx]
-  features:
-{{ environ.get('CONDA_CPU_ONLY_FEATURE', '    - cpuonly # [not osx]') }}
 
 test:
  imports:
