@@ -72,8 +72,13 @@ build:
     - USE_NNPACK # [unix]
     - USE_QNNPACK # [unix]
     - BUILD_TEST # [unix]
+<<<<<<< HEAD
   features:
 {{ environ.get('CONDA_CPU_ONLY_FEATURE') }}
+=======
+    - USE_PYTORCH_METAL_EXPORT # [osx]
+    - USE_COREML_DELEGATE # [osx]
+>>>>>>> 5fb8b705... Remove "features" from pytorch conda package (#850)
 
 test:
  imports:
