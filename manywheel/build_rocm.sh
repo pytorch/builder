@@ -37,10 +37,6 @@ else
     exit 1
 fi
 
-# NOTE: PYTORCH_ROCM_ARCH defaults to all supported archs in pytorch's LoadHIP.cmake
-# e.g., set(PYTORCH_ROCM_ARCH gfx803;gfx900;gfx906;gfx908)
-# No need to set here.
-
 # Package directories
 WHEELHOUSE_DIR="wheelhouse$ROCM_VERSION"
 LIBTORCH_HOUSE_DIR="libtorch_house$ROCM_VERSION"
@@ -147,6 +143,13 @@ else
     SO_ROCFFT_DEVICE_SINGLE=
     SO_ROCFFT_DEVICE_DOUBLE=
 fi;
+
+PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908"
+if [[ $ROCM_INT -ge 40300 ]]; then
+    PYTORCH_ROCM_ARCH="${PYTORCH_ROCM_ARCH};gfx90a;gfx1030"
+fi
+export PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH}
+echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 
 DEPS_LIST=(
     "/opt/rocm/miopen/lib/libMIOpen.so.1"
