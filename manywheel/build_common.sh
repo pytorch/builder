@@ -22,7 +22,7 @@ retry () {
 }
 
 # TODO move this into the Docker images
-OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
@@ -359,7 +359,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     done
 
     # regenerate the RECORD file with new hashes
-    record_file=`echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
+    record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
     if [[ -e $record_file ]]; then
         echo "Generating new record file $record_file"
         rm -f $record_file
