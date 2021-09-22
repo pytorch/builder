@@ -171,11 +171,6 @@ if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export USE_NNPACK=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
-    # Build with PocketFFT support
-    pushd "${HOME}"
-    git clone https://github.com/malfet/pocketfft --depth 1 --branch cpp
-    popd
-    export POCKETFFT_HOME="${HOME}/pocketfft"
 else
     retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
     export USE_LLVM="${CONDA_PREFIX}"
