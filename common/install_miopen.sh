@@ -96,7 +96,7 @@ elif [[ ${ROCM_VERSION} == 4.2 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
     MIOPEN_BRANCH="rocm-4.2.x-staging"
 elif [[ ${ROCM_VERSION} == 4.3.1 ]]; then
-    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
+    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878;gfx1030_36"
     MIOPEN_BRANCH="release/rocm-rel-4.3"
 else
     echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
