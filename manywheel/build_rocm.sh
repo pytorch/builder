@@ -37,10 +37,6 @@ else
     exit 1
 fi
 
-# NOTE: PYTORCH_ROCM_ARCH defaults to all supported archs in pytorch's LoadHIP.cmake
-# e.g., set(PYTORCH_ROCM_ARCH gfx803;gfx900;gfx906;gfx908)
-# No need to set here.
-
 # Package directories
 WHEELHOUSE_DIR="wheelhouse$ROCM_VERSION"
 LIBTORCH_HOUSE_DIR="libtorch_house$ROCM_VERSION"
