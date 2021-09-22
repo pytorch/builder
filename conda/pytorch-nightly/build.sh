@@ -73,11 +73,11 @@ fname_with_sha256() {
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
     if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
-	echo $1
+        echo $1
     else
-	INITNAME=$(echo $BASENAME | cut -f1 -d".")
-	ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
-	echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
+        INITNAME=$(echo $BASENAME | cut -f1 -d".")
+        ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
+        echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
     fi
 }
 
@@ -122,8 +122,8 @@ for ((i=0;i<${#DEPS_LIST[@]};++i)); do
         ERRCODE=$?
         set -e
         if [ "$ERRCODE" -eq "0" ]; then
-    	      echo "patching $sofile entry $origname to $patchedname"
-    	      patchelf --replace-needed $origname $patchedname $sofile
+            echo "patching $sofile entry $origname to $patchedname"
+            patchelf --replace-needed $origname $patchedname $sofile
         fi
     done
 done
