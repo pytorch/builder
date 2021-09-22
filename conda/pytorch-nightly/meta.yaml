@@ -24,10 +24,10 @@ requirements:
     - typing_extensions
     - dataclasses # [py36]
     - ninja
-    - llvmdev=9
     - libuv # [win]
     - libuv # [unix]
     - pkg-config # [unix]
+{{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
 {{ environ.get('MAGMA_PACKAGE', '') }}
 
   run:
