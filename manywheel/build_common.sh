@@ -89,7 +89,7 @@ echo "Will build for Python version: ${DESIRED_PYTHON} with ${python_installatio
 mkdir -p /tmp/$WHEELHOUSE_DIR
 
 # Clone pytorch source code
-pytorch_rootdir="/pytorch"
+pytorch_rootdir="/home/circleci/project/pytorch"
 if [[ ! -d "$pytorch_rootdir" ]]; then
     # TODO probably safe to completely remove this
     git clone https://github.com/pytorch/pytorch $pytorch_rootdir
@@ -103,7 +103,7 @@ fi
 git submodule update --init --recursive --jobs 0
 
 export PATCHELF_BIN=/usr/local/bin/patchelf
-patchelf_version=`$PATCHELF_BIN --version`
+patchelf_version=$($PATCHELF_BIN --version)
 echo "patchelf version: " $patchelf_version
 if [[ "$patchelf_version" == "patchelf 0.9" ]]; then
     echo "Your patchelf version is too old. Please use version >= 0.10."
