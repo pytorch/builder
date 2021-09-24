@@ -38,13 +38,13 @@ requirements:
     - intel-openmp # [win]
     - typing_extensions
     - blas * mkl
-    - pytorch-mutex 1.0 {{ build_variant }}
+    - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
 
   {% if build_variant == 'cpu' %}
   run_constrained:
     - cpuonly
-  {% else %}
+  {% elif not osx %}
   run_constrained:
      - cpuonly <0
   {% endif %}
