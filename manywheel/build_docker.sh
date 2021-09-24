@@ -8,6 +8,7 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 
 GPU_ARCH_TYPE=${GPU_ARCH_TYPE:-cpu}
 GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
+MANY_LINUX_VERSION=${MANY_LINUX_VERSION:-}
 
 WITH_PUSH=${WITH_PUSH:-}
 
@@ -40,7 +41,15 @@ case ${GPU_ARCH_TYPE} in
         ;;
 esac
 
-DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-builder:${DOCKER_TAG}
+IMAGES=''
+DOCKER_NAME=manylinux${MANY_LINUX_VERSION}
+DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/${DOCKER_NAME}-builder:${DOCKER_TAG}
+if [[ -n ${MANY_LINUX_VERSION} ]]; then
+    DOCKERFILE_SUFFIX=_${MANY_LINUX_VERSON}
+    LEGACY_DOCKER_IMAGE=''
+else
+    DOCKERFILE_SUFFIX=''
+fi
 (
     set -x
     DOCKER_BUILDKIT=1 docker build \
@@ -48,7 +57,7 @@ DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-builder:${DOCKER_TAG}
         ${DOCKER_GPU_BUILD_ARG} \
         --build-arg "GPU_IMAGE=${GPU_IMAGE}" \
         --target "${TARGET}" \
-        -f "${TOPDIR}/manywheel/Dockerfile" \
+        -f "${TOPDIR}/manywheel/Dockerfile${DOCKERFILE_SUFFIX}" \
         "${TOPDIR}"
 )
 
@@ -60,7 +69,9 @@ DOCKER_IMAGE_SHA_TAG=${DOCKER_IMAGE}-${GIT_COMMIT_SHA}
 
 (
     set -x
-    docker tag ${DOCKER_IMAGE} ${LEGACY_DOCKER_IMAGE}
+    if [[ -n ${LEGACY_DOCKER_IMAGE} ]]; then
+        docker tag ${DOCKER_IMAGE} ${LEGACY_DOCKER_IMAGE}
+    fi
     if [[ -n ${GITHUB_REF} ]]; then
         docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_BRANCH_TAG}
         docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_SHA_TAG}
@@ -71,7 +82,9 @@ if [[ "${WITH_PUSH}" == true ]]; then
     (
         set -x
         docker push "${DOCKER_IMAGE}"
-        docker push "${LEGACY_DOCKER_IMAGE}"
+        if [[ -n ${LEGACY_DOCKER_IMAGE} ]]; then
+            docker push "${LEGACY_DOCKER_IMAGE}"
+        fi
         if [[ -n ${GITHUB_REF} ]]; then
             docker push "${DOCKER_IMAGE_BRANCH_TAG}"
             docker push "${DOCKER_IMAGE_SHA_TAG}"
