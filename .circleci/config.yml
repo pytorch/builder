@@ -5,6 +5,7 @@ jobs:
   build:
     docker:
       - image: pytorch/manylinux-builder:cpu
+    resource_class: 2xlarge+
     steps:
       - checkout
       - run:
