@@ -5,16 +5,19 @@ jobs:
   build:
     docker:
       - image: pytorch/manylinux-builder:cpu
+    resource_class: 2xlarge+
     steps:
       - checkout
       - run:
           name: "Checking out PyTorch"
           command: |
             git clone --depth 1 https://github.com/pytorch/pytorch /home/circleci/project/pytorch
+            export PACKAGE_TYPE=manywheel
             export DESIRED_CUDA=cpu
             export DESIRED_PYTHON=3.7m
             export DESIRED_DEVTOOLSET=devtoolset7
-            export DOCKER_IMAGE=pytorch/manylinux-cpu
+            export DOCKER_IMAGE=pytorch/manylinux-cpu 
+            export MAX_JOBS=18
             bash manywheel/build_cpu.sh
   test:
     docker:
@@ -29,3 +32,4 @@ workflows:
     jobs:
       - build
       - test
+      
