@@ -22,7 +22,7 @@ retry () {
 }
 
 # TODO move this into the Docker images
-OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
@@ -89,7 +89,7 @@ echo "Will build for Python version: ${DESIRED_PYTHON} with ${python_installatio
 mkdir -p /tmp/$WHEELHOUSE_DIR
 
 # Clone pytorch source code
-pytorch_rootdir="/home/circleci/project/pytorch"
+pytorch_rootdir="/pytorch"
 if [[ ! -d "$pytorch_rootdir" ]]; then
     # TODO probably safe to completely remove this
     git clone https://github.com/pytorch/pytorch $pytorch_rootdir
@@ -103,7 +103,7 @@ fi
 git submodule update --init --recursive --jobs 0
 
 export PATCHELF_BIN=/usr/local/bin/patchelf
-patchelf_version=$($PATCHELF_BIN --version)
+patchelf_version=`$PATCHELF_BIN --version`
 echo "patchelf version: " $patchelf_version
 if [[ "$patchelf_version" == "patchelf 0.9" ]]; then
     echo "Your patchelf version is too old. Please use version >= 0.10."
@@ -146,6 +146,13 @@ fi
 # This value comes from binary_linux_build.sh (and should only be set to true
 # for master / release branches)
 BUILD_DEBUG_INFO=${BUILD_DEBUG_INFO:=0}
+
+# TODO: Delete within a few days of 6/15/21! This is a hack to get debug info
+# building on PRs without merging in the change to PyTorch proper that sets
+# BUILD_DEBUG_INFO=1
+if [[ $CIRCLE_BRANCH == release/1.9 ]]; then
+    export BUILD_DEBUG_INFO=1
+fi
 
 if [[ $BUILD_DEBUG_INFO == "1" ]]; then
     echo "Building wheel and debug info"
@@ -352,7 +359,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     done
 
     # regenerate the RECORD file with new hashes
-    record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
+    record_file=`echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
     if [[ -e $record_file ]]; then
         echo "Generating new record file $record_file"
         rm -f $record_file
