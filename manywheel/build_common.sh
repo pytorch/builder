@@ -147,13 +147,6 @@ fi
 # for master / release branches)
 BUILD_DEBUG_INFO=${BUILD_DEBUG_INFO:=0}
 
-# TODO: Delete within a few days of 6/15/21! This is a hack to get debug info
-# building on PRs without merging in the change to PyTorch proper that sets
-# BUILD_DEBUG_INFO=1
-if [[ $CIRCLE_BRANCH == release/1.9 ]]; then
-    export BUILD_DEBUG_INFO=1
-fi
-
 if [[ $BUILD_DEBUG_INFO == "1" ]]; then
     echo "Building wheel and debug info"
 else
