@@ -89,7 +89,7 @@ echo "Will build for Python version: ${DESIRED_PYTHON} with ${python_installatio
 mkdir -p /tmp/$WHEELHOUSE_DIR
 
 # Clone pytorch source code
-pytorch_rootdir="/home/circleci/project/pytorch"
+pytorch_rootdir="/pytorch"
 if [[ ! -d "$pytorch_rootdir" ]]; then
     # TODO probably safe to completely remove this
     git clone https://github.com/pytorch/pytorch $pytorch_rootdir
