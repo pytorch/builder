@@ -10,7 +10,7 @@ jobs:
       - checkout
       - run:
           name: "Checking out PyTorch"
-          command: |
+          command: |   
             git clone --depth 1 https://github.com/pytorch/pytorch /home/circleci/project/pytorch
             export PACKAGE_TYPE=manywheel
             export DESIRED_CUDA=cpu
@@ -18,6 +18,9 @@ jobs:
             export DESIRED_DEVTOOLSET=devtoolset7
             export DOCKER_IMAGE=pytorch/manylinux-cpu 
             export MAX_JOBS=18
+            touch /home/circleci/project/env
+            [ -d "/home/circleci/project/pytorch" ] && echo "/home/circleci/project/pytorch exits"
+            [ ! -d "/pytorch" ] && echo "/pytorch does not exits"
             bash manywheel/build_cpu.sh
   test:
     docker:
