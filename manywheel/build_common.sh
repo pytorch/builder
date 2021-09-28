@@ -22,7 +22,7 @@ retry () {
 }
 
 # TODO move this into the Docker images
-OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
@@ -103,7 +103,7 @@ fi
 git submodule update --init --recursive --jobs 0
 
 export PATCHELF_BIN=/usr/local/bin/patchelf
-patchelf_version=`$PATCHELF_BIN --version`
+patchelf_version=$($PATCHELF_BIN --version)
 echo "patchelf version: " $patchelf_version
 if [[ "$patchelf_version" == "patchelf 0.9" ]]; then
     echo "Your patchelf version is too old. Please use version >= 0.10."
@@ -352,7 +352,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     done
 
     # regenerate the RECORD file with new hashes
-    record_file=`echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g'`
+    record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
     if [[ -e $record_file ]]; then
         echo "Generating new record file $record_file"
         rm -f $record_file
