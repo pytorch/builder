@@ -43,13 +43,10 @@ DEPS_SONAME=(
 
 rm -rf /usr/local/cuda*
 
-# builder/test.sh requires DESIRED_CUDA to know what tests to exclude
-export DESIRED_CUDA='cpu'
-
-SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
     BUILD_SCRIPT=build_common.sh
 else
     BUILD_SCRIPT=build_libtorch.sh
 fi
-source $SCRIPTPATH/${BUILD_SCRIPT}
+source ${SOURCE_DIR}/${BUILD_SCRIPT}

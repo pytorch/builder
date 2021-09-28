@@ -20,30 +20,15 @@ tagged_version() {
   fi
 }
 
-# We need to write an envfile to persist these variables to following
-# steps, but the location of the envfile depends on the circleci executor
-if [[ "$(uname)" == Darwin ]]; then
-  # macos executor (builds and tests)
-  workdir="/Users/distiller/project"
-elif [[ "$OSTYPE" == "msys" ]]; then
-  # windows executor (builds and tests)
-  workdir="/c/w"
-elif [[ -d "/home/circleci/project" ]]; then
-  # machine executor (binary tests)
-  workdir="/home/circleci/project"
-else
-  # docker executor (binary builds)
-  workdir="/"
-fi
 envfile="$workdir/env"
 touch "$envfile"
 chmod +x "$envfile"
 
 # Parse the BUILD_ENVIRONMENT to package type, python, and cuda
 configs=($BUILD_ENVIRONMENT)
-export PACKAGE_TYPE="${configs[0]}"
-export DESIRED_PYTHON="${configs[1]}"
-export DESIRED_CUDA="${configs[2]}"
+PACKAGE_TYPE="${configs[0]}"
+DESIRED_PYTHON="${configs[1]}"
+DESIRED_CUDA="${configs[2]}"
 if [[ "${BUILD_FOR_SYSTEM:-}" == "windows" ]]; then
   export DESIRED_DEVTOOLSET=""
   export LIBTORCH_CONFIG="${configs[3]:-}"
@@ -57,8 +42,12 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   export BUILD_PYTHONLESS=1
 fi
 
+echo "export PACKAGE_TYPE=${PACKAGE_TYPE}" >> ${BASH_ENV}
+echo "export DESIRED_PYTHON=${DESIRED_PYTHON}" >> ${BASH_ENV}
+echo "export DESIRED_CUDA=${DESIRED_CUDA}" >> ${BASH_ENV}
+
 # Pick docker image
-export DOCKER_IMAGE=${DOCKER_IMAGE:-}
+DOCKER_IMAGE=${DOCKER_IMAGE:-}
 if [[ -z "$DOCKER_IMAGE" ]]; then
   if [[ "$PACKAGE_TYPE" == conda ]]; then
     export DOCKER_IMAGE="pytorch/conda-cuda"

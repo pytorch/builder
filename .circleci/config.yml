@@ -1,35 +1,49 @@
 version: 2.1
 
+# Checks out PyTorch and builder repo
+binary_checkout: &binary_checkout
+  name: Checkout pytorch/builder repo
+  command: .circleci/scripts/binary_checkout.sh
+
+binary_populate_env: &binary_populate_env
+  name: Set up binary env variables
+  command: .circleci/scripts/binary_populate_env.sh
+
 # Define the jobs we want to run for this project
 jobs:
-  build:
+  binary_linux_build:
+    environment:
+      BUILD_ENVIRONMENT: "manywheel 3.8m cpu devtoolset7"  
+      LIBTORCH_VARIANT: ""
+      ANACONDA_USER: pytorch
     docker:
-      - image: pytorch/manylinux-builder:cpu
+      - image: "pytorch/manylinux-builder:cpu"
     resource_class: 2xlarge+
     steps:
       - checkout
       - run:
-          name: "Checking out PyTorch"
-          command: |   
-            git clone --depth 1 https://github.com/pytorch/pytorch /home/circleci/project/pytorch
-            export PACKAGE_TYPE=manywheel
-            export DESIRED_CUDA=cpu
-            export DESIRED_PYTHON=3.7m
-            export DESIRED_DEVTOOLSET=devtoolset7
+          <<: *binary_checkout
+      - run:
+          <<: *binary_populate_env
+      - run:  
+          name: "Build"
+          command: |
             MEMORY_LIMIT_MAX_JOBS=18
             NUM_CPUS=$(( $(nproc) - 2 )) 
             export MAX_JOBS=${MAX_JOBS:-$(( ${NUM_CPUS} > ${MEMORY_LIMIT_MAX_JOBS} ? ${MEMORY_LIMIT_MAX_JOBS} : ${NUM_CPUS} ))}
-            bash manywheel/build_cpu.sh
-  # test:
-  #   docker:
-  #     - image: circleci/python:3.7
-  #   steps:
-  #     - checkout
-  #     - run: echo "this is the test job"
+            source manywheel/build_cpu.sh
+#   test:
+#     docker:
+#       - image: pytorch/manylinux-builder:cpu
+#     steps:
+#       - checkout
+#       - run:
+#           name: "Test"
+#           command: echo "this is the test job"
 
 # Orchestrate our job run sequence
 workflows:
   build_and_test:
     jobs:
-      - build
-    #  - test
+      - binary_linux_build
+#       - test
