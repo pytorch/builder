@@ -13,33 +13,29 @@ if [[ "$OSTYPE" == "msys" ]]; then
   # windows executor (builds and tests)
   rm -rf /c/w
   ln -s "${HOME}" /c/w
-  workdir="/c/w"
+  WORK_DIR="/c/w"
 elif [[ -d "/home/circleci/project" ]]; then
   # machine executor (binary tests)
-  workdir="${HOME}/project"
+  WORK_DIR="${HOME}/project"
 else
   # macos executor (builds and tests)
   # docker executor (binary builds)
-  workdir="${HOME}"
+  WORK_DIR="${HOME}"
 fi
 
 if [[ "$OSTYPE" == "msys" ]]; then
   # We need to make the paths as short as possible on Windows
-  PYTORCH_ROOT="$workdir/p"
-  BUILDER_ROOT="$workdir/b"
+  PYTORCH_ROOT="$WORK_DIR/p"
+  BUILDER_ROOT="$WORK_DIR/b"
 else
-  PYTORCH_ROOT="$workdir/pytorch"
-  BUILDER_ROOT="$workdir/builder"
+  PYTORCH_ROOT="$WORK_DIR/pytorch"
+  BUILDER_ROOT="$WORK_DIR/builder"
 fi
 
 # Persist these variables for the subsequent steps
+echo "export WORK_DIR=${WORK_DIR}" >> ${BASH_ENV}
 echo "export PYTORCH_ROOT=${PYTORCH_ROOT}" >> ${BASH_ENV}
 echo "export BUILDER_ROOT=${BUILDER_ROOT}" >> ${BASH_ENV}
-
-# Try to extract PR number from branch if not already set
-if [[ -z "${CIRCLE_PR_NUMBER:-}" ]]; then
-  CIRCLE_PR_NUMBER="$(echo ${CIRCLE_BRANCH} | sed -E -n 's/pull\/([0-9]*).*/\1/p')"
-fi
 
 # Clone the Pytorch branch
 retry git clone --depth 1 https://github.com/pytorch/pytorch.git "$PYTORCH_ROOT"

@@ -7,9 +7,9 @@ tagged_version() {
   # Grabs version from either the env variable CIRCLE_TAG
   # or the pytorch git described version
   if [[ "$OSTYPE" == "msys" ]]; then
-    GIT_DESCRIBE="git --git-dir ${workdir}/p/.git describe"
+    GIT_DESCRIBE="git --git-dir ${WORK_DIR}/p/.git describe"
   else
-    GIT_DESCRIBE="git --git-dir ${workdir}/pytorch/.git describe"
+    GIT_DESCRIBE="git --git-dir ${WORK_DIR}/pytorch/.git describe"
   fi
   if [[ -n "${CIRCLE_TAG:-}" ]]; then
     echo "${CIRCLE_TAG}"
@@ -20,7 +20,7 @@ tagged_version() {
   fi
 }
 
-envfile="$workdir/env"
+envfile="$WORK_DIR/env"
 touch "$envfile"
 chmod +x "$envfile"
 
@@ -153,17 +153,17 @@ export BUILD_JNI=$BUILD_JNI
 export PIP_UPLOAD_FOLDER="$PIP_UPLOAD_FOLDER"
 export DOCKER_IMAGE="$DOCKER_IMAGE"
 
-export workdir="$workdir"
-export MAC_PACKAGE_WORK_DIR="$workdir"
+export WORK_DIR="$WORK_DIR"
+export MAC_PACKAGE_WORK_DIR="$WORK_DIR"
 if [[ "$OSTYPE" == "msys" ]]; then
-  export PYTORCH_ROOT="$workdir/p"
-  export BUILDER_ROOT="$workdir/b"
+  export PYTORCH_ROOT="$WORK_DIR/p"
+  export BUILDER_ROOT="$WORK_DIR/b"
 else
-  export PYTORCH_ROOT="$workdir/pytorch"
-  export BUILDER_ROOT="$workdir/builder"
+  export PYTORCH_ROOT="$WORK_DIR/pytorch"
+  export BUILDER_ROOT="$WORK_DIR/builder"
 fi
-export MINICONDA_ROOT="$workdir/miniconda"
-export PYTORCH_FINAL_PACKAGE_DIR="$workdir/final_pkgs"
+export MINICONDA_ROOT="$WORK_DIR/miniconda"
+export PYTORCH_FINAL_PACKAGE_DIR="$WORK_DIR/final_pkgs"
 
 export CIRCLE_TAG="${CIRCLE_TAG:-}"
 export CIRCLE_SHA1="$CIRCLE_SHA1"
