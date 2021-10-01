@@ -2,7 +2,7 @@ version: 2.1
 
 # Checks out PyTorch and builder repo
 binary_checkout: &binary_checkout
-  name: Checkout pytorch/builder repo
+  name: Checkout pytorch/pytorch and pytorch/builder
   command: .circleci/scripts/binary_checkout.sh
 
 binary_populate_env: &binary_populate_env
@@ -31,7 +31,7 @@ jobs:
             MEMORY_LIMIT_MAX_JOBS=18
             NUM_CPUS=$(( $(nproc) - 2 )) 
             export MAX_JOBS=${MAX_JOBS:-$(( ${NUM_CPUS} > ${MEMORY_LIMIT_MAX_JOBS} ? ${MEMORY_LIMIT_MAX_JOBS} : ${NUM_CPUS} ))}
-            source manywheel/build_cpu.sh
+            bash manywheel/build_cpu.sh
 #   test:
 #     docker:
 #       - image: pytorch/manylinux-builder:cpu
