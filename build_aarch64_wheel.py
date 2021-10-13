@@ -367,7 +367,7 @@ def start_build(host: RemoteHost, *,
         host.run_ssh_cmd("sudo apt-get install -y gfortran-8")
         host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/8")
         host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/8/libgfortran.a",
-                         f"{host.container_id}:/opt/rh/devtoolset-9/root/usr/lib/gcc/aarch64-redhat-linux/9/"
+                         f"{host.container_id}:/opt/rh/devtoolset-10/root/usr/lib/gcc/aarch64-redhat-linux/10/"
                           ])
 
     print('Checking out PyTorch repo')
