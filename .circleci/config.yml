@@ -28,6 +28,9 @@ jobs:
       - run:  
           name: "Build"
           command: |
+            echo "RUNNING ON $(uname -a) WITH $(nproc) CPUS AND $(free -m)"
+            set -eux -o pipefail
+            source ${WORK_DIR}/env  
             MEMORY_LIMIT_MAX_JOBS=18
             NUM_CPUS=$(( $(nproc) - 2 )) 
             export MAX_JOBS=${MAX_JOBS:-$(( ${NUM_CPUS} > ${MEMORY_LIMIT_MAX_JOBS} ? ${MEMORY_LIMIT_MAX_JOBS} : ${NUM_CPUS} ))}

@@ -42,10 +42,6 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   export BUILD_PYTHONLESS=1
 fi
 
-echo "export PACKAGE_TYPE=${PACKAGE_TYPE}" >> ${BASH_ENV}
-echo "export DESIRED_PYTHON=${DESIRED_PYTHON}" >> ${BASH_ENV}
-echo "export DESIRED_CUDA=${DESIRED_CUDA}" >> ${BASH_ENV}
-
 # Pick docker image
 DOCKER_IMAGE=${DOCKER_IMAGE:-}
 if [[ -z "$DOCKER_IMAGE" ]]; then
@@ -153,15 +149,8 @@ export BUILD_JNI=$BUILD_JNI
 export PIP_UPLOAD_FOLDER="$PIP_UPLOAD_FOLDER"
 export DOCKER_IMAGE="$DOCKER_IMAGE"
 
-export WORK_DIR="$WORK_DIR"
+# Remove WORKD_DIR, PYTORCH_ROOT, BUILDER_ROOT defined & persisted in binary_checkout.sh
 export MAC_PACKAGE_WORK_DIR="$WORK_DIR"
-if [[ "$OSTYPE" == "msys" ]]; then
-  export PYTORCH_ROOT="$WORK_DIR/p"
-  export BUILDER_ROOT="$WORK_DIR/b"
-else
-  export PYTORCH_ROOT="$WORK_DIR/pytorch"
-  export BUILDER_ROOT="$WORK_DIR/builder"
-fi
 export MINICONDA_ROOT="$WORK_DIR/miniconda"
 export PYTORCH_FINAL_PACKAGE_DIR="$WORK_DIR/final_pkgs"
 
