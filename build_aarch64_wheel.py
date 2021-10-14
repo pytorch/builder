@@ -374,7 +374,8 @@ def start_build(host: RemoteHost, *,
     host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
-    build_vars = ""
+    # Breakpad build fails on aarch64
+    build_vars = "USE_BREAKPAD=0 "
     if branch == 'nightly':
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = host.check_output("cat pytorch/version.txt").strip()[:-2]
