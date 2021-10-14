@@ -224,6 +224,8 @@ def build_torchvision(host: RemoteHost, *,
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.1-rc1 {git_clone_flags}")
     elif branch.startswith("v1.9.0"):
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.10.0-rc1 {git_clone_flags}")
+    elif branch.startswith("v1.10.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.11.0-rc3 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Building TorchVision wheel')
@@ -243,6 +245,8 @@ def build_torchvision(host: RemoteHost, *,
         build_vars += "BUILD_VERSION=0.9.1"
     elif branch.startswith("v1.9.0"):
         build_vars += "BUILD_VERSION=0.10.0"
+    elif branch.startswith("v1.10.0"):
+        build_vars += "BUILD_VERSION=0.11.0"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -264,6 +268,8 @@ def build_torchtext(host: RemoteHost, *,
     git_clone_flags += " --recurse-submodules"
     if branch.startswith("v1.9.0"):
         host.run_cmd(f"git clone https://github.com/pytorch/text -b v0.10.0-rc1 {git_clone_flags}")
+    elif branch.startswith("v1.10.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/text -b v0.11.0-rc2 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/text {git_clone_flags}")
     print('Building TorchText wheel')
@@ -274,6 +280,8 @@ def build_torchtext(host: RemoteHost, *,
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.9.0"):
         build_vars += "BUILD_VERSION=0.10.0"
+    elif branch.startswith("v1.10.0"):
+        build_vars += "BUILD_VERSION=0.11.0"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -295,6 +303,8 @@ def build_torchaudio(host: RemoteHost, *,
     git_clone_flags += " --recurse-submodules"
     if branch.startswith("v1.9.0"):
         host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.9.0-rc2 {git_clone_flags}")
+    elif branch.startswith("v1.10.0"):
+        host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.10.0-rc5 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/audio {git_clone_flags}")
     print('Building TorchText wheel')
@@ -305,6 +315,8 @@ def build_torchaudio(host: RemoteHost, *,
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     if branch.startswith("v1.9.0"):
         build_vars += "BUILD_VERSION=0.9.0"
+    elif branch.startswith("v1.10.0"):
+        build_vars += "BUILD_VERSION=0.10.0"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
