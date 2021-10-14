@@ -35,18 +35,9 @@ jobs:
             NUM_CPUS=$(( $(nproc) - 2 )) 
             export MAX_JOBS=${MAX_JOBS:-$(( ${NUM_CPUS} > ${MEMORY_LIMIT_MAX_JOBS} ? ${MEMORY_LIMIT_MAX_JOBS} : ${NUM_CPUS} ))}
             bash manywheel/build_cpu.sh
-#   test:
-#     docker:
-#       - image: pytorch/manylinux-builder:cpu
-#     steps:
-#       - checkout
-#       - run:
-#           name: "Test"
-#           command: echo "this is the test job"
 
 # Orchestrate our job run sequence
 workflows:
   build_and_test:
     jobs:
       - binary_linux_build
-#       - test
