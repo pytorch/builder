@@ -7,9 +7,9 @@ tagged_version() {
   # Grabs version from either the env variable CIRCLE_TAG
   # or the pytorch git described version
   if [[ "$OSTYPE" == "msys" ]]; then
-    GIT_DESCRIBE="git --git-dir ${workdir}/p/.git describe"
+    GIT_DESCRIBE="git --git-dir ${WORK_DIR}/p/.git describe"
   else
-    GIT_DESCRIBE="git --git-dir ${workdir}/pytorch/.git describe"
+    GIT_DESCRIBE="git --git-dir ${WORK_DIR}/pytorch/.git describe"
   fi
   if [[ -n "${CIRCLE_TAG:-}" ]]; then
     echo "${CIRCLE_TAG}"
@@ -20,30 +20,15 @@ tagged_version() {
   fi
 }
 
-# We need to write an envfile to persist these variables to following
-# steps, but the location of the envfile depends on the circleci executor
-if [[ "$(uname)" == Darwin ]]; then
-  # macos executor (builds and tests)
-  workdir="/Users/distiller/project"
-elif [[ "$OSTYPE" == "msys" ]]; then
-  # windows executor (builds and tests)
-  workdir="/c/w"
-elif [[ -d "/home/circleci/project" ]]; then
-  # machine executor (binary tests)
-  workdir="/home/circleci/project"
-else
-  # docker executor (binary builds)
-  workdir="/"
-fi
-envfile="$workdir/env"
+envfile="$WORK_DIR/env"
 touch "$envfile"
 chmod +x "$envfile"
 
 # Parse the BUILD_ENVIRONMENT to package type, python, and cuda
 configs=($BUILD_ENVIRONMENT)
-export PACKAGE_TYPE="${configs[0]}"
-export DESIRED_PYTHON="${configs[1]}"
-export DESIRED_CUDA="${configs[2]}"
+PACKAGE_TYPE="${configs[0]}"
+DESIRED_PYTHON="${configs[1]}"
+DESIRED_CUDA="${configs[2]}"
 if [[ "${BUILD_FOR_SYSTEM:-}" == "windows" ]]; then
   export DESIRED_DEVTOOLSET=""
   export LIBTORCH_CONFIG="${configs[3]:-}"
@@ -58,7 +43,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 fi
 
 # Pick docker image
-export DOCKER_IMAGE=${DOCKER_IMAGE:-}
+DOCKER_IMAGE=${DOCKER_IMAGE:-}
 if [[ -z "$DOCKER_IMAGE" ]]; then
   if [[ "$PACKAGE_TYPE" == conda ]]; then
     export DOCKER_IMAGE="pytorch/conda-cuda"
@@ -164,17 +149,10 @@ export BUILD_JNI=$BUILD_JNI
 export PIP_UPLOAD_FOLDER="$PIP_UPLOAD_FOLDER"
 export DOCKER_IMAGE="$DOCKER_IMAGE"
 
-export workdir="$workdir"
-export MAC_PACKAGE_WORK_DIR="$workdir"
-if [[ "$OSTYPE" == "msys" ]]; then
-  export PYTORCH_ROOT="$workdir/p"
-  export BUILDER_ROOT="$workdir/b"
-else
-  export PYTORCH_ROOT="$workdir/pytorch"
-  export BUILDER_ROOT="$workdir/builder"
-fi
-export MINICONDA_ROOT="$workdir/miniconda"
-export PYTORCH_FINAL_PACKAGE_DIR="$workdir/final_pkgs"
+# Remove WORKD_DIR, PYTORCH_ROOT, BUILDER_ROOT defined & persisted in binary_checkout.sh
+export MAC_PACKAGE_WORK_DIR="$WORK_DIR"
+export MINICONDA_ROOT="$WORK_DIR/miniconda"
+export PYTORCH_FINAL_PACKAGE_DIR="$WORK_DIR/final_pkgs"
 
 export CIRCLE_TAG="${CIRCLE_TAG:-}"
 export CIRCLE_SHA1="$CIRCLE_SHA1"
