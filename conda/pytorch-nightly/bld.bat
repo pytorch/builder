@@ -116,7 +116,7 @@ if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cudnn*64_*.dll*" %SP_DIR%\torch\lib
     :: cupti library file name changes aggressively, bundle it to avoid
     :: potential file name mismatch.
-    copy "%CUDA_PATH%\extras\CUPTI\lib64\cupti64_*.dll*" pytorch\torch\lib
+    copy "%CUDA_PATH%\extras\CUPTI\lib64\cupti64_*.dll*" %SP_DIR%\torch\lib
 )
 
 exit /b 0
