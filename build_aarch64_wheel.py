@@ -225,7 +225,7 @@ def build_torchvision(host: RemoteHost, *,
     elif branch.startswith("v1.9.0"):
         host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.10.0-rc1 {git_clone_flags}")
     elif branch.startswith("v1.10.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.11.0-rc3 {git_clone_flags}")
+        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.11.1-rc1 {git_clone_flags}")
     else:
         host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
     print('Building TorchVision wheel')
@@ -246,7 +246,7 @@ def build_torchvision(host: RemoteHost, *,
     elif branch.startswith("v1.9.0"):
         build_vars += "BUILD_VERSION=0.10.0"
     elif branch.startswith("v1.10.0"):
-        build_vars += "BUILD_VERSION=0.11.0"
+        build_vars += "BUILD_VERSION=0.11.1"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -330,22 +330,14 @@ def build_torchaudio(host: RemoteHost, *,
     return wheel_name
 
 
-def start_build(host: RemoteHost, *,
-                branch="master",
-                compiler="gcc-8",
-                use_conda=True,
-                python_version="3.8",
-                keep_running=False,
-                shallow_clone=True) -> Tuple[str, str]:
-    if host.using_docker() and not use_conda:
-        print("Auto-selecting conda option for docker images")
-        use_conda = True
-
+def configure_system(host: RemoteHost, *,
+                     compiler="gcc-8",
+                     use_conda=True,
+                     python_version="3.8") -> None:
     if use_conda:
         install_condaforge(host)
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
 
-    git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     print('Configuring the system')
     if not host.using_docker():
         update_apt_repo(host)
@@ -368,6 +360,22 @@ def start_build(host: RemoteHost, *,
         host.run_cmd("sudo pip3 install Cython")
         host.run_cmd("sudo pip3 install numpy")
 
+
+def start_build(host: RemoteHost, *,
+                branch="master",
+                compiler="gcc-8",
+                use_conda=True,
+                python_version="3.8",
+                shallow_clone=True) -> Tuple[str, str]:
+    git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
+    if host.using_docker() and not use_conda:
+        print("Auto-selecting conda option for docker images")
+        use_conda = True
+
+    configure_system(host,
+                     compiler=compiler,
+                     use_conda=use_conda,
+                     python_version=python_version)
     build_OpenBLAS(host, git_clone_flags)
     # build_FFTW(host, git_clone_flags)
 
@@ -409,12 +417,6 @@ def start_build(host: RemoteHost, *,
     build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
     build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
 
-    if keep_running:
-        return pytorch_wheel_name, vision_wheel_name
-
-    print(f'Waiting for instance {inst.id} to terminate')
-    inst.terminate()
-    inst.wait_until_terminated()
     return pytorch_wheel_name, vision_wheel_name
 
 
@@ -550,6 +552,7 @@ def parse_arguments():
     parser.add_argument("--branch", type=str, default="master")
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
+    parser.add_argument("--use-torch-from-pypi", action="store_true")
     return parser.parse_args()
 
 
@@ -604,8 +607,22 @@ if __name__ == '__main__':
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
-    start_build(host,
-                branch=args.branch,
-                compiler=args.compiler,
-                python_version=python_version,
-                keep_running=args.keep_running)
+
+    if args.use_torch_from_pypi:
+        configure_system(host,
+                         compiler=args.compiler,
+                         python_version=python_version)
+        print("Installing PyTorch wheel")
+        host.run_cmd("pip3 install torch")
+        build_torchvision(host,
+                          branch=args.branch,
+                          git_clone_flags=" --depth 1 --shallow-submodules")
+    else:
+        start_build(host,
+                    branch=args.branch,
+                    compiler=args.compiler,
+                    python_version=python_version)
+    if not args.keep_running:
+        print(f'Waiting for instance {inst.id} to terminate')
+        inst.terminate()
+        inst.wait_until_terminated()
