@@ -4,7 +4,7 @@ set -eou pipefail
 
 # Make sure to update these versions when doing a release first
 PYTORCH_VERSION=${PYTORCH_VERSION:-1.10.0}
-TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.11.0}
+TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.11.1}
 TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-0.10.0}
 TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.11.0}
 TORCHSERVE_VERSION=${TORCHSERVE_VERSION:-0.2.1}
@@ -93,13 +93,20 @@ promote_pypi() {
 LINUX_VERSION_SUFFIX="%2Bcu102"
 WIN_VERSION_SUFFIX="%2Bcpu"
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torch "${PYTORCH_VERSION}"
+# PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torch "${PYTORCH_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torch "${PYTORCH_VERSION}"
 # PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}"
+
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torchvision "${TORCHVISION_VERSION}"
+# PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torchvision "${TORCHVISION_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torchvision "${TORCHVISION_VERSION}"
 # PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torchvision "${TORCHVISION_VERSION}"
+
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
+# PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
 # PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
+
 # promote_pypi torchtext "${TORCHTEXT_VERSION}"
+
 # promote_pypi torchcsprng "${TORCHCSPRNG_VERSION}"
