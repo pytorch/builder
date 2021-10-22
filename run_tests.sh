@@ -78,8 +78,6 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     fi
     # Install the testing dependencies
     retry conda install -yq future hypothesis  protobuf=3.14.0 pytest setuptools six typing_extensions pyyaml
-    # Numpy dependency is now dynamic but old caffe2 test assume its always there
-    retry conda install -yq numpy
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
@@ -103,7 +101,6 @@ conda list || true
 pushd /
 echo "Smoke testing imports"
 python -c 'import torch'
-python -c 'from caffe2.python import core'
 
 # Test that MKL is there
 if [[ "$(uname)" == 'Darwin' && "$package_type" == *wheel ]]; then

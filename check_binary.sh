@@ -300,7 +300,6 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 else
   pushd /tmp
   python -c 'import torch'
-  python -c 'from caffe2.python import core'
   popd
 fi
 
