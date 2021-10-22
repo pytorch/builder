@@ -1,0 +1,23 @@
+name: Build pytorch/pytorch repository
+
+on:
+  push:
+    branches:
+      main
+  pull_request:
+    types: [opened, synchronize, reopened, unassigned]
+
+jobs:
+  call-workflow-build-test:
+    uses: pytorch/pytorch/.github/workflows/build_test.yml@lan/test_builder
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+  dispatch-workflow-build-linux-wheels:
+    runs-on: linux.2xlarge
+    steps:
+      - name: Send POST request
+        run: |
+          curl -XPOST -u ":${{secrets.GITHUB_TOKEN}}" \
+          -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Content-Type: application/json" https://api.github.com/repos/pytorch/pytorch/dispatches \
+          --data '{"event_type": "build"}'
