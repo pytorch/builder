@@ -9,7 +9,7 @@ on:
 
 jobs:
   call-workflow-build-test:
-    uses: pytorch/pytorch/.github/workflows/build_test.yml@lan/test_builder
+    uses: langong347/pytorch/.github/workflows/build_test.yml@master
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
   dispatch-workflow-build-linux-wheels:
@@ -19,5 +19,5 @@ jobs:
         run: |
           curl -XPOST -u ":${{secrets.GITHUB_TOKEN}}" \
           -H "Accept: application/vnd.github.everest-preview+json" \
-          -H "Content-Type: application/json" https://api.github.com/repos/pytorch/pytorch/dispatches \
-          --data '{"event_type": "build"}'
+          -H "Content-Type: application/json" https://api.github.com/repos/langong347/pytorch/dispatches \
+          --data '{"event_type": "event_type"}'
