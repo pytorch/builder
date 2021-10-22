@@ -122,9 +122,6 @@ if ERRORLEVEL 1 exit /b 1
 python -c "import torch"
 if ERRORLEVEL 1 exit /b 1
 
-python -c "from caffe2.python import core"
-if ERRORLEVEL 1 exit /b 1
-
 echo Checking that MKL is available
 python -c "import torch; exit(0 if torch.backends.mkl.is_available() else 1)"
 if ERRORLEVEL 1 exit /b 1
