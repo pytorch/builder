@@ -35,9 +35,27 @@ jobs:
             NUM_CPUS=$(( $(nproc) - 2 )) 
             export MAX_JOBS=${MAX_JOBS:-$(( ${NUM_CPUS} > ${MEMORY_LIMIT_MAX_JOBS} ? ${MEMORY_LIMIT_MAX_JOBS} : ${NUM_CPUS} ))}
             bash manywheel/build_cpu.sh
+  pytorch_binary_build:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - run:
+          name: "Send POST request to pytorch"
+          command : |
+            echo "Circle PR Number: "$CIRCLE_PR_NUMBER
+            echo "Circle SHA1: "$CIRCLE_SHA1
+            curl --request POST \
+            --url "https://circleci.com/api/v2/project/github/pytorch/pytorch/pipeline" \
+            --header "Circle-Token: $CIRCLECI_API_TOKEN" \
+            --header "Content-Type: application/json" \
+            --data '{
+                    "branch":"lan/test_builder",
+                    "parameters": {"run_binary_tests": true, "run_build": false, "run_master_build": false, "run_slow_gradcheck_build": false}
+                    }'
 
 # Orchestrate our job run sequence
 workflows:
   build_and_test:
     jobs:
       - binary_linux_build
+      - pytorch_binary_build
