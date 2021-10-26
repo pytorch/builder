@@ -95,7 +95,8 @@ WIN_VERSION_SUFFIX="%2Bcpu"
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torch "${PYTORCH_VERSION}"
 # PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torch "${PYTORCH_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torch "${PYTORCH_VERSION}"
-# PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}"
+# PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}" # intel mac
+# PLATFORM="macosx_11_0"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}" # m1 mac
 
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torchvision "${TORCHVISION_VERSION}"
 # PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torchvision "${TORCHVISION_VERSION}"
