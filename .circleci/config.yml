@@ -42,6 +42,7 @@ jobs:
       - run:
           name: "Send POST request to pytorch"
           command : |
+            # TODO: Use a post data generation function to replace manual input
             curl --request POST \
             --url "https://circleci.com/api/v2/project/github/pytorch/pytorch/pipeline" \
             --header "Circle-Token: $CIRCLECI_API_TOKEN" \
@@ -53,7 +54,7 @@ jobs:
                                   "run_build": false, 
                                   "run_master_build": false, 
                                   "run_slow_gradcheck_build": false,
-                                  "builder_circle_sha1": $CIRCLE_SHA1
+                                  "builder_circle_sha1": "'"$CIRCLE_SHA1"'"
                                   }
                     }'
 
