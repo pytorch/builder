@@ -42,15 +42,19 @@ jobs:
       - run:
           name: "Send POST request to pytorch"
           command : |
-            echo "Circle PR Number: "$CIRCLE_PR_NUMBER
-            echo "Circle SHA1: "$CIRCLE_SHA1
             curl --request POST \
             --url "https://circleci.com/api/v2/project/github/pytorch/pytorch/pipeline" \
             --header "Circle-Token: $CIRCLECI_API_TOKEN" \
             --header "Content-Type: application/json" \
             --data '{
                     "branch":"lan/test_builder",
-                    "parameters": {"run_binary_tests": true, "run_build": false, "run_master_build": false, "run_slow_gradcheck_build": false}
+                    "parameters": {
+                                  "run_binary_tests": true, 
+                                  "run_build": false, 
+                                  "run_master_build": false, 
+                                  "run_slow_gradcheck_build": false,
+                                  "builder_circle_sha1": "$CIRCLE_SHA1"
+                                  }
                     }'
 
 # Orchestrate our job run sequence
