@@ -1,4 +1,4 @@
-name: Build pytorch/pytorch repository
+name: Trigger CI of pytorch/pytorch repository
 
 on:
   push:
@@ -8,10 +8,6 @@ on:
     types: [opened, synchronize, reopened, unassigned]
 
 jobs:
-  call-workflow-no-concurrency:
-    uses: langong347/pytorch/.github/workflows/workflow_call.yml@master
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}
   dispatch-workflow:
     runs-on: linux.2xlarge
     steps:
@@ -20,4 +16,9 @@ jobs:
           curl -XPOST -u ":${{secrets.GITHUB_TOKEN}}" \
           -H "Accept: application/vnd.github.everest-preview+json" \
           -H "Content-Type: application/json" https://api.github.com/repos/langong347/pytorch/dispatches \
-          --data '{"event_type": "event_type"}'
+          --data '{
+                  "event_type": "trigger", 
+                  "client_payload": {
+                                    "branch": "lan/test_repo_dispatch_gha"
+                                    }
+                  }'
