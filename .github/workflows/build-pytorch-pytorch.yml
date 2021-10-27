@@ -8,11 +8,15 @@ on:
     types: [opened, synchronize, reopened, unassigned]
 
 jobs:
-  call-workflow-build-test:
-    uses: langong347/pytorch/.github/workflows/build_test.yml@master
+  call-workflow-no-concurrency:
+    uses: langong347/pytorch/.github/workflows/workflow_call.yml@master
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
-  dispatch-workflow-build-linux-wheels:
+  call-workflow-concurrency:
+    uses: langong347/pytorch/.github/workflows/build_linux_wheels.yml@master
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+  dispatch-workflow:
     runs-on: linux.2xlarge
     steps:
       - name: Send POST request
