@@ -66,7 +66,7 @@ rm -rf boost_1_72_0
 rm -f  boost_1_72_0.tar.gz
 
 ### sqlite; No viable yum package exists. Must be at least version 3.14.
-retry wget https://sqlite.org/2017/sqlite-autoconf-3170000.tar.gz
+retry wget https://ossci-linux.s3.amazonaws.com/sqlite-autoconf-3170000.tar.gz
 tar xzf sqlite-autoconf-3170000.tar.gz
 pushd sqlite-autoconf-3170000
 ./configure --with-pic
