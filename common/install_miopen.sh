@@ -56,7 +56,7 @@ fi
 ## MIOpen minimum requirements
 
 ### Boost; No viable yum package exists. Must use static linking with PIC.
-retry wget --no-check-certificate https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.gz
+retry wget https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.gz
 tar xzf boost_1_72_0.tar.gz
 pushd boost_1_72_0
 ./bootstrap.sh
@@ -66,7 +66,7 @@ rm -rf boost_1_72_0
 rm -f  boost_1_72_0.tar.gz
 
 ### sqlite; No viable yum package exists. Must be at least version 3.14.
-retry wget https://sqlite.org/2017/sqlite-autoconf-3170000.tar.gz
+retry wget --no-check-certificate https://sqlite.org/2017/sqlite-autoconf-3170000.tar.gz
 tar xzf sqlite-autoconf-3170000.tar.gz
 pushd sqlite-autoconf-3170000
 ./configure --with-pic
