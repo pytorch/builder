@@ -100,7 +100,14 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
 else
     pushd $pytorch_rootdir
 fi
-git submodule update --init --recursive
+
+if [[ -n "$GIT_JOBS_NUMBER" ]]; then
+    git_jobs_number="$GIT_JOBS_NUMBER"
+else
+    git_jobs_number=0
+fi
+
+git submodule update --init --recursive --jobs $git_jobs_number
 
 export PATCHELF_BIN=/usr/local/bin/patchelf
 patchelf_version=`$PATCHELF_BIN --version`
