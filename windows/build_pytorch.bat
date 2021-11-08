@@ -50,7 +50,7 @@ if ERRORLEVEL 1 exit /b 1
 set "ORIG_PATH=%PATH%"
 set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
-:: create conda environment
+:: create a new conda environment and install packages
 :try
 SET /A tries=3
 :loop
