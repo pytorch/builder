@@ -217,7 +217,7 @@ set BUILD_SPLIT_CUDA=
 if exist "%install_root%\lib\torch_cuda_cu.lib" if exist "%install_root%\lib\torch_cuda_cpp.lib" set BUILD_SPLIT_CUDA=ON
 
 if "%BUILD_SPLIT_CUDA%" == "ON" (
-    cl %BUILDER_ROOT%\test_example_code\check-torch-cuda.cpp torch_cpu.lib c10.lib torch_cuda_cu.lib torch_cuda_cpp.lib /EHsc /link /INCLUDE:?warp_size@cuda@at@@YAHXZ /INCLUDE:?searchsorted_cuda@native@at@@YA?AVTensor@2@AEBV32@0_N1@Z
+    cl %BUILDER_ROOT%\test_example_code\check-torch-cuda.cpp torch_cpu.lib c10.lib torch_cuda_cu.lib torch_cuda_cpp.lib /EHsc /link /INCLUDE:?warp_size@cuda@at@@YAHXZ /INCLUDE:?_torch_cuda_cu_linker_symbol_op_cuda@native@at@@YA?AVTensor@2@AEBV32@@Z
 ) else (
     cl %BUILDER_ROOT%\test_example_code\check-torch-cuda.cpp torch_cpu.lib c10.lib torch_cuda.lib /EHsc /link /INCLUDE:?warp_size@cuda@at@@YAHXZ
 )
