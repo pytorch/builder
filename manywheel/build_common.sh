@@ -28,7 +28,7 @@ OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
     
-    if install_mpi; then
+    if [ "$install_mpi" = true ]; then
         # Install OpenMPI
         yum install openmpi-devel -y
         source /etc/profile.d/modules.sh
@@ -129,7 +129,7 @@ case ${DESIRED_PYTHON} in
     ;;
 esac
 
-if install_mpi; then
+if [ "$install_mpi" = true ]; then
     # Install mpi4py (OpenMPI Python package)
     python -m pip install mpi4py
     # Test OpenMPI & mpi4py installation
