@@ -50,24 +50,19 @@ if ERRORLEVEL 1 exit /b 1
 set "ORIG_PATH=%PATH%"
 set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
-:: Create a new conda environment
-setlocal EnableDelayedExpansion
-FOR %%v IN (%DESIRED_PYTHON%) DO (
-    set PYTHON_VERSION_STR=%%v
-    set PYTHON_VERSION_STR=!PYTHON_VERSION_STR:.=!
-    conda remove -n py!PYTHON_VERSION_STR! --all -y || rmdir %CONDA_HOME%\envs\py!PYTHON_VERSION_STR! /s
-    if "%%v" == "3.6" conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" cffi pyyaml boto3 cmake ninja typing_extensions dataclasses python=%%v
-    if "%%v" == "3.7" conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" cffi pyyaml boto3 cmake ninja typing_extensions python=%%v
-    if "%%v" == "3.8" conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
-    if "%%v" == "3.9" conda create -n py!PYTHON_VERSION_STR! -y -q "numpy>=1.11" "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
-    if "%%v" == "3" conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
-)
-endlocal
+:: create a new conda environment and install packages
+:try
+SET /A tries=3
+:loop
+IF %tries% LEQ 0 GOTO :exception
+call condaenv.bat
+IF %ERRORLEVEL% EQU 0 GOTO :done
+SET /A "tries=%tries%-1"
+:exception
+echo "Failed to create conda env"
+exit /B 1
+:done
 
-::Install libuv
-conda install -y -q -c conda-forge libuv=1.39
-set libuv_ROOT=%CONDA_HOME%\Library
-echo libuv_ROOT=%libuv_ROOT%
 
 :: Install MKL
 rmdir /s /q mkl
