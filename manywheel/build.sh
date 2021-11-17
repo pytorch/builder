@@ -57,7 +57,7 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    11.[123])
+    11.[1235])
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
@@ -256,6 +256,22 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.2"
     "libnvrtc-builtins.so.11.3"
+    "libgomp.so.1"
+)
+elif [[ $CUDA_VERSION == "11.5" ]]; then
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.11.0"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.5, it links to 11.5.50
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.5"
+    "$LIBGOMP_PATH"
+)
+
+DEPS_SONAME=(
+    "libcudart.so.11.0"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.11.2"
+    "libnvrtc-builtins.so.11.5"
     "libgomp.so.1"
 )
 
