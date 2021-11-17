@@ -6,7 +6,7 @@ So you wanna upgrade PyTorch to support a new CUDA? Follow these steps in order!
 Make an issue to track the progress, for example [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in CUDA upgrades.
 
 ## 1. Modify scripts to install the new CUDA for our Linux containers.
-There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles. (**Code reference**: [PR 719](https://github.com/pytorch/builder/pull/719), [PR 720](https://github.com/pytorch/builder/pull/720), and [PR 724](https://github.com/pytorch/builder/pull/724))
+There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles. (**Code reference**: [PR 719](https://github.com/pytorch/builder/pull/719), [PR 720](https://github.com/pytorch/builder/pull/720), and [PR 724](https://github.com/pytorch/builder/pull/724), [PR 888 done for 11.5](https://github.com/pytorch/builder/pull/888))
 1. Modifying [`install_cuda.sh`](common/install_cuda.sh):
     1. Find the CUDA install link [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&=Debian&target_version=10&target_type=runfile_local)
     2. Get the cudnn link from NVIDIA on the PyTorch Slack
