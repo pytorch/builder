@@ -16,6 +16,7 @@ DOCKER_RUN = set -eou pipefail; docker run --rm -i \
 	magma/build_magma.sh
 
 .PHONY: all
+all: magma-cuda115
 all: magma-cuda113
 all: magma-cuda112
 all: magma-cuda111
@@ -28,6 +29,14 @@ all: magma-cuda92
 clean:
 	$(RM) -r magma-*
 	$(RM) -r output
+
+.PHONY: magma-cuda115
+magma-cuda115: DESIRED_CUDA := 11.5
+magma-cuda115: PACKAGE_NAME := magma-cuda115
+magma-cuda115: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
+magma-cuda115: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
+magma-cuda115:
+	$(DOCKER_RUN)
 
 .PHONY: magma-cuda113
 magma-cuda113: DESIRED_CUDA := 11.3
