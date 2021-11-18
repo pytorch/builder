@@ -29,7 +29,7 @@ IF "%NVTOOLSEXT_PATH%"=="" (
 
 IF "%CUDA_PATH_V115%"=="" (
     IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\bin\nvcc.exe" (
-        set "CUDA_PATH_V113=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5"
+        set "CUDA_PATH_V115=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5"
     ) ELSE (
         echo CUDA 11.5 not found, failing
         exit /b 1
