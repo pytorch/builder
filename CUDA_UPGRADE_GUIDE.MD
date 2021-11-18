@@ -16,7 +16,7 @@ There are three types of Docker containers we maintain in order to build Linux b
 2. Add setup for our Docker images in respective `libtorch`, `conda`, and `manywheel` scripts/Dockerfiles:
     1. For `conda` and `libtorch`, the code changes are usually copy-paste. For `manywheel`, you should manually verify the versions of the shared libraries with the CUDA you downloaded before.
     2. To test that your code works, from the root builder repo, run something similar to `export CUDA_VERSION=11.3 && ./conda/build_docker.sh` for the `conda` images. You can extend this to the other images.
-    3. Push the images to Docker Hub. This step should be automated with the help with GitHub Actions in the `pytorch/builder` repo. Make sure to update the `cuda_version` to the version you're adding in respective YAMLs, such as `.github/workflows/build-manywheel-images.yml`.
+    3. Push the images to Docker Hub. This step should be automated with the help with GitHub Actions in the `pytorch/builder` repo. Make sure to update the `cuda_version` to the version you're adding in respective YAMLs, such as `.github/workflows/build-manywheel-images.yml`, `.github/workflows/build-conda-images.yml`, `.github/workflows/build-libtorch-images.yml'.
 
 ## 2. Modify code to install the new CUDA for Windows
 **Code reference**: [PR 728](https://github.com/pytorch/builder/pull/728) and followup fixes in [PR 751](https://github.com/pytorch/builder/pull/751), [PR 755](https://github.com/pytorch/builder/pull/755), and [PR 806](https://github.com/pytorch/builder/pull/806)
