@@ -24,7 +24,7 @@ There are three types of Docker containers we maintain in order to build Linux b
 2. To get the cuDNN install link, you could ask NVIDIA, but you could also just sign up for an NVIDIA account and access the needed `.zip` file at this [link](https://developer.nvidia.com/rdp/cudnn-download). First click on `cuDNN Library for Windows (x86)` and then upload that zip file to our S3 bucket.
 3. NOTE: When you upload files to S3, make sure to make these objects publicly readable so that our CI can access them!
 4. Most times, you have to upgrade the driver install for newer versions, which would look like [updating the `windows/internal/driver_update.bat` file](https://github.com/pytorch/builder/commit/9b997037e16eb3bc635e28d101c3297d7e4ead29)
-    1. Please check the Driver Version table in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
+    1. Please check the CUDA Toolkit and Minimum Required Driver Version for CUDA minor version compatibility table  in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
 
 ## 3. Update MAGMA.
 Compile MAGMA with the new CUDA version.
