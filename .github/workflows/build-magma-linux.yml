@@ -1,0 +1,40 @@
+name: Build magma linux
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - magma/*
+      - .github/workflows/build-magma-linux.yml
+  pull_request:
+    paths:
+      - magma/*
+      - .github/workflows/build-magma-linux.yml
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  WITH_PUSH: ${{ github.event_name == 'push' }}
+  FORCE_PUSH: yes
+
+jobs:
+  build:
+    runs-on: linux.2xlarge
+    strategy:
+      matrix:
+        cuda_version: ["115"]
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
+      - name: Build Magma Cuda
+        working-directory: magma
+        run: |
+          make magma-cuda${{ matrix.cuda_version }}
