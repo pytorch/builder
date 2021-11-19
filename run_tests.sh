@@ -78,16 +78,19 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     fi
     # Install the testing dependencies
     retry conda install -yq future hypothesis  protobuf=3.14.0 pytest setuptools six typing_extensions pyyaml
-    if [[ "$package_type" == wheel ]]; then
-      # Numpy dependency is now dynamic but old caffe2 test assume its always there
-      retry conda install -yq numpy
+    # Numpy dependency is now dynamic but old caffe2 test assume its always there
+    retry conda install -yq numpy
     fi
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
-    # NumPy v1.19 is used during the building of PyTorch, so install
-    # same version for smoke testing.
-    retry pip install "numpy==1.19" || true
+    numpy_ver=1.15
+    case "$(python --version 2>&1)" in
+      *2* | *3.5* | *3.6*)
+        numpy_ver=1.11
+        ;;
+    esac
+    retry pip install -q "numpy==${numpy_ver}" || true
 fi
 
 echo "Testing with:"
