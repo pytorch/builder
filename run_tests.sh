@@ -78,9 +78,8 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     fi
     # Install the testing dependencies
     retry conda install -yq future hypothesis  protobuf=3.14.0 pytest setuptools six typing_extensions pyyaml
-    if [[ "$package_type" == wheel ]]; then
-      # Numpy dependency is now dynamic but old caffe2 test assume its always there
-      retry conda install -yq numpy
+    # Numpy dependency is now dynamic but old caffe2 test assume its always there
+    retry conda install -yq numpy
     fi
 else
     retry pip install -qr requirements.txt || true
