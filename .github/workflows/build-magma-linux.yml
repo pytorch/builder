@@ -41,4 +41,4 @@ jobs:
       - name: Save as artifact
         uses: actions/upload-artifact@v2
         with:
-          path: /output/*/magma-cuda*.bz2
+          path: /magma/output/*/magma-cuda*.bz2
