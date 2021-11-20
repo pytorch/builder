@@ -37,8 +37,9 @@ jobs:
       - name: Build Magma Cuda
         working-directory: magma
         run: |
+          pwd
           make magma-cuda${{ matrix.cuda_version }}
       - name: Save as artifact
         uses: actions/upload-artifact@v2
         with:
-          path: /magma/output/*/magma-cuda*.bz2
+          path: magma/output/linux-64/magma-cuda*.bz2
