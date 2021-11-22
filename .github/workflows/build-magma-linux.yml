@@ -24,9 +24,13 @@ jobs:
       - name: Build Magma Cuda
         working-directory: magma
         run: |
-          pwd
           make magma-cuda${{ matrix.cuda_version }}
       - name: Save as artifact
         uses: actions/upload-artifact@v2
         with:
           path: magma/output/linux-64/magma-cuda*.bz2
+      - name: Push MAGMA to anaconda
+        run:
+          anaconda --token $ANACONDA_TOKEN  upload -u pytorch --force magma/output/linux-64/magma-cuda*.bz2
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
