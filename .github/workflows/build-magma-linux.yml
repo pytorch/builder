@@ -54,6 +54,6 @@ jobs:
       - name: Push MAGMA to anaconda
         if: ${{ github.event_name == 'push' }}
         run: |
-          anaconda --token $ANACONDA_TOKEN  upload -u pytorch --force magma/output/linux-64/magma-cuda*.bz2
+          anaconda --token $ANACONDA_TOKEN upload -u pytorch --force magma/output/linux-64/magma-cuda*.bz2
         env:
           ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
