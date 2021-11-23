@@ -30,8 +30,8 @@ There are three types of Docker containers we maintain in order to build Linux b
 Compile MAGMA with the new CUDA version.
 1. Our linux CUDA jobs use conda, so we need to build magma-cuda113 and push it to anaconda. (**Code reference**: [PR 721](https://github.com/pytorch/builder/pull/721)).
     1. Currently, this is mainly copy-paste in [`magma/Makefile`](magma/Makefile) if there are no major code API changes/deprecations to the CUDA version. Previously, we've needed to add patches to MAGMA, so this may be something to check with NVIDIA about.
-    2. To push the package, please follow the instructions [here](https://github.com/pytorch/builder/tree/master/magma#pushing).
-    3. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior.
+    2. To push the package, please update build-magma-linux workflow [PR 897](https://github.com/pytorch/builder/pull/897).
+    3. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115)
 2. Our windows jobs download MAGMA binaries from our S3 `ossci-windows` bucket, which means that those binaries need to exist.
     1. Lucky for you! There is a GitHub Actions workflow (as of [PR 762](https://github.com/pytorch/builder/pull/762)) that automates this upload when you update `windows/internal/build_magma.bat` to deal with your new CUDA version. Also remember to update the `cuda_version` in `.github/workflows/build-magma-windows.yml` to be the new version. (**Code reference**: [PR 751](https://github.com/pytorch/builder/pull/751))
     2. NOTE: this step should occur AFTER you update the Windows builder code so that the new version is installed correctly.
