@@ -1,0 +1,49 @@
+name: Build nvidia docker images
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - conda/build_nvidia_image.sh
+      - .github/workflows/build-nvidia-images.yml
+  pull_request:
+    paths:
+      - conda/build_nvidia_image.sh
+      - .github/workflows/build-nvidia-images.yml
+
+# For setup-miniconda, see https://github.com/conda-incubator/setup-miniconda/issues/179
+defaults:
+  run:
+    shell: bash -x -e -l {0}
+env:
+  BUILD_ENVIRONMENT: build-nvidia-images
+  DOCKER_BUILDKIT: 0
+  COMPOSE_DOCKER_CLI_BUILD: 0
+  IN_CI: 1
+  IS_GHA: 1
+  IMAGE_NAME: "ghcr.io/pytorch/nvidia/cuda"
+  CUDA_VERSION: "11.5.0"
+  OS: "ubuntu1804"
+  OS_BASE: "ubuntu18.04"
+  ARCHES: "amd64"
+
+jobs:
+  build-nvidia-docker:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Build Nvidia Docker Image
+        run: |
+          git clone https://gitlab.com/nvidia/container-images/cuda.git
+          cd cuda
+          PLATFORM_ARG=`printf '%s ' '--platform'; for var in $(echo $ARCHES | sed "s/,/ /g"); do printf 'linux/%s,' "$var"; done | sed 's/,*$//g'`
+          cp NGC-DL-CONTAINER-LICENSE dist/${CUDA_VERSION}/${OS}/base/
+          docker buildx build --load ${PLATFORM_ARG} -t "${IMAGE_NAME}:${CUDA_VERSION}-base-${OS_BASE}" "dist/${CUDA_VERSION}/${OS}/base"
+          docker buildx build --load ${PLATFORM_ARG} -t "${IMAGE_NAME}:${CUDA_VERSION}-runtime-${OS_BASE}" --build-arg "IMAGE_NAME=${IMAGE_NAME}" "dist/${CUDA_VERSION}/${OS}/runtime"
+          docker buildx build --load ${PLATFORM_ARG} -t "${IMAGE_NAME}:${CUDA_VERSION}-devel-${OS_BASE}" --build-arg "IMAGE_NAME=${IMAGE_NAME}" "dist/${CUDA_VERSION}/${OS}/devel"
+      - name: Push nvidia docker images
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main'  }}
+        run: |
+          set -ex
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker push "${IMAGE_NAME}:${CUDA_VERSION}-devel-${OS_BASE}"
