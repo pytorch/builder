@@ -322,7 +322,7 @@ def main():
     repo = GitRepo(args.repo_path, remote)
     print("Parsing git history...", end='', flush=True)
     start_time = time.time()
-    if repo_path == "ort":
+    if repo_path in ["ort", "kineto"]:
         x = repo._run_git_log(f"{remote}/main")
     else:
         x = repo._run_git_log(f"{remote}/master")
