@@ -122,26 +122,35 @@ else
     HIPFFT_SO=
 fi;
 
-# in rocm4.3, rocfft refactored their device libs
-# hipfft is a new package, separate from rocfft
-if [[ $ROCM_INT -ge 40300 ]]; then
-    DEP_ROCFFT_DEVICE=
-    DEP_ROCFFT_DEVICE_MISC=/opt/rocm/rocfft/lib/librocfft-device-misc.so.0
-    DEP_ROCFFT_DEVICE_SINGLE=/opt/rocm/rocfft/lib/librocfft-device-single.so.0
-    DEP_ROCFFT_DEVICE_DOUBLE=/opt/rocm/rocfft/lib/librocfft-device-double.so.0
-    SO_ROCFFT_DEVICE=
-    SO_ROCFFT_DEVICE_MISC=librocfft-device-misc.so.0
-    SO_ROCFFT_DEVICE_SINGLE=librocfft-device-single.so.0
-    SO_ROCFFT_DEVICE_DOUBLE=librocfft-device-double.so.0
+# in rocm4.3, rocfft refactored their device libs, hipfft is a new package, separate from rocfft
+# in rocm4.5, rocfft refactored their device libs again
+if [[ $ROCM_INT -ge 40500 ]]; then
+    DEP_ROCFFT_DEVICE_0=/opt/rocm/rocfft/lib/librocfft-device-0.so.0
+    DEP_ROCFFT_DEVICE_1=/opt/rocm/rocfft/lib/librocfft-device-1.so.0
+    DEP_ROCFFT_DEVICE_2=/opt/rocm/rocfft/lib/librocfft-device-2.so.0
+    DEP_ROCFFT_DEVICE_3=/opt/rocm/rocfft/lib/librocfft-device-3.so.0
+    SO_ROCFFT_DEVICE_0=librocfft-device-0.so.0
+    SO_ROCFFT_DEVICE_1=librocfft-device-1.so.0
+    SO_ROCFFT_DEVICE_2=librocfft-device-2.so.0
+    SO_ROCFFT_DEVICE_3=librocfft-device-3.so.0
+elif [[ $ROCM_INT -ge 40300 ]]; then
+    DEP_ROCFFT_DEVICE_0=/opt/rocm/rocfft/lib/librocfft-device-misc.so.0
+    DEP_ROCFFT_DEVICE_1=/opt/rocm/rocfft/lib/librocfft-device-single.so.0
+    DEP_ROCFFT_DEVICE_2=/opt/rocm/rocfft/lib/librocfft-device-double.so.0
+    DEP_ROCFFT_DEVICE_3=
+    SO_ROCFFT_DEVICE_0=librocfft-device-misc.so.0
+    SO_ROCFFT_DEVICE_1=librocfft-device-single.so.0
+    SO_ROCFFT_DEVICE_2=librocfft-device-double.so.0
+    SO_ROCFFT_DEVICE_3=
 else
-    DEP_ROCFFT_DEVICE=/opt/rocm/rocfft/lib/librocfft-device.so.0
-    DEP_ROCFFT_DEVICE_MISC=
-    DEP_ROCFFT_DEVICE_SINGLE=
-    DEP_ROCFFT_DEVICE_DOUBLE=
-    SO_ROCFFT_DEVICE=librocfft-device.so.0
-    SO_ROCFFT_DEVICE_MISC=
-    SO_ROCFFT_DEVICE_SINGLE=
-    SO_ROCFFT_DEVICE_DOUBLE=
+    DEP_ROCFFT_DEVICE_0=/opt/rocm/rocfft/lib/librocfft-device.so.0
+    DEP_ROCFFT_DEVICE_1=
+    DEP_ROCFFT_DEVICE_2=
+    DEP_ROCFFT_DEVICE_3=
+    SO_ROCFFT_DEVICE_0=librocfft-device.so.0
+    SO_ROCFFT_DEVICE_1=
+    SO_ROCFFT_DEVICE_2=
+    SO_ROCFFT_DEVICE_3=
 fi;
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
@@ -159,10 +168,10 @@ DEPS_LIST=(
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
-    ${DEP_ROCFFT_DEVICE}
-    ${DEP_ROCFFT_DEVICE_MISC}
-    ${DEP_ROCFFT_DEVICE_SINGLE}
-    ${DEP_ROCFFT_DEVICE_DOUBLE}
+    ${DEP_ROCFFT_DEVICE_0}
+    ${DEP_ROCFFT_DEVICE_1}
+    ${DEP_ROCFFT_DEVICE_2}
+    ${DEP_ROCFFT_DEVICE_3}
     "/opt/rocm/rocfft/lib/librocfft.so.0"
     "/opt/rocm/rocrand/lib/librocrand.so.1"
     "/opt/rocm/rocsolver/lib/librocsolver.so.0"
@@ -187,10 +196,10 @@ DEPS_SONAME=(
     "libmagma.so"
     "librccl.so.1"
     "librocblas.so.0"
-    ${SO_ROCFFT_DEVICE}
-    ${SO_ROCFFT_DEVICE_MISC}
-    ${SO_ROCFFT_DEVICE_SINGLE}
-    ${SO_ROCFFT_DEVICE_DOUBLE}
+    ${SO_ROCFFT_DEVICE_0}
+    ${SO_ROCFFT_DEVICE_1}
+    ${SO_ROCFFT_DEVICE_2}
+    ${SO_ROCFFT_DEVICE_3}
     "librocfft.so.0"
     "librocrand.so.1"
     "librocsolver.so.0"
