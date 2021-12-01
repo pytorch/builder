@@ -23,10 +23,10 @@ env:
 
 jobs:
   build-docker:
-    runs-on: linux.2xlarge
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
-        cuda_version: ["10.2", "11.1", "11.3", "11.5", "cpu"]
+        cuda_version: ["11.5", "cpu"]
     env:
       CUDA_VERSION: ${{ matrix.cuda_version }}
     steps:
