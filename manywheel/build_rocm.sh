@@ -122,6 +122,15 @@ else
     HIPFFT_SO=
 fi;
 
+#in rocm4.5, libhsakmt is statically linked into hsa runtime
+if [[ $ROCM_INT -ge 40500 ]]; then
+    HSAKMT_DEP=
+    HSAKMT_SO=
+else
+    HSAKMT_DEP="/opt/rocm/lib64/libhsakmt.so.1"
+    HSAKMT_SO="libhsakmt.so.1"
+fi
+
 # in rocm4.3, rocfft refactored their device libs, hipfft is a new package, separate from rocfft
 # in rocm4.5, rocfft refactored their device libs again
 if [[ $ROCM_INT -ge 40500 ]]; then
@@ -164,7 +173,7 @@ DEPS_LIST=(
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
     "/opt/rocm/${COMGR_LIBDIR}/${LIBAMDCOMGR}"
-    "/opt/rocm/lib64/libhsakmt.so.1"
+    ${HSAKMT_DEP}
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
@@ -192,7 +201,7 @@ DEPS_SONAME=(
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
     "${LIBAMDCOMGR}"
-    "libhsakmt.so.1"
+    ${HSAKMT_SO}
     "libmagma.so"
     "librccl.so.1"
     "librocblas.so.0"
