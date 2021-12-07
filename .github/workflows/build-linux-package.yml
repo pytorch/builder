@@ -1,0 +1,94 @@
+name: Build Linux Package
+
+on:
+  workflow_call:
+    inputs:
+      container_image:
+        required: true
+        type: string
+      python_version:
+        required: true
+        type: string
+      package_type:
+        required: true
+        type: string
+      gpu_arch_type:
+        required: true
+        type: string
+      gpu_arch_version:
+        type: string
+        default: ""
+      builder_repository:
+        type: string
+        default: pytorch/builder
+      builder_ref:
+        type: string
+        default: main
+      project_repository:
+        type: string
+        default: pytorch/pytorch
+      project_ref:
+        type: string
+        default: master
+
+env:
+  DESIRED_PYTHON: ${{ inputs.python_version }}
+  # TODO: This is a legacy variable that we eventually want to get rid of in
+  #       favor of GPU_ARCH_VERSION
+  DESIRED_CUDA: ${{ inputs.gpu_arch_version }}
+  GPU_ARCH_VERSION: ${{ inputs.gpu_arch_version }}
+  GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
+  PACKAGE_TYPE: ${{ inputs.package_type }}
+  PYTORCH_BUILD_NUMBER: 1
+  SKIP_ALL_TESTS: 1
+  PYTORCH_ROOT: /pytorch
+  PYTORCH_BUILD_VERSION: 2.0.0
+
+jobs:
+  build:
+    runs-on: linux.2xlarge
+    timeout-minutes: 240
+    container:
+      image: ${{ inputs.container_image }}
+    steps:
+      # TODO: Expand this out to fit more projects than pytorch/pytorch
+      - name: Clone project
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ inputs.project_repository }}
+          ref: ${{ inputs.project_ref }}
+          path: pytorch
+          submodules: recursive
+      - name: Clone pytorch/builder
+        uses: actions/checkout@v2
+        with:
+          # TODO: Change to pytorch/builder once https://github.com/pytorch/builder/pull/904 is merged
+          repository: ${{ inputs.builder_repository }}
+          ref: ${{ inputs.builder_ref }}
+          path: builder
+      # TODO: Migrate versioning script
+      - name: Generate version string
+        working-directory: builder/
+        run: |
+          version=$(.github/scripts/generate_pytorch_version.py)
+          echo "Generated version: ${version}"
+          echo "PYTORCH_BUILD_VERSION=${version}" >> "$GITHUB_ENV"
+      # TODO: Remove this once we remove the need for the directories to be
+      #       in specific locations
+      - name: Symlink repositories to root directory (for legacy scripts purposes)
+        run: |
+          ln -s "$PWD"/project /pytorch
+          ln -s "$PWD"/builder /builder
+      - name: Set BUILD_SPLIT_CUDA
+        run: |
+          if [[ ${GPU_ARCH_TYPE} = "cuda" ]] && [[ "${GPU_ARCH_VERSION}" = 11* ]]; then
+            echo "BUILD_SPLIT_CUDA=1" >> "$GITHUB_ENV"
+          fi
+      - name: Build PyTorch binary
+        run: |
+          bash "/builder/${PACKAGE_TYPE}/build.sh"
+      - uses: actions/upload-artifact@v2
+        with:
+          name: pytorch-manywheel-py3.8-cpu
+          path:
+            /remote/**/*.whl

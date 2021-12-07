@@ -1,0 +1,48 @@
+name: Build PyTorch Wheels
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/build-pytorch-wheels.yml
+      - .github/workflows/generate_binary_build_matrix.py
+  pull_request:
+    paths:
+      - .github/workflows/build-pytorch-wheels.yml
+      - .github/workflows/generate_binary_build_matrix.py
+  workflow_dispatch:
+
+jobs:
+  generate-build-matrix:
+    if: ${{ github.repository_owner == 'pytorch' }}
+    runs-on: ubuntu-18.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    container:
+      image: python:3.9
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generating build matrix
+        id: set-matrix
+        run: |
+          # outputting for debugging purposes
+          MATRIX=$(python .github/scripts/generate_binary_build_matrix.py wheels)
+          echo "${MATRIX}"
+          echo "::set-output name=matrix::${MATRIX}"
+  build:
+    if: ${{ github.repository_owner == 'pytorch' }}
+    strategy:
+      matrix: ${{ fromJson(needs.generate-build-matrix.outputs.matrix) }}
+      fail-fast: false
+    needs: generate-build-matrix
+    name: pytorch-linux-wheel-py${{ matrix.python_version }}-${{ matrix.gpu_arch_type }}${{ matrix.gpu_arch_version }}
+    uses: pytorch/builder/.github/workflows/build-linux-package.yml@move_binary_builds
+    with:
+      package_type: wheel
+      python_version: ${{ matrix.python_version }}
+      container_image: ${{ matrix.container_image }}
+      gpu_arch_type: ${{ matrix.gpu_arch_type }}
+      gpu_arch_version: ${{ matrix.gpu_arch_version }}
+      project_repository: pytorch/pytorch
+      builder_ref: ${{ github.sha }}

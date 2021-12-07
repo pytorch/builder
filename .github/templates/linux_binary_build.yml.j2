@@ -1,0 +1,30 @@
+name: Build PyTorch Wheels
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/build-pytorch-wheels.yml
+      - .github/workflows/generate_binary_build_matrix.py
+  pull_request:
+    paths:
+      - .github/workflows/build-pytorch-wheels.yml
+      - .github/workflows/generate_binary_build_matrix.py
+  workflow_dispatch:
+
+jobs:
+  {%- for build_config in build_configs %}
+  pytorch-linux-wheel-py!{{ build_config.python_version }}-!{{ build_config.gpu_arch_type }}!{{ build_config.gpu_arch_version }}:
+    if: ${{ github.repository_owner == 'pytorch' }}
+    name: pytorch-linux-wheel-py!{{ build_config.python_version }}-!{{ build_config.gpu_arch_type }}!{{ build_config.gpu_arch_version }}
+    uses: pytorch/builder/.github/workflows/build-linux-package.yml@move_binary_builds
+    with:
+      package_type: wheel
+      python_version: !{{ build_config.python_version }}
+      container_image: !{{ build_config.container_image }}
+      gpu_arch_type: !{{ build_config.gpu_arch_type }}
+      gpu_arch_version: !{{ build_config.gpu_arch_version }}
+      project_repository: pytorch/pytorch
+      builder_ref: ${{ github.sha }}
+  {%- endfor %}
