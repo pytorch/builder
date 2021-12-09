@@ -53,7 +53,13 @@ Testing the new version in CI is crucial for finding regressions and should be d
 Adding the new version to nightlies allows PyTorch binaries compiled with the new CUDA version to be available to users through `conda` or `pip` or just raw `libtorch`.
 1. The difficulty in this task is NOT changing the config--you only need to modify this [line](https://github.com/pytorch/pytorch/blob/master/.circleci/cimodel/data/dimensions.py#L6)--but the debugging process that ensues.
 2. Since this change should not touch other build jobs and it is very likely you would be running these jobs on the CI frequently, I'd advise reducing the config to only the build jobs for the new CI version and to use your own fork of `pytorch/builder`. **Code reference**: [PR 57522](https://github.com/pytorch/pytorch/pull/57522).
-3. Don't be afraid to ask questions when you're stuck on any bug!
+3. Testing nightly builds is done as follows:
+    - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
+    - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Following job is used to promote from master to viable/strict https://www.internalfb.com/intern/chronos/job?smc=chronos_gp_admin_client&jobname=oss_OpensourcePushViableBranchScript. 
+    - After your changes are promoted to viable/strict. Run nighly build, https://www.internalfb.com/intern/chronos/job?smc=chronos_gp_admin_client&jobname=nightly_trigger
+    - Make sure your changes made to nightly branch https://github.com/pytorch/pytorch/tree/nightly
+    - Make sure all nightly build succeeded before continuing to Step #6
+4. Don't be afraid to ask questions when you're stuck on any bug!
 
 ## 6. Add the new version to torchvision CI.
 Torchvision is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
