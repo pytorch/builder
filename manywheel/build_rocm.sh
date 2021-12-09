@@ -131,6 +131,19 @@ else
     HSAKMT_SO="libhsakmt.so.1"
 fi
 
+#in rocm4.5, librocm_smi64 and libroctracer64 deps added
+if [[ $ROCM_INT -ge 40500 ]]; then
+    ROCM_SMI_DEP=/opt/rocm/rocm_smi/lib/librocm_smi64.so.4
+    ROCM_SMI_SO=librocm_smi64.so.4
+    ROCTRACER_DEP=/opt/rocm/roctracer/lib/libroctracer64.so.1
+    ROCTRACER_SO=libroctracer64.so.1
+else
+    ROCM_SMI_DEP=
+    ROCM_SMI_SO=
+    ROCTRACER_DEP=
+    ROCTRACER_SO=
+fi
+
 # in rocm4.3, rocfft refactored their device libs, hipfft is a new package, separate from rocfft
 # in rocm4.5, rocfft refactored their device libs again
 if [[ $ROCM_INT -ge 40500 ]]; then
@@ -182,9 +195,11 @@ DEPS_LIST=(
     ${DEP_ROCFFT_DEVICE_2}
     ${DEP_ROCFFT_DEVICE_3}
     "/opt/rocm/rocfft/lib/librocfft.so.0"
+    ${ROCM_SMI_DEP}
     "/opt/rocm/rocrand/lib/librocrand.so.1"
     "/opt/rocm/rocsolver/lib/librocsolver.so.0"
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
+    ${ROCTRACER_DEP}
     "/opt/rocm/roctracer/lib/libroctx64.so.1"
     "$LIBGOMP_PATH"
     "$LIBNUMA_PATH"
@@ -210,9 +225,11 @@ DEPS_SONAME=(
     ${SO_ROCFFT_DEVICE_2}
     ${SO_ROCFFT_DEVICE_3}
     "librocfft.so.0"
+    ${ROCM_SMI_SO}
     "librocrand.so.1"
     "librocsolver.so.0"
     "librocsparse.so.0"
+    ${ROCTRACER_SO}
     "libroctx64.so.1"
     "libgomp.so.1"
     "libnuma.so.1"
