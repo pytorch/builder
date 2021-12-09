@@ -359,6 +359,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
     conda install -y conda-package-handling
+    # NS: To be removed after conda docker images are updated
+    conda update -y conda-build
 
     ADDITIONAL_CHANNELS=""
     echo "Calling conda-build at $(date)"
