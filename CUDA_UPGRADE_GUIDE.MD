@@ -55,8 +55,8 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 2. Since this change should not touch other build jobs and it is very likely you would be running these jobs on the CI frequently, I'd advise reducing the config to only the build jobs for the new CI version and to use your own fork of `pytorch/builder`. **Code reference**: [PR 57522](https://github.com/pytorch/pytorch/pull/57522).
 3. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
-    - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Following job is used to promote from master to viable/strict https://www.internalfb.com/intern/chronos/job?smc=chronos_gp_admin_client&jobname=oss_OpensourcePushViableBranchScript. 
-    - After your changes are promoted to viable/strict. Run nighly build, https://www.internalfb.com/intern/chronos/job?smc=chronos_gp_admin_client&jobname=nightly_trigger
+    - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict 
+    - After your changes are promoted to viable/strict. Run nighly build job.
     - Make sure your changes made to nightly branch https://github.com/pytorch/pytorch/tree/nightly
     - Make sure all nightly build succeeded before continuing to Step #6
 4. Don't be afraid to ask questions when you're stuck on any bug!
