@@ -61,9 +61,9 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
     - Make sure all nightly build succeeded before continuing to Step #6
 4. Don't be afraid to ask questions when you're stuck on any bug!
 
-## 6. Add the new version to torchvision CI.
-Torchvision is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
-propagate the CI changes so that torchvision can be packaged for the new CUDA version as well.
+## 6. Add the new version to torchvision and torchaudio CI.
+Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
+propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
 1. A code sample can be found in [PR 4248](https://github.com/pytorch/vision/pull/4248) of the torchvision repo.
 2. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
