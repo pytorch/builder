@@ -64,8 +64,9 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 ## 6. Add the new version to torchvision and torchaudio CI.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
 propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
-1. A code sample can be found in [PR 4248](https://github.com/pytorch/vision/pull/4248) of the torchvision repo.
-2. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
+1. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248) 
+2. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067) 
+3. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
 Congrats! PyTorch now has support for a new CUDA version and you made it happen!
