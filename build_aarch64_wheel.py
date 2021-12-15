@@ -170,14 +170,26 @@ def update_apt_repo(host: RemoteHost) -> None:
     host.run_cmd("sudo apt-get update")
 
 
-def install_condaforge(host: RemoteHost) -> None:
+def install_condaforge(host: RemoteHost,
+                       suffix: str = "latest/download/Miniforge3-Linux-aarch64.sh") -> None:
     print('Install conda-forge')
-    host.run_cmd("curl -OL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh")
-    host.run_cmd("sh -f Miniforge3-Linux-aarch64.sh -b")
+    host.run_cmd(f"curl -OL https://github.com/conda-forge/miniforge/releases/{suffix}")
+    host.run_cmd(f"sh -f {os.path.basename(suffix)} -b")
     if host.using_docker():
         host.run_cmd("echo 'PATH=$HOME/miniforge3/bin:$PATH'>>.bashrc")
     else:
         host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
+
+
+def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
+    if python_version == "3.6":
+        # Python-3.6 EOLed and not compatible with conda-4.11
+        install_condaforge(host, suffix="download/4.10.3-10/Miniforge3-4.10.3-10-Linux-aarch64.sh")
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+    else:
+        install_condaforge(host)
+        # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.5.0")
 
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -342,8 +354,7 @@ def configure_system(host: RemoteHost, *,
                      use_conda=True,
                      python_version="3.8") -> None:
     if use_conda:
-        install_condaforge(host)
-        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+        install_condaforge_python(host, python_version)
 
     print('Configuring the system')
     if not host.using_docker():
@@ -609,8 +620,7 @@ if __name__ == '__main__':
     if args.alloc_instance:
         if args.python_version is None:
             sys.exit(0)
-        install_condaforge(host)
-        host.run_cmd(f"conda install -y python={args.python_version} numpy pyyaml")
+        install_condaforge_python(host, args.python_version)
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
