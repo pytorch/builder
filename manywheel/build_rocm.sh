@@ -144,6 +144,19 @@ else
     ROCTRACER_SO=
 fi
 
+#since rocm4.5, amdgpu is an added dependency
+if [[ $ROCM_INT -ge 40500 ]]; then
+    DRM_DEP=/opt/amdgpu/lib64/libdrm.so.2
+    DRM_SO=libdrm.so.2
+    DRM_AMDGPU_DEP=/opt/amdgpu/lib64/libdrm_amdgpu.so.1
+    DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+else
+    DRM_DEP=
+    DRM_SO=
+    DRM_AMDGPU_DEP=
+    DRM_AMDGPU_SO=
+fi
+
 # in rocm4.3, rocfft refactored their device libs, hipfft is a new package, separate from rocfft
 # in rocm4.5, rocfft refactored their device libs again
 if [[ $ROCM_INT -ge 40500 ]]; then
@@ -205,6 +218,8 @@ DEPS_LIST=(
     "$LIBNUMA_PATH"
     "$LIBELF_PATH"
     "$LIBTINFO_PATH"
+    ${DRM_DEP}
+    ${DRM_AMDGPU_DEP}
 )
 
 DEPS_SONAME=(
@@ -235,6 +250,8 @@ DEPS_SONAME=(
     "libnuma.so.1"
     "libelf.so.1"
     "libtinfo.so.5"
+    ${DRM_SO}
+    ${DRM_AMDGPU_SO}
 )
 
 DEPS_AUX_SRCLIST=(
