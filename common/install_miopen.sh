@@ -91,8 +91,10 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 "
 
 if [[ $ROCM_INT -ge 40500 ]]; then
+    MIOPEN_CMAKE_COMMON_FLAGS="${MIOPEN_CMAKE_COMMON_FLAGS} -DMIOPEN_USE_HIP_KERNELS=Off"
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36"
-    MIOPEN_BRANCH="release/rocm-rel-4.5-staging"
+    #MIOPEN_BRANCH="release/rocm-rel-4.5-staging"
+    MIOPEN_BRANCH="release/rocm-rel-4.5-staging-test"
 elif [[ $ROCM_INT -ge 40300 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878;gfx1030_36"
     MIOPEN_BRANCH="release/rocm-rel-4.3-staging"
