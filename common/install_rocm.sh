@@ -21,7 +21,7 @@ if [[ $(ver $ROCM_VERSION) -ge $(ver 4.5) ]]; then
     declare -A AMDGPU_VERSIONS=( ["4.5.2"]="21.40.2" )
 
     # Add amdgpu repository
-    local amdgpu_baseurl="https://repo.radeon.com/amdgpu/${AMDGPU_VERSIONS[$ROCM_VERSION]}/rhel/7.9/main/x86_64"
+    amdgpu_baseurl="https://repo.radeon.com/amdgpu/${AMDGPU_VERSIONS[$ROCM_VERSION]}/rhel/7.9/main/x86_64"
     echo "[AMDGPU]" > /etc/yum.repos.d/amdgpu.repo
     echo "name=AMDGPU" >> /etc/yum.repos.d/amdgpu.repo
     echo "baseurl=${amdgpu_baseurl}" >> /etc/yum.repos.d/amdgpu.repo
@@ -30,7 +30,7 @@ if [[ $(ver $ROCM_VERSION) -ge $(ver 4.5) ]]; then
     echo "gpgkey=http://repo.radeon.com/rocm/rocm.gpg.key" >> /etc/yum.repos.d/amdgpu.repo
 fi
 
-local rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}"
+rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}"
 echo "[ROCm]" > /etc/yum.repos.d/rocm.repo
 echo "name=ROCm" >> /etc/yum.repos.d/rocm.repo
 echo "baseurl=${rocm_baseurl}" >> /etc/yum.repos.d/rocm.repo
