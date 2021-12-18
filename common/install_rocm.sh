@@ -2,6 +2,10 @@
 
 set -ex
 
+if [[ $# -eq 0 ]] ; then
+    echo 'Please specify ROCm version'
+    exit 0
+fi
 ROCM_VERSION=$1
 
 yum update -y
