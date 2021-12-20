@@ -215,7 +215,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.11.0"   # CUDA 11.1 uses libcudart11.0 for backwards compat
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.11.1"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.1" # CUDA 11.+ searches for versioned builtins library
     "$LIBGOMP_PATH"
 )
 
@@ -223,7 +223,7 @@ DEPS_SONAME=(
     "libcudart.so.11.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.1"
-    "libnvrtc-builtins.so"
+    "libnvrtc-builtins.so.11.1"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.2" ]]; then
@@ -231,7 +231,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.11.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.11.2"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.2"
     "$LIBGOMP_PATH"
 )
 
@@ -239,7 +239,7 @@ DEPS_SONAME=(
     "libcudart.so.11.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.2"
-    "libnvrtc-builtins.so"
+    "libnvrtc-builtins.so.11.2"
     "libgomp.so.1"
 )
 else
