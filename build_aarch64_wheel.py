@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 import time
-from typing import List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
@@ -170,14 +170,26 @@ def update_apt_repo(host: RemoteHost) -> None:
     host.run_cmd("sudo apt-get update")
 
 
-def install_condaforge(host: RemoteHost) -> None:
+def install_condaforge(host: RemoteHost,
+                       suffix: str = "latest/download/Miniforge3-Linux-aarch64.sh") -> None:
     print('Install conda-forge')
-    host.run_cmd("curl -OL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh")
-    host.run_cmd("sh -f Miniforge3-Linux-aarch64.sh -b")
+    host.run_cmd(f"curl -OL https://github.com/conda-forge/miniforge/releases/{suffix}")
+    host.run_cmd(f"sh -f {os.path.basename(suffix)} -b")
     if host.using_docker():
         host.run_cmd("echo 'PATH=$HOME/miniforge3/bin:$PATH'>>.bashrc")
     else:
         host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
+
+
+def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
+    if python_version == "3.6":
+        # Python-3.6 EOLed and not compatible with conda-4.11
+        install_condaforge(host, suffix="download/4.10.3-10/Miniforge3-4.10.3-10-Linux-aarch64.sh")
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+    else:
+        install_condaforge(host)
+        # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.5.0")
 
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -211,23 +223,39 @@ def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
         host.run_cmd(f"python3 embed_library.py {wheel_name}")
 
 
+def checkout_repo(host: RemoteHost, *,
+                  branch: str = "master",
+                  url: str,
+                  git_clone_flags: str,
+                  mapping: Dict[str, Tuple[str, str]]) -> Optional[str]:
+    for prefix in mapping:
+        if not branch.startswith(prefix):
+            continue
+        tag = f"v{mapping[prefix][0]}-{mapping[prefix][1]}"
+        host.run_cmd(f"git clone {url} -b {tag} {git_clone_flags}")
+        return mapping[prefix][0]
+
+    host.run_cmd(f"git clone {url} {git_clone_flags}")
+    return None
+
+
 def build_torchvision(host: RemoteHost, *,
                       branch: str = "master",
                       use_conda: bool = True,
                       git_clone_flags: str) -> str:
     print('Checking out TorchVision repo')
-    if branch.startswith("v1.7.1"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.8.2-rc2 {git_clone_flags}")
-    elif branch.startswith("v1.8.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.0-rc3 {git_clone_flags}")
-    elif branch.startswith("v1.8.1"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.9.1-rc1 {git_clone_flags}")
-    elif branch.startswith("v1.9.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.10.0-rc1 {git_clone_flags}")
-    elif branch.startswith("v1.10.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/vision -b v0.11.1-rc1 {git_clone_flags}")
-    else:
-        host.run_cmd(f"git clone https://github.com/pytorch/vision {git_clone_flags}")
+    build_version = checkout_repo(host,
+                                  branch=branch,
+                                  url="https://github.com/pytorch/vision",
+                                  git_clone_flags=git_clone_flags,
+                                  mapping={
+                                      "v1.7.1": ("0.8.2", "rc2"),
+                                      "v1.8.0": ("0.9.0", "rc3"),
+                                      "v1.8.1": ("0.9.1", "rc1"),
+                                      "v1.9.0": ("0.10.0", "rc1"),
+                                      "v1.10.0": ("0.11.1", "rc1"),
+                                      "v1.10.1": ("0.11.2", "rc1"),
+                                  })
     print('Building TorchVision wheel')
     build_vars = ""
     if branch == 'nightly':
@@ -237,16 +265,8 @@ def build_torchvision(host: RemoteHost, *,
             version = host.check_output(["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    if branch.startswith("v1.7.1"):
-        build_vars += "BUILD_VERSION=0.8.2"
-    elif branch.startswith("v1.8.0"):
-        build_vars += "BUILD_VERSION=0.9.0"
-    elif branch.startswith("v1.8.1"):
-        build_vars += "BUILD_VERSION=0.9.1"
-    elif branch.startswith("v1.9.0"):
-        build_vars += "BUILD_VERSION=0.10.0"
-    elif branch.startswith("v1.10.0"):
-        build_vars += "BUILD_VERSION=0.11.1"
+    elif build_version is not None:
+        build_vars += f"BUILD_VERSION={build_version}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -266,22 +286,23 @@ def build_torchtext(host: RemoteHost, *,
                     git_clone_flags: str = "") -> str:
     print('Checking out TorchText repo')
     git_clone_flags += " --recurse-submodules"
-    if branch.startswith("v1.9.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/text -b v0.10.0-rc1 {git_clone_flags}")
-    elif branch.startswith("v1.10.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/text -b v0.11.0-rc2 {git_clone_flags}")
-    else:
-        host.run_cmd(f"git clone https://github.com/pytorch/text {git_clone_flags}")
+    build_version = checkout_repo(host,
+                                  branch=branch,
+                                  url="https://github.com/pytorch/text",
+                                  git_clone_flags=git_clone_flags,
+                                  mapping={
+                                      "v1.9.0": ("0.10.0", "rc1"),
+                                      "v1.10.0": ("0.11.0", "rc2"),
+                                      "v1.10.1": ("0.11.1", "rc1"),
+                                  })
     print('Building TorchText wheel')
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["if [ -f text/version.txt ]; then cat text/version.txt; fi"]).strip()
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    if branch.startswith("v1.9.0"):
-        build_vars += "BUILD_VERSION=0.10.0"
-    elif branch.startswith("v1.10.0"):
-        build_vars += "BUILD_VERSION=0.11.0"
+    elif build_version is not None:
+        build_vars += f"BUILD_VERSION={build_version}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -301,22 +322,23 @@ def build_torchaudio(host: RemoteHost, *,
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchAudio repo')
     git_clone_flags += " --recurse-submodules"
-    if branch.startswith("v1.9.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.9.0-rc2 {git_clone_flags}")
-    elif branch.startswith("v1.10.0"):
-        host.run_cmd(f"git clone https://github.com/pytorch/audio -b v0.10.0-rc5 {git_clone_flags}")
-    else:
-        host.run_cmd(f"git clone https://github.com/pytorch/audio {git_clone_flags}")
+    build_version = checkout_repo(host,
+                                  branch=branch,
+                                  url="https://github.com/pytorch/audio",
+                                  git_clone_flags=git_clone_flags,
+                                  mapping={
+                                      "v1.9.0": ("0.9.0", "rc2"),
+                                      "v1.10.0": ("0.10.0", "rc5"),
+                                      "v1.10.1": ("0.10.1", "rc1"),
+                                  })
     print('Building TorchText wheel')
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    if branch.startswith("v1.9.0"):
-        build_vars += "BUILD_VERSION=0.9.0"
-    elif branch.startswith("v1.10.0"):
-        build_vars += "BUILD_VERSION=0.10.0"
+    elif build_version is not None:
+        build_vars += f"BUILD_VERSION={build_version}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -335,8 +357,7 @@ def configure_system(host: RemoteHost, *,
                      use_conda=True,
                      python_version="3.8") -> None:
     if use_conda:
-        install_condaforge(host)
-        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+        install_condaforge_python(host, python_version)
 
     print('Configuring the system')
     if not host.using_docker():
@@ -602,8 +623,7 @@ if __name__ == '__main__':
     if args.alloc_instance:
         if args.python_version is None:
             sys.exit(0)
-        install_condaforge(host)
-        host.run_cmd(f"conda install -y python={args.python_version} numpy pyyaml")
+        install_condaforge_python(host, args.python_version)
         sys.exit(0)
 
     python_version = args.python_version if args.python_version is not None else '3.8'
