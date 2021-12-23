@@ -195,7 +195,7 @@ def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.15 {git_clone_flags}")
-    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1"
+    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
     host.run_cmd(f"pushd OpenBLAS; make {make_flags} -j8; sudo make {make_flags} install; popd")
 
 
