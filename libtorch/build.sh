@@ -5,6 +5,6 @@
 
 set -ex
 
-TOPDIR=$(git rev-parse --show-toplevel)
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-BUILD_PYTHONLESS=1 ${TOPDIR}/manywheel/build.sh
+BUILD_PYTHONLESS=1 ${SCRIPTPATH}/../manywheel/build.sh
