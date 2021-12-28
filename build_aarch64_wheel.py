@@ -175,6 +175,7 @@ def install_condaforge(host: RemoteHost,
     print('Install conda-forge')
     host.run_cmd(f"curl -OL https://github.com/conda-forge/miniforge/releases/{suffix}")
     host.run_cmd(f"sh -f {os.path.basename(suffix)} -b")
+    host.run_cmd(f"rm -f {os.path.basename(suffix)}")
     if host.using_docker():
         host.run_cmd("echo 'PATH=$HOME/miniforge3/bin:$PATH'>>.bashrc")
     else:
@@ -196,7 +197,7 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
-    host.run_cmd(f"pushd OpenBLAS; make {make_flags} -j8; sudo make {make_flags} install; popd")
+    host.run_cmd(f"pushd OpenBLAS; make {make_flags} -j8; sudo make {make_flags} install; popd; rm -rf OpenBLAS")
 
 
 def build_FFTW(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -277,6 +278,8 @@ def build_torchvision(host: RemoteHost, *,
 
     print('Copying TorchVision wheel')
     host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
+    print("Delete vision checkout")
+    host.run_cmd("rm -rf vision")
 
     return vision_wheel_name
 
@@ -427,6 +430,8 @@ def start_build(host: RemoteHost, *,
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
     host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+    print("Deleting build folder")
+    host.run_cmd("cd pytorch; rm -rf build")
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
