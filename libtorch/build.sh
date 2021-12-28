@@ -7,4 +7,4 @@ set -ex
 
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-BUILD_PYTHONLESS=1 ${SCRIPTPATH}/../manywheel/build.sh
+BUILD_PYTHONLESS=1 DESIRED_PYTHON="3.7" ${SCRIPTPATH}/../manywheel/build.sh
