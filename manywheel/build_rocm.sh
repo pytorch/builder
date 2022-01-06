@@ -3,6 +3,8 @@
 set -ex
 
 export MAGMA_HOME=/opt/rocm/magma
+# TODO: libtorch_cpu.so is broken when building with Debug info
+export BUILD_DEBUG_INFO=0
 
 # TODO Are these all used/needed?
 export TH_BINARY_BUILD=1
