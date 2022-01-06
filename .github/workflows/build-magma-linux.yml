@@ -1,0 +1,59 @@
+name: build-linux-magma
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - magma/*
+      - common/install_conda.sh
+      - .github/workflows/build-magma-linux.yml
+  pull_request:
+    paths:
+      - magma/*
+      - common/install_conda.sh
+      - .github/workflows/build-magma-linux.yml
+
+# For setup-miniconda, see https://github.com/conda-incubator/setup-miniconda/issues/179
+defaults:
+  run:
+    shell: bash -x -e -l {0}
+env:
+  BUILD_ENVIRONMENT: build-linux-magma
+  IN_CI: 1
+  IS_GHA: 1
+
+jobs:
+  build-linux-magma:
+    runs-on: linux.2xlarge
+    strategy:
+      matrix:
+        cuda_version: ["115"]
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Build Magma Cuda
+        working-directory: magma
+        run: |
+          make magma-cuda${{ matrix.cuda_version }}
+      - name: Save as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: magma/output/linux-64/magma-cuda*.bz2
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.8
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: build-linux-magma
+      - name: Conda install anaconda-client
+        shell: bash -l {0}
+        run: |
+          conda install -y conda-build anaconda-client
+      - name: Push MAGMA to anaconda
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          anaconda --token $ANACONDA_TOKEN upload -u pytorch --force magma/output/linux-64/magma-cuda*.bz2
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
