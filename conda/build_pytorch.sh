@@ -360,6 +360,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # NS: To be removed after conda docker images are updated
     conda update -y conda-build
 
+     # Create a new environment to test in
+    # TODO these reqs are hardcoded for pytorch-nightly
+    test_env="env_$folder_tag"
+    retry conda create -yn "$test_env" python="$py_ver"
+    source activate "$test_env"
+
     ADDITIONAL_CHANNELS=""
     echo "Calling conda-build at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
@@ -375,11 +381,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      "$build_folder"
     echo "Finished conda-build at $(date)"
 
-    # Create a new environment to test in
-    # TODO these reqs are hardcoded for pytorch-nightly
-    test_env="env_$folder_tag"
-    retry conda create -yn "$test_env" python="$py_ver"
-    source activate "$test_env"
 
     # Extract the package for testing
     ls -lah "$output_folder"
