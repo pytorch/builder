@@ -260,9 +260,9 @@ else
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
     if [[ "$desired_cuda" == "11.5" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.5,<11.6 # [not osx]"
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.3,<11.4 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda115 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.3" ]]; then
+    if [[ "$desired_cuda" == "11.3" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.3,<11.4 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda113 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.2" ]]; then
@@ -357,17 +357,12 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
     conda install -y conda-package-handling
-    # NS: To be removed after conda docker images are updated
-    conda update -y conda-build
-
-     # Create a new environment to test in
-    # TODO these reqs are hardcoded for pytorch-nightly
-    test_env="env_$folder_tag"
-    retry conda create -yn "$test_env" python="$py_ver"
-    source activate "$test_env"
 
     ADDITIONAL_CHANNELS=""
     echo "Calling conda-build at $(date)"
+    if [[ ${py_ver} = "3.10" ]]; then
+      ADDITIONAL_CHANNELS="-c=conda-forge"
+    fi
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
@@ -381,6 +376,11 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
                      "$build_folder"
     echo "Finished conda-build at $(date)"
 
+    # Create a new environment to test in
+    # TODO these reqs are hardcoded for pytorch-nightly
+    test_env="env_$folder_tag"
+    retry conda create -yn "$test_env" python="$py_ver"
+    source activate "$test_env"
 
     # Extract the package for testing
     ls -lah "$output_folder"
