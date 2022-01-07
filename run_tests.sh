@@ -68,6 +68,8 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     # tries to install this cudatoolkit that correlates with your current hardware it will also
     # overwrite the currently installed "local" pytorch package meaning you aren't actually testing
     # the right package.
+    # Numpy dependency is now dynamic but old caffe2 test assume its always there
+    retry conda install -yq numpy
     # TODO (maybe): Make the "cpu" package of pytorch depend on "cpuonly"
     if [[ "$cuda_ver" = 'cpu' ]]; then
       # Installing cpuonly will also install dependencies as well
@@ -78,8 +80,6 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     fi
     # Install the testing dependencies
     retry conda install -yq future hypothesis  protobuf=3.14.0 pytest setuptools six typing_extensions pyyaml
-    # Numpy dependency is now dynamic but old caffe2 test assume its always there
-    retry conda install -yq numpy
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
