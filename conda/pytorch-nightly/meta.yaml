@@ -16,7 +16,7 @@ requirements:
     - python
     # Conda has some pretty unpredictable behavior when it comes to channel priority
     # so to be safe on which numpy version we want we default to 1.19
-    - numpy>=1.21.2
+    - numpy=1.19
     - setuptools
     - pyyaml
     - mkl=2020.2 # [x86_64]
