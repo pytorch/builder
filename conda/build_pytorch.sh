@@ -357,14 +357,11 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
     conda install -y conda-package-handling
-     # NS: To be removed after conda docker images are updated
+    # NS: To be removed after conda docker images are updated
     conda update -y conda-build
 
     ADDITIONAL_CHANNELS=""
     echo "Calling conda-build at $(date)"
-    if [[ ${py_ver} = "3.10" ]]; then
-      ADDITIONAL_CHANNELS="-c=conda-forge"
-    fi
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
