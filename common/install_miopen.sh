@@ -89,15 +89,20 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 -DMIOPEN_USE_COMGR=ON
 -DMIOPEN_BUILD_DRIVER=OFF
 "
-if [[ ${ROCM_VERSION} == 4.1 ]]; then
-    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
-    MIOPEN_BRANCH="rocm-4.1.x-staging"
-elif [[ ${ROCM_VERSION} == 4.2 ]]; then
-    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
-    MIOPEN_BRANCH="rocm-4.2.x-staging"
-elif [[ ${ROCM_VERSION} == 4.3.1 ]]; then
+
+if [[ $ROCM_INT -ge 40500 ]]; then
+    MIOPEN_CMAKE_COMMON_FLAGS="${MIOPEN_CMAKE_COMMON_FLAGS} -DMIOPEN_USE_HIP_KERNELS=Off -DMIOPEN_DEFAULT_FIND_MODE=Normal"
+    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36"
+    MIOPEN_BRANCH="release/rocm-rel-4.5-staging"
+elif [[ $ROCM_INT -ge 40300 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878;gfx1030_36"
     MIOPEN_BRANCH="release/rocm-rel-4.3-staging"
+elif [[ $ROCM_INT -ge 40200 ]]; then
+    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
+    MIOPEN_BRANCH="rocm-4.2.x-staging"
+elif [[ $ROCM_INT -ge 40100 ]]; then
+    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
+    MIOPEN_BRANCH="rocm-4.1.x-staging"
 else
     echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
     exit 1

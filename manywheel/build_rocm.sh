@@ -3,6 +3,8 @@
 set -ex
 
 export MAGMA_HOME=/opt/rocm/magma
+# TODO: libtorch_cpu.so is broken when building with Debug info
+export BUILD_DEBUG_INFO=0
 
 # TODO Are these all used/needed?
 export TH_BINARY_BUILD=1
@@ -122,26 +124,70 @@ else
     HIPFFT_SO=
 fi;
 
-# in rocm4.3, rocfft refactored their device libs
-# hipfft is a new package, separate from rocfft
-if [[ $ROCM_INT -ge 40300 ]]; then
-    DEP_ROCFFT_DEVICE=
-    DEP_ROCFFT_DEVICE_MISC=/opt/rocm/rocfft/lib/librocfft-device-misc.so.0
-    DEP_ROCFFT_DEVICE_SINGLE=/opt/rocm/rocfft/lib/librocfft-device-single.so.0
-    DEP_ROCFFT_DEVICE_DOUBLE=/opt/rocm/rocfft/lib/librocfft-device-double.so.0
-    SO_ROCFFT_DEVICE=
-    SO_ROCFFT_DEVICE_MISC=librocfft-device-misc.so.0
-    SO_ROCFFT_DEVICE_SINGLE=librocfft-device-single.so.0
-    SO_ROCFFT_DEVICE_DOUBLE=librocfft-device-double.so.0
+#in rocm4.5, libhsakmt is statically linked into hsa runtime
+if [[ $ROCM_INT -ge 40500 ]]; then
+    HSAKMT_DEP=
+    HSAKMT_SO=
 else
-    DEP_ROCFFT_DEVICE=/opt/rocm/rocfft/lib/librocfft-device.so.0
-    DEP_ROCFFT_DEVICE_MISC=
-    DEP_ROCFFT_DEVICE_SINGLE=
-    DEP_ROCFFT_DEVICE_DOUBLE=
-    SO_ROCFFT_DEVICE=librocfft-device.so.0
-    SO_ROCFFT_DEVICE_MISC=
-    SO_ROCFFT_DEVICE_SINGLE=
-    SO_ROCFFT_DEVICE_DOUBLE=
+    HSAKMT_DEP="/opt/rocm/lib64/libhsakmt.so.1"
+    HSAKMT_SO="libhsakmt.so.1"
+fi
+
+#in rocm4.5, librocm_smi64 and libroctracer64 deps added
+if [[ $ROCM_INT -ge 40500 ]]; then
+    ROCM_SMI_DEP=/opt/rocm/rocm_smi/lib/librocm_smi64.so.4
+    ROCM_SMI_SO=librocm_smi64.so.4
+    ROCTRACER_DEP=/opt/rocm/roctracer/lib/libroctracer64.so.1
+    ROCTRACER_SO=libroctracer64.so.1
+else
+    ROCM_SMI_DEP=
+    ROCM_SMI_SO=
+    ROCTRACER_DEP=
+    ROCTRACER_SO=
+fi
+
+#since rocm4.5, amdgpu is an added dependency
+if [[ $ROCM_INT -ge 40500 ]]; then
+    DRM_DEP=/opt/amdgpu/lib64/libdrm.so.2
+    DRM_SO=libdrm.so.2
+    DRM_AMDGPU_DEP=/opt/amdgpu/lib64/libdrm_amdgpu.so.1
+    DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+else
+    DRM_DEP=
+    DRM_SO=
+    DRM_AMDGPU_DEP=
+    DRM_AMDGPU_SO=
+fi
+
+# in rocm4.3, rocfft refactored their device libs, hipfft is a new package, separate from rocfft
+# in rocm4.5, rocfft refactored their device libs again
+if [[ $ROCM_INT -ge 40500 ]]; then
+    DEP_ROCFFT_DEVICE_0=/opt/rocm/rocfft/lib/librocfft-device-0.so.0
+    DEP_ROCFFT_DEVICE_1=/opt/rocm/rocfft/lib/librocfft-device-1.so.0
+    DEP_ROCFFT_DEVICE_2=/opt/rocm/rocfft/lib/librocfft-device-2.so.0
+    DEP_ROCFFT_DEVICE_3=/opt/rocm/rocfft/lib/librocfft-device-3.so.0
+    SO_ROCFFT_DEVICE_0=librocfft-device-0.so.0
+    SO_ROCFFT_DEVICE_1=librocfft-device-1.so.0
+    SO_ROCFFT_DEVICE_2=librocfft-device-2.so.0
+    SO_ROCFFT_DEVICE_3=librocfft-device-3.so.0
+elif [[ $ROCM_INT -ge 40300 ]]; then
+    DEP_ROCFFT_DEVICE_0=/opt/rocm/rocfft/lib/librocfft-device-misc.so.0
+    DEP_ROCFFT_DEVICE_1=/opt/rocm/rocfft/lib/librocfft-device-single.so.0
+    DEP_ROCFFT_DEVICE_2=/opt/rocm/rocfft/lib/librocfft-device-double.so.0
+    DEP_ROCFFT_DEVICE_3=
+    SO_ROCFFT_DEVICE_0=librocfft-device-misc.so.0
+    SO_ROCFFT_DEVICE_1=librocfft-device-single.so.0
+    SO_ROCFFT_DEVICE_2=librocfft-device-double.so.0
+    SO_ROCFFT_DEVICE_3=
+else
+    DEP_ROCFFT_DEVICE_0=/opt/rocm/rocfft/lib/librocfft-device.so.0
+    DEP_ROCFFT_DEVICE_1=
+    DEP_ROCFFT_DEVICE_2=
+    DEP_ROCFFT_DEVICE_3=
+    SO_ROCFFT_DEVICE_0=librocfft-device.so.0
+    SO_ROCFFT_DEVICE_1=
+    SO_ROCFFT_DEVICE_2=
+    SO_ROCFFT_DEVICE_3=
 fi;
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
@@ -155,23 +201,27 @@ DEPS_LIST=(
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
     "/opt/rocm/${COMGR_LIBDIR}/${LIBAMDCOMGR}"
-    "/opt/rocm/lib64/libhsakmt.so.1"
+    ${HSAKMT_DEP}
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
     "/opt/rocm/rocblas/lib/librocblas.so.0"
-    ${DEP_ROCFFT_DEVICE}
-    ${DEP_ROCFFT_DEVICE_MISC}
-    ${DEP_ROCFFT_DEVICE_SINGLE}
-    ${DEP_ROCFFT_DEVICE_DOUBLE}
+    ${DEP_ROCFFT_DEVICE_0}
+    ${DEP_ROCFFT_DEVICE_1}
+    ${DEP_ROCFFT_DEVICE_2}
+    ${DEP_ROCFFT_DEVICE_3}
     "/opt/rocm/rocfft/lib/librocfft.so.0"
+    ${ROCM_SMI_DEP}
     "/opt/rocm/rocrand/lib/librocrand.so.1"
     "/opt/rocm/rocsolver/lib/librocsolver.so.0"
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
+    ${ROCTRACER_DEP}
     "/opt/rocm/roctracer/lib/libroctx64.so.1"
     "$LIBGOMP_PATH"
     "$LIBNUMA_PATH"
     "$LIBELF_PATH"
     "$LIBTINFO_PATH"
+    ${DRM_DEP}
+    ${DRM_AMDGPU_DEP}
 )
 
 DEPS_SONAME=(
@@ -183,23 +233,27 @@ DEPS_SONAME=(
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
     "${LIBAMDCOMGR}"
-    "libhsakmt.so.1"
+    ${HSAKMT_SO}
     "libmagma.so"
     "librccl.so.1"
     "librocblas.so.0"
-    ${SO_ROCFFT_DEVICE}
-    ${SO_ROCFFT_DEVICE_MISC}
-    ${SO_ROCFFT_DEVICE_SINGLE}
-    ${SO_ROCFFT_DEVICE_DOUBLE}
+    ${SO_ROCFFT_DEVICE_0}
+    ${SO_ROCFFT_DEVICE_1}
+    ${SO_ROCFFT_DEVICE_2}
+    ${SO_ROCFFT_DEVICE_3}
     "librocfft.so.0"
+    ${ROCM_SMI_SO}
     "librocrand.so.1"
     "librocsolver.so.0"
     "librocsparse.so.0"
+    ${ROCTRACER_SO}
     "libroctx64.so.1"
     "libgomp.so.1"
     "libnuma.so.1"
     "libelf.so.1"
     "libtinfo.so.5"
+    ${DRM_SO}
+    ${DRM_AMDGPU_SO}
 )
 
 DEPS_AUX_SRCLIST=(
