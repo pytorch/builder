@@ -60,10 +60,10 @@ fi
 
 if [[ ${py_ver} == "3.10" ]]; then
     ADDITIONAL_CHANNELS="-c=conda-forge"
-    PROTOBUF_PACKAGE = "protobuf=3.19.0"
+    PROTOBUF_PACKAGE="protobuf=3.19.0"
 else
     ADDITIONAL_CHANNELS="-c defaults"
-    PROTOBUF_PACKAGE = "protobuf=3.14.0"
+    PROTOBUF_PACKAGE="protobuf=3.14.0"
 fi
 
 # Environment initialization

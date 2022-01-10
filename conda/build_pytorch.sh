@@ -341,8 +341,8 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     ADDITIONAL_CHANNELS=""
     if [[ ${py_ver} = "3.10" ]]; then
       ADDITIONAL_CHANNELS="-c=conda-forge"
-      export NUMPY_PACKAGE  = "    - numpy>=1.21.2"
-      export OPENSSL_PACKAGE = "    - openssl=1.1.1l"
+      export NUMPY_PACKAGE="    - numpy>=1.21.2"
+      export OPENSSL_PACKAGE="    - openssl=1.1.1l"
     fi
 
     # We need to build the compiler activation scripts first on Windows

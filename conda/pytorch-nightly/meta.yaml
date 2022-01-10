@@ -14,10 +14,6 @@ requirements:
 
   host:
     - python
-    # Conda has some pretty unpredictable behavior when it comes to channel priority
-    # so to be safe on which numpy version we want we default to 1.19
-    {{ environ.get('NUMPY_PACKAGE', '    - numpy=1.19') }}
-    {{ environ.get('OPENSSL_PACKAGE', '') }}
     - setuptools
     - pyyaml
     - mkl=2020.2 # [x86_64]
@@ -30,6 +26,10 @@ requirements:
     - pkg-config # [unix]
 {{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
 {{ environ.get('MAGMA_PACKAGE', '') }}
+# Conda has some pretty unpredictable behavior when it comes to channel priority
+# so to be safe on which numpy version we want we default to 1.19
+{{ environ.get('NUMPY_PACKAGE', '    - numpy=1.19') }}
+{{ environ.get('OPENSSL_PACKAGE', '') }}
 
   run:
     - python
