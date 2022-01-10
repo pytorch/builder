@@ -77,7 +77,7 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
       retry conda update -yq --all -c defaults -c pytorch -c numba/label/dev
     fi
     # Install the testing dependencies
-    retry conda install -yq future hypothesis  protobuf=3.14.0 pytest setuptools six typing_extensions pyyaml
+    retry conda install -yq future hypothesis  protobuf=3.19.2 pytest setuptools six typing_extensions pyyaml
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
