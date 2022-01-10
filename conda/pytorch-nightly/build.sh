@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH:/opt/openssl/include
+export CMAKE_LIBRARY_PATH=$PREFIX/lib:$PREFIX/include:$CMAKE_LIBRARY_PATH
 export CMAKE_PREFIX_PATH=$PREFIX
 export TH_BINARY_BUILD=1 # links CPU BLAS libraries thrice in a row (was needed for some MKL static linkage)
 export PYTORCH_BUILD_VERSION=$PKG_VERSION
