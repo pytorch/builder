@@ -337,7 +337,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     mkdir "$output_folder"
 
     export OPENSSL_PACKAGE=""
-    export NUMPY_PACKAGE=""
+    export NUMPY_PACKAGE="    - numpy=1.19"
     ADDITIONAL_CHANNELS=""
     if [[ ${py_ver} = "3.10" ]]; then
       ADDITIONAL_CHANNELS="-c=conda-forge"
