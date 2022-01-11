@@ -58,9 +58,11 @@ elif [[ ${#cuda_ver} -eq 5 ]]; then
     cuda_ver_majmin="${cuda_ver:2:2}.${cuda_ver:4:1}"
 fi
 
+NUMPY_PACKAGE=""
 if [[ ${py_ver} == "3.10" ]]; then
     ADDITIONAL_CHANNELS="-c=conda-forge"
-    PROTOBUF_PACKAGE="protobuf=3.19.0"
+    PROTOBUF_PACKAGE="protobuf>=3.19.2"
+    NUMPY_PACKAGE="numpy>=1.21.2"
 else
     ADDITIONAL_CHANNELS="-c defaults"
     PROTOBUF_PACKAGE="protobuf=3.14.0"
@@ -78,13 +80,13 @@ if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
     # TODO (maybe): Make the "cpu" package of pytorch depend on "cpuonly"
     if [[ "$cuda_ver" = 'cpu' ]]; then
       # Installing cpuonly will also install dependencies as well
-      retry conda install -y -c pytorch cpuonly
+      retry conda install -y ${ADDITIONAL_CHANNELS} -c pytorch cpuonly
     else
       # Install dependencies from installing the pytorch conda package offline
       retry conda update -yq --all ${ADDITIONAL_CHANNELS} -c pytorch -c numba/label/dev
     fi
     # Install the testing dependencies
-    retry conda install -yq ${ADDITIONAL_CHANNELS} future hypothesis ${PROTOBUF_PACKAGE} pytest setuptools six typing_extensions pyyaml
+    retry conda install -yq ${ADDITIONAL_CHANNELS} future hypothesis ${NUMPY_PACKAGE} ${PROTOBUF_PACKAGE} pytest setuptools six typing_extensions pyyaml
 else
     retry pip install -qr requirements.txt || true
     retry pip install -q hypothesis protobuf pytest setuptools || true
