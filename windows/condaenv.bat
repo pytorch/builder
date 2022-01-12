@@ -12,10 +12,11 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
     if "%%v" == "3.7" call conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" cffi pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.8" call conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.9" call conda create -n py!PYTHON_VERSION_STR! -y -q "numpy>=1.11" "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
-    if "%%v" == "3.10" call conda create -n py!PYTHON_VERSION_STR!  -y -q -c=conda-forge "numpy>=1.21.2" "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
+    if "%%v" == "3.10" call conda create -n py!PYTHON_VERSION_STR!  -y -q -c=conda-forge "numpy>=1.21.2" "mkl=2020.2" pyyaml boto3 "cmake=3.19.6" ninja typing_extensions python=%%v
     if "%%v" == "3" call conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "mkl=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
 )
 endlocal
+
 
 :: Install libuv
 conda install -y -q -c conda-forge libuv=1.39
