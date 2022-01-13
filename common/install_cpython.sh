@@ -5,7 +5,7 @@ PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
 
 # Python versions to be installed in /opt/$VERSION_NO
-CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.6.6 3.7.5 3.8.1 3.9.0"}
+CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.6.6 3.7.5 3.8.1 3.9.0 3.10.1"}
 
 function check_var {
     if [ -z "$1" ]; then
@@ -38,10 +38,13 @@ function do_cpython_build {
     fi
     local prefix="/opt/_internal/cpython-${py_ver}${dir_suffix}"
     mkdir -p ${prefix}/lib
+
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
     CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
+
     make -j40 > /dev/null
     make install > /dev/null
+
     popd
     rm -rf Python-$py_ver
     # Some python's install as bin/python3. Make them available as
@@ -82,6 +85,7 @@ function build_cpythons {
     done
     rm -f get-pip.py
 }
+
 
 mkdir -p /opt/python
 mkdir -p /opt/_internal

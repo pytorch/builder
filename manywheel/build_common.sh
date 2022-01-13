@@ -81,7 +81,14 @@ if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
         ;;
     esac
 fi
-py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:1}"
+
+if [[ ${python_nodot} -ge 310 ]]; then
+    py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:2}"
+else
+    py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:1}"
+fi
+
+
 pydir="/opt/python/$DESIRED_PYTHON"
 export PATH="$pydir/bin:$PATH"
 echo "Will build for Python version: ${DESIRED_PYTHON} with ${python_installation}"
@@ -112,6 +119,9 @@ case ${DESIRED_PYTHON} in
     ;;
   cp3[7-8]*)
     retry pip install -q numpy==1.15
+    ;;
+  cp310-cp310m)
+    retry pip install -q numpy==1.21.2
     ;;
   # Should catch 3.9+
   *)
