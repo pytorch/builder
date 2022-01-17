@@ -120,7 +120,7 @@ case ${DESIRED_PYTHON} in
   cp3[7-8]*)
     retry pip install -q numpy==1.15
     ;;
-  cp310-cp310m)
+  cp310*)
     retry pip install -q numpy==1.21.2
     ;;
   # Should catch 3.9+
