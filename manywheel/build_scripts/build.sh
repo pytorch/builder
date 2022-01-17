@@ -6,12 +6,12 @@ set -ex
 
 # openssl version to build, with expected sha256 hash of .tar.gz
 # archive
-OPENSSL_ROOT=openssl-1.0.2k
-OPENSSL_HASH=6b3977c61f2aedf0f96367dcfb5c6e578cf37e7b8d913b4ecb6643c3cb88d8c0
+OPENSSL_ROOT=openssl-1.1.1l
+OPENSSL_HASH=0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1
 DEVTOOLS_HASH=a8ebeb4bed624700f727179e6ef771dafe47651131a00a78b342251415646acc
 PATCHELF_HASH=d9afdff4baeacfbc64861454f368b7f2c15c44d245293f7587bbf726bfe722fb
-CURL_ROOT=curl-7.49.1
-CURL_HASH=eb63cec4bef692eab9db459033f409533e6d10e20942f4b060b32819e81885f1
+CURL_ROOT=curl-7.73.0
+CURL_HASH=cf34fe0b07b800f1c01a499a6e8b2af548f6d0e044dca4a29d88a4bee146d131
 AUTOCONF_ROOT=autoconf-2.69
 AUTOCONF_HASH=954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969
 
@@ -63,9 +63,6 @@ hash -r
 curl --version
 curl-config --features
 
-# Now we can delete our built SSL
-rm -rf /usr/local/ssl
-
 # Install patchelf (latest with unreleased bug fixes)
 curl -sLOk https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz
 # check_sha256sum patchelf-0.9njs2.tar.gz $PATCHELF_HASH
@@ -109,3 +106,6 @@ done
 
 # Fix libc headers to remain compatible with C99 compilers.
 find /usr/include/ -type f -exec sed -i 's/\bextern _*inline_*\b/extern __inline __attribute__ ((__gnu_inline__))/g' {} +
+
+# Now we can delete our built SSL
+rm -rf /usr/local/ssl

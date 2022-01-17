@@ -2,7 +2,7 @@
 
 set -ex
 
-OPENSSL=openssl-1.1.1k
+OPENSSL=openssl-1.1.1l
 
 wget -q -O ${OPENSSL}.tar.gz "https://ossci-linux.s3.amazonaws.com/${OPENSSL}.tar.gz"
 tar xf "${OPENSSL}.tar.gz"

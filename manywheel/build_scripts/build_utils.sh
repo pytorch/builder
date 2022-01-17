@@ -4,7 +4,7 @@
 # XXX: the official https server at www.openssl.org cannot be reached
 # with the old versions of openssl and curl in Centos 5.11 hence the fallback
 # to the ftp mirror:
-OPENSSL_DOWNLOAD_URL=ftp://ftp.openssl.org/source/old/1.0.2/
+OPENSSL_DOWNLOAD_URL=ftp://ftp.openssl.org/source/old/1.1.1/
 # Ditto the curl sources
 CURL_DOWNLOAD_URL=http://curl.askapache.com/download
 
