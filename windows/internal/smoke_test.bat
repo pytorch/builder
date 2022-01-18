@@ -30,6 +30,7 @@ exit /b 1
 echo "install wheel package"
 
 set PYTHON_INSTALLER_URL=
+if "%DESIRED_PYTHON%" == "3.10" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.9" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.8" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.8.2/python-3.8.2-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.7" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe"
