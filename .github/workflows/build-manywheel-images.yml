@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        rocm_version: ["4.3.1", "4.5.2"]
+        rocm_version: ["4.2", "4.3.1", "4.5.2"]
     env:
       GPU_ARCH_TYPE: rocm
       GPU_ARCH_VERSION: ${{ matrix.rocm_version }}
