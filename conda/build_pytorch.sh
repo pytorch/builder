@@ -54,7 +54,7 @@ if [[ "$desired_cuda" != cpu ]]; then
 fi
 echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
 
-if [[ "$OSTYPE" == "msys" && "$CIRCLECI" == 'true' ]]; then
+if [[ "$OSTYPE" == "msys" ]]; then
     export PATH="/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:.:$PATH"
 fi
 

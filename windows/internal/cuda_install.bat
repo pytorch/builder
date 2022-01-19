@@ -14,10 +14,6 @@ set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
-if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
-    echo Existing CUDA vv%CUDA_VERSION_STR% installation found, skipping install
-    exit /b 0
-)
 
 if %CUDA_VER% EQU 92 goto cuda92
 if %CUDA_VER% EQU 100 goto cuda100
@@ -31,6 +27,9 @@ if %CUDA_VER% EQU 115 goto cuda115
 
 echo CUDA %CUDA_VERSION_STR% is not supported
 exit /b 1
+
+:: Skip all of this if we already have cuda installed
+if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" goto set_cuda_env_vars
 
 :cuda92
 if not exist "%SRC_DIR%\temp_build\cuda_9.2.148_win10.exe" (
@@ -193,70 +192,79 @@ if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
 goto cuda_common
 
 :cuda_common
+:: NOTE: We only install CUDA if we don't have it installed already.
+:: With GHA runners these should be pre-installed as part of our AMI process
+:: If you cannot find the CUDA version you want to build for here then please
+:: add it @ https://github.com/pytorch/test-infra/tree/main/aws/ami/windows
+if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
+    if not exist "%SRC_DIR%\temp_build\NvToolsExt.7z" (
+        curl -k -L https://ossci-windows.s3.us-east-1.amazonaws.com/builder/NvToolsExt.7z --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
+        if errorlevel 1 exit /b 1
+    )
 
-if not exist "%SRC_DIR%\temp_build\NvToolsExt.7z" (
-    curl -k -L https://ossci-windows.s3.us-east-1.amazonaws.com/builder/NvToolsExt.7z --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
-    if errorlevel 1 exit /b 1
+    if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
+        curl -k -L "https://ossci-windows.s3.us-east-1.amazonaws.com/builder/additional_dlls.zip" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
+        if errorlevel 1 exit /b 1
+    )
+
+    echo Installing CUDA toolkit...
+    7z x %CUDA_SETUP_FILE% -o"%SRC_DIR%\temp_build\cuda"
+    pushd "%SRC_DIR%\temp_build\cuda"
+
+    sc config wuauserv start= disabled
+    sc stop wuauserv
+    sc query wuauserv
+
+    start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
+    echo %errorlevel%
+
+    popd
+
+    echo Installing VS integration...
+    if "%VC_YEAR%" == "2017" (
+        xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\Common7\IDE\VC\VCTargets\BuildCustomizations"
+    )
+    if "%VC_YEAR%" == "2019" (
+        xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Microsoft\VC\v160\BuildCustomizations"
+    )
+
+    echo Installing NvToolsExt...
+    7z x %SRC_DIR%\temp_build\NvToolsExt.7z -o"%SRC_DIR%\temp_build\NvToolsExt"
+    mkdir "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\bin\x64"
+    mkdir "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\include"
+    mkdir "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\lib\x64"
+    xcopy /Y "%SRC_DIR%\temp_build\NvToolsExt\bin\x64\*.*" "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\bin\x64"
+    xcopy /Y "%SRC_DIR%\temp_build\NvToolsExt\include\*.*" "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\include"
+    xcopy /Y "%SRC_DIR%\temp_build\NvToolsExt\lib\x64\*.*" "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\lib\x64"
+
+    echo Installing cuDNN...
+    7z x %CUDNN_SETUP_FILE% -o"%SRC_DIR%\temp_build\cudnn"
+    xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\bin\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin"
+    xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\lib\x64\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\lib\x64"
+    xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\include\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\include"
+
+    echo Installing GPU driver DLLs
+    7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
+
+    echo Cleaning temp files
+    rd /s /q "%SRC_DIR%\temp_build" || ver > nul
+
+    if not exist "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
+        echo CUDA %CUDA_VERSION_STR% installed failed.
+        echo --------- setup.exe.log -------
+        type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.setup.exe.log"
+        echo --------- RunDll32.exe.log
+        type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.RunDll32.exe.log"
+        exit /b 1
+    )
 )
 
-if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
-    curl -k -L "https://ossci-windows.s3.us-east-1.amazonaws.com/builder/additional_dlls.zip" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
-    if errorlevel 1 exit /b 1
-)
+goto set_cuda_env_vars
 
-echo Installing CUDA toolkit...
-7z x %CUDA_SETUP_FILE% -o"%SRC_DIR%\temp_build\cuda"
-pushd "%SRC_DIR%\temp_build\cuda"
-
-sc config wuauserv start= disabled
-sc stop wuauserv
-sc query wuauserv
-
-start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
-echo %errorlevel%
-
-popd
-
-echo Installing VS integration...
-if "%VC_YEAR%" == "2017" (
-    xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\Common7\IDE\VC\VCTargets\BuildCustomizations"
-)
-if "%VC_YEAR%" == "2019" (
-    xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Microsoft\VC\v160\BuildCustomizations"
-)
-
-echo Installing NvToolsExt...
-7z x %SRC_DIR%\temp_build\NvToolsExt.7z -o"%SRC_DIR%\temp_build\NvToolsExt"
-mkdir "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\bin\x64"
-mkdir "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\include"
-mkdir "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\lib\x64"
-xcopy /Y "%SRC_DIR%\temp_build\NvToolsExt\bin\x64\*.*" "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\bin\x64"
-xcopy /Y "%SRC_DIR%\temp_build\NvToolsExt\include\*.*" "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\include"
-xcopy /Y "%SRC_DIR%\temp_build\NvToolsExt\lib\x64\*.*" "%ProgramFiles%\NVIDIA Corporation\NvToolsExt\lib\x64"
+:set_cuda_env_vars
 
 echo Setting up environment...
 set "PATH=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin;%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\libnvvp;%PATH%"
 set "CUDA_PATH=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%"
 set "CUDA_PATH_V%CUDA_VER_MAJOR%_%CUDA_VER_MINOR%=%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%"
 set "NVTOOLSEXT_PATH=%ProgramFiles%\NVIDIA Corporation\NvToolsExt"
-
-if not exist "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
-    echo CUDA %CUDA_VERSION_STR% installed failed.
-    echo --------- setup.exe.log -------
-    type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.setup.exe.log"
-    echo --------- RunDll32.exe.log
-    type "%SRC_DIR%\temp_build\cuda\cuda_install_logs\LOG.RunDll32.exe.log"
-    exit /b 1
-)
-
-echo Installing cuDNN...
-7z x %CUDNN_SETUP_FILE% -o"%SRC_DIR%\temp_build\cudnn"
-xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\bin\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin"
-xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\lib\x64\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\lib\x64"
-xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\include\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\include"
-
-echo Installing GPU driver DLLs
-7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
-
-echo Cleaning temp files
-rd /s /q "%SRC_DIR%\temp_build" || ver > nul
