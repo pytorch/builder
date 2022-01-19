@@ -14,6 +14,11 @@ set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
+if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
+    echo Existing CUDA vv%CUDA_VERSION_STR% installation found, skipping install
+    exit /b 0
+)
+
 if %CUDA_VER% EQU 92 goto cuda92
 if %CUDA_VER% EQU 100 goto cuda100
 if %CUDA_VER% EQU 101 goto cuda101
