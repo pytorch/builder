@@ -27,7 +27,13 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
   # NOTE: Only $PWD works on both CentOS and Ubuntu
   install_root="$PWD"
 else
-  py_dot="${DESIRED_PYTHON:0:3}"
+  # Strip everything but major.minor from DESIRED_PYTHON version
+  if [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+) ]];  then
+    py_dot="${BASH_REMATCH[0]}"
+  else
+    echo "Unexpected ${DESIRED_PYTHON} format"
+    exit 1
+  fi
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
 fi
 
