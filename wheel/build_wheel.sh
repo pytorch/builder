@@ -181,7 +181,7 @@ python setup.py bdist_wheel -d "$whl_tmp_dir"
 echo "Finished setup.py bdist_wheel at $(date)"
 
 echo "delocating wheel dependencies"
-retry pip install https://github.com/matthew-brett/delocate/archive/master.zip
+retry pip install https://github.com/matthew-brett/delocate/archive/refs/tags/0.10.2.zip
 echo "found the following wheels:"
 find $whl_tmp_dir -name "*.whl"
 echo "running delocate"
