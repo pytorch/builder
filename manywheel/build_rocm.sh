@@ -137,13 +137,9 @@ fi
 if [[ $ROCM_INT -ge 40500 ]]; then
     ROCM_SMI_DEP=/opt/rocm/rocm_smi/lib/librocm_smi64.so.4
     ROCM_SMI_SO=librocm_smi64.so.4
-    ROCTRACER_DEP=/opt/rocm/roctracer/lib/libroctracer64.so.1
-    ROCTRACER_SO=libroctracer64.so.1
 else
     ROCM_SMI_DEP=
     ROCM_SMI_SO=
-    ROCTRACER_DEP=
-    ROCTRACER_SO=
 fi
 
 #since rocm4.5, amdgpu is an added dependency
@@ -214,7 +210,7 @@ DEPS_LIST=(
     "/opt/rocm/rocrand/lib/librocrand.so.1"
     "/opt/rocm/rocsolver/lib/librocsolver.so.0"
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
-    ${ROCTRACER_DEP}
+    "/opt/rocm/roctracer/lib/libroctracer64.so.1"
     "/opt/rocm/roctracer/lib/libroctx64.so.1"
     "$LIBGOMP_PATH"
     "$LIBNUMA_PATH"
@@ -246,7 +242,7 @@ DEPS_SONAME=(
     "librocrand.so.1"
     "librocsolver.so.0"
     "librocsparse.so.0"
-    ${ROCTRACER_SO}
+    "libroctracer64.so.1"
     "libroctx64.so.1"
     "libgomp.so.1"
     "libnuma.so.1"
