@@ -48,7 +48,7 @@ if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
-pip install -q future numpy protobuf six "mkl>=2019"
+pip install -q  numpy protobuf "mkl>=2019"
 if errorlevel 1 exit /b 1
 
 if "%TEST_NIGHTLY_PACKAGE%" == "1" (
@@ -75,6 +75,10 @@ if "%CUDA_VERSION%" == "111" (
 if "%CUDA_VERSION%" == "112" (
     set "CONDA_EXTRA_ARGS=-c=nvidia"
 )
+if "%CUDA_VERSION%" == "115" (
+    set "CONDA_EXTRA_ARGS=-c=nvidia"
+)
+
 
 rmdir /s /q conda
 del miniconda.exe
@@ -90,7 +94,13 @@ if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
-call conda install %CONDA_EXTRA_ARGS% -yq future protobuf six numpy
+call conda update -n base -y -c defaults conda
+if "%PACKAGE_TYPE%" == "conda" (if "%DESIRED_PYTHON%" == "3.10"  (
+    call conda install -c=conda-forge -y cudatoolkit
+    if errorlevel 1 exit /b 1
+))
+
+call conda install %CONDA_EXTRA_ARGS% -yq  protobuf numpy
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
@@ -111,7 +121,8 @@ if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
 :: We do an update --all here since that will install the dependencies for any package that's installed offline
 call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
-if ERRORLEVEL 1 exit /b 1
+:: No need to exit here if conda update fails - this is not a critical step, the test may still suceed
+::if ERRORLEVEL 1 exit /b 1
 
 goto smoke_test
 
