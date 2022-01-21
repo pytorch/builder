@@ -100,7 +100,7 @@ if "%PACKAGE_TYPE%" == "conda" (if "%DESIRED_PYTHON%" == "3.10"  (
     if errorlevel 1 exit /b 1
 ))
 
-call conda install %CONDA_EXTRA_ARGS% -yq  protobuf numpy
+call conda install %CONDA_EXTRA_ARGS% -yq protobuf numpy
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
