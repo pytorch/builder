@@ -134,7 +134,10 @@ else
 fi
 
 #in rocm4.5, librocm_smi64 and libroctracer64 deps added
-if [[ $ROCM_INT -ge 40500 ]]; then
+if [[ $ROCM_INT -ge 50000 ]]; then
+    ROCM_SMI_DEP=/opt/rocm/rocm_smi/lib/librocm_smi64.so.5
+    ROCM_SMI_SO=librocm_smi64.so.5
+elif [[ $ROCM_INT -ge 40500 ]]; then
     ROCM_SMI_DEP=/opt/rocm/rocm_smi/lib/librocm_smi64.so.4
     ROCM_SMI_SO=librocm_smi64.so.4
 else
