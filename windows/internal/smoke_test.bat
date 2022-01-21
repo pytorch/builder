@@ -48,7 +48,7 @@ if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
-pip install -q  numpy protobuf "mkl>=2019"
+pip install -q numpy protobuf "mkl>=2019"
 if errorlevel 1 exit /b 1
 
 if "%TEST_NIGHTLY_PACKAGE%" == "1" (
