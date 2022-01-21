@@ -121,8 +121,7 @@ if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
 :: We do an update --all here since that will install the dependencies for any package that's installed offline
 call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
-:: No need to exit here if conda update fails - this is not a critical step, the test may still suceed
-::if ERRORLEVEL 1 exit /b 1
+if ERRORLEVEL 1 exit /b 1
 
 goto smoke_test
 
