@@ -13,6 +13,8 @@ set /a CUDA_VER=%CUDA_VERSION%
 set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
+set CUDNN_FOLDER="cuda"
+set CUDNN_LIB_FOLDER="lib\x64"
 
 
 if %CUDA_VER% EQU 92 goto cuda92
@@ -182,7 +184,9 @@ if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
     set "ARGS=thrust_11.5 nvcc_11.5 cuobjdump_11.5 nvprune_11.5 nvprof_11.5 cupti_11.5 cublas_11.5 cublas_dev_11.5 cudart_11.5 cufft_11.5 cufft_dev_11.5 curand_11.5 curand_dev_11.5 cusolver_11.5 cusolver_dev_11.5 cusparse_11.5 cusparse_dev_11.5 npp_11.5 npp_dev_11.5 nvrtc_11.5 nvrtc_dev_11.5 nvml_dev_11.5"
 )
 
-set CUDNN_INSTALL_ZIP=cudnn-11.3-windows-x64-v8.2.0.53.zip
+set CUDNN_FOLDER=cudnn-windows-x86_64-8.3.2.44_cuda11.5-archive
+set CUDNN_LIB_FOLDER="lib"
+set "CUDNN_INSTALL_ZIP=%CUDNN_FOLDER%.zip"
 if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
     curl -k -L "http://s3.amazonaws.com/ossci-windows/%CUDNN_INSTALL_ZIP%" --output "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%"
     if errorlevel 1 exit /b 1
@@ -239,9 +243,9 @@ if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION
 
     echo Installing cuDNN...
     7z x %CUDNN_SETUP_FILE% -o"%SRC_DIR%\temp_build\cudnn"
-    xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\bin\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin"
-    xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\lib\x64\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\lib\x64"
-    xcopy /Y "%SRC_DIR%\temp_build\cudnn\cuda\include\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\include"
+   xcopy /Y "%SRC_DIR%\temp_build\cudnn\%CUDNN_FOLDER%\bin\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin"
+   xcopy /Y "%SRC_DIR%\temp_build\cudnn\%CUDNN_FOLDER%\%CUDNN_LIB_FOLDER%\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\lib\x64"
+   xcopy /Y "%SRC_DIR%\temp_build\cudnn\%CUDNN_FOLDER%\include\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\include"
 
     echo Installing GPU driver DLLs
     7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
