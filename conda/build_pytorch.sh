@@ -369,6 +369,10 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # NS: To be removed after conda docker images are updated
     conda update -y conda-build
 
+    if [[ "$OSTYPE" == "msys" ]]; then
+      # Don't run tests on windows (they were ignored mostly anyways)
+      NO_TEST="--no-test"
+    fi
 
     echo "Calling conda-build at $(date)"
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
@@ -377,6 +381,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
          conda build -c "$ANACONDA_USER" ${ADDITIONAL_CHANNELS} \
+                     ${NO_TEST:-} \
                      --no-anaconda-upload \
                      --python "$py_ver" \
                      --output-folder "$output_folder" \
