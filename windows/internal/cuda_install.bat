@@ -196,7 +196,7 @@ if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
 @REM Cuda 8.3+ required zlib to be installed on the path
 echo Installing ZLIB dlls
 curl -k -L "http://s3.amazonaws.com/ossci-windows/zlib123dllx64.zip" --output "%SRC_DIR%\temp_build\zlib123dllx64.zip"
-7z x "%SRC_DIR%\temp_build\zlib123dllx64.zip" -o"%SRC_DIR%\temp_build\zlib"
+7z x "%SRC_DIR%\temp_build\zlib123dllx64.zip" -o "%SRC_DIR%\temp_build\zlib"
 xcopy /Y "%SRC_DIR%\temp_build\zlib\dll_x64\*.dll" "C:\Windows\System32"
 
 goto cuda_common
