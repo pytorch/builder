@@ -80,12 +80,6 @@ build:
 test:
  imports:
     - torch
- source_files:
-   - test
- commands:
-   - OMP_NUM_THREADS=4 python ./test/run_test.py || true # [not win]
-   - python ./test/run_test.py # [win]
-
 
 about:
   home: http://pytorch.org/
