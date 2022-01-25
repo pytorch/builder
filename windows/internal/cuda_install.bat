@@ -16,6 +16,8 @@ set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 set CUDNN_FOLDER="cuda"
 set CUDNN_LIB_FOLDER="lib\x64"
 
+:: Skip all of this if we already have cuda installed
+if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" goto set_cuda_env_vars
 
 if %CUDA_VER% EQU 92 goto cuda92
 if %CUDA_VER% EQU 100 goto cuda100
@@ -29,9 +31,6 @@ if %CUDA_VER% EQU 115 goto cuda115
 
 echo CUDA %CUDA_VERSION_STR% is not supported
 exit /b 1
-
-:: Skip all of this if we already have cuda installed
-if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" goto set_cuda_env_vars
 
 :cuda92
 if not exist "%SRC_DIR%\temp_build\cuda_9.2.148_win10.exe" (
