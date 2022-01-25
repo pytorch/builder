@@ -573,7 +573,7 @@ def parse_arguments():
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9'], default=None)
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
     parser.add_argument("--keep-running", action="store_true")
