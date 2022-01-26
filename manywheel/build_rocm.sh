@@ -110,16 +110,40 @@ fi;
 
 # in rocm4.1, libamd_comgr.so.1 changed to *.so.2
 # hipfft is a new package, separate from rocfft
-if [[ $ROCM_INT -ge 40100 ]]; then
+if [[ $ROCM_INT -ge 40500 ]]; then
     LIBAMDCOMGR=libamd_comgr.so.2
+    SRCLIST_PATH="/opt/rocm/rocblas/lib/library/"
+    DSTLIST_PATH="lib/library/"
     KERNELGFX906=gfx906-xnack-
     KERNELGFX908=gfx908-xnack-
+    KERNELGFX90A="Kernels.so-000-gfx90a-xnack-.hsaco"
+    KERNELGFX90A_="Kernels.so-000-gfx90a-xnack+.hsaco"
+    TENSILEGFX90A="TensileLibrary_gfx90a.co"
+    TENSILEGFX1030="TensileLibrary_gfx1030.co"
+    HIPFFT_DEP=/opt/rocm/hipfft/lib/libhipfft.so
+    HIPFFT_SO=libhipfft.so
+elif [[ $ROCM_INT -ge 40100 ]]; then
+    LIBAMDCOMGR=libamd_comgr.so.2
+    SRCLIST_PATH=
+    DSTLIST_PATH=
+    KERNELGFX906=gfx906-xnack-
+    KERNELGFX908=gfx908-xnack-
+    KERNELGFX90a=
+    KERNELGFX90a_=
+    TENSILEGFX90A=
+    TENSILEGFX1030=
     HIPFFT_DEP=/opt/rocm/hipfft/lib/libhipfft.so
     HIPFFT_SO=libhipfft.so
 else
     LIBAMDCOMGR=libamd_comgr.so.1
+    SRCLIST_PATH=
+    DSTLIST_PATH=
     KERNELGFX906=gfx906
     KERNELGFX908=gfx908
+    KERNELGFX90a=
+    KERNELGFX90a_=
+    TENSILEGFX90A=
+    TENSILEGFX1030=
     HIPFFT_DEP=
     HIPFFT_SO=
 fi;
@@ -260,10 +284,19 @@ DEPS_AUX_SRCLIST=(
     "/opt/rocm/rocblas/lib/library/Kernels.so-000-gfx900.hsaco"
     "/opt/rocm/rocblas/lib/library/Kernels.so-000-${KERNELGFX906}.hsaco"
     "/opt/rocm/rocblas/lib/library/Kernels.so-000-${KERNELGFX908}.hsaco"
+    ${SRCLIST_PATH}${KERNELGFX90A}
+    ${SRCLIST_PATH}${KERNELGFX90A_}
+    ${SRCLIST_PATH}${KERNELGFX1010}
+    ${SRCLIST_PATH}${KERNELGFX1011}
+    ${SRCLIST_PATH}${KERNELGFX1012}
+    ${SRCLIST_PATH}${KERNELGFX1030}
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx803.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx900.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx906.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx908.co"
+    ${SRCLIST_PATH}${TENSILEGFX90A}
+    ${SRCLIST_PATH}${TENSILEGFX1030}
+
     "/opt/rocm/rocblas/lib/library/$TENSILE_LIBRARY_NAME"
 )
 
@@ -272,10 +305,18 @@ DEPS_AUX_DSTLIST=(
     "lib/library/Kernels.so-000-gfx900.hsaco"
     "lib/library/Kernels.so-000-${KERNELGFX906}.hsaco"
     "lib/library/Kernels.so-000-${KERNELGFX908}.hsaco"
+    ${DSTLIST_PATH}${KERNELGFX90A}
+    ${DSTLIST_PATH}${KERNELGFX90A_}
+    ${DSTLIST_PATH}${KERNELGFX1010}
+    ${DSTLIST_PATH}${KERNELGFX1011}
+    ${DSTLIST_PATH}${KERNELGFX1012}
+    ${DSTLIST_PATH}${KERNELGFX1030}
     "lib/library/TensileLibrary_gfx803.co"
     "lib/library/TensileLibrary_gfx900.co"
     "lib/library/TensileLibrary_gfx906.co"
     "lib/library/TensileLibrary_gfx908.co"
+    ${DSTLIST_PATH}${TENSILEGFX90A}
+    ${DSTLIST_PATH}${TENSILEGFX1030}
     "lib/library/$TENSILE_LIBRARY_NAME"
 )
 
