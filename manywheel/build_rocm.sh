@@ -118,6 +118,10 @@ if [[ $ROCM_INT -ge 40500 ]]; then
     KERNELGFX908=gfx908-xnack-
     KERNELGFX90A="Kernels.so-000-gfx90a-xnack-.hsaco"
     KERNELGFX90A_="Kernels.so-000-gfx90a-xnack+.hsaco"
+    KERNELGFX1010="Kernels.so-000-gfx1010.hsaco"
+    KERNELGFX1011="Kernels.so-000-gfx1011.hsaco"
+    KERNELGFX1012="Kernels.so-000-gfx1012.hsaco"
+    KERNELGFX1030="Kernels.so-000-gfx1030.hsaco"
     TENSILEGFX90A="TensileLibrary_gfx90a.co"
     TENSILEGFX1030="TensileLibrary_gfx1030.co"
     HIPFFT_DEP=/opt/rocm/hipfft/lib/libhipfft.so
@@ -130,6 +134,10 @@ elif [[ $ROCM_INT -ge 40100 ]]; then
     KERNELGFX908=gfx908-xnack-
     KERNELGFX90a=
     KERNELGFX90a_=
+    KERNELGFX1010=
+    KERNELGFX1011=
+    KERNELGFX1012=
+    KERNELGFX1030=
     TENSILEGFX90A=
     TENSILEGFX1030=
     HIPFFT_DEP=/opt/rocm/hipfft/lib/libhipfft.so
@@ -142,6 +150,10 @@ else
     KERNELGFX908=gfx908
     KERNELGFX90a=
     KERNELGFX90a_=
+    KERNELGFX1010=
+    KERNELGFX1011=
+    KERNELGFX1012=
+    KERNELGFX1030=
     TENSILEGFX90A=
     TENSILEGFX1030=
     HIPFFT_DEP=
