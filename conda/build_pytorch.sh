@@ -159,10 +159,10 @@ fi
 ###########################################################
 if [[ "$(uname)" == 'Darwin' ]]; then
     mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
-    pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
+    pytorch_rootdir="${PYTORCH_ROOT:-${MAC_PACKAGE_WORK_DIR}/pytorch}"
 elif [[ "$OSTYPE" == "msys" ]]; then
     mkdir -p "$WIN_PACKAGE_WORK_DIR" || true
-    pytorch_rootdir="$(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch"
+    pytorch_rootdir="${PYTORCH_ROOT:-(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch}"
     git config --system core.longpaths true
     # The jobs are seperated on Windows, so we don't need to clone again.
     if [[ -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
