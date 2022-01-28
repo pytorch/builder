@@ -88,7 +88,11 @@ if [[ -z "$MAC_PACKAGE_WORK_DIR" ]]; then
     MAC_PACKAGE_WORK_DIR="$(pwd)/tmp_wheel_conda_${DESIRED_PYTHON}_$(date +%H%M%S)"
 fi
 mkdir -p "$MAC_PACKAGE_WORK_DIR" || true
-pytorch_rootdir="${PYTORCH_ROOT:-${MAC_PACKAGE_WORK_DIR}/pytorch}"
+if [[ -n ${GITHUB_ACTIONS} ]]; then
+    pytorch_rootdir="${PYTORCH_ROOT:-${MAC_PACKAGE_WORK_DIR}/pytorch}"
+else
+    pytorch_rootdir="${MAC_PACKAGE_WORK_DIR}/pytorch"
+fi
 whl_tmp_dir="${MAC_PACKAGE_WORK_DIR}/dist"
 mkdir -p "$whl_tmp_dir"
 
