@@ -102,7 +102,9 @@ else
 fi
 
 # in rocm4.0, libamdhip64.so.3 changed to *.so.4
-if [[ $ROCM_INT -ge 40000 ]]; then
+if [[ $ROCM_INT -ge 50000 ]]; then
+    LIBAMDHIP64=libamdhip64.so.5
+elif [[ $ROCM_INT -ge 40000 ]]; then
     LIBAMDHIP64=libamdhip64.so.4
 else
     LIBAMDHIP64=libamdhip64.so.3
