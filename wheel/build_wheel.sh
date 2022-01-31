@@ -165,7 +165,7 @@ esac
 # Install into a fresh env
 tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
-conda activate "$tmp_env_name"
+source activate "$tmp_env_name"
 
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
