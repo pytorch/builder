@@ -42,6 +42,8 @@ fi
 if [[ -n "$build_with_cuda" ]]; then
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
     export TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
+    export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)
+
     if [[ $CUDA_VERSION == 8.0* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1"
     elif [[ $CUDA_VERSION == 9.0* ]]; then
@@ -58,9 +60,13 @@ if [[ -n "$build_with_cuda" ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
     elif [[ $CUDA_VERSION == 11.3* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
+    elif [[ $CUDA_VERSION == 11.5* ]]; then
+        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
+        #for cuda 11.5 we use cudnn 8.3.2.44 https://docs.nvidia.com/deeplearning/cudnn/release-notes/rel_8.html
+        #which does not have single static libcudnn_static.a deliverable to link with
+        export USE_STATIC_CUDNN=0
     fi
     export NCCL_ROOT_DIR=/usr/local/cuda
-    export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)
     export USE_STATIC_NCCL=1  # links nccl statically (driven by tools/setup_helpers/nccl.py, some of the NCCL cmake files such as FindNCCL.cmake and gloo/FindNCCL.cmake)
 
     # not needed if using conda's cudatoolkit package. Uncomment to statically link a new CUDA version that's not available in conda yet
