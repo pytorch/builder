@@ -189,7 +189,7 @@ function install_113 {
 }
 
 function install_115 {
-    echo "Installing CUDA 11.5 and CuDNN 8.2"
+    echo "Installing CUDA 11.5 and CuDNN 8.3"
     rm -rf /usr/local/cuda-11.5 /usr/local/cuda
     # install CUDA 11.5.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/11.5.0/local_installers/cuda_11.5.0_495.29.05_linux.run
