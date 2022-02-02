@@ -237,6 +237,11 @@ fname_with_sha256() {
     fi
 }
 
+fname_without_so_number() {
+    LINKNAME=$(echo $1 | sed 's/\.so.*/.so/g')
+    echo "$LINKNAME"
+}
+
 make_wheel_record() {
     FPATH=$1
     if echo $FPATH | grep RECORD >/dev/null 2>&1; then
@@ -318,6 +323,14 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
             fi
             patched+=("$patchedname")
             echo "Copied $filepath to $patchedpath"
+
+            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+                linkpath=$(fname_without_so_number $destpath)
+                if [[ "$linkpath" != "$patchedpath" ]]; then
+                    ln -s $patchedpath $linkpath
+                fi
+                echo "Linked $patchedpath to $linkpath"
+            fi
         done
 
         echo "patching to fix the so names to the hashed names"
