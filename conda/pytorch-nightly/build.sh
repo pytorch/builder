@@ -76,11 +76,7 @@ if [[ -n "$build_with_cuda" ]]; then
         #which does not have single static libcudnn_static.a deliverable to link with
         export USE_STATIC_CUDNN=0
         #for cuda 11.5 include all dynamic loading libraries
-        DEPS_LIST= ($( ls usr/local/cuda/lib64/libcudnn*.so*))
-        # run patchelf to fix the so names to the hashed names
-        for ((i=0;i<${#DEPS_LIST[@]};++i)); do
-            echo "dep : ${DEPS_LIST[i]}"
-        done
+        DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so)
     fi
     export NCCL_ROOT_DIR=/usr/local/cuda
     export USE_STATIC_NCCL=1  # links nccl statically (driven by tools/setup_helpers/nccl.py, some of the NCCL cmake files such as FindNCCL.cmake and gloo/FindNCCL.cmake)
