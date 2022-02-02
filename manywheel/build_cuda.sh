@@ -259,7 +259,7 @@ DEPS_SONAME=(
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.5" ]]; then
-export USE_STATIC_CUDNN=1
+export USE_STATIC_CUDNN=0
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.11.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
@@ -309,7 +309,7 @@ rm -rf /usr/local/magma || true
 ln -s /usr/local/cuda-${CUDA_VERSION}/magma /usr/local/magma
 
 export CUDA_VERSION=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev) # 10.0.130
-export CUDA_VERSION_SHORT=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev | cut -f1,2 -d".") # 10.0
+export CUDA_VERSION_SHORT=$(ls /usr/local/cuda/lib64/libcudart.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev | cut cd-f1,2 -d".") # 10.0
 export CUDNN_VERSION=$(ls /usr/local/cuda/lib64/libcudnn.so.*|sort|tac | head -1 | rev | cut -d"." -f -3 | rev)
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
