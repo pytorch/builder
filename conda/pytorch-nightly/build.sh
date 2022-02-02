@@ -35,6 +35,16 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     exit 0
 fi
 
+DEPS_LIST=()
+# not needed if using conda's cudatoolkit package. Uncomment to statically link a new CUDA version that's not available in conda yet
+# if [[ -n "$build_with_cuda" ]]; then
+#     cuda_majmin="$(echo $CUDA_VERSION | cut -f1,2 -d'.')"
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
+#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc-builtins.so")
+# fi
+
 
 if [[ -z "$USE_CUDA" || "$USE_CUDA" == 1 ]]; then
     build_with_cuda=1
@@ -65,6 +75,9 @@ if [[ -n "$build_with_cuda" ]]; then
         #for cuda 11.5 we use cudnn 8.3.2.44 https://docs.nvidia.com/deeplearning/cudnn/release-notes/rel_8.html
         #which does not have single static libcudnn_static.a deliverable to link with
         export USE_STATIC_CUDNN=0
+        #for cuda 11.5 include all dynamic loading libraries
+        DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so*)
+
     fi
     export NCCL_ROOT_DIR=/usr/local/cuda
     export USE_STATIC_NCCL=1  # links nccl statically (driven by tools/setup_helpers/nccl.py, some of the NCCL cmake files such as FindNCCL.cmake and gloo/FindNCCL.cmake)
@@ -87,15 +100,6 @@ fname_with_sha256() {
     fi
 }
 
-DEPS_LIST=()
-# not needed if using conda's cudatoolkit package. Uncomment to statically link a new CUDA version that's not available in conda yet
-# if [[ -n "$build_with_cuda" ]]; then
-#     cuda_majmin="$(echo $CUDA_VERSION | cut -f1,2 -d'.')"
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc-builtins.so")
-# fi
 
 
 # install
