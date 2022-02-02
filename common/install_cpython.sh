@@ -5,7 +5,7 @@ PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
 
 # Python versions to be installed in /opt/$VERSION_NO
-CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.6.6 3.7.5 3.8.1 3.9.0 3.10.1"}
+CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.7.5 3.8.1 3.9.0 3.10.1"}
 
 function check_var {
     if [ -z "$1" ]; then
