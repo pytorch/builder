@@ -316,21 +316,18 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
                 cp $filepath $destpath
             fi
 
-            patchedpath=$(fname_with_sha256 $destpath)
+            # ROCm workaround for roctracer dlopens
+            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+                patchedpath=$(fname_without_so_number $destpath)
+            else
+                patchedpath=$(fname_with_sha256 $destpath)
+            fi
             patchedname=$(basename $patchedpath)
             if [[ "$destpath" != "$patchedpath" ]]; then
                 mv $destpath $patchedpath
             fi
             patched+=("$patchedname")
             echo "Copied $filepath to $patchedpath"
-
-            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
-                linkpath=$(fname_without_so_number $destpath)
-                if [[ "$linkpath" != "$patchedpath" ]]; then
-                    ln -s $patchedname $linkpath
-                fi
-                echo "Linked $patchedpath to $linkpath"
-            fi
         done
 
         echo "patching to fix the so names to the hashed names"
