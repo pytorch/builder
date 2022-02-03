@@ -274,7 +274,6 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudnn.so.8"
     "$LIBGOMP_PATH"
 )
-
 DEPS_SONAME=(
     "libcudart.so.11.0"
     "libnvToolsExt.so.1"
