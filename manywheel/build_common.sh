@@ -238,7 +238,7 @@ fname_with_sha256() {
 }
 
 fname_without_so_number() {
-    LINKNAME=$(echo $1 | sed 's/\.so.*/.so/g')
+    LINKNAME=$(echo $1 | sed -e 's/\.so.*/.so/g')
     echo "$LINKNAME"
 }
 
@@ -327,7 +327,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
             if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
                 linkpath=$(fname_without_so_number $destpath)
                 if [[ "$linkpath" != "$patchedpath" ]]; then
-                    ln -s $patchedpath $linkpath
+                    ln -s $patchedname $linkpath
                 fi
                 echo "Linked $patchedpath to $linkpath"
             fi
