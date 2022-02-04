@@ -16,5 +16,5 @@ copy "%libuv_ROOT%\bin\uv.dll" pytorch\torch\lib
 
 ::copy zlib if it exist in windows/system32
 if exist "C:\Windows\System32\zlibwapi.dll" (
-    copy "C:\Windows\System32\zlibwapi.dll"  %SP_DIR%\torch\lib
+    copy "C:\Windows\System32\zlibwapi.dll"  pytorch\torch\lib
 )
