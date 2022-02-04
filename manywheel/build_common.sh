@@ -237,6 +237,11 @@ fname_with_sha256() {
     fi
 }
 
+fname_without_so_number() {
+    LINKNAME=$(echo $1 | sed -e 's/\.so.*/.so/g')
+    echo "$LINKNAME"
+}
+
 make_wheel_record() {
     FPATH=$1
     if echo $FPATH | grep RECORD >/dev/null 2>&1; then
@@ -311,7 +316,12 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
                 cp $filepath $destpath
             fi
 
-            patchedpath=$(fname_with_sha256 $destpath)
+            # ROCm workaround for roctracer dlopens
+            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+                patchedpath=$(fname_without_so_number $destpath)
+            else
+                patchedpath=$(fname_with_sha256 $destpath)
+            fi
             patchedname=$(basename $patchedpath)
             if [[ "$destpath" != "$patchedpath" ]]; then
                 mv $destpath $patchedpath
