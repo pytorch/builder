@@ -120,9 +120,6 @@ if [[ $ROCM_INT -ge 40500 ]]; then
     KERNELGFX908=gfx908-xnack-
     KERNELGFX90A="Kernels.so-000-gfx90a-xnack-.hsaco"
     KERNELGFX90A_="Kernels.so-000-gfx90a-xnack+.hsaco"
-    KERNELGFX1010="Kernels.so-000-gfx1010.hsaco"
-    KERNELGFX1011="Kernels.so-000-gfx1011.hsaco"
-    KERNELGFX1012="Kernels.so-000-gfx1012.hsaco"
     KERNELGFX1030="Kernels.so-000-gfx1030.hsaco"
     TENSILEGFX90A="TensileLibrary_gfx90a.co"
     TENSILEGFX1030="TensileLibrary_gfx1030.co"
@@ -134,11 +131,8 @@ elif [[ $ROCM_INT -ge 40100 ]]; then
     DSTLIST_PATH=
     KERNELGFX906=gfx906-xnack-
     KERNELGFX908=gfx908-xnack-
-    KERNELGFX90a=
-    KERNELGFX90a_=
-    KERNELGFX1010=
-    KERNELGFX1011=
-    KERNELGFX1012=
+    KERNELGFX90A=
+    KERNELGFX90A_=
     KERNELGFX1030=
     TENSILEGFX90A=
     TENSILEGFX1030=
@@ -150,11 +144,8 @@ else
     DSTLIST_PATH=
     KERNELGFX906=gfx906
     KERNELGFX908=gfx908
-    KERNELGFX90a=
-    KERNELGFX90a_=
-    KERNELGFX1010=
-    KERNELGFX1011=
-    KERNELGFX1012=
+    KERNELGFX90A=
+    KERNELGFX90A_=
     KERNELGFX1030=
     TENSILEGFX90A=
     TENSILEGFX1030=
@@ -300,9 +291,6 @@ DEPS_AUX_SRCLIST=(
     "/opt/rocm/rocblas/lib/library/Kernels.so-000-${KERNELGFX908}.hsaco"
     ${SRCLIST_PATH}${KERNELGFX90A}
     ${SRCLIST_PATH}${KERNELGFX90A_}
-    ${SRCLIST_PATH}${KERNELGFX1010}
-    ${SRCLIST_PATH}${KERNELGFX1011}
-    ${SRCLIST_PATH}${KERNELGFX1012}
     ${SRCLIST_PATH}${KERNELGFX1030}
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx803.co"
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx900.co"
@@ -321,9 +309,6 @@ DEPS_AUX_DSTLIST=(
     "lib/library/Kernels.so-000-${KERNELGFX908}.hsaco"
     ${DSTLIST_PATH}${KERNELGFX90A}
     ${DSTLIST_PATH}${KERNELGFX90A_}
-    ${DSTLIST_PATH}${KERNELGFX1010}
-    ${DSTLIST_PATH}${KERNELGFX1011}
-    ${DSTLIST_PATH}${KERNELGFX1012}
     ${DSTLIST_PATH}${KERNELGFX1030}
     "lib/library/TensileLibrary_gfx803.co"
     "lib/library/TensileLibrary_gfx900.co"
