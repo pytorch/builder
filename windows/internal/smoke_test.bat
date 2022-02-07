@@ -106,19 +106,24 @@ if "%TEST_NIGHTLY_PACKAGE%" == "1" (
     goto smoke_test
 )
 
+
+set "NUMPY_PIN=^>=1.19"
+if "%DESIRED_PYTHON%" == "3.9" set "NUMPY_PIN=^>=1.20"
+
+call conda install -y ^"numpy%NUMPY_PIN%^" dataclasses typing-extensions future pyyaml six
+
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install %CONDA_EXTRA_ARGS% -y "%%i" --offline
 if ERRORLEVEL 1 exit /b 1
 
 if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
-:: We do an update --all here since that will install the dependencies for any package that's installed offline
-call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
+call conda install -y -c nvidia -c pytorch -c conda-forge cudatoolkit=%CUDA_VERSION_STR%
 if ERRORLEVEL 1 exit /b 1
 
 goto smoke_test
 
 :install_cpu_torch
-call conda install %CONDA_EXTRA_ARGS% -y cpuonly -c pytorch
+call conda install -c pytorch -y cpuonly
 if ERRORLEVEL 1 exit /b 1
 
 :smoke_test
