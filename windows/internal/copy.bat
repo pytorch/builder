@@ -13,3 +13,8 @@ copy "C:\Program Files\NVIDIA Corporation\NvToolsExt\bin\x64\nvToolsExt64_1.dll*
 copy "%CONDA_LIB_PATH%\libiomp*5md.dll" pytorch\torch\lib
 :: Should be set in build_pytorch.bat
 copy "%libuv_ROOT%\bin\uv.dll" pytorch\torch\lib
+
+::copy zlib if it exist in windows/system32
+if exist "C:\Windows\System32\zlibwapi.dll" (
+    copy "C:\Windows\System32\zlibwapi.dll"  pytorch\torch\lib
+)
