@@ -94,19 +94,19 @@ if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
+set /a CUDA_VER=%CUDA_VERSION%
+set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
+set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
+set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
+
 call conda update -n base -y -c defaults conda
 if "%PACKAGE_TYPE%" == "conda" (if "%DESIRED_PYTHON%" == "3.10"  (
-    call conda install -c=conda-forge -y cudatoolkit
+    call conda install -c=conda-forge -y cudatoolkit=%CUDA_VERSION_STR%
     if errorlevel 1 exit /b 1
 ))
 
 call conda install %CONDA_EXTRA_ARGS% -yq protobuf numpy
 if ERRORLEVEL 1 exit /b 1
-
-set /a CUDA_VER=%CUDA_VERSION%
-set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
-set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
-set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
 if "%TEST_NIGHTLY_PACKAGE%" == "1" (
     call internal\install_nightly_package.bat
