@@ -1,5 +1,6 @@
 ARG BASE_TARGET=base
-FROM nvidia/cuda:10.2-devel-ubuntu18.04 as base
+ARG GPU_IMAGE=nvidia/cuda:10.2-devel-ubuntu18.04
+FROM ${GPU_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -28,12 +29,12 @@ RUN apt-get update -y && \
     rm install_cpython.sh && \
     apt-get clean
 
-FROM base as intel
+FROM base as cpu
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
 
-FROM base as cuda
+FROM cpu as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
 ADD ./common/install_magma.sh install_magma.sh
 ENV CUDA_HOME /usr/local/cuda
@@ -75,6 +76,21 @@ FROM cuda as cuda11.5
 RUN bash ./install_cuda.sh 11.5
 RUN bash ./install_magma.sh 11.5
 
+FROM cpu as rocm
+ARG PYTORCH_ROCM_ARCH
+ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
+ENV MKLROOT /opt/intel
+ADD ./common/install_rocm.sh install_rocm.sh
+RUN apt-get update -y && \
+    apt-get install gfortran -y && \
+    apt-get clean
+
+FROM rocm as rocm4.3.1
+RUN ROCM_VERSION=4.3.1 bash ./install_rocm.sh && rm install_rocm.sh
+
+FROM rocm as rocm4.5.2
+RUN ROCM_VERSION=4.5.2 bash ./install_rocm.sh && rm install_rocm.sh
+
 FROM ${BASE_TARGET} as final
 # Install LLVM
 COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
@@ -83,7 +99,6 @@ COPY --from=openssl            /opt/openssl           /opt/openssl
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
 RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-COPY --from=intel /opt/intel /opt/intel
 # Install Anaconda
 COPY --from=conda /opt/conda /opt/conda
 # Install python
