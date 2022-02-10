@@ -380,6 +380,29 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Install the built package and run tests, unless it's for mac cross compiled arm64
     if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
+        # install dependencies before installing package
+        NUMPY_PIN=">=1.19"
+        if [[ "$py_ver" == "3.9" ]]; then
+          NUMPY_PIN=">=1.20"
+        fi
+
+        retry conda install -y "numpy${NUMPY_PIN}" dataclasses typing-extensions future pyyaml six
+
+        if [[ "$cpu_only" == 1 ]]; then
+          cuda_ver="cpu"
+        else
+          cuda_ver="cu$cuda_nodot"
+        fi
+
+        # install cpuonly or cudatoolkit explicitly
+        if [[ "$cuda_ver" == 'cpu' ]]; then
+          retry conda install -c pytorch -y cpuonly
+        else
+          toolkit_ver="${cuda_ver:2:2}.${cuda_ver:4}"
+          retry conda install -y -c nvidia -c pytorch -c conda-forge "cudatoolkit=${toolkit_ver}"
+        fi
+        
+        # install package
         conda install -y "$built_package"
 
         echo "$(date) :: Running tests"
