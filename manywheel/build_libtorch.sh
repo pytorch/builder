@@ -122,6 +122,8 @@ fi
 if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
     echo "Calling build_amd.py at $(date)"
     python tools/amd_build/build_amd.py
+    # TODO remove this work-around once pytorch sources are updated
+    export ROCclr_DIR=/opt/rocm/rocclr/lib/cmake/rocclr
 fi
 
 echo "Calling setup.py install at $(date)"
