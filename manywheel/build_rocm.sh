@@ -139,16 +139,14 @@ fi
 
 #since rocm4.5, amdgpu is an added dependency
 if [[ $ROCM_INT -ge 40500 ]]; then
+    DRM_SO=libdrm.so.2
+    DRM_AMDGPU_SO=libdrm_amdgpu.so.1
     if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
-        DRM_DEP=/opt/amdgpu/lib64/libdrm.so.2
-        DRM_SO=libdrm.so.2
-        DRM_AMDGPU_DEP=/opt/amdgpu/lib64/libdrm_amdgpu.so.1
-        DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+        DRM_DEP=/opt/amdgpu/lib64/${DRM_SO}
+        DRM_AMDGPU_DEP=/opt/amdgpu/lib64/${DRM_AMDGPU_SO}
     elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-        DRM_DEP=/usr/lib/x86_64-linux-gnu/libdrm.so.2
-        DRM_SO=libdrm.so.2
-        DRM_AMDGPU_DEP=/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1
-        DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+        DRM_DEP=/usr/lib/x86_64-linux-gnu/${DRM_SO}
+        DRM_AMDGPU_DEP=/usr/lib/x86_64-linux-gnu/${DRM_AMDGPU_SO}
     fi
 else
     DRM_DEP=
