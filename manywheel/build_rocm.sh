@@ -51,6 +51,21 @@ if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
+OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
+if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+    LIBNUMA_PATH="/usr/lib64/libnuma.so.1"
+    LIBELF_PATH="/usr/lib64/libelf.so.1"
+    LIBTINFO_PATH="/usr/lib64/libtinfo.so.5"
+    MAYBE_LIB64=lib64
+elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+    LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
+    LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
+    LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.5"
+    MAYBE_LIB64=lib
+fi
+
 # NOTE: Some ROCm versions have identical dependencies, or very close deps.
 # We conditionalize as generically as possible, capturing only what changes
 # from version to version.
@@ -73,43 +88,6 @@ else
     exit 1
 fi
 ROCM_INT=$(($ROCM_VERSION_MAJOR * 10000 + $ROCM_VERSION_MINOR * 100 + $ROCM_VERSION_PATCH))
-
-# since rocm4.5, amdgpu is an added dependency, but locations depend on OS (see next section)
-if [[ $ROCM_INT -lt 40500 ]]; then
-    DRM_DEP=
-    DRM_SO=
-    DRM_AMDGPU_DEP=
-    DRM_AMDGPU_SO=
-fi
-
-OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
-if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
-    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
-    LIBNUMA_PATH="/usr/lib64/libnuma.so.1"
-    LIBELF_PATH="/usr/lib64/libelf.so.1"
-    LIBTINFO_PATH="/usr/lib64/libtinfo.so.5"
-    MAYBE_LIB64=lib64
-    #since rocm4.5, amdgpu is an added dependency
-    if [[ $ROCM_INT -ge 40500 ]]; then
-        DRM_DEP=/opt/amdgpu/lib64/libdrm.so.2
-        DRM_SO=libdrm.so.2
-        DRM_AMDGPU_DEP=/opt/amdgpu/lib64/libdrm_amdgpu.so.1
-        DRM_AMDGPU_SO=libdrm_amdgpu.so.1
-    fi
-elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-    LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
-    LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
-    LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
-    LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.5"
-    MAYBE_LIB64=lib
-    #since rocm4.5, amdgpu is an added dependency
-    if [[ $ROCM_INT -ge 40500 ]]; then
-        DRM_DEP=/usr/lib/x86_64-linux-gnu/libdrm.so.2
-        DRM_SO=libdrm.so.2
-        DRM_AMDGPU_DEP=/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1
-        DRM_AMDGPU_SO=libdrm_amdgpu.so.1
-    fi
-fi
 
 # rocm3.8 and later use TensileLibrary.dat
 if [[ $ROCM_INT -ge 30800 ]]; then
@@ -164,6 +142,26 @@ if [[ $ROCM_INT -ge 40500 ]]; then
 else
     ROCM_SMI_DEP=
     ROCM_SMI_SO=
+fi
+
+#since rocm4.5, amdgpu is an added dependency
+if [[ $ROCM_INT -ge 40500 ]]; then
+    if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+        DRM_DEP=/opt/amdgpu/lib64/libdrm.so.2
+        DRM_SO=libdrm.so.2
+        DRM_AMDGPU_DEP=/opt/amdgpu/lib64/libdrm_amdgpu.so.1
+        DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+    elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+        DRM_DEP=/usr/lib/x86_64-linux-gnu/libdrm.so.2
+        DRM_SO=libdrm.so.2
+        DRM_AMDGPU_DEP=/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1
+        DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+    fi
+else
+    DRM_DEP=
+    DRM_SO=
+    DRM_AMDGPU_DEP=
+    DRM_AMDGPU_SO=
 fi
 
 # in rocm4.3, rocfft refactored their device libs, hipfft is a new package, separate from rocfft
