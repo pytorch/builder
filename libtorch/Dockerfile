@@ -81,15 +81,19 @@ ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 ENV MKLROOT /opt/intel
 ADD ./common/install_rocm.sh install_rocm.sh
+ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
+# gfortran needed for building magma from source for ROCm
 RUN apt-get update -y && \
     apt-get install gfortran -y && \
     apt-get clean
 
 FROM rocm as rocm4.3.1
 RUN ROCM_VERSION=4.3.1 bash ./install_rocm.sh && rm install_rocm.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM rocm as rocm4.5.2
 RUN ROCM_VERSION=4.5.2 bash ./install_rocm.sh && rm install_rocm.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final
 # Install LLVM

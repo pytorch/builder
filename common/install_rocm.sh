@@ -1,47 +1,10 @@
 #!/bin/bash
 
 # TODO upstream differences from this file is into the one in pytorch
-# - (1) check for static lib mkl
-# - (2) MKLROOT as env var
-# - (3) UBUNTU_VERSION read from /etc/os-release
-# - (4) miopen kernel packages do not make sense for wheel and libtorch builds
+# - (1) UBUNTU_VERSION read from /etc/os-release
+# - (2) miopen kernel packages do not make sense for wheel and libtorch builds
 
 set -ex
-
-# TODO (2)
-MKLROOT=${MKLROOT:-/opt/intel}
-
-install_magma() {
-    # "install" hipMAGMA into /opt/rocm/magma by copying after build
-    git clone https://bitbucket.org/icl/magma.git
-    pushd magma
-    # fix for magma_queue memory leak issue
-    git checkout c62d700d880c7283b33fb1d615d62fc9c7f7ca21
-    cp make.inc-examples/make.inc.hip-gcc-mkl make.inc
-    echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
-    # TODO (1)
-    if [[ -f "${MKLROOT}/lib/libmkl_core.a" ]]; then
-        echo 'LIB = -Wl,--start-group -lmkl_gf_lp64 -lmkl_gnu_thread -lmkl_core -Wl,--end-group -lpthread -lstdc++ -lm -lgomp -lhipblas -lhipsparse' >> make.inc
-    fi
-    echo 'LIB += -Wl,--enable-new-dtags -Wl,--rpath,/opt/rocm/lib -Wl,--rpath,$(MKLROOT)/lib -Wl,--rpath,/opt/rocm/magma/lib -ldl' >> make.inc
-    echo 'DEVCCFLAGS += --gpu-max-threads-per-block=256' >> make.inc
-    export PATH="${PATH}:/opt/rocm/bin"
-    if [[ -n "$PYTORCH_ROCM_ARCH" ]]; then
-      amdgpu_targets=`echo $PYTORCH_ROCM_ARCH | sed 's/;/ /g'`
-    else
-      amdgpu_targets=`rocm_agent_enumerator | grep -v gfx000 | sort -u | xargs`
-    fi
-    for arch in $amdgpu_targets; do
-      echo "DEVCCFLAGS += --amdgpu-target=$arch" >> make.inc
-    done
-    # hipcc with openmp flag may cause isnan() on __device__ not to be found; depending on context, compiler may attempt to match with host definition
-    sed -i 's/^FOPENMP/#FOPENMP/g' make.inc
-    make -f make.gen.hipMAGMA -j $(nproc)
-    LANG=C.UTF-8 make lib/libmagma.so -j $(nproc) MKLROOT="${MKLROOT}"
-    make testing/testing_dgemm -j $(nproc) MKLROOT="${MKLROOT}"
-    popd
-    mv magma /opt/rocm
-}
 
 ver() {
     printf "%3d%03d%03d%03d" $(echo "$1" | tr '.' ' ');
@@ -93,7 +56,7 @@ install_ubuntu() {
                    rocprofiler-dev \
                    roctracer-dev
 
-    # TODO (4)
+    # TODO (2)
     ## precompiled miopen kernels added in ROCm 3.5; search for all unversioned packages
     ## if search fails it will abort this script; use true to avoid case where search fails
     #MIOPENKERNELS=$(apt-cache search --names-only miopenkernels | awk '{print $1}' | grep -F -v . || true)
@@ -102,8 +65,6 @@ install_ubuntu() {
     #else
     #  DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-unauthenticated ${MIOPENKERNELS}
     #fi
-
-    install_magma
 
     # Cleanup
     apt-get autoclean && apt-get clean
@@ -149,8 +110,6 @@ install_centos() {
                    rocprofiler-dev \
                    roctracer-dev
 
-  install_magma
-
   # Cleanup
   yum clean all
   rm -rf /var/cache/yum
@@ -162,7 +121,7 @@ install_centos() {
 ID=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
 case "$ID" in
   ubuntu)
-    # TODO (3)
+    # TODO (1)
     UBUNTU_VERSION=$(grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"')
     install_ubuntu
     ;;

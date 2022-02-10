@@ -96,13 +96,6 @@ else
     TENSILE_LIBRARY_NAME=TensileLibrary.yaml
 fi
 
-# in rocm3.9, libamd_comgr centos path changed from lib to lib64
-if [[ $ROCM_INT -ge 30900 ]]; then
-    COMGR_LIBDIR="${MAYBE_LIB64}"
-else
-    COMGR_LIBDIR="lib"
-fi
-
 # in rocm4.0, libamdhip64.so.3 changed to *.so.4
 if [[ $ROCM_INT -ge 40000 ]]; then
     LIBAMDHIP64=libamdhip64.so.4
@@ -205,7 +198,7 @@ DEPS_LIST=(
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
-    "/opt/rocm/${COMGR_LIBDIR}/${LIBAMDCOMGR}"
+    "/opt/rocm/${MAYBE_LIB64}/${LIBAMDCOMGR}"
     ${HSAKMT_DEP}
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
