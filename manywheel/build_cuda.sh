@@ -90,6 +90,7 @@ if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
 
     export OVERRIDE_GENCODE=$override_gencode
     bash "$(dirname "$SCRIPTPATH")"/common/install_cuda.sh "${CUDA_VERSION}"
+    bash "$(dirname "$SCRIPTPATH")"/common/install_magma.sh "${CUDA_VERSION}"
 fi
 
 export TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}
