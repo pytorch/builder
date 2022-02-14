@@ -346,9 +346,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     export OPENSSL_PACKAGE=""
     export NUMPY_PACKAGE="    - numpy=1.19"
-    ADDITIONAL_CHANNELS=""
     if [[ ${py_ver} = "3.10" ]]; then
-      ADDITIONAL_CHANNELS="-c=conda-forge"
       export NUMPY_PACKAGE="    - numpy>=1.21.2"
       export OPENSSL_PACKAGE="    - openssl=1.1.1l"
     fi
@@ -388,7 +386,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
-         conda build -c "$ANACONDA_USER" ${ADDITIONAL_CHANNELS} \
+         conda build -c "$ANACONDA_USER" \
                      ${NO_TEST:-} \
                      --no-anaconda-upload \
                      --python "$py_ver" \
