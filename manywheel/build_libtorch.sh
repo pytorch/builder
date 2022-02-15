@@ -310,6 +310,14 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
                 fi
             done
         done
+
+        # copy over needed auxiliary files
+        for ((i=0;i<${#DEPS_AUX_SRCLIST[@]};++i)); do
+            srcpath=${DEPS_AUX_SRCLIST[i]}
+            dstpath=$PREFIX/${DEPS_AUX_DSTLIST[i]}
+            mkdir -p $(dirname $dstpath)
+            cp $srcpath $dstpath
+        done
     fi
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
