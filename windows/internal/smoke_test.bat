@@ -45,7 +45,7 @@ del python-amd64.exe
 curl --retry 3 -kL "%PYTHON_INSTALLER_URL%" --output python-amd64.exe
 if errorlevel 1 exit /b 1
 
-start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 TargetDir=%CD%\Python
+start /wait "" python-amd64.exe /quiet InstallAllUsers=0 PrependPath=1 Include_test=0 TargetDir=%CD%\Python
 if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
