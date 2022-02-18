@@ -22,7 +22,7 @@ ver() {
 
 if [[ $(ver $ROCM_VERSION) -ge $(ver 4.5) ]]; then
     # Map ROCm version to AMDGPU version
-    declare -A AMDGPU_VERSIONS=( ["4.5.2"]="21.40.2" )
+    declare -A AMDGPU_VERSIONS=( ["4.5.2"]="21.40.2" ["5.0"]="21.50" )
 
     # Add amdgpu repository
     amdgpu_baseurl="https://repo.radeon.com/amdgpu/${AMDGPU_VERSIONS[$ROCM_VERSION]}/rhel/7.9/main/x86_64"
