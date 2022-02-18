@@ -8,9 +8,10 @@ set -eux -o pipefail
 #    this is currently not true)
 # 4. Standard Python imports work
 # 5. MKL is available everywhere except for MacOS wheels
-# 6. CUDA is setup correctly and does not hang
-# 7. Magma is available for CUDA builds
-# 8. CuDNN is available for CUDA builds
+# 6. XNNPACK is available everywhere except for MacOS wheels
+# 7. CUDA is setup correctly and does not hang
+# 8. Magma is available for CUDA builds
+# 9. CuDNN is available for CUDA builds
 #
 # This script needs the env variables DESIRED_PYTHON, DESIRED_CUDA,
 # DESIRED_DEVTOOLSET and PACKAGE_TYPE
@@ -326,6 +327,21 @@ else
   fi
 fi
 
+###############################################################################
+# Check for XNNPACK
+###############################################################################
+
+if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+  echo "Checking that XNNPACK is available"
+  build_and_run_example_cpp check-torch-xnnpack
+else
+  if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
+    echo "Checking that XNNPACK is available"
+    pushd /tmp
+    python -c 'import torch.backends.xnnpack; exit(0 if torch.backends.xnnpack.enabled else 1)'
+    popd
+  fi
+fi
 
 ###############################################################################
 # Check CUDA configured correctly
