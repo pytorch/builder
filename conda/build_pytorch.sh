@@ -344,13 +344,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     rm -rf "$output_folder"
     mkdir "$output_folder"
 
-    export OPENSSL_PACKAGE=""
-    export NUMPY_PACKAGE="    - numpy=1.19"
-    if [[ ${py_ver} = "3.10" ]]; then
-      export NUMPY_PACKAGE="    - numpy>=1.21.2"
-      export OPENSSL_PACKAGE="    - openssl=1.1.1l"
-    fi
-
     # We need to build the compiler activation scripts first on Windows
     if [[ "$OSTYPE" == "msys" ]]; then
         vs_package="vs$VC_YEAR"
