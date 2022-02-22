@@ -223,7 +223,7 @@ fname_with_sha256() {
     HASH=$(sha256sum $1 | cut -c1-8)
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
-    if [[ $BASENAME == "libnvrtc-builtins.so" ]]; then
+    if [[ $BASENAME == "libnvrtc-builtins.so" || $BASENAME == "libcudnn"* ]]; then
         echo $1
     else
         INITNAME=$(echo $BASENAME | cut -f1 -d".")
