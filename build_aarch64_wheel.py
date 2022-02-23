@@ -143,6 +143,12 @@ class RemoteHost:
         self.scp_download_file(tmp_file, local_file)
         self.run_ssh_cmd(["rm", tmp_file])
 
+    def download_wheel(self, remote_file: str, local_file: Optional[str] = None) -> None:
+        if self.using_docker() and local_file is None:
+            basename = os.path.basename(remote_file)
+            local_file = basename.replace("-linux_aarch64.whl", "-manylinux2014_aarch64.whl")
+        self.download_file(remote_file, local_file)
+
     def list_dir(self, path: str) -> List[str]:
         return self.check_output(["ls", "-1", path]).split("\n")
 
@@ -278,7 +284,7 @@ def build_torchvision(host: RemoteHost, *,
     embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
 
     print('Copying TorchVision wheel')
-    host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
+    host.download_wheel(os.path.join('vision', 'dist', vision_wheel_name))
     print("Delete vision checkout")
     host.run_cmd("rm -rf vision")
 
@@ -317,7 +323,7 @@ def build_torchtext(host: RemoteHost, *,
     embed_libgomp(host, use_conda, os.path.join('text', 'dist', wheel_name))
 
     print('Copying TorchText wheel')
-    host.download_file(os.path.join('text', 'dist', wheel_name))
+    host.download_wheel(os.path.join('text', 'dist', wheel_name))
 
     return wheel_name
 
@@ -354,7 +360,7 @@ def build_torchaudio(host: RemoteHost, *,
     embed_libgomp(host, use_conda, os.path.join('audio', 'dist', wheel_name))
 
     print('Copying TorchAudio wheel')
-    host.download_file(os.path.join('audio', 'dist', wheel_name))
+    host.download_wheel(os.path.join('audio', 'dist', wheel_name))
 
     return wheel_name
 
@@ -438,7 +444,7 @@ def start_build(host: RemoteHost, *,
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
-    host.download_file(os.path.join('pytorch', 'dist', pytorch_wheel_name))
+    host.download_wheel(os.path.join('pytorch', 'dist', pytorch_wheel_name))
 
     print('Installing PyTorch wheel')
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
