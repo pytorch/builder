@@ -196,7 +196,7 @@ def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
     else:
         install_condaforge(host)
         # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
-        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.5.0")
+        host.run_cmd(f"conda install -y python={python_version} numpy cmake>=3.13 pkg-config pyyaml setuptools=59.5.0")
 
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
