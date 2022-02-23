@@ -344,7 +344,7 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.10.1": ("0.10.1", "rc1"),
                                       "v1.10.2": ("0.10.2", "rc1"),
                                   })
-    print('Building TorchText wheel')
+    print('Building TorchAudio wheel')
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
