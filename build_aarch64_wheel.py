@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
+# This script builids and test AARCH64 wheels using EC2.
+# To generate binaries for the release follow these steps:
+# 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
+# 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.7 --branch <RCtag>
+
+
 import boto3
 import os
 import subprocess
 import sys
 import time
 from typing import Dict, List, Optional, Tuple, Union
+
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
