@@ -167,7 +167,8 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 elif [[ "$OSTYPE" == "msys" ]]; then
     mkdir -p "$WIN_PACKAGE_WORK_DIR" || true
     if [[ -n ${GITHUB_ACTIONS} ]]; then
-        pytorch_rootdir="${PYTORCH_ROOT:-(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch}"
+        pytorch_rootdir="${PYTORCH_ROOT:-(realpath ${WIN_PACKAGE_WORK_DIR})\\pytorch}"
+        pytorch_rootdir=$(cygpath -m "${pytorch_rootdir}")
     else
         pytorch_rootdir="$(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch"
     fi
