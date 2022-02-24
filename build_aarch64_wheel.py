@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# This script builids and test AARCH64 wheels using EC2.
+# This script is for building  AARCH64 wheels using AWS EC2 instances.
 # To generate binaries for the release follow these steps:
 # 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
 # 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
