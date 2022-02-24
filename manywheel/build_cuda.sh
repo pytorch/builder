@@ -272,6 +272,8 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
     "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
     "/usr/local/cuda/lib64/libcudnn.so.8"
+    "/usr/local/cuda/lib64/libcublas.so.11"
+    "/usr/local/cuda/lib64/libcublasLt.so.11"
     "$LIBGOMP_PATH"
 )
 DEPS_SONAME=(
@@ -286,6 +288,8 @@ DEPS_SONAME=(
     "libcudnn_ops_infer.so.8"
     "libcudnn_ops_train.so.8"
     "libcudnn.so.8"
+    "libcublas.so.11"
+    "libcublasLt.so.11"
     "libgomp.so.1"
 )
 
