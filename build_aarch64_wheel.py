@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
+# This script is for building  AARCH64 wheels using AWS EC2 instances.
+# To generate binaries for the release follow these steps:
+# 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
+# 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.7 --branch <RCtag>
+
+
 import boto3
 import os
 import subprocess
 import sys
 import time
 from typing import Dict, List, Optional, Tuple, Union
+
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
@@ -50,7 +58,16 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
                                 SecurityGroups=['ssh-allworld'],
                                 KeyName=key_name,
                                 MinCount=1,
-                                MaxCount=1)[0]
+                                MaxCount=1,
+                                BlockDeviceMappings=[
+                                    {
+                                        'DeviceName': '/dev/sda1',
+                                        'Ebs': {
+                                            'VolumeSize': 50,
+                                            'VolumeType': 'standard'
+                                        }
+                                    }
+                                ])[0]
     print(f'Create instance {inst.id}')
     inst.wait_until_running()
     running_inst = ec2_instances_by_id(inst.id)
