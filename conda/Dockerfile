@@ -43,29 +43,9 @@ FROM base as cuda
 RUN rm -rf /usr/local/cuda-*
 ADD ./common/install_cuda.sh install_cuda.sh
 
-FROM cuda as cuda9.2
-RUN bash ./install_cuda.sh 9.2
-ENV DESIRED_CUDA=9.2
-
-FROM cuda as cuda10.1
-RUN bash ./install_cuda.sh 10.1
-ENV DESIRED_CUDA=10.1
-
 FROM cuda as cuda10.2
 RUN bash ./install_cuda.sh 10.2
 ENV DESIRED_CUDA=10.2
-
-FROM cuda as cuda11.0
-RUN bash ./install_cuda.sh 11.0
-ENV DESIRED_CUDA=11.0
-
-FROM cuda as cuda11.1
-RUN bash ./install_cuda.sh 11.1
-ENV DESIRED_CUDA=11.1
-
-FROM cuda as cuda11.2
-RUN bash ./install_cuda.sh 11.2
-ENV DESIRED_CUDA=11.2
 
 FROM cuda as cuda11.3
 RUN bash ./install_cuda.sh 11.3
@@ -81,12 +61,7 @@ ADD ./common/install_mnist.sh install_mnist.sh
 RUN bash ./install_mnist.sh
 
 FROM base as all_cuda
-COPY --from=cuda9.2   /usr/local/cuda-9.2  /usr/local/cuda-9.2
-COPY --from=cuda10.1  /usr/local/cuda-10.1 /usr/local/cuda-10.1
 COPY --from=cuda10.2  /usr/local/cuda-10.2 /usr/local/cuda-10.2
-COPY --from=cuda11.0  /usr/local/cuda-11.0 /usr/local/cuda-11.0
-COPY --from=cuda11.1  /usr/local/cuda-11.1 /usr/local/cuda-11.1
-COPY --from=cuda11.2  /usr/local/cuda-11.2 /usr/local/cuda-11.2
 COPY --from=cuda11.3  /usr/local/cuda-11.3 /usr/local/cuda-11.3
 COPY --from=cuda11.5  /usr/local/cuda-11.5 /usr/local/cuda-11.5
 

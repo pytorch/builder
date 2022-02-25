@@ -41,14 +41,6 @@ IF "%CUVER_NODOT%" == "110" (
   set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80"
 )
 
-IF "%CUVER_NODOT%" == "111" (
-  set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
-)
-
-IF "%CUVER_NODOT%" == "112" (
-  set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
-)
-
 IF "%CUVER_NODOT%" == "113" (
   set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
 )

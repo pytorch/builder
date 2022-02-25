@@ -2,7 +2,6 @@
 
 set -ex
 
-
 function install_102 {
     echo "Installing CUDA 10.2 and CuDNN"
     rm -rf /usr/local/cuda-10.2 /usr/local/cuda

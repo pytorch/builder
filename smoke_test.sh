@@ -133,13 +133,6 @@ which python
 #  retry curl "https://download.pytorch.org/whl/nightly/$DESIRED_CUDA/torch_nightly.html" -v
 #fi
 
-# CUDA Toolkit 11.1 and 11.2 are both in nvidia
-if [[ "$DESIRED_CUDA" == cu111 || "$DESIRED_CUDA" == cu112 ]]; then
-  EXTRA_CONDA_FLAGS="-c=nvidia"
-elif
-  EXTRA_CONDA_FLAGS=""
-fi
-
 # Install the package for the requested date
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   mkdir tmp_libtorch
@@ -156,7 +149,7 @@ elif [[ "$PACKAGE_TYPE" == 'conda' ]]; then
 	    retry conda install -yq -c pytorch-nightly "$package_name_and_version" cpuonly
 	fi
   else
-    retry conda install -yq ${EXTRA_CONDA_FLAGS} -c pytorch-nightly "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
+    retry conda install -yq -c pytorch-nightly "cudatoolkit=$CUDA_VERSION_SHORT" "$package_name_and_version"
   fi
 else
   # We need to upgrade pip now that we have '+cuver' in the package name, as
