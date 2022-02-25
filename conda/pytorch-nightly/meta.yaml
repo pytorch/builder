@@ -16,20 +16,20 @@ requirements:
     - python
     - setuptools
     - pyyaml
-    - mkl=2020.2 # [x86_64]
     - mkl-include # [x86_64]
+    - mkl=2020.2 # [x86_64 and (not win or py <= 39)]
+    - mkl=2021.4 # [x86_64 and win and py >= 310]
     - typing_extensions
     - dataclasses # [py36]
     - ninja
     - libuv # [win]
     - libuv # [unix]
     - pkg-config # [unix]
+    - numpy=1.19 # [py <= 39]
+    - numpy>=1.21.2 # [py >= 310]
+    - openssl=1.1.1l # [py >= 310 and linux]
 {{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
 {{ environ.get('MAGMA_PACKAGE', '') }}
-# Conda has some pretty unpredictable behavior when it comes to channel priority
-# so to be safe on which numpy version we want we default to 1.19
-{{ environ.get('NUMPY_PACKAGE', '    - numpy=1.19') }}
-{{ environ.get('OPENSSL_PACKAGE', '') }}
 
   run:
     - python

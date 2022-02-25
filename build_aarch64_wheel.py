@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 
+# This script is for building  AARCH64 wheels using AWS EC2 instances.
+# To generate binaries for the release follow these steps:
+# 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
+# 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.7 --branch <RCtag>
+
+
 import boto3
 import os
 import subprocess
 import sys
 import time
 from typing import Dict, List, Optional, Tuple, Union
+
 
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
@@ -50,7 +58,16 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
                                 SecurityGroups=['ssh-allworld'],
                                 KeyName=key_name,
                                 MinCount=1,
-                                MaxCount=1)[0]
+                                MaxCount=1,
+                                BlockDeviceMappings=[
+                                    {
+                                        'DeviceName': '/dev/sda1',
+                                        'Ebs': {
+                                            'VolumeSize': 50,
+                                            'VolumeType': 'standard'
+                                        }
+                                    }
+                                ])[0]
     print(f'Create instance {inst.id}')
     inst.wait_until_running()
     running_inst = ec2_instances_by_id(inst.id)
@@ -142,6 +159,12 @@ class RemoteHost:
         self.run_ssh_cmd(["docker", "cp", f"{self.container_id}:/root/{remote_file}", tmp_file])
         self.scp_download_file(tmp_file, local_file)
         self.run_ssh_cmd(["rm", tmp_file])
+
+    def download_wheel(self, remote_file: str, local_file: Optional[str] = None) -> None:
+        if self.using_docker() and local_file is None:
+            basename = os.path.basename(remote_file)
+            local_file = basename.replace("-linux_aarch64.whl", "-manylinux2014_aarch64.whl")
+        self.download_file(remote_file, local_file)
 
     def list_dir(self, path: str) -> List[str]:
         return self.check_output(["ls", "-1", path]).split("\n")
@@ -258,6 +281,7 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.10.0": ("0.11.1", "rc1"),
                                       "v1.10.1": ("0.11.2", "rc1"),
                                       "v1.10.2": ("0.11.3", "rc1"),
+                                      "v1.11.0": ("0.12.0", "rc1"),
                                   })
     print('Building TorchVision wheel')
     build_vars = ""
@@ -278,7 +302,7 @@ def build_torchvision(host: RemoteHost, *,
     embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
 
     print('Copying TorchVision wheel')
-    host.download_file(os.path.join('vision', 'dist', vision_wheel_name))
+    host.download_wheel(os.path.join('vision', 'dist', vision_wheel_name))
     print("Delete vision checkout")
     host.run_cmd("rm -rf vision")
 
@@ -300,6 +324,7 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.10.0": ("0.11.0", "rc2"),
                                       "v1.10.1": ("0.11.1", "rc1"),
                                       "v1.10.2": ("0.11.2", "rc1"),
+                                      "v1.11.0": ("0.12.0", "rc1"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -317,7 +342,7 @@ def build_torchtext(host: RemoteHost, *,
     embed_libgomp(host, use_conda, os.path.join('text', 'dist', wheel_name))
 
     print('Copying TorchText wheel')
-    host.download_file(os.path.join('text', 'dist', wheel_name))
+    host.download_wheel(os.path.join('text', 'dist', wheel_name))
 
     return wheel_name
 
@@ -337,8 +362,9 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.10.0": ("0.10.0", "rc5"),
                                       "v1.10.1": ("0.10.1", "rc1"),
                                       "v1.10.2": ("0.10.2", "rc1"),
+                                      "v1.11.0": ("0.11.0", "rc1"),
                                   })
-    print('Building TorchText wheel')
+    print('Building TorchAudio wheel')
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
@@ -354,7 +380,7 @@ def build_torchaudio(host: RemoteHost, *,
     embed_libgomp(host, use_conda, os.path.join('audio', 'dist', wheel_name))
 
     print('Copying TorchAudio wheel')
-    host.download_file(os.path.join('audio', 'dist', wheel_name))
+    host.download_wheel(os.path.join('audio', 'dist', wheel_name))
 
     return wheel_name
 
@@ -438,7 +464,7 @@ def start_build(host: RemoteHost, *,
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
-    host.download_file(os.path.join('pytorch', 'dist', pytorch_wheel_name))
+    host.download_wheel(os.path.join('pytorch', 'dist', pytorch_wheel_name))
 
     print('Installing PyTorch wheel')
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")

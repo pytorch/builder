@@ -227,14 +227,20 @@ fname_with_sha256() {
     DIRNAME=$(dirname $1)
     BASENAME=$(basename $1)
     # Do not rename nvrtc-builtins.so as they are dynamically loaded
-    # by libnvrts.so
-    if [[ $BASENAME == "libnvrtc-builtins.s"* || $BASENAME == "libcudnn"* ]]; then
+    # by libnvrtc.so
+    # Similarly don't mangle libcudnn and libcublas library names
+    if [[ $BASENAME == "libnvrtc-builtins.s"* || $BASENAME == "libcudnn"* || $BASENAME == "libcublas"*  ]]; then
         echo $1
     else
         INITNAME=$(echo $BASENAME | cut -f1 -d".")
         ENDNAME=$(echo $BASENAME | cut -f 2- -d".")
         echo "$DIRNAME/$INITNAME-$HASH.$ENDNAME"
     fi
+}
+
+fname_without_so_number() {
+    LINKNAME=$(echo $1 | sed -e 's/\.so.*/.so/g')
+    echo "$LINKNAME"
 }
 
 make_wheel_record() {
@@ -311,7 +317,12 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
                 cp $filepath $destpath
             fi
 
-            patchedpath=$(fname_with_sha256 $destpath)
+            # ROCm workaround for roctracer dlopens
+            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+                patchedpath=$(fname_without_so_number $destpath)
+            else
+                patchedpath=$(fname_with_sha256 $destpath)
+            fi
             patchedname=$(basename $patchedpath)
             if [[ "$destpath" != "$patchedpath" ]]; then
                 mv $destpath $patchedpath

@@ -121,6 +121,11 @@ if NOT "%build_with_cuda%" == "" (
     :: cupti library file name changes aggressively, bundle it to avoid
     :: potential file name mismatch.
     copy "%CUDA_PATH%\extras\CUPTI\lib64\cupti64_*.dll*" %SP_DIR%\torch\lib
+
+    ::copy zlib if it exist in windows/system32
+    if exist "C:\Windows\System32\zlibwapi.dll" (
+        copy "C:\Windows\System32\zlibwapi.dll"  %SP_DIR%\torch\lib
+    )
 )
 
 exit /b 0

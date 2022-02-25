@@ -344,15 +344,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     rm -rf "$output_folder"
     mkdir "$output_folder"
 
-    export OPENSSL_PACKAGE=""
-    export NUMPY_PACKAGE="    - numpy=1.19"
-    ADDITIONAL_CHANNELS=""
-    if [[ ${py_ver} = "3.10" ]]; then
-      ADDITIONAL_CHANNELS="-c=conda-forge"
-      export NUMPY_PACKAGE="    - numpy>=1.21.2"
-      export OPENSSL_PACKAGE="    - openssl=1.1.1l"
-    fi
-
     # We need to build the compiler activation scripts first on Windows
     if [[ "$OSTYPE" == "msys" ]]; then
         vs_package="vs$VC_YEAR"
@@ -388,7 +379,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
-         conda build -c "$ANACONDA_USER" ${ADDITIONAL_CHANNELS} \
+         conda build -c "$ANACONDA_USER" \
                      ${NO_TEST:-} \
                      --no-anaconda-upload \
                      --python "$py_ver" \

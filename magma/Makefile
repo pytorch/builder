@@ -2,7 +2,6 @@ SHELL=/usr/bin/env bash
 
 DESIRED_CUDA ?= 11.1
 PACKAGE_NAME ?= magma-cuda111
-CUDA_POINTER_ATTR_PATCH ?=
 CUDA_ARCH_LIST ?= -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
 
 DOCKER_RUN = set -eou pipefail; docker run --rm -i \
@@ -10,7 +9,6 @@ DOCKER_RUN = set -eou pipefail; docker run --rm -i \
 	-w /builder \
 	-e DESIRED_CUDA=${DESIRED_CUDA} \
 	-e PACKAGE_NAME=${PACKAGE_NAME} \
-	-e CUDA_POINTER_ATTR_PATCH=${CUDA_POINTER_ATTR_PATCH} \
 	-e CUDA_ARCH_LIST="${CUDA_ARCH_LIST}" \
 	"pytorch/conda-builder:cuda${DESIRED_CUDA}" \
 	magma/build_magma.sh
@@ -33,7 +31,6 @@ clean:
 .PHONY: magma-cuda115
 magma-cuda115: DESIRED_CUDA := 11.5
 magma-cuda115: PACKAGE_NAME := magma-cuda115
-magma-cuda115: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
 magma-cuda115: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
 magma-cuda115:
 	$(DOCKER_RUN)
@@ -41,7 +38,6 @@ magma-cuda115:
 .PHONY: magma-cuda113
 magma-cuda113: DESIRED_CUDA := 11.3
 magma-cuda113: PACKAGE_NAME := magma-cuda113
-magma-cuda113: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
 magma-cuda113: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
 magma-cuda113:
 	$(DOCKER_RUN)
@@ -49,7 +45,6 @@ magma-cuda113:
 .PHONY: magma-cuda112
 magma-cuda112: DESIRED_CUDA := 11.2
 magma-cuda112: PACKAGE_NAME := magma-cuda112
-magma-cuda112: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
 magma-cuda112: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
 magma-cuda112:
 	$(DOCKER_RUN)
@@ -57,7 +52,6 @@ magma-cuda112:
 .PHONY: magma-cuda111
 magma-cuda111: DESIRED_CUDA := 11.1
 magma-cuda111: PACKAGE_NAME := magma-cuda111
-magma-cuda111: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
 magma-cuda111: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
 magma-cuda111:
 	$(DOCKER_RUN)
@@ -65,7 +59,6 @@ magma-cuda111:
 .PHONY: magma-cuda110
 magma-cuda110: DESIRED_CUDA := 11.0
 magma-cuda110: PACKAGE_NAME := magma-cuda110
-magma-cuda110: CUDA_POINTER_ATTR_PATCH := "     - cudaPointerAttributes.patch"
 magma-cuda110: CUDA_ARCH_LIST += -gencode arch=compute_80,code=sm_80
 magma-cuda110:
 	$(DOCKER_RUN)
