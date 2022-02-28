@@ -72,7 +72,6 @@ build:
     - USE_MKLDNN # [unix]
     - USE_NNPACK # [unix]
     - USE_QNNPACK # [unix]
-    - USE_WHOLE_CUDNN # [unix]
     - BUILD_TEST # [unix]
     - USE_PYTORCH_METAL_EXPORT # [osx]
     - USE_COREML_DELEGATE # [osx]
