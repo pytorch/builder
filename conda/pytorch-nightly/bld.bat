@@ -21,15 +21,7 @@ set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%desired_cuda%
 set CUDA_BIN_PATH=%CUDA_PATH%\bin
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0
-if "%desired_cuda%" == "8.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1
-if "%desired_cuda%" == "9.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;7.0
-if "%desired_cuda%" == "9.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0
-if "%desired_cuda%" == "10.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
-if "%desired_cuda%" == "10.1" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
 if "%desired_cuda%" == "10.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
-if "%desired_cuda%" == "11.0" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0
-if "%desired_cuda%" == "11.1" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
-if "%desired_cuda%" == "11.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
 if "%desired_cuda%" == "11.3" (
     set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
@@ -62,8 +54,6 @@ IF "%USE_SCCACHE%" == "1" (
 IF "%build_with_cuda%" == "" goto cuda_end
 
 set MAGMA_VERSION=2.5.4
-if "%desired_cuda%" == "9.2" set MAGMA_VERSION=2.5.2
-if "%desired_cuda%" == "10.0" set MAGMA_VERSION=2.5.2
 
 curl https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_cuda%desired_cuda_nodot%_release.7z -k -O
 7z x -aoa magma_%MAGMA_VERSION%_cuda%desired_cuda_nodot%_release.7z -omagma_cuda%desired_cuda_nodot%_release
@@ -71,10 +61,6 @@ set MAGMA_HOME=%cd%\magma_cuda%desired_cuda_nodot%_release
 
 set "PATH=%CUDA_BIN_PATH%;%PATH%"
 
-if "%desired_cuda_nodot%" == "80" (
-    :: Only if you use Ninja with CUDA 8
-    set "CUDAHOSTCXX=%VS140COMNTOOLS%\..\..\VC\bin\amd64\cl.exe"
-)
 
 :: randomtemp is used to resolve the intermittent build error related to CUDA.
 :: code: https://github.com/peterjc123/randomtemp-rust

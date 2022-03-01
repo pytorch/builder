@@ -46,7 +46,7 @@ RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
 RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 
 FROM base as cuda
-ARG BASE_CUDA_VERSION=10.1
+ARG BASE_CUDA_VERSION=10.2
 # Install CUDA
 ADD ./common/install_cuda.sh install_cuda.sh
 RUN bash ./install_cuda.sh ${BASE_CUDA_VERSION} && rm install_cuda.sh
@@ -64,7 +64,7 @@ RUN bash ./install_patchelf.sh && rm install_patchelf.sh
 RUN cp $(which patchelf) /patchelf
 
 FROM base as magma
-ARG BASE_CUDA_VERSION=10.1
+ARG BASE_CUDA_VERSION=10.2
 # Install magma
 ADD ./common/install_magma.sh install_magma.sh
 RUN bash ./install_magma.sh ${BASE_CUDA_VERSION} && rm install_magma.sh

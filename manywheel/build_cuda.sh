@@ -57,20 +57,13 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    11.[1235])
+    11.[35])
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
-        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-        ;;
-    11.0)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     10.*)
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-        ;;
-    9.*)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         ;;
     *)
         echo "unknown cuda version $CUDA_VERSION"
@@ -114,71 +107,7 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 fi
 
-if [[ $CUDA_VERSION == "9.0" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.9.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.9.0"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.9.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.9.0"
-    "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "9.2" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.9.2"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.9.2"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.9.2"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.9.2"
-    "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "10.0" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.10.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.10.0"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.10.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.10.0"
-    "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "10.1" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.10.1"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.10.1"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.10.1"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.10.1"
-    "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "10.2" ]]; then
+if [[ $CUDA_VERSION == "10.2" ]]; then
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.10.2"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
@@ -192,54 +121,6 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.10.2"
     "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "11.0" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.0"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.11.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.11.0"
-    "libnvrtc-builtins.so"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "11.1" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.0"   # CUDA 11.1 uses libcudart11.0 for backwards compat
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.1"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.1" # CUDA 11.+ searches for versioned builtins library
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.11.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.11.1"
-    "libnvrtc-builtins.so.11.1"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "11.2" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.2"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.2"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.11.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.11.2"
-    "libnvrtc-builtins.so.11.2"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.3" ]]; then
