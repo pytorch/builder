@@ -20,14 +20,7 @@ ln -s "$CUDA_DIR" /usr/local/cuda
 # Using nvcc instead of deducing from cudart version since it's unreliable (was 110 for cuda11.1 and 11.2)
 CUDA_VERSION=$(nvcc --version | sed -n 4p | cut -f5 -d" " | cut -f1 -d",")
 if [[ "$OSTYPE" == "msys" ]]; then
-    # we want CUDNN_VERSION=8.1 for CUDA 11.2, not just 8
-    if [[ "$CUDA_VERSION" == '11.2*' ]]; then
-        CUDNN_MAJOR=$(find /usr/local/cuda/ -name cudnn_version.h -exec grep 'define CUDNN_MAJOR' {} + | cut -d' ' -f3)
-        CUDNN_MINOR=$(find /usr/local/cuda/ -name cudnn_version.h -exec grep 'define CUDNN_MINOR' {} + | cut -d' ' -f3)
-        CUDNN_VERSION=$CUDNN_MAJOR.$CUDNN_MINOR
-    else
-        CUDNN_VERSION=$(find /usr/local/cuda/bin/cudnn64*.dll | head -1 | tr '._' ' ' | cut -d ' ' -f2)
-    fi
+    CUDNN_VERSION=$(find /usr/local/cuda/bin/cudnn64*.dll | head -1 | tr '._' ' ' | cut -d ' ' -f2)
 else
     CUDNN_VERSION=$(find /usr/local/cuda/lib64/libcudnn.so.* | sort | tac | head -1 | rev | cut -d"." -f -3 | rev)
 fi

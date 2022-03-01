@@ -273,35 +273,9 @@ else
     elif [[ "$desired_cuda" == "11.3" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.3,<11.4 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda113 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.2" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.2,<11.3 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda112 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.1" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.1,<11.2 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda111 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.0" ]]; then
-        # cudatoolkit == 11.0.221 is bugged and gives a libcublas error
-        # see: https://github.com/pytorch/pytorch/issues/51080
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.0,<11.0.221 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda110 # [not osx and not win]"
     elif [[ "$desired_cuda" == "10.2" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.2,<10.3 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda102 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "10.1" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.1,<10.2 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda101 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "10.0" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=10.0,<10.1 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda100 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "9.2" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.2,<9.3 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda92 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "9.0" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=9.0,<9.1 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda90 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "8.0" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=8.0,<8.1 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda80 # [not osx and not win]"
     else
         echo "unhandled desired_cuda: $desired_cuda"
         exit 1
