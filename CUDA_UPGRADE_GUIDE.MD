@@ -22,7 +22,7 @@ Package availability to validate before starting upgrade process :
 https://developer.download.nvidia.com/compute/cuda/11.5.0/local_installers/cuda_11.5.0_495.29.05_linux.run
 https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installers/11.5/
 
-2) CUDA is available on conda via nvidia chanell : https://anaconda.org/nvidia/cuda/files
+2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
 
 3) CudaToolkit is availbale on conda via nvidia chanell : https://anaconda.org/nvidia/cudatoolkit/files
 
