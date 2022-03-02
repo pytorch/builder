@@ -93,6 +93,11 @@ set CXX=sccache-cl
 
 :sccache_end
 
+:: Windows conda builds tend to fail when including zip files and they're
+:: mostly used for tests anyways so let's just go ahead and delete them
+:: See https://github.com/pytorch/pytorch/issues/73339 for more context
+del /S %PREFIX%\*.zip
+
 python setup.py install
 if errorlevel 1 exit /b 1
 
