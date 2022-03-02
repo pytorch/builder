@@ -1,6 +1,6 @@
 # CUDA Upgrade Guide/Runbook
 
-So you wanna upgrade PyTorch to support a new CUDA? Follow these steps in order! They are adapted from the CUDA 11.5, 11.3 and CUDA 11.2 processes.
+So you wanna upgrade PyTorch to support a new CUDA? Follow these steps in order! They are adapted from previous CUDA upgrade processes.
 
 ## 0. Before starting upgrade process
 
