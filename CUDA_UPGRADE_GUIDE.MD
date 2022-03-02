@@ -24,7 +24,7 @@ https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installe
 
 2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
 
-3) CudaToolkit is availbale on conda via nvidia chanell : https://anaconda.org/nvidia/cudatoolkit/files
+3) CudaToolkit is available on conda via nvidia channel: https://anaconda.org/nvidia/cudatoolkit/files
 
 4) CUDA with CUDNN is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
    Following example is for cuda 11.5: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/11.5.1/ubuntu2004/runtime
