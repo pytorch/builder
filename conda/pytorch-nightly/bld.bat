@@ -118,6 +118,7 @@ if NOT "%build_with_cuda%" == "" (
 :: Windows conda builds tend to fail when including zip files and they're
 :: mostly used for tests anyways so let's just go ahead and delete them
 :: See https://github.com/pytorch/pytorch/issues/73339 for more context
-del /S %PREFIX%\*.zip
+cd %PREFIX%
+del /S *.zip
 
 exit /b 0
