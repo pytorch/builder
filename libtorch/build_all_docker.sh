@@ -5,5 +5,5 @@ set -eou pipefail
 TOPDIR=$(git rev-parse --show-toplevel)
 
 for CUDA_VERSION in 11.5 11.3 10.2 cpu; do
-  CUDA_VERSION="${CUDA_VERSION}" libtorch/build_docker.sh
+  CUDA_VERSION="${CUDA_VERSION}" "${TOPDIR}/libtorch/build_docker.sh"
 done
