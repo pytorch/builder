@@ -147,7 +147,6 @@ case ${desired_python} in
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="=1.21.2"
-        EXTRA_CONDA_INSTALL_FLAGS="-c=conda-forge"
         ;;
     3.9)
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
