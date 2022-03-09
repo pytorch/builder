@@ -60,7 +60,7 @@ fi
 
 NUMPY_PACKAGE=""
 if [[ ${py_ver} == "3.10" ]]; then
-    PROTOBUF_PACKAGE="protobuf>=3.19.2"
+    PROTOBUF_PACKAGE="protobuf>=3.17.2"
     NUMPY_PACKAGE="numpy>=1.21.2"
 else
     PROTOBUF_PACKAGE="protobuf=3.14.0"
