@@ -19,7 +19,7 @@ for PYTHON_VERSION in 3.8 3.9; do
   rm -rf build
   BUILD_VERSION=${TORCHVISION_VERSION} python3 setup.py bdist_wheel
   WHL_NAME=torchvision-${TORCHVISION_VERSION}-cp${PY_VERSION}-cp${PY_VERSION}-macosx_11_0_arm64.whl
-  delocate-wheel -v --ignore-missing-dependencies dist/${WHL_NAME}
+  DYLD_FALLBACK_LIBRARY_PATH="$(dirname $(dirname $(which python)))/lib" delocate-wheel -v --ignore-missing-dependencies dist/${WHL_NAME}
   python3 -mpip install dist/${WHL_NAME}
   popd
 
