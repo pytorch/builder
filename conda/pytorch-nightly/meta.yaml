@@ -1,4 +1,5 @@
 {% set build_variant = environ.get('PYTORCH_BUILD_VARIANT', 'cuda') %}
+{% set cmake_osx_architectures = environ.get('CMAKE_OSX_ARCHITECTURES', 'x86_64') %}
 
 package:
   name: pytorch
@@ -16,9 +17,9 @@ requirements:
     - python
     - setuptools
     - pyyaml
-    - mkl-include # [x86_64]
-    - mkl=2020.2 # [x86_64 and (not win or py <= 39)]
-    - mkl=2021.4 # [x86_64 and win and py >= 310]
+    - mkl-include # [x86_64 and cmake_osx_architectures == 'x86_64']
+    - mkl=2020.2 # [x86_64 and (not win or py <= 39) and cmake_osx_architectures == 'x86_64']
+    - mkl=2021.4 # [x86_64 and win and py >= 310 and cmake_osx_architectures == 'x86_64']
     - typing_extensions
     - dataclasses # [py36]
     - ninja

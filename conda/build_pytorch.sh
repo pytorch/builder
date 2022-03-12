@@ -68,7 +68,6 @@ fi
 
 # differentiate package name for cross compilation to avoid collision
 if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
-    build_version="$build_version.arm64"
     export PYTORCH_LLVM_PACKAGE=""
 fi
 
