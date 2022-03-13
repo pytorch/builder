@@ -1,4 +1,5 @@
 {% set build_variant = environ.get('PYTORCH_BUILD_VARIANT', 'cuda') %}
+{% set cross_compile_arm64 = environ.get('CROSS_COMPILE_ARM64', 0) %}
 
 package:
   name: pytorch
@@ -16,9 +17,11 @@ requirements:
     - python
     - setuptools
     - pyyaml
+    {% if cross_compile_arm64 == 0 %}
     - mkl-include # [x86_64]
     - mkl=2020.2 # [x86_64 and (not win or py <= 39)]
     - mkl=2021.4 # [x86_64 and win and py >= 310]
+    {% endif %}
     - typing_extensions
     - dataclasses # [py36]
     - ninja
@@ -33,12 +36,16 @@ requirements:
 
   run:
     - python
+    {% if cross_compile_arm64 == 0 %}
     - mkl >=2018 # [x86_64]
+    {% endif %}
     - dataclasses # [py36]
     - libuv # [win]
     - intel-openmp # [win]
     - typing_extensions
+    {% if cross_compile_arm64 == 0 %}
     - blas * mkl
+    {% endif %}
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
 
