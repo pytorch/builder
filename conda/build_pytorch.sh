@@ -68,7 +68,6 @@ fi
 
 # differentiate package name for cross compilation to avoid collision
 if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
-    build_version="$build_version.arm64"
     export PYTORCH_LLVM_PACKAGE=""
 fi
 
@@ -167,7 +166,8 @@ if [[ "$(uname)" == 'Darwin' ]]; then
 elif [[ "$OSTYPE" == "msys" ]]; then
     mkdir -p "$WIN_PACKAGE_WORK_DIR" || true
     if [[ -n ${GITHUB_ACTIONS} ]]; then
-        pytorch_rootdir="${PYTORCH_ROOT:-(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch}"
+        pytorch_rootdir="${PYTORCH_ROOT:-(realpath ${WIN_PACKAGE_WORK_DIR})\\pytorch}"
+        pytorch_rootdir=$(cygpath -m "${pytorch_rootdir}")
     else
         pytorch_rootdir="$(realpath ${WIN_PACKAGE_WORK_DIR})/pytorch"
     fi
