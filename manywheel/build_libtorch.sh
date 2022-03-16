@@ -122,6 +122,8 @@ fi
 if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
     echo "Calling build_amd.py at $(date)"
     python tools/amd_build/build_amd.py
+    # TODO remove this work-around once pytorch sources are updated
+    export ROCclr_DIR=/opt/rocm/rocclr/lib/cmake/rocclr
 fi
 
 echo "Calling setup.py install at $(date)"
@@ -307,6 +309,14 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
                     fi
                 fi
             done
+        done
+
+        # copy over needed auxiliary files
+        for ((i=0;i<${#DEPS_AUX_SRCLIST[@]};++i)); do
+            srcpath=${DEPS_AUX_SRCLIST[i]}
+            dstpath=$PREFIX/${DEPS_AUX_DSTLIST[i]}
+            mkdir -p $(dirname $dstpath)
+            cp $srcpath $dstpath
         done
     fi
 

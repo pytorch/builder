@@ -57,11 +57,13 @@ if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBNUMA_PATH="/usr/lib64/libnuma.so.1"
     LIBELF_PATH="/usr/lib64/libelf.so.1"
     LIBTINFO_PATH="/usr/lib64/libtinfo.so.5"
+    MAYBE_LIB64=lib64
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
     LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
     LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.5"
+    MAYBE_LIB64=lib
 fi
 
 # NOTE: Some ROCm versions have identical dependencies, or very close deps.
@@ -92,13 +94,6 @@ if [[ $ROCM_INT -ge 30800 ]]; then
     TENSILE_LIBRARY_NAME=TensileLibrary.dat
 else
     TENSILE_LIBRARY_NAME=TensileLibrary.yaml
-fi
-
-# in rocm3.9, libamd_comgr path changed from lib to lib64
-if [[ $ROCM_INT -ge 30900 ]]; then
-    COMGR_LIBDIR="lib64"
-else
-    COMGR_LIBDIR="lib"
 fi
 
 # in rocm4.0, libamdhip64.so.3 changed to *.so.4
@@ -158,7 +153,7 @@ if [[ $ROCM_INT -ge 40500 ]]; then
     HSAKMT_DEP=
     HSAKMT_SO=
 else
-    HSAKMT_DEP="/opt/rocm/lib64/libhsakmt.so.1"
+    HSAKMT_DEP="/opt/rocm/${MAYBE_LIB64}/libhsakmt.so.1"
     HSAKMT_SO="libhsakmt.so.1"
 fi
 
@@ -176,10 +171,15 @@ fi
 
 #since rocm4.5, amdgpu is an added dependency
 if [[ $ROCM_INT -ge 40500 ]]; then
-    DRM_DEP=/opt/amdgpu/lib64/libdrm.so.2
     DRM_SO=libdrm.so.2
-    DRM_AMDGPU_DEP=/opt/amdgpu/lib64/libdrm_amdgpu.so.1
     DRM_AMDGPU_SO=libdrm_amdgpu.so.1
+    if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+        DRM_DEP=/opt/amdgpu/lib64/${DRM_SO}
+        DRM_AMDGPU_DEP=/opt/amdgpu/lib64/${DRM_AMDGPU_SO}
+    elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+        DRM_DEP=/usr/lib/x86_64-linux-gnu/${DRM_SO}
+        DRM_AMDGPU_DEP=/usr/lib/x86_64-linux-gnu/${DRM_AMDGPU_SO}
+    fi
 else
     DRM_DEP=
     DRM_SO=
@@ -228,7 +228,7 @@ DEPS_LIST=(
     "/opt/rocm/hiprand/lib/libhiprand.so.1"
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
-    "/opt/rocm/${COMGR_LIBDIR}/${LIBAMDCOMGR}"
+    "/opt/rocm/${MAYBE_LIB64}/${LIBAMDCOMGR}"
     ${HSAKMT_DEP}
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/rccl/lib/librccl.so.1"
