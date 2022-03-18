@@ -7,7 +7,8 @@ TORCHVISION_VERSION=0.12.0
 TORCHAUDIO_VERSION=0.11.0
 TORCHTEXT_VERSION=0.12.0
 
-for PYTHON_VERSION in 3.8 3.9 3.10; do
+build_wheels() {
+  PYTHON_VERSION=$1
   PY_VERSION=${PYTHON_VERSION/.}
   conda create -yn whl-py${PY_VERSION}-torch-${TORCH_VERSION} python=${PYTHON_VERSION} numpy libpng openjpeg wheel pkg-config
   conda activate whl-py${PY_VERSION}-torch-${TORCH_VERSION}
@@ -41,5 +42,22 @@ for PYTHON_VERSION in 3.8 3.9 3.10; do
 
   python -c "import torch;import torchvision;print('Is torchvision useable?', all(x is not None for x in [torch.ops.image.decode_png, torch.ops.torchvision.roi_align]))"
   python -c "import torch;import torchaudio;torchaudio.set_audio_backend('sox_io')"
-done
+}
+
+build_conda() {
+  PYTHON_VERSION=$1
+  PY_VERSION=${PYTHON_VERSION/.}
+  export CONDA_PYTORCH_BUILD_CONSTRAINT="- pytorch==$TORCH_VERSION.arm64"
+  export CONDA_PYTORCH_CONSTRAINT="- pytorch==$TORCH_VERSION.arm64"
+  pushd ~/git/pytorch/vision
+  export SOURCE_ROOT_DIR=$(pwd)
+  export BUILD_VERSION=${TORCHVISION_VERSION}
+  export CU_VERSION="cpu"
+  conda build --check --no-anaconda-upload -c pytorch packaging/torchvision --python ${PYTHON_VERSION}
+  #conda build --no-anaconda-upload -c pytorch packaging/torchvision --python ${PYTHON_VERSION}
+  #conda debug --no-anaconda-upload -c pytorch packaging/torchvision --python ${PYTHON_VERSION}
+  popd
+}
+
+build_conda 3.9
 
