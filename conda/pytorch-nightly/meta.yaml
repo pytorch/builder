@@ -25,8 +25,10 @@ requirements:
     - typing_extensions
     - dataclasses # [py36]
     - ninja
+    {% if cross_compile_arm64 == 0 %}
     - libuv # [win]
     - libuv # [unix]
+    {% endif %}
     - pkg-config # [unix]
     - numpy=1.19 # [py <= 39]
     - numpy>=1.21.2 # [py >= 310]
