@@ -56,10 +56,8 @@ if [[ -n "$build_with_cuda" ]]; then
 
     if [[ $CUDA_VERSION == 10* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
-        DEPS_LIST=(/usr/local/cuda-10.2/extras/CUPTI/lib64/libcupti.so.10.2)
     elif [[ $CUDA_VERSION == 11.3* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
-        DEPS_LIST=(/usr/local/cuda-11.3/extras/CUPTI/lib64/libcupti.so.11.3)
     elif [[ $CUDA_VERSION == 11.5* ]]; then
         export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
         #for cuda 11.5 we use cudnn 8.3.2.44 https://docs.nvidia.com/deeplearning/cudnn/release-notes/rel_8.html
