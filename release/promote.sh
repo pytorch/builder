@@ -2,6 +2,8 @@
 
 set -eou pipefail
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 # Make sure to update these versions when doing a release first
 PYTORCH_VERSION=${PYTORCH_VERSION:-1.11.0}
 TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.12.0}
@@ -9,8 +11,6 @@ TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-0.11.0}
 TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.12.0}
 TORCHSERVE_VERSION=${TORCHSERVE_VERSION:-0.2.1}
 TORCHCSPRNG_VERSION=${TORCHCSPRNG_VERSION:-0.2.0}
-
-PYTORCH_DIR=${PYTORCH_DIR:-~/pytorch}
 
 DRY_RUN=${DRY_RUN:-enabled}
 
@@ -29,7 +29,7 @@ promote_s3() {
             PACKAGE_NAME="${package_name}" \
             PACKAGE_TYPE="${package_type}" \
             TEST_WITHOUT_GIT_TAG=1 \
-            DRY_RUN="${DRY_RUN}" ${PYTORCH_DIR}/scripts/release/promote/s3_to_s3.sh
+            DRY_RUN="${DRY_RUN}" ${DIR}/promote/s3_to_s3.sh
     )
     echo
 }
@@ -66,7 +66,7 @@ promote_pypi() {
         TEST_PYTORCH_PROMOTE_VERSION="${promote_version}" \
             PACKAGE_NAME="${package_name}" \
             TEST_WITHOUT_GIT_TAG=1 \
-            DRY_RUN="${DRY_RUN}" ${PYTORCH_DIR}/scripts/release/promote/wheel_to_pypi.sh
+            DRY_RUN="${DRY_RUN}" ${DIR}/promote/wheel_to_pypi.sh
     )
     echo
 }
