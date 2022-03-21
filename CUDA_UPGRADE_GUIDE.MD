@@ -37,7 +37,7 @@ https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installe
 Make an issue to track the progress, for example [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in CUDA upgrades.
 
 ## 2. Modify scripts to install the new CUDA for Conda Docker Linux containers.
-There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about conda
+There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about conda.
 
 1. Modifying [`install_cuda.sh`](common/install_cuda.sh) and build Conda Docker file:
     1. Follow this [PR 992](https://github.com/pytorch/builder/pull/992) for all steps in this section
