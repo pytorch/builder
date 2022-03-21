@@ -79,12 +79,12 @@ function install_115 {
 function install_116 {
     echo "Installing CUDA 11.6 and CuDNN 8.3"
     rm -rf /usr/local/cuda-11.6 /usr/local/cuda
-    # install CUDA 11.6.1 in the same container
-    wget -q https://developer.download.nvidia.com/compute/cuda/11.6.1/local_installers/cuda_11.6.1_510.47.03_linux.run
-    chmod +x cuda_11.6.1_510.47.03_linux.run
-    ./cuda_11.6.1_510.47.03_linux.run --toolkit --silent
-    rm -f cuda_11.6.1_510.47.03_linux.run
-    rm -f /usr/local/cuda && ln -s /usr/local/cuda-11.6 /usr/local/cuda
+    # install CUDA 11.6.0 in the same container
+    wget -q https://developer.download.nvidia.com/compute/cuda/11.6.0/local_installers/cuda_11.6.0_510.39.01_linux.run
+    chmod +x cuda_11.6.0_510.39.01_linux.run
+    ./cuda_11.6.0_510.39.01_linux.run --toolkit --silent
+    rm -f cuda_11.6.0_510.39.01_linux.run
+    rm -f /usr/local/cuda && ln -s /usr/local/cuda11.6 /usr/local/cuda
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
