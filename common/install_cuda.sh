@@ -84,7 +84,7 @@ function install_116 {
     chmod +x cuda_11.6.0_510.39.01_linux.run
     ./cuda_11.6.0_510.39.01_linux.run --toolkit --silent
     rm -f cuda_11.6.0_510.39.01_linux.run
-    rm -f /usr/local/cuda && ln -s /usr/local/cuda11.6 /usr/local/cuda
+    rm -f /usr/local/cuda && ln -s /usr/local/cuda-11.6 /usr/local/cuda
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
