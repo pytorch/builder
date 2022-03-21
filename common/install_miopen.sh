@@ -53,43 +53,12 @@ else
     ROCM_INSTALL_PATH="/opt/rocm-${ROCM_VERSION}"
 fi
 
-## MIOpen minimum requirements
-
-### Boost; No viable yum package exists. Must use static linking with PIC.
-retry wget https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.gz
-tar xzf boost_1_72_0.tar.gz
-pushd boost_1_72_0
-./bootstrap.sh
-./b2 -j $(nproc) threading=multi link=static cxxflags=-fPIC --with-system --with-filesystem install
-popd
-rm -rf boost_1_72_0
-rm -f  boost_1_72_0.tar.gz
-
-### sqlite; No viable yum package exists. Must be at least version 3.14.
-retry wget https://ossci-linux.s3.amazonaws.com/sqlite-autoconf-3170000.tar.gz
-tar xzf sqlite-autoconf-3170000.tar.gz
-pushd sqlite-autoconf-3170000
-./configure --with-pic
-make -j $(nproc)
-make install
-popd
-rm -rf sqlite-autoconf-3170000
-rm -f  sqlite-autoconf-3170000.tar.gz
-
-### half header
-retry curl -fsSL https://raw.githubusercontent.com/ROCmSoftwarePlatform/half/master/include/half.hpp -o /usr/include/half.hpp
-
-### bzip2
-yum install -y bzip2-devel
-
-## Build MIOpen
-
 # MIOPEN_USE_HIP_KERNELS is a Workaround for COMgr issues
 MIOPEN_CMAKE_COMMON_FLAGS="
 -DMIOPEN_USE_COMGR=ON
 -DMIOPEN_BUILD_DRIVER=OFF
 "
-
+# Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
 if [[ $ROCM_INT -ge 50100 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36"
     MIOPEN_BRANCH="release/rocm-rel-5.1-staging"
@@ -113,6 +82,9 @@ fi
 
 git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
+## MIOpen minimum requirements
+cmake -P install_deps.cmake --minimum
+## Build MIOpen
 mkdir -p build
 cd build
 PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CXX=${ROCM_INSTALL_PATH}/llvm/bin/clang++ cmake .. \
