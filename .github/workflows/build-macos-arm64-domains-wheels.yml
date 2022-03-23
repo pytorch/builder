@@ -1,0 +1,30 @@
+name: build-macos-arm64-domains-wheels
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/build-macos-arm64-domains-wheels.yml
+  pull_request:
+    paths:
+      - .github/workflows/build-macos-arm64-domains-wheels.yml
+
+# For setup-miniconda, see https://github.com/conda-incubator/setup-miniconda/issues/179
+defaults:
+  run:
+    shell: bash -x -e -l {0}
+env:
+  BUILD_ENVIRONMENT: build-macos-arm64-domains-wheels
+  IN_CI: 1
+  IS_GHA: 1
+
+jobs:
+  build-linux-magma:
+    runs-on: macos-10.15
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Build M1 domains
+        run: |
+          build_m1_domains.sh
