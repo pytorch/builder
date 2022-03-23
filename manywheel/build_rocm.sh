@@ -148,6 +148,18 @@ else
     HIPFFT_SO=
 fi;
 
+if [[ $ROCM_INT -ge 50100 ]]; then
+    HIPRAND_DEP="/opt/rocm/lib/libhiprand.so.1"
+    HIPRAND_SO="libhiprand.so.1"
+    ROCRAND_DEP="/opt/rocm/lib/librocrand.so.1"
+    ROCRAND_SO="librocrand.so.1"
+else
+    HIPRAND_DEP="/opt/rocm/hiprand/lib/libhiprand.so.1"
+    HIPRAND_SO="libhiprand.so.1"
+    ROCRAND_DEP="/opt/rocm/rocrand/lib/librocrand.so.1"
+    ROCRAND_SO="librocrand.so.1"
+fi
+
 #in rocm4.5, libhsakmt is statically linked into hsa runtime
 if [[ $ROCM_INT -ge 40500 ]]; then
     HSAKMT_DEP=
@@ -225,7 +237,7 @@ DEPS_LIST=(
     "/opt/rocm/hip/lib/$LIBAMDHIP64"
     "/opt/rocm/hipblas/lib/libhipblas.so.0"
     ${HIPFFT_DEP}
-    "/opt/rocm/hiprand/lib/libhiprand.so.1"
+    ${HIPRAND_DEP}
     "/opt/rocm/hipsparse/lib/libhipsparse.so.0"
     "/opt/rocm/hsa/lib/libhsa-runtime64.so.1"
     "/opt/rocm/${MAYBE_LIB64}/${LIBAMDCOMGR}"
@@ -239,7 +251,7 @@ DEPS_LIST=(
     ${DEP_ROCFFT_DEVICE_3}
     "/opt/rocm/rocfft/lib/librocfft.so.0"
     ${ROCM_SMI_DEP}
-    "/opt/rocm/rocrand/lib/librocrand.so.1"
+    ${ROCRAND_DEP}
     "/opt/rocm/rocsolver/lib/librocsolver.so.0"
     "/opt/rocm/rocsparse/lib/librocsparse.so.0"
     "/opt/rocm/roctracer/lib/libroctracer64.so.1"
@@ -257,7 +269,7 @@ DEPS_SONAME=(
     "$LIBAMDHIP64"
     "libhipblas.so.0"
     ${HIPFFT_SO}
-    "libhiprand.so.1"
+    ${HIPRAND_SO}
     "libhipsparse.so.0"
     "libhsa-runtime64.so.1"
     "${LIBAMDCOMGR}"
@@ -271,7 +283,7 @@ DEPS_SONAME=(
     ${SO_ROCFFT_DEVICE_3}
     "librocfft.so.0"
     ${ROCM_SMI_SO}
-    "librocrand.so.1"
+    ${ROCRAND_SO}
     "librocsolver.so.0"
     "librocsparse.so.0"
     "libroctracer64.so.1"
