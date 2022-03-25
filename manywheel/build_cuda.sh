@@ -125,19 +125,11 @@ DEPS_SONAME=(
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.3" ]]; then
-export USE_STATIC_CUDNN=0
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.11.0"
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.3, it links to 11.3.58
     "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.3"
-    "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn.so.8"
     "$LIBGOMP_PATH"
 )
 
@@ -146,13 +138,6 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.2"
     "libnvrtc-builtins.so.11.3"
-    "libcudnn_adv_infer.so.8"
-    "libcudnn_adv_train.so.8"
-    "libcudnn_cnn_infer.so.8"
-    "libcudnn_cnn_train.so.8"
-    "libcudnn_ops_infer.so.8"
-    "libcudnn_ops_train.so.8"
-    "libcudnn.so.8"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.5" ]]; then
