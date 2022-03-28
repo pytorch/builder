@@ -58,7 +58,7 @@ RUN bash ./install_magma.sh 11.5
 
 FROM cuda as cuda11.6
 RUN bash ./install_cuda.sh 11.6
-RUN bash ./install_magma 11.6
+RUN bash ./install_magma.sh 11.6
 
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
