@@ -10,6 +10,7 @@ TORCHTEXT_VERSION=0.12.0
 for PYTHON_VERSION in 3.8 3.9 3.10; do
   PY_VERSION=${PYTHON_VERSION/.}
   conda create -yn whl-py${PY_VERSION}-torch-${TORCH_VERSION} python=${PYTHON_VERSION} numpy libpng openjpeg wheel pkg-config
+  conda init bash
   conda activate whl-py${PY_VERSION}-torch-${TORCH_VERSION}
   python3 -mpip install torch --extra-index-url=https://download.pytorch.org/whl/test torch==${TORCH_VERSION}
   python3 -mpip install delocate
@@ -42,4 +43,3 @@ for PYTHON_VERSION in 3.8 3.9 3.10; do
   python -c "import torch;import torchvision;print('Is torchvision useable?', all(x is not None for x in [torch.ops.image.decode_png, torch.ops.torchvision.roi_align]))"
   python -c "import torch;import torchaudio;torchaudio.set_audio_backend('sox_io')"
 done
-
