@@ -27,4 +27,4 @@ jobs:
         uses: actions/checkout@v2
       - name: Build M1 domains
         run: |
-          build_m1_domains.sh
+          ./build_m1_domains.sh
