@@ -12,6 +12,8 @@ TORCHVISION_VERSION=0.12.0
 TORCHAUDIO_VERSION=0.11.0
 TORCHTEXT_VERSION=0.12.0
 
+ls -las /Users/runner/work/builder/builder/vision
+
 for PYTHON_VERSION in 3.8 3.9 3.10; do
   PY_VERSION=${PYTHON_VERSION/.}
   conda create -yn whl-py${PY_VERSION}-torch-${TORCH_VERSION} python=${PYTHON_VERSION} numpy libpng openjpeg wheel pkg-config
