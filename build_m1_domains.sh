@@ -19,7 +19,8 @@ for PYTHON_VERSION in 3.8 3.9 3.10; do
   python3 -mpip install torch --extra-index-url=https://download.pytorch.org/whl/test torch==${TORCH_VERSION}
   python3 -mpip install delocate
 
-  pushd ~/git/pytorch/vision
+
+  pushd  /Users/runner/work/builder/builder/vision
   git checkout release/${TORCHVISION_VERSION%.*}
   rm -rf build
   BUILD_VERSION=${TORCHVISION_VERSION} python3 setup.py bdist_wheel
