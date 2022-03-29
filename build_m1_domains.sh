@@ -1,6 +1,9 @@
 #!/bin/zsh
 # Script used to build domain libraries wheels for M1
-source ~/miniconda3/etc/profile.d/conda.sh
+#source ~/miniconda3/etc/profile.d/conda.sh
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
+bash ~/miniconda.sh -b -p $HOME/miniconda
+
 set -ex
 TORCH_VERSION=1.11.0
 TORCHVISION_VERSION=0.12.0
@@ -10,7 +13,6 @@ TORCHTEXT_VERSION=0.12.0
 for PYTHON_VERSION in 3.8 3.9 3.10; do
   PY_VERSION=${PYTHON_VERSION/.}
   conda create -yn whl-py${PY_VERSION}-torch-${TORCH_VERSION} python=${PYTHON_VERSION} numpy libpng openjpeg wheel pkg-config
-  conda init bash
   conda activate whl-py${PY_VERSION}-torch-${TORCH_VERSION}
   python3 -mpip install torch --extra-index-url=https://download.pytorch.org/whl/test torch==${TORCH_VERSION}
   python3 -mpip install delocate
