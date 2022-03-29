@@ -1,9 +1,9 @@
 #!/bin/zsh
 # Script used to build domain libraries wheels for M1
 #source ~/miniconda3/etc/profile.d/conda.sh
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
-bash ~/miniconda.sh -b -p $HOME/miniconda
-source $HOME/miniconda/etc/profile.d/conda.sh
+#wget https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O ~/miniconda.sh
+#bash ~/miniconda.sh -b -p $HOME/miniconda
+source /usr/local/miniconda/miniconda/etc/profile.d/conda.sh
 
 set -ex
 TORCH_VERSION=1.11.0
