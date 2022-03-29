@@ -26,7 +26,12 @@ jobs:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Checkout pytorch/vision
-        uses: actions/checkout@v2
+        uses: zhouzhuojie/checkout@05b13c9a0d21f08f6d5e64a1d5042246d13619d9
+        with:
+          ref: main
+          submodules: recursive
+          repository: pytorch/vision
+          path: vision
       - name: Checkout pytorch/audio
         uses: actions/checkout@v2
       - name: Build M1 domains
