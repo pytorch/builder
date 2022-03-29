@@ -25,6 +25,10 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
+      - name: Checkout pytorch/vision
+        uses: actions/checkout@v2
+      - name: Checkout pytorch/audio
+        uses: actions/checkout@v2
       - name: Build M1 domains
         run: |
           ./build_m1_domains.sh
