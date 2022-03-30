@@ -20,7 +20,7 @@ if ! [ -x "$(command -v curl)" ]; then
       # TODO: Remove this once nvidia package repos are back online
       # Comment out nvidia repositories to prevent them from getting apt-get updated, see https://github.com/pytorch/pytorch/issues/74968
       # shellcheck disable=SC2046
-      sudo sed -i 's/.*nvidia.*/# &/' $(find /etc/apt/ -type f -name "*.list")
+      sed -i 's/.*nvidia.*/# &/' $(find /etc/apt/ -type f -name "*.list")
 
       apt-get update
       apt-get install -y curl
