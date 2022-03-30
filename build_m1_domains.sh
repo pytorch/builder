@@ -12,8 +12,6 @@ TORCHVISION_VERSION=0.12.0
 TORCHAUDIO_VERSION=0.11.0
 TORCHTEXT_VERSION=0.12.0
 
-ls -las /Users/runner/work/builder/
-ls -las /Users/runner/work/builder/builder
 
 for PYTHON_VERSION in 3.8 3.9 3.10; do
   PY_VERSION=${PYTHON_VERSION/.}
@@ -24,7 +22,7 @@ for PYTHON_VERSION in 3.8 3.9 3.10; do
 
 
   pushd  /Users/runner/work/builder/builder/vision
-  git checkout release/${TORCHVISION_VERSION%.*}
+  #git checkout release/${TORCHVISION_VERSION%.*}
   rm -rf build
   BUILD_VERSION=${TORCHVISION_VERSION} python3 setup.py bdist_wheel
   WHL_NAME=torchvision-${TORCHVISION_VERSION}-cp${PY_VERSION}-cp${PY_VERSION}-macosx_11_0_arm64.whl
