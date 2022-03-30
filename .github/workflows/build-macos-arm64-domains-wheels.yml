@@ -14,10 +14,17 @@ on:
 defaults:
   run:
     shell: bash -x -e -l {0}
+
 env:
+  # Needed for conda builds
+  ALPINE_IMAGE: "308535385114.dkr.ecr.us-east-1.amazonaws.com/tool/alpine"
+  ANACONDA_USER: pytorch
+  AWS_DEFAULT_REGION: us-east-1
   BUILD_ENVIRONMENT: build-macos-arm64-domains-wheels
   IN_CI: 1
   IS_GHA: 1
+  SKIP_ALL_TESTS: 1
+  CROSS_COMPILE_ARM64: 1
 
 jobs:
   build-linux-magma:
