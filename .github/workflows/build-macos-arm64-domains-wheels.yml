@@ -28,7 +28,7 @@ env:
 
 jobs:
   build-linux-magma:
-    runs-on: macos-m1-11
+    runs-on: [self-hosted, macOS, ARM64]
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
