@@ -20,7 +20,7 @@ RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &
     rm -f epel-release-latest-7.noarch.rpm
 
 # cmake
-RUN yum install -y cmake3-3.22.3 && \
+RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 
 RUN yum install -y autoconf aclocal automake make

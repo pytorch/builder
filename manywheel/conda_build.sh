@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-yum install -y wget git cmake-3.22.3
+yum install -y wget git cmake
 
 # make sure CUDA 7.5 and 8.0 are installed
 if ! ls /usr/local/cuda-7.5
