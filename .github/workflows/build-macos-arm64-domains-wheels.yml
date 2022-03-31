@@ -27,8 +27,8 @@ env:
   CROSS_COMPILE_ARM64: 1
 
 jobs:
-  build-linux-magma:
-    runs-on: [self-hosted, macOS, ARM64]
+  build-macos-arm64-domains-wheels:
+    runs-on: macos-11
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
