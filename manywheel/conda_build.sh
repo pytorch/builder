@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-yum install -y wget git cmake
+yum install -y wget git cmake-3.22.3
 
 # make sure CUDA 7.5 and 8.0 are installed
 if ! ls /usr/local/cuda-7.5
@@ -41,7 +41,7 @@ then
     wget -c http://developer.download.nvidia.com/compute/redist/cudnn/v6.0/cudnn-7.5-linux-x64-v6.0.tgz \
 	 -O /remote/cudnn-7.5-linux-x64-v6.0.tgz
     pushd /tmp
-    tar -xvf /remote/cudnn-7.5-linux-x64-v6.0.tgz 
+    tar -xvf /remote/cudnn-7.5-linux-x64-v6.0.tgz
     cp -P /tmp/cuda/include/* /usr/local/cuda-7.5/include/
     cp -P /tmp/cuda/lib64/* /usr/local/cuda-7.5/lib64/
     popd
