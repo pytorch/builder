@@ -135,7 +135,7 @@ ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
 
 # cmake
-RUN yum install -y cmake3-3.22.3 && \
+RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 
 # ninja
@@ -158,7 +158,7 @@ ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 # cmake is already installed inside the rocm base image, but both 2 and 3 exist
 # cmake3 is needed for the later MIOpen custom build, so that step is last.
-RUN yum install -y cmake3-3.22.3 && \
+RUN yum install -y cmake3 && \
     rm -f /usr/bin/cmake && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 ADD ./common/install_miopen.sh install_miopen.sh
