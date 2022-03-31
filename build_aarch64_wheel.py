@@ -395,7 +395,7 @@ def configure_system(host: RemoteHost, *,
     print('Configuring the system')
     if not host.using_docker():
         update_apt_repo(host)
-        host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
+        host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake=3.22.3 gfortran unzip")
     else:
         host.run_cmd("yum install -y sudo")
         host.run_cmd("conda install -y ninja")

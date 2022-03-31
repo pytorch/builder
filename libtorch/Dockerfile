@@ -5,7 +5,7 @@ FROM ${GPU_IMAGE} as base
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get clean && apt-get update
-RUN apt-get install -y curl locales git-all autoconf automake make cmake wget unzip
+RUN apt-get install -y curl locales git-all autoconf automake make cmake=3.22.3 wget unzip
 
 RUN locale-gen en_US.UTF-8
 
@@ -42,7 +42,7 @@ ENV CUDA_HOME /usr/local/cuda
 FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
-RUN /opt/conda/bin/conda install -y cmake=3.14
+RUN /opt/conda/bin/conda install -y cmake=3.22.3
 
 FROM cuda as cuda10.2
 RUN bash ./install_cuda.sh 10.2
