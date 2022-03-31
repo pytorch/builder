@@ -15,7 +15,7 @@ case "${GPU_ARCH_TYPE:-BLANK}" in
     rocm)
         bash "${SCRIPTPATH}/build_rocm.sh"
         ;;
-    cpu)
+    cpu | cpu-cxx11-abi)
         bash "${SCRIPTPATH}/build_cpu.sh"
         ;;
     *)
