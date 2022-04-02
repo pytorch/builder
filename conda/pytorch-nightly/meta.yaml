@@ -23,7 +23,6 @@ requirements:
     - mkl=2021.4 # [x86_64 and win and py >= 310]
     {% endif %}
     - typing_extensions
-    - dataclasses # [py36]
     - ninja
     - libuv # [win]
     - libuv # [unix]
@@ -39,7 +38,6 @@ requirements:
     {% if cross_compile_arm64 == 0 %}
     - mkl >=2018 # [x86_64]
     {% endif %}
-    - dataclasses # [py36]
     - libuv # [win]
     - intel-openmp # [win]
     - typing_extensions
