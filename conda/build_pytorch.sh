@@ -230,7 +230,7 @@ cd "$SOURCE_DIR"
 if [[ -n "$TORCH_CONDA_BUILD_FOLDER" ]]; then
     build_folder="$TORCH_CONDA_BUILD_FOLDER"
 else
-    if [[ "$OSTYPE" == 'darwin'* || "$desired_cuda" == '9.0' ]]; then
+    if [[ "$OSTYPE" == 'darwin'* ]]; then
         build_folder='pytorch'
     elif [[ -n "$cpu_only" ]]; then
         build_folder='pytorch-cpu'
@@ -267,7 +267,10 @@ else
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
-    if [[ "$desired_cuda" == "11.5" ]]; then
+    if [[ "$desired_cuda" == "11.6" ]]; then
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.6,<11.7 # [not osx]"
+        export MAGMA_PACKAGE="    - magma-cuda116 # [not osx and not win]"
+    elif [[ "$desired_cuda" == "11.5" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.5,<11.6 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda115 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.3" ]]; then
@@ -282,11 +285,6 @@ else
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
-    if [[ "$desired_cuda" == '9.2' ]]; then
-        # ATen tests can't build with CUDA 9.2 and the old compiler used here
-        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
-    fi
-
 fi
 
 # Some tricks for sccache with conda builds on Windows
