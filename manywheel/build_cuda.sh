@@ -215,7 +215,7 @@ DEPS_SONAME=(
     "libcudart.so.11.0"
     "libnvToolsExt.so.1"
     "libnvrtc.so.11.2"
-    "libnvrtc-builtins.so.11.5"
+    "libnvrtc-builtins.so.11.6"
     "libcudnn_adv_infer.so.8"
     "libcudnn_adv_train.so.8"
     "libcudnn_cnn_infer.so.8"
