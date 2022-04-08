@@ -76,5 +76,5 @@ def main() -> None:
         print(tabulate(output_data, headers=headers, tablefmt="grid"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
