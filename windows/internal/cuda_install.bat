@@ -136,11 +136,6 @@ if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION
         if errorlevel 1 exit /b 1
     )
 
-    if not exist "%SRC_DIR%\temp_build\gpu_driver_dlls.zip" (
-        curl -k -L "https://ossci-windows.s3.us-east-1.amazonaws.com/builder/additional_dlls.zip" --output "%SRC_DIR%\temp_build\gpu_driver_dlls.zip"
-        if errorlevel 1 exit /b 1
-    )
-
     echo Installing CUDA toolkit...
     7z x %CUDA_SETUP_FILE% -o"%SRC_DIR%\temp_build\cuda"
     pushd "%SRC_DIR%\temp_build\cuda"
@@ -148,6 +143,8 @@ if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION
     sc config wuauserv start= disabled
     sc stop wuauserv
     sc query wuauserv
+
+    set "ARGS=%ARGS% Display.Driver"
 
     start /wait setup.exe -s %ARGS% -loglevel:6 -log:"%cd%/cuda_install_logs"
     echo %errorlevel%
@@ -176,9 +173,6 @@ if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION
     xcopy /Y "%SRC_DIR%\temp_build\cudnn\%CUDNN_FOLDER%\bin\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin"
     xcopy /Y "%SRC_DIR%\temp_build\cudnn\%CUDNN_FOLDER%\%CUDNN_LIB_FOLDER%\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\lib\x64"
     xcopy /Y "%SRC_DIR%\temp_build\cudnn\%CUDNN_FOLDER%\include\*.*" "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\include"
-
-    echo Installing GPU driver DLLs
-    7z x %SRC_DIR%\temp_build\gpu_driver_dlls.zip -o"C:\Windows\System32"
 
     echo Cleaning temp files
     rd /s /q "%SRC_DIR%\temp_build" || ver > nul
