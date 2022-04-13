@@ -171,6 +171,8 @@ fi
 
 #since rocm4.5, amdgpu is an added dependency
 if [[ $ROCM_INT -ge 40500 ]]; then
+    DRM_IDS_SRC=/opt/amdgpu/share/libdrm/amdgpu.ids
+    DRM_IDS_DST=share/libdrm/amdgpu.ids
     DRM_SO=libdrm.so.2
     DRM_AMDGPU_SO=libdrm_amdgpu.so.1
     if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
@@ -298,8 +300,8 @@ DEPS_AUX_SRCLIST=(
     "/opt/rocm/rocblas/lib/library/TensileLibrary_gfx908.co"
     ${SRCLIST_PATH}${TENSILEGFX90A}
     ${SRCLIST_PATH}${TENSILEGFX1030}
-
     "/opt/rocm/rocblas/lib/library/$TENSILE_LIBRARY_NAME"
+    ${DRM_IDS_SRC}
 )
 
 DEPS_AUX_DSTLIST=(
@@ -317,6 +319,7 @@ DEPS_AUX_DSTLIST=(
     ${DSTLIST_PATH}${TENSILEGFX90A}
     ${DSTLIST_PATH}${TENSILEGFX1030}
     "lib/library/$TENSILE_LIBRARY_NAME"
+    ${DRM_IDS_DST}
 )
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
