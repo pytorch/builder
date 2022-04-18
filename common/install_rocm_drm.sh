@@ -83,7 +83,7 @@ index a5007ffc..a3627529 100644
 +	if (count > 0) {
 +		self_path[count] = '\0';
 +
-+		// replace bin/python with lib
++		// remove '/bin/python' from self_path
 +		for (i=count; i>0; --i) {
 +			if (self_path[i] == '/') break;
 +			self_path[i] = '\0';
@@ -93,7 +93,7 @@ index a5007ffc..a3627529 100644
 +			if (self_path[i] == '/') break;
 +			self_path[i] = '\0';
 +		}
-+		strcat(self_path, "lib");
++		self_path[i] = '\0';
 +
 +		if (0 == nftw(self_path, check_for_location_of_amdgpuids, 5, FTW_PHYS)) {
 +			if (amdgpuids_path) {
