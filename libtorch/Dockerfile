@@ -71,8 +71,8 @@ FROM rocm as rocm5.0
 RUN ROCM_VERSION=5.0 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
-FROM rocm as rocm5.1
-RUN ROCM_VERSION=5.1 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.1.1
+RUN ROCM_VERSION=5.1.1 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final
