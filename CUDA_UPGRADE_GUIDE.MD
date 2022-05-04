@@ -9,7 +9,7 @@ Here is the supported matrix for CUDA and CUDNN
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 10.2 | 7.6.5.32 | Needed for publishing CUDA enabled binaries to PyPi since CUDA 11.x binaries don’t meet the space requirements (<750MB) | 
+| 10.2 | 7.6.5.32 | Needed for publishing CUDA enabled binaries to PyPi since CUDA 11.x binaries don’t meet the space requirements (<750MB) |
 | 11.3 | 8.2.0.53 | Stable CUDA Release |
 | 11.5 | 8.3.2.44 | Latest CUDA Release |
 
@@ -42,12 +42,12 @@ There are three types of Docker containers we maintain in order to build Linux b
 1. Follow this [PR 992](https://github.com/pytorch/builder/pull/992) for all steps in this section
 2. Find the CUDA install link [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&=Debian&target_version=10&target_type=runfile_local)
 3. Get the cudnn link from NVIDIA on the PyTorch Slack
-4. Modify [`install_cuda.sh`](common/install_cuda.sh) 
+4. Modify [`install_cuda.sh`](common/install_cuda.sh)
 5. Run the `install_116` chunk of code on your devbox to make sure it works.
 6. Check [this link](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/) to see if you need to add/remove any architectures to the nvprune list.
 7. Go into your cuda-11.6 folder and make sure what you're pruning actually exists. Update versions as needed, especially the visual tools like `nsight-systems`.
 8. Add setup for our Docker `conda` scripts/Dockerfiles
-9. To test that your code works, from the root builder repo, run something similar to `export CUDA_VERSION=11.3 && ./conda/build_docker.sh` for the `conda` images. 
+9. To test that your code works, from the root builder repo, run something similar to `export CUDA_VERSION=11.3 && ./conda/build_docker.sh` for the `conda` images.
 10. Validate conda-builder docker hub [cuda11.6](https://hub.docker.com/r/pytorch/conda-builder/tags?page=1&name=cuda11.6) to see that images have been built and correctly tagged. These images are used in the next step to build Magma for linux.
 
 ## 3. Update Magma for Linux
@@ -56,7 +56,7 @@ Build Magma for Linux. Our Linux CUDA jobs use conda, so we need to build magma-
 2. Currently, this is mainly copy-paste in [`magma/Makefile`](magma/Makefile) if there are no major code API changes/deprecations to the CUDA version. Previously, we've needed to add patches to MAGMA, so this may be something to check with NVIDIA about.
 3. To push the package, please update build-magma-linux workflow [PR 897](https://github.com/pytorch/builder/pull/897).
 4. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115)
-    
+
 ## 4. Modify scripts to install the new CUDA for Libtorch and Manywheel Docker Linux containers.
 There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about libtorch and manywheel containers.
 
@@ -83,10 +83,13 @@ Testing the new version in CI is crucial for finding regressions and should be d
     1. Please check the Driver Version table in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
 2. For Linux, we need to update code to use the magma we built! This can be done in the same PR when you actually add Linux CI, but here's an independent example for 11.5: [PR 68665](https://github.com/pytorch/pytorch/pull/68665)
 3. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.5**: [PR 68745](https://github.com/pytorch/pytorch/pull/68745) for Linux and [PR 69377](https://github.com/pytorch/pytorch/pull/69377) for Windows, and **code reference for 11.3** where we just replaced verbatim yaml and updated magma for conda for Linux: [PR 57223 for Windows](https://github.com/pytorch/pytorch/pull/57223) and [PR 57222 for Linux](https://github.com/pytorch/pytorch/pull/57222)
-4. For Windows you will need to rebuild the test AMI, please refer to this [PR](https://github.com/pytorch/test-infra/pull/285) . After this is done, run the release of Windows AMI using this [proecedure](https://github.com/pytorch/test-infra/tree/main/aws/ami/windows). As time of this writing this is manual steps performed on dev machine. Please note that packer, aws cli needs to be installed and configured!
+4. For Windows you will need to rebuild the test AMI, please refer to this [PR](https://github.com/pytorch/test-infra/pull/285). After this is done, run the release of Windows AMI using this [proecedure](https://github.com/pytorch/test-infra/tree/main/aws/ami/windows). As time of this writing this is manual steps performed on dev machine. Please note that packer, aws cli needs to be installed and configured!
 5. After step 4 is complete and new Windows AMI have been deployed to AWS. We need to deploy the new AMI to our canary environment (https://github.com/pytorch/pytorch-canary) through https://github.com/fairinternal/pytorch-gha-infra example : [PR](https://github.com/fairinternal/pytorch-gha-infra/pull/31) . After this is completed Submit the code for windows workflows to https://github.com/pytorch/pytorch-canary and make sure all test are passing.
 6. After that we can deploy the Windows AMI out to prod using the same pytorch-gha-infra repository.
-7. It is likely that there will be tests that no longer pass with the new CUDA version or GPU driver. Disable them for the time being, notify people who can help, and make issues to track them (like [so](https://github.com/pytorch/pytorch/issues/57482)).
+7. IMPORTANT NOTE: the CI is not always automatically triggered when you edit the workflow files! Ensure that the new CI job for the new CUDA version is showing up in the PR signal box.
+If it is not there, make sure you add the correct ciflow label (ciflow/periodic, for example) to trigger the test. Just because the CI is green on your pull request does NOT mean
+the test has been run and is green.
+8. It is likely that there will be tests that no longer pass with the new CUDA version or GPU driver. Disable them for the time being, notify people who can help, and make issues to track them (like [so](https://github.com/pytorch/pytorch/issues/57482)).
 
 ## 7. Add the new CUDA version to the nightly binaries matrix.
 Adding the new version to nightlies allows PyTorch binaries compiled with the new CUDA version to be available to users through `conda` or `pip` or just raw `libtorch`.
@@ -94,7 +97,7 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 2. Since this change should not touch other build jobs and it is very likely you would be running these jobs on the CI frequently, I'd advise reducing the config to only the build jobs for the new CI version and to use your own fork of `pytorch/builder`. **Code reference**: [PR 57522](https://github.com/pytorch/pytorch/pull/57522).
 3. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
-    - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict 
+    - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict
     - After your changes are promoted to viable/strict. Run nighly build job.
     - Make sure your changes made to nightly branch https://github.com/pytorch/pytorch/tree/nightly
     - Make sure all nightly build succeeded before continuing to Step #6
@@ -103,8 +106,8 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 ## 8. Add the new version to torchvision and torchaudio CI.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
 propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
-1. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248) 
-2. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067) 
+1. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248)
+2. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067)
 3. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
