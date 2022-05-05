@@ -18,14 +18,14 @@ case ${GPU_ARCH_TYPE} in
         DOCKER_TAG=cpu
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu
         GPU_IMAGE=centos:7
-        DOCKER_GPU_BUILD_ARG=""
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
         ;;
     cpu-cxx11-abi)
         TARGET=final
         DOCKER_TAG=cpu-cxx11-abi
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu-cxx11-abi
         GPU_IMAGE=""
-        DOCKER_GPU_BUILD_ARG=""
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
         MANY_LINUX_VERSION="cxx11-abi"
         ;;
     cuda)
@@ -34,7 +34,11 @@ case ${GPU_ARCH_TYPE} in
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cuda${GPU_ARCH_VERSION//./}
         # Keep this up to date with the minimum version of CUDA we currently support
         GPU_IMAGE=nvidia/cuda:10.2-devel-centos7
-        DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION}"
+        DEVTOOLSET_VERSION = 9
+        if [[ ${GPU_ARCH_VERSION}  == 10.2]]; then
+            DEVTOOLSET_VERSION = 7
+        fi
+        DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}"
         ;;
     rocm)
         TARGET=rocm_final
@@ -110,4 +114,3 @@ if [[ "${WITH_PUSH}" == true ]]; then
         fi
     )
 fi
-
