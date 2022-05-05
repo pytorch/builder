@@ -11,9 +11,9 @@ ENV LANGUAGE en_US.UTF-8
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
-ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
+RUN yum install -y devtoolset-9-gcc devtoolset-9-gcc-c++ devtoolset-9-gcc-gfortran devtoolset-9-binutils
+ENV PATH=/opt/rh/devtoolset-9/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-9/root/usr/lib64:/opt/rh/devtoolset-9/root/usr/lib:$LD_LIBRARY_PATH
 
 RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     rpm -ivh epel-release-latest-7.noarch.rpm && \
