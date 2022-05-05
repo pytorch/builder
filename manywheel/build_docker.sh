@@ -34,9 +34,9 @@ case ${GPU_ARCH_TYPE} in
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cuda${GPU_ARCH_VERSION//./}
         # Keep this up to date with the minimum version of CUDA we currently support
         GPU_IMAGE=nvidia/cuda:10.2-devel-centos7
-        DEVTOOLSET_VERSION = 9
+        DEVTOOLSET_VERSION="9"
         if [[ ${GPU_ARCH_VERSION:0:2} == "10" ]]; then
-            DEVTOOLSET_VERSION = 7
+            DEVTOOLSET_VERSION="7"
         fi
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}"
         ;;
