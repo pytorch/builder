@@ -7,7 +7,9 @@
 ID=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
 case "$ID" in
   ubuntu)
-    apt install -y libpciaccess-dev pkg-config
+    apt-get update -y
+    apt-get install -y libpciaccess-dev pkg-config
+    apt-get clean
     ;;
   centos)
     yum install -y libpciaccess-devel pkgconfig
