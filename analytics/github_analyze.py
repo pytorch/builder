@@ -46,6 +46,11 @@ class GitCommit:
 
 def get_revert_revision(commit: GitCommit) -> Optional[str]:
     import re
+    body_rc = re.search("Original Phabricator Diff: (D\\d+)", commit.body)
+
+    if commit.title.startswith("Back out \"") and body_rc is not None:
+        return body_rc.group(1)
+
     rc = re.match("Revert (D\\d+):", commit.title)
     if rc is None:
         return None
@@ -60,8 +65,20 @@ def get_diff_revision(commit: GitCommit) -> Optional[str]:
     return rc.group(1)
 
 
+def get_ghf_revert_revision(commit: GitCommit) -> Optional[str]:
+    import re
+    rc = re.search("\\s*This reverts commit ([0-9a-f]+).", commit.body)
+    if all([
+        commit.title.startswith("Revert"),
+        commit.author == "PyTorch MergeBot <pytorchmergebot@users.noreply.github.com>",
+        rc is not None
+    ]):
+        return rc.group(1)
+    return None
+
+
 def is_revert(commit: GitCommit) -> bool:
-    return get_revert_revision(commit) is not None
+    return get_revert_revision(commit) is not None or get_ghf_revert_revision(commit) is not None
 
 
 def parse_medium_format(lines: Union[str, List[str]]) -> GitCommit:
@@ -267,6 +284,13 @@ def print_monthly_stats(commits: List[GitCommit]) -> None:
         print(f"{y}-{m:02d}: commits {total} ({commits_growth:+.1f}%)  reverts {reverts} ({reverts_ratio:.1f}%) authors {authors}")
 
 
+def print_reverts(commits: List[GitCommit]) -> None:
+    for commit in commits:
+        if not is_revert(commit):
+            continue
+        print(f"{commit.commit_date} {commit.title} {commit.commit_hash}")
+
+
 def analyze_reverts(commits: List[GitCommit]):
     for idx, commit in enumerate(commits):
         revert_id = get_revert_revision(commit)
@@ -348,6 +372,7 @@ def parse_arguments():
                         help="Remote to base off of",
                         default="")
     parser.add_argument("--analyze-reverts", action="store_true")
+    parser.add_argument("--print-reverts", action="store_true")
     parser.add_argument("--contributor-stats", action="store_true")
     parser.add_argument("--missing-in-branch", action="store_true")
     return parser.parse_args()
@@ -395,6 +420,8 @@ def main():
         analyze_reverts(x)
     elif args.contributor_stats:
         print_contributor_stats(x)
+    elif args.print_reverts:
+        print_reverts(x[:2**9])
     else:
         print_monthly_stats(x)
 
