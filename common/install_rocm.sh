@@ -11,7 +11,7 @@ ver() {
 }
 
 # Map ROCm version to AMDGPU version
-declare -A AMDGPU_VERSIONS=( ["5.0"]="21.50" ["5.1"]="22.10")
+declare -A AMDGPU_VERSIONS=( ["5.0"]="21.50" ["5.1.1"]="22.10.1")
 
 install_ubuntu() {
     apt-get update
@@ -93,6 +93,9 @@ install_centos() {
   fi
 
   local rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}"
+  if [[ $(ver $ROCM_VERSION) -ge $(ver 5.1) ]]; then
+      local rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}/main"
+  fi
   echo "[ROCm]" > /etc/yum.repos.d/rocm.repo
   echo "name=ROCm" >> /etc/yum.repos.d/rocm.repo
   echo "baseurl=${rocm_baseurl}" >> /etc/yum.repos.d/rocm.repo

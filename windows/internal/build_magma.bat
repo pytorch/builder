@@ -36,18 +36,7 @@ mkdir build && cd build
 
 set GPU_TARGET=All
 set CUDA_ARCH_LIST= -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70
-
-IF "%CUVER_NODOT%" == "110" (
-  set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80"
-)
-
-IF "%CUVER_NODOT%" == "113" (
-  set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
-)
-
-IF "%CUVER_NODOT%" == "115" (
-  set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
-)
+set "CUDA_ARCH_LIST=%CUDA_ARCH_LIST% -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86"
 
 set CC=cl.exe
 set CXX=cl.exe

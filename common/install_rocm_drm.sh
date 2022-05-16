@@ -7,7 +7,9 @@
 ID=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
 case "$ID" in
   ubuntu)
-    apt install -y libpciaccess-dev pkg-config
+    apt-get update -y
+    apt-get install -y libpciaccess-dev pkg-config
+    apt-get clean
     ;;
   centos)
     yum install -y libpciaccess-devel pkgconfig
@@ -36,7 +38,7 @@ index a5007ffc..a3627529 100644
 @@ -22,6 +22,13 @@
   *
   */
- 
+
 +#define _XOPEN_SOURCE 700
 +#define _LARGEFILE64_SOURCE
 +#define _FILE_OFFSET_BITS 64
@@ -50,7 +52,7 @@ index a5007ffc..a3627529 100644
 @@ -34,6 +41,21 @@
  #include "amdgpu_drm.h"
  #include "amdgpu_internal.h"
- 
+
 +static char *amdgpuids_path = NULL;
 +
 +static int check_for_location_of_amdgpuids(const char *filepath, const struct stat *info, const int typeflag, struct FTW *pathinfo)
@@ -72,7 +74,7 @@ index a5007ffc..a3627529 100644
 @@ -113,13 +135,48 @@ void amdgpu_parse_asic_ids(struct amdgpu_device *dev)
  	int line_num = 1;
  	int r = 0;
- 
+
 -	fp = fopen(AMDGPU_ASIC_ID_TABLE, "r");
 +	char self_path[ PATH_MAX ];
 +	ssize_t count;
@@ -113,7 +115,7 @@ index a5007ffc..a3627529 100644
  			strerror(errno));
  		return;
  	}
- 
+
 +	}
 +
  	/* 1st valid line is file version */
