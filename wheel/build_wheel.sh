@@ -174,10 +174,12 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
+# NNPACK Is disabled on macOS because of https://github.com/pytorch/pytorch/issues/76094
+export USE_NNPACK=OFF
+
 if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export CMAKE_OSX_ARCHITECTURES=arm64
     export USE_MKLDNN=OFF
-    export USE_NNPACK=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
 else
