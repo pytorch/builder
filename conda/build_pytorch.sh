@@ -132,11 +132,13 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # we can override the default and set USE_DISTRIBUTED=1.
     export USE_DISTRIBUTED=1
 
+    # NNPACK Is disabled on macOS because of https://github.com/pytorch/pytorch/issues/76094
+    export USE_NNPACK=OFF
+
     # testing cross compilation
     if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
         export CMAKE_OSX_ARCHITECTURES=arm64
         export USE_MKLDNN=OFF
-        export USE_NNPACK=OFF
         export USE_QNNPACK=OFF
         export BUILD_TEST=OFF
     fi
