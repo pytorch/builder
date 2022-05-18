@@ -28,7 +28,7 @@ requirements:
     - libuv # [unix]
     - pkg-config # [unix]
     - numpy=1.19 # [py <= 39]
-    - numpy>=1.21.2 # [py >= 310]
+    - numpy=1.21.5 # [py >= 310]
     - openssl=1.1.1l # [py >= 310 and linux]
 {{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
 {{ environ.get('MAGMA_PACKAGE', '') }}
