@@ -288,7 +288,7 @@ def print_reverts(commits: List[GitCommit]) -> None:
     for commit in commits:
         if not is_revert(commit):
             continue
-        print(f"{commit.commit_date} {commit.title} {commit.commit_hash}")
+        print(f"{commit.commit_date} {commit.title} {commit.commit_hash} {commit.body}")
 
 
 def analyze_reverts(commits: List[GitCommit]):
