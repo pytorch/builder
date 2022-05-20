@@ -12,7 +12,9 @@ requirements:
   build:
     - cmake
     - {{ compiler('c') }} # [win]
-
+    - pkg-config # [unix]
+    - libuv # [unix]
+    
   host:
     - python
     - setuptools
@@ -25,8 +27,6 @@ requirements:
     - typing_extensions
     - ninja
     - libuv # [win]
-    - libuv # [unix]
-    - pkg-config # [unix]
     - numpy=1.19 # [py <= 39]
     - numpy=1.21.5 # [py >= 310]
     - openssl=1.1.1l # [py >= 310 and linux]
