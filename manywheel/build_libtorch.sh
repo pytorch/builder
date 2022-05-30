@@ -77,23 +77,6 @@ fi
 pydir="/opt/python/$DESIRED_PYTHON"
 export PATH="$pydir/bin:$PATH"
 
-# Clone pytorch source code
-pytorch_rootdir="/pytorch"
-if [[ ! -d "$pytorch_rootdir" ]]; then
-    # TODO probably safe to completely remove this
-    git clone https://github.com/pytorch/pytorch $pytorch_rootdir
-    pushd $pytorch_rootdir
-    if ! git checkout v${PYTORCH_BUILD_VERSION}; then
-          git checkout tags/v${PYTORCH_BUILD_VERSION}
-    fi
-else
-    pushd $pytorch_rootdir
-fi
-pushd $pytorch_rootdir
-
-git config --global --add safe.directory $pytorch_rootdir
-git submodule update --init --recursive --jobs 0
-
 export PATCHELF_BIN=/usr/local/bin/patchelf
 patchelf_version=`$PATCHELF_BIN --version`
 echo "patchelf version: " $patchelf_version
@@ -189,7 +172,7 @@ fi
     mv libtorch/lib/libtorch_cpu.so.dbg debug/libtorch_cpu.so.dbg
 
     echo "${PYTORCH_BUILD_VERSION}" > libtorch/build-version
-    echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
+    echo "$(pushd $PYTORCH_ROOT && git rev-parse HEAD)" > libtorch/build-hash
 
 )
 
