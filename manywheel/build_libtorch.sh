@@ -88,6 +88,11 @@ fi
 ########################################################
 # Compile wheels as well as libtorch
 #######################################################
+if [[ -z "$PYTORCH_ROOT" ]]; then
+    echo "Need to set PYTORCH_ROOT env variable"
+    exit 1
+fi
+pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
 if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
