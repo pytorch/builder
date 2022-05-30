@@ -90,6 +90,8 @@ else
     pushd $pytorch_rootdir
 fi
 pushd $pytorch_rootdir
+
+git config --global --add safe.directory $pytorch_rootdir
 git submodule update --init --recursive --jobs 0
 
 export PATCHELF_BIN=/usr/local/bin/patchelf
