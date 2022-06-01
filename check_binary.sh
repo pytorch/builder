@@ -316,6 +316,7 @@ fi
 if [[ "$PACKAGE_TYPE" != 'libtorch' ]]; then
   pushd /tmp
   python -c 'import torch; assert torch.git_version != "Unknown"'
+  python -c 'import torch; assert torch.git_version != None'
   popd
 fi
 
