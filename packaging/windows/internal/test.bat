@@ -6,7 +6,7 @@ pushd %SRC_DIR%
 set PYTHON_VERSION=%PYTHON_PREFIX:py=cp%
 
 if "%BUILD_VISION%" == "" (
-    pip install future pytest coverage hypothesis protobuf
+    pip install future pytest coverage hypothesis protobuf==3.19.4
 ) ELSE (
     pip install future pytest "pillow>=4.1.1"
 )
