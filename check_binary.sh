@@ -310,6 +310,16 @@ else
   popd
 fi
 
+###############################################################################
+# Check torch.git_version
+###############################################################################
+if [[ "$PACKAGE_TYPE" != 'libtorch' ]]; then
+  pushd /tmp
+  python -c 'import torch; assert torch.git_version != "Unknown"'
+  python -c 'import torch; assert torch.git_version != None'
+  popd
+fi
+
 
 ###############################################################################
 # Check for MKL
