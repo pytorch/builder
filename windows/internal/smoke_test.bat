@@ -93,7 +93,7 @@ call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
 call conda install %CONDA_EXTRA_ARGS% -yq future six numpy
-call conda install -c conda-forge protobuff==3.17.2
+call conda install -c conda-forge protobuf==3.17.2
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
