@@ -10,8 +10,8 @@ Here is the supported matrix for CUDA and CUDNN
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
 | 10.2 | 7.6.5.32 | Needed for publishing CUDA enabled binaries to PyPi since CUDA 11.x binaries don’t meet the space requirements (<750MB) |
-| 11.3 | 8.2.0.53 | Stable CUDA Release |
-| 11.5 | 8.3.2.44 | Latest CUDA Release |
+| 11.3 | 8.3.2.44 | Stable CUDA Release |
+| 11.6 | 8.3.2.44 | Latest CUDA Release |
 
 
 ### B. Check the package availability
