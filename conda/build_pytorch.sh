@@ -389,7 +389,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         fi
 
         retry conda install dataclasses typing-extensions future pyyaml six
-	retry conda install -c conda-forge "numpy${NUMPY_PIN}"
+	pip install "numpy${NUMPY_PIN}"
         if [[ "$cpu_only" == 1 ]]; then
           cuda_ver="cpu"
         else
