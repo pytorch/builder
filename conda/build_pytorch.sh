@@ -388,8 +388,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
           NUMPY_PIN=">=1.20"
         fi
 
-        retry conda install dataclasses typing-extensions future pyyaml six
-	pip install "numpy${NUMPY_PIN}"
+        retry pip install "numpy${NUMPY_PIN}" dataclasses typing-extensions future pyyaml six
         if [[ "$cpu_only" == 1 ]]; then
           cuda_ver="cpu"
         else
