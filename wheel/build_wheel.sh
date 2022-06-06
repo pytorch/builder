@@ -59,12 +59,7 @@ fi
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
-if [[ -n "$PACKAGE_TYPE" ]]; then
-    package_type="$PACKAGE_TYPE"
-else
-    package_type = 'wheel'
-fi
-
+package_type="${PACKAGE_TYPE:-wheel}"
 # Fill in empty parameters with defaults
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
