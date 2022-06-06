@@ -59,6 +59,12 @@ fi
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
+if [[ -n "$PACKAGE_TYPE" ]]; then
+    package_type="$PACKAGE_TYPE"
+else
+    package_type = 'wheel'
+fi
+
 # Fill in empty parameters with defaults
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
@@ -194,15 +200,17 @@ python setup.py bdist_wheel -d "$whl_tmp_dir"
 
 echo "Finished setup.py bdist_wheel at $(date)"
 
-echo "delocating wheel dependencies"
-retry pip install https://github.com/matthew-brett/delocate/archive/master.zip
-echo "found the following wheels:"
-find $whl_tmp_dir -name "*.whl"
-echo "running delocate"
-find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel -v {}
-find $whl_tmp_dir -name "*.whl"
-find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
-echo "Finished delocating wheels at $(date)"
+if [[ $package_type != 'libtorch' ]]; then
+    echo "delocating wheel dependencies"
+    retry pip install https://github.com/matthew-brett/delocate/archive/master.zip
+    echo "found the following wheels:"
+    find $whl_tmp_dir -name "*.whl"
+    echo "running delocate"
+    find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel -v {}
+    find $whl_tmp_dir -name "*.whl"
+    find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
+    echo "Finished delocating wheels at $(date)"
+fi
 
 echo "The wheel is in $(find $whl_tmp_dir -name '*.whl')"
 
