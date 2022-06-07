@@ -124,6 +124,9 @@ else
         exit 1
     fi
 fi
+
+export USE_NNPACK=OFF
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Produce macOS builds with torch.distributed support.
     # This is enabled by default on Linux, but disabled by default on macOS,
@@ -136,7 +139,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
         export CMAKE_OSX_ARCHITECTURES=arm64
         export USE_MKLDNN=OFF
-        export USE_NNPACK=OFF
         export USE_QNNPACK=OFF
         export BUILD_TEST=OFF
     fi
@@ -386,8 +388,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
           NUMPY_PIN=">=1.20"
         fi
 
-        retry conda install -y "numpy${NUMPY_PIN}" dataclasses typing-extensions future pyyaml six
-
+        retry pip install "numpy${NUMPY_PIN}" dataclasses typing-extensions future pyyaml six
         if [[ "$cpu_only" == 1 ]]; then
           cuda_ver="cpu"
         else

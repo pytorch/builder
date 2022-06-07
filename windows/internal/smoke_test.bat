@@ -50,7 +50,8 @@ if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
-pip install -q future numpy protobuf==3.19.4 six "mkl>=2019"
+pip install -q future numpy protobuf==3.17.2 six "mkl>=2019"
+
 if errorlevel 1 exit /b 1
 
 if "%TEST_NIGHTLY_PACKAGE%" == "1" (
@@ -92,7 +93,9 @@ if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
-call conda install %CONDA_EXTRA_ARGS% -yq future protobuf==3.19.4 six numpy
+call conda install %CONDA_EXTRA_ARGS% -yq future six numpy
+call conda install -c conda-forge protobuf==3.17.2
+
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
