@@ -98,7 +98,7 @@ DEPS_LIST=(
     "/opt/rocm/lib/libhiprand.so.1"
     "/opt/rocm/lib/libhipsparse.so.0"
     "/opt/rocm/lib/libhsa-runtime64.so.1"
-    "/opt/rocm/${MAYBE_LIB64}/libamd_comgr.so.2"
+    "/opt/rocm/lib/libamd_comgr.so.2"
     "/opt/rocm/magma/lib/libmagma.so"
     "/opt/rocm/lib/librccl.so.1"
     "/opt/rocm/lib/librocblas.so.0"
