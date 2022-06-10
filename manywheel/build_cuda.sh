@@ -114,6 +114,8 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.10.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libcublas.so.10"
+    "/usr/local/cuda/lib64/libcublasLt.so.10"
     "$LIBGOMP_PATH"
 )
 
@@ -122,6 +124,8 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.10.2"
     "libnvrtc-builtins.so"
+    "libcublas.so.10"
+    "libcublasLt.so.10"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.3" ]]; then
