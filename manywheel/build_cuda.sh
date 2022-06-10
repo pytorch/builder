@@ -114,6 +114,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.10.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libcusolver.so.10"
     "$LIBGOMP_PATH"
 )
 
@@ -122,6 +123,7 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.10.2"
     "libnvrtc-builtins.so"
+    "libcusolver.so.10"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.3" ]]; then
@@ -140,6 +142,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudnn.so.8"
     "/usr/local/cuda/lib64/libcublas.so.11"
     "/usr/local/cuda/lib64/libcublasLt.so.11"
+    "/usr/local/cuda/lib64/libcusolver.so.11"
     "$LIBGOMP_PATH"
 )
 
@@ -157,6 +160,7 @@ DEPS_SONAME=(
     "libcudnn.so.8"
     "libcublas.so.11"
     "libcublasLt.so.11"
+    "libcusolver.so.11"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.5" ]]; then
@@ -175,6 +179,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudnn.so.8"
     "/usr/local/cuda/lib64/libcublas.so.11"
     "/usr/local/cuda/lib64/libcublasLt.so.11"
+    "/usr/local/cuda/lib64/libcusolver.so.11"
     "$LIBGOMP_PATH"
 )
 DEPS_SONAME=(
@@ -191,6 +196,7 @@ DEPS_SONAME=(
     "libcudnn.so.8"
     "libcublas.so.11"
     "libcublasLt.so.11"
+    "libcusolver.so.11"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.6" ]]; then
@@ -209,6 +215,7 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudnn.so.8"
     "/usr/local/cuda/lib64/libcublas.so.11"
     "/usr/local/cuda/lib64/libcublasLt.so.11"
+    "/usr/local/cuda/lib64/libcusolver.so.11"
     "$LIBGOMP_PATH"
 )
 DEPS_SONAME=(
@@ -225,6 +232,7 @@ DEPS_SONAME=(
     "libcudnn.so.8"
     "libcublas.so.11"
     "libcublasLt.so.11"
+    "libcusolver.so.11"
     "libgomp.so.1"
 )
 

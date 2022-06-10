@@ -234,7 +234,7 @@ fname_with_sha256() {
     # Do not rename nvrtc-builtins.so as they are dynamically loaded
     # by libnvrtc.so
     # Similarly don't mangle libcudnn and libcublas library names
-    if [[ $BASENAME == "libnvrtc-builtins.s"* || $BASENAME == "libcudnn"* || $BASENAME == "libcublas"*  ]]; then
+    if [[ $BASENAME == "libnvrtc-builtins.s"* || $BASENAME == "libcudnn"* || $BASENAME == "libcublas"* || $BASENAME == "libcusolver"*  ]]; then
         echo $1
     else
         INITNAME=$(echo $BASENAME | cut -f1 -d".")
