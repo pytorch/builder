@@ -11,6 +11,9 @@ function do_install() {
     if [[ ${cuda_version_nodot} == 116 ]]; then
         MAGMA_VERSION="2.6.1"
         magma_archive="magma-cuda${cuda_version_nodot}-${MAGMA_VERSION}-0.tar.bz2"
+    elif [[ ${cuda_version_nodot} == 117 ]]; then
+	MAGMA_VERSION="2.6.1"
+	magma_archive="magma-cuda${cuda_version_nodot}-${MAGMA_VERSION}-0.tar.bz2"
     else
         magma_archive="magma-cuda${cuda_version_nodot}-${MAGMA_VERSION}-1.tar.bz2"
     fi
