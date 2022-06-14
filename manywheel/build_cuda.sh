@@ -232,7 +232,6 @@ DEPS_SONAME=(
     "libgomp.so.1"
 )
 
-
 elif [[ $CUDA_VERSION == "11.7" ]]; then
 export USE_STATIC_CUDNN=0
 DEPS_LIST=(
