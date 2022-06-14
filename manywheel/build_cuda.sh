@@ -232,7 +232,6 @@ DEPS_SONAME=(
     "libgomp.so.1"
 )
 
-# Try parallelizing nvcc as well
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
 
 elif [[ $CUDA_VERSION == "11.7" ]]; then
