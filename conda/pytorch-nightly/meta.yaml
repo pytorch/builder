@@ -70,6 +70,7 @@ build:
     - DEVELOPER_DIR
     - DEBUG
     - USE_FBGEMM
+    - DESIRED_DEVTOOLSET
     - USE_GLOO_WITH_OPENSSL # [unix]
     - USE_SCCACHE # [win]
     - USE_DISTRIBUTED # [unix]
