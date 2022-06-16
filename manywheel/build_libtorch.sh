@@ -122,14 +122,8 @@ fi
 
 echo "Calling setup.py install at $(date)"
 
-BUILD_SHARED_VAR="ON"
-USE_TENSORPIPE_VAR="ON"
 if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
     STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
-    BUILD_SHARED_VAR="OFF"
-    # Tensorpipe breaks with static builds.
-    # Remove this after https://github.com/pytorch/tensorpipe/issues/449 is fixed
-    USE_TENSORPIPE_VAR="OFF"
 fi
 
 (
@@ -141,9 +135,7 @@ fi
         EXTRA_CAFFE2_CMAKE_FLAGS="${EXTRA_CAFFE2_CMAKE_FLAGS[@]} $STATIC_CMAKE_FLAG" \
         # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
         CFLAGS='-Wno-deprecated-declarations' \
-	BUILD_SHARED_LIBS=${BUILD_SHARED_VAR} \
-	USE_TENSORPIPE=${USE_TENSORPIPE_VAR} \
-	BUILD_LIBTORCH_CPU_WITH_DEBUG=1 \
+        BUILD_LIBTORCH_CPU_WITH_DEBUG=1 \
         python setup.py install
 
     mkdir -p libtorch/{lib,bin,include,share}
