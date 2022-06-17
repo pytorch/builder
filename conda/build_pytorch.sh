@@ -267,14 +267,11 @@ else
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
     if [[ "$desired_cuda" == "11.7" ]]; then
-	export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.7,<11.8 # [not osx]"
-	export MAGMA_PACKAGE="    - magma-cuda117 # [not osx and not win]"
+	    export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.7,<11.8 # [not osx]"
+	    export MAGMA_PACKAGE="    - magma-cuda117 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.6" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.6,<11.7 # [not osx]"
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cuda >=11.6,<11.7 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda116 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.5" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.5,<11.6 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda115 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.3" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - cudatoolkit >=11.3,<11.4 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda113 # [not osx and not win]"
