@@ -59,6 +59,12 @@ fi
 export PYTORCH_BUILD_VERSION=$build_version
 export PYTORCH_BUILD_NUMBER=$build_number
 
+if [[ -n "$BUILD_PYTHONLESS" && -z "$LIBTORCH_VARIANT" ]]; then
+    echo "BUILD_PYTHONLESS is set, so need LIBTORCH_VARIANT to also be set"
+    echo "LIBTORCH_VARIANT should be one of shared static"
+    exit 1
+fi
+
 package_type="${PACKAGE_TYPE:-wheel}"
 # Fill in empty parameters with defaults
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
@@ -137,7 +143,6 @@ popd
 
 export TH_BINARY_BUILD=1
 export INSTALL_TEST=0 # dont install test binaries into site-packages
-export MACOSX_DEPLOYMENT_TARGET=10.10
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
@@ -168,7 +173,6 @@ conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_p
 source activate "$tmp_env_name"
 
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
@@ -177,12 +181,18 @@ retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
 if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export CMAKE_OSX_ARCHITECTURES=arm64
+    #arm64 required Target 11.0 or later. It builds with 10.10 but spews warnings
+    export MACOSX_DEPLOYMENT_TARGET=11.0
     export USE_MKLDNN=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
 else
+    export CMAKE_OSX_ARCHITECTURES=x86_64
+    #MKL is required only for x86_64 macOS
+    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
     retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
     export USE_LLVM="${CONDA_PREFIX}"
+    export MACOSX_DEPLOYMENT_TARGET=10.10
 fi
 
 pushd "$pytorch_rootdir"
@@ -233,11 +243,30 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
         echo "$(date) :: Finished tests"
     fi
 else
+    echo "Building libtorch.."
     pushd "$pytorch_rootdir"
     mkdir -p build
     pushd build
+
+    BUILD_SHARED_VAR="ON"
+    USE_TENSORPIPE_VAR="ON"
+    USE_MKLDNN_VAR="ON"
+    if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
+        STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
+        BUILD_SHARED_VAR="OFF"
+        # Tensorpipe breaks with static builds.
+        # Remove this after https://github.com/pytorch/tensorpipe/issues/449 is fixed
+        USE_TENSORPIPE_VAR="OFF"
+        # MKL_DNN breaks static builds
+        # Remove this after https://github.com/pytorch/pytorch/issues/80012 is fixed
+        USE_MKLDNN_VAR="OFF"
+    fi
+
     # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
-    CFLAGS='-Wno-deprecated-declarations' python ../tools/build_libtorch.py
+    CFLAGS='-Wno-deprecated-declarations $STATIC_CMAKE_FLAG' \
+    CMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES} \
+    BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS_VAR} \
+    python ../tools/build_libtorch.py
     popd
 
     mkdir -p libtorch/{lib,bin,include,share}
@@ -252,17 +281,20 @@ else
         cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
     fi
     cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
-    if [[ -x "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" ]]; then
-        cp -r "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" "$(pwd)/libtorch/lib/"
-    else
-        cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
+    if [[ $LIBTORCH_VARIANT = *"shared"* ]]; then
+        if [[ -x "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" ]]; then
+            cp -r "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" "$(pwd)/libtorch/lib/"
+        else
+            cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
+        fi
     fi
     rm -rf "$(pwd)/any_wheel"
 
     echo $PYTORCH_BUILD_VERSION > libtorch/build-version
     echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
-    zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
-    cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip"  \
-       "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-latest.zip"
+    # Zip and copy libtorch
+    zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-$LIBTORCH_VARIANT-$CMAKE_OSX_ARCHITECTURES-$PYTORCH_BUILD_VERSION.zip libtorch
+    cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-$LIBTORCH_VARIANT-$CMAKE_OSX_ARCHITECTURES-$PYTORCH_BUILD_VERSION.zip \
+       "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-$LIBTORCH_VARIANT-$CMAKE_OSX_ARCHITECTURES-latest.zip
 fi
