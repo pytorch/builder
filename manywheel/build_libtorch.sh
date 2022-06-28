@@ -122,8 +122,23 @@ fi
 
 echo "Calling setup.py install at $(date)"
 
+BUILD_SHARED_VAR="ON"
+BUILD_TESTS_VAR="ON"
+USE_TENSORPIPE_VAR="ON"
+USE_MKLDNN_VAR="ON"
+USE_MKL_VAR="ON"
 if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
     STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
+    BUILD_SHARED_VAR="OFF"
+    # Tensorpipe breaks with static builds.
+    # Remove this after https://github.com/pytorch/tensorpipe/issues/449 is fixed
+    USE_TENSORPIPE_VAR="OFF"
+    # MKL_DNN breaks static builds
+    # Remove this after https://github.com/pytorch/pytorch/issues/80012 is fixed
+    USE_MKLDNN_VAR="OFF"
+    USE_MKL_VAR="OFF"
+    # Turn off Static build tests since it causes excessive memory useage and build failures
+    BUILD_TESTS_VAR="OFF"
 fi
 
 (
@@ -136,6 +151,11 @@ fi
         # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
         CFLAGS='-Wno-deprecated-declarations' \
         BUILD_LIBTORCH_CPU_WITH_DEBUG=1 \
+	BUILD_SHARED_LIBS=${BUILD_SHARED_VAR} \
+	USE_TENSORPIPE=${USE_TENSORPIPE_VAR} \
+	USE_MKLDNN=${USE_MKLDNN_VAR} \
+	USE_MKL=${USE_MKL_VAR} \
+        BUILD_TEST=${BUILD_TESTS_VAR} \
         python setup.py install
 
     mkdir -p libtorch/{lib,bin,include,share}
