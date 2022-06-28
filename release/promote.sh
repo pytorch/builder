@@ -2,6 +2,9 @@
 
 set -eou pipefail
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source "${DIR}/release_versions.sh"
+
 # Make sure to update these versions when doing a release first
 PYTORCH_VERSION=${PYTORCH_VERSION:-1.12.0}
 TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.13.0}
