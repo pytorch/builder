@@ -123,7 +123,6 @@ fi
 echo "Calling setup.py install at $(date)"
 
 BUILD_SHARED_VAR="ON"
-BUILD_TESTS_VAR="ON"
 USE_TENSORPIPE_VAR="ON"
 USE_MKLDNN_VAR="ON"
 if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
@@ -135,8 +134,6 @@ if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
     # MKL_DNN breaks static builds
     # Remove this after https://github.com/pytorch/pytorch/issues/80012 is fixed
     USE_MKLDNN_VAR="OFF"
-    # Turn off Static build tests since it causes excessive memory useage and build failures
-    BUILD_TESTS_VAR="OFF"
 fi
 
 (
@@ -152,7 +149,6 @@ fi
 	BUILD_SHARED_LIBS=${BUILD_SHARED_VAR} \
 	USE_TENSORPIPE=${USE_TENSORPIPE_VAR} \
 	USE_MKLDNN=${USE_MKLDNN_VAR} \
-        BUILD_TEST=${BUILD_TESTS_VAR} \
         python setup.py install
 
     mkdir -p libtorch/{lib,bin,include,share}
