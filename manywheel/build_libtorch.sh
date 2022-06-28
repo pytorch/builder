@@ -126,6 +126,7 @@ BUILD_SHARED_VAR="ON"
 BUILD_TESTS_VAR="ON"
 USE_TENSORPIPE_VAR="ON"
 USE_MKLDNN_VAR="ON"
+USE_MKL_VAR="ON"
 if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
     STATIC_CMAKE_FLAG="-DTORCH_STATIC=1"
     BUILD_SHARED_VAR="OFF"
@@ -135,6 +136,7 @@ if [[ $LIBTORCH_VARIANT = *"static"* ]]; then
     # MKL_DNN breaks static builds
     # Remove this after https://github.com/pytorch/pytorch/issues/80012 is fixed
     USE_MKLDNN_VAR="OFF"
+    USE_MKL_VAR="OFF"
     # Turn off Static build tests since it causes excessive memory useage and build failures
     BUILD_TESTS_VAR="OFF"
 fi
@@ -152,6 +154,7 @@ fi
 	BUILD_SHARED_LIBS=${BUILD_SHARED_VAR} \
 	USE_TENSORPIPE=${USE_TENSORPIPE_VAR} \
 	USE_MKLDNN=${USE_MKLDNN_VAR} \
+	USE_MKL=${USE_MKL_VAR} \
         BUILD_TEST=${BUILD_TESTS_VAR} \
         python setup.py install
 
