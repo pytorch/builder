@@ -58,7 +58,7 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    11.[356])
+    11.[3567])
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
@@ -114,6 +114,8 @@ DEPS_LIST=(
     "/usr/local/cuda/lib64/libnvToolsExt.so.1"
     "/usr/local/cuda/lib64/libnvrtc.so.10.2"
     "/usr/local/cuda/lib64/libnvrtc-builtins.so"
+    "/usr/local/cuda/lib64/libcublas.so.10"
+    "/usr/local/cuda/lib64/libcublasLt.so.10"
     "$LIBGOMP_PATH"
 )
 
@@ -122,6 +124,8 @@ DEPS_SONAME=(
     "libnvToolsExt.so.1"
     "libnvrtc.so.10.2"
     "libnvrtc-builtins.so"
+    "libcublas.so.10"
+    "libcublasLt.so.10"
     "libgomp.so.1"
 )
 elif [[ $CUDA_VERSION == "11.3" ]]; then
@@ -227,7 +231,40 @@ DEPS_SONAME=(
     "libcublasLt.so.11"
     "libgomp.so.1"
 )
-
+elif [[ $CUDA_VERSION == "11.7" ]]; then
+export USE_STATIC_CUDNN=0
+DEPS_LIST=(
+    "/usr/local/cuda/lib64/libcudart.so.11.0"
+    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.7, it links to 11.7.50
+    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
+    "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
+    "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
+    "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
+    "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
+    "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
+    "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
+    "/usr/local/cuda/lib64/libcudnn.so.8"
+    "/usr/local/cuda/lib64/libcublas.so.11"
+    "/usr/local/cuda/lib64/libcublasLt.so.11"
+    "$LIBGOMP_PATH"
+)
+DEPS_SONAME=(
+    "libcudart.so.11.0"
+    "libnvToolsExt.so.1"
+    "libnvrtc.so.11.2"
+    "libnvrtc-builtins.so.11.7"
+    "libcudnn_adv_infer.so.8"
+    "libcudnn_adv_train.so.8"
+    "libcudnn_cnn_infer.so.8"
+    "libcudnn_cnn_train.so.8"
+    "libcudnn_ops_infer.so.8"
+    "libcudnn_ops_train.so.8"
+    "libcudnn.so.8"
+    "libcublas.so.11"
+    "libcublasLt.so.11"
+    "libgomp.so.1"
+)
 
 # Try parallelizing nvcc as well
 export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
