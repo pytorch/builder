@@ -33,6 +33,9 @@ esac
     --build-arg "BASE_TARGET=${BASE_TARGET}" \
     --build-arg "CUDA_VERSION=${CUDA_VERSION}" \
     --build-arg "DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}" \
+    # fabi-version=11 is required in order to ensure compatibility between gcc7 and gcc9
+    # please remove when decomissioning DEVTOOLSET_VERSION 7
+    --build-arg "-fabi-version=11" \
     -t "pytorch/conda-builder:${DOCKER_TAG}" \
     -f "${TOPDIR}/conda/Dockerfile" \
     ${TOPDIR}

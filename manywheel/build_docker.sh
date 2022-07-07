@@ -12,20 +12,22 @@ MANY_LINUX_VERSION=${MANY_LINUX_VERSION:-}
 
 WITH_PUSH=${WITH_PUSH:-}
 
+# fabi-version=11 is required in order to ensure compatibility between gcc7 and gcc9
+# please remove when decomissioning DEVTOOLSET_VERSION 7
 case ${GPU_ARCH_TYPE} in
     cpu)
         TARGET=cpu_final
         DOCKER_TAG=cpu
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu
         GPU_IMAGE=centos:7
-        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9 --build-arg -fabi-version=11"
         ;;
     cpu-cxx11-abi)
         TARGET=final
         DOCKER_TAG=cpu-cxx11-abi
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu-cxx11-abi
         GPU_IMAGE=""
-        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9 --build-arg -fabi-version=11"
         MANY_LINUX_VERSION="cxx11-abi"
         ;;
     cuda)
@@ -38,7 +40,7 @@ case ${GPU_ARCH_TYPE} in
         if [[ ${GPU_ARCH_VERSION:0:2} == "10" ]]; then
             DEVTOOLSET_VERSION="7"
         fi
-        DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}"
+        DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION} --build-arg -fabi-version=11"
         ;;
     rocm)
         TARGET=rocm_final
