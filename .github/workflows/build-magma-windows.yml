@@ -6,9 +6,11 @@ on:
       main
     paths:
       - windows/internal/build_magma.bat
+      - .github/workflows/build-magma-windows.yml
   pull_request:
     paths:
       - windows/internal/build_magma.bat
+      - .github/workflows/build-magma-windows.yml
 
 jobs:
   build-windows-magma:
