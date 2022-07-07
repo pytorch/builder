@@ -138,6 +138,8 @@ if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
     export USE_LLVM="/opt/llvm"
     export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
+elif [[ "$DESIRED_DEVTOOLSET" == 9 ]]; then
+    export _GLIBCXX_USE_CXX11_ABI=1
 else
     export _GLIBCXX_USE_CXX11_ABI=0
     export USE_LLVM="/opt/llvm_no_cxx11_abi"
