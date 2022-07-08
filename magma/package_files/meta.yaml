@@ -11,7 +11,7 @@ source:
      - getrf_nbparam.patch  # fixes "too many resources requested for launch" error
 
 build:
-  number: 0
+  number: 1
   script_env:
     - DESIRED_CUDA
     - CUDA_ARCH_LIST
