@@ -14,7 +14,7 @@ requirements:
     - {{ compiler('c') }} # [win]
     - pkg-config # [unix]
     - libuv # [unix]
-    
+
   host:
     - python
     - setuptools
@@ -80,6 +80,7 @@ build:
     - BUILD_TEST # [unix]
     - USE_PYTORCH_METAL_EXPORT # [osx]
     - USE_COREML_DELEGATE # [osx]
+    - _GLIBCXX_USE_CXX11_ABI # [unix]
 
 test:
  imports:
