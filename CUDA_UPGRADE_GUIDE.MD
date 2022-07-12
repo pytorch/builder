@@ -99,8 +99,8 @@ the test has been run and is green.
 
 ## 8. Add the new CUDA version to the nightly binaries matrix.
 Adding the new version to nightlies allows PyTorch binaries compiled with the new CUDA version to be available to users through `conda` or `pip` or just raw `libtorch`.
-1. The difficulty in this task is NOT changing the config--you only need to modify this [line](https://github.com/pytorch/pytorch/blob/master/.github/scripts/generate_binary_build_matrix.py#L16)--but the debugging process that ensues. **Code reference**: [PR 69262](https://github.com/pytorch/pytorch/pull/69262)
-2. Since this change should not touch other build jobs and it is very likely you would be running these jobs on the CI frequently, I'd advise reducing the config to only the build jobs for the new CI version and to use your own fork of `pytorch/builder`. **Code reference**: [PR 57522](https://github.com/pytorch/pytorch/pull/57522).
+1. Follow this [PR 81095](https://github.com/pytorch/pytorch/pull/81095) for all the steps in this section.
+2. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/binaries_conda, ciflow/binaries_wheel, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
 3. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
     - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict
