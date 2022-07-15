@@ -49,7 +49,7 @@ else
     build_version="$2"
     build_number="$3"
 fi
-if [[ "$desired_cuda" != cpu ]] && [[ "$desired_cuda" != cpu-cxx11-abi ]]; then
+if [[ "$desired_cuda" != cpu ]]; then
   desired_cuda="$(echo $desired_cuda | tr -d cuda. )"
 fi
 echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
@@ -108,7 +108,7 @@ fi
 if [[ "$OSTYPE" == "darwin"* ]]; then
     DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
 fi
-if [[ "$desired_cuda" == 'cpu' ]] || [[ "$desired_cuda" == 'cpu-cxx11-abi' ]]; then
+if [[ "$desired_cuda" == 'cpu' ]]; then
     cpu_only=1
 else
     # Switch desired_cuda to be M.m to be consistent with other scripts in

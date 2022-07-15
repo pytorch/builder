@@ -10,17 +10,11 @@ DEVTOOLSET_VERSION="9"
 if [[ ${CUDA_VERSION:0:2} == "10" ]]; then
   DEVTOOLSET_VERSION="7"
 fi
-CONDA_LINUX_VERSION=${CONDA_LINUX_VERSION:-}
 
 case ${CUDA_VERSION} in
   cpu)
     BASE_TARGET=base
     DOCKER_TAG=cpu
-    ;;
-  cpu-cxx11-abi)
-    BASE_TARGET=base
-    DOCKER_TAG=cpu-cxx11-abi
-    CONDA_LINUX_VERSION="cxx11-abi"
     ;;
   all)
     BASE_TARGET=all_cuda
@@ -32,12 +26,6 @@ case ${CUDA_VERSION} in
     ;;
 esac
 
-if [[ -n ${CONDA_LINUX_VERSION} ]]; then
-    DOCKERFILE_SUFFIX=_${CONDA_LINUX_VERSION}
-else
-    DOCKERFILE_SUFFIX=''
-fi
-
 (
   set -x
   docker build \
@@ -46,7 +34,7 @@ fi
     --build-arg "CUDA_VERSION=${CUDA_VERSION}" \
     --build-arg "DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}" \
     -t "pytorch/conda-builder:${DOCKER_TAG}" \
-    -f "${TOPDIR}/conda/Dockerfile${DOCKERFILE_SUFFIX}" \
+    -f "${TOPDIR}/conda/Dockerfile" \
     ${TOPDIR}
 )
 
