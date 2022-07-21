@@ -404,3 +404,12 @@ except RuntimeError as e:
     exit 1
   fi
 fi
+
+###############################################################################
+# Check for C++ ABI compatibility between gcc7 and gcc9 compiled binaries
+###############################################################################
+if [[ "$(uname)" == 'Linux' and ("$PACKAGE_TYPE" == 'conda' or "$PACKAGE_TYPE" == 'manywheel') ]]; then
+  pushd /tmp
+  python -c "import torch; exit(0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1011' else 1)"
+  popd
+fi

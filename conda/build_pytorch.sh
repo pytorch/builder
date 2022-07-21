@@ -301,6 +301,10 @@ fi
 # Build PyTorch with Gloo's TCP_TLS transport
 if [[ "$(uname)" == 'Linux' ]]; then
     export USE_GLOO_WITH_OPENSSL=1
+
+    # Defining and Setting _GLIBCXX_USE_CXX11_ABI flag in order to make sure we are setting
+    # -fabi-version=11 flag in the pytorch CMake lists
+    export _GLIBCXX_USE_CXX11_ABI=0
 fi
 
 # Loop through all Python versions to build a package for each
