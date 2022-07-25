@@ -76,13 +76,13 @@ RUN apt-get update -y && \
     apt-get install gfortran -y && \
     apt-get clean
 
-FROM rocm as rocm5.0
-RUN ROCM_VERSION=5.0 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.1.1
+RUN ROCM_VERSION=5.1.1 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
-FROM rocm as rocm5.1.1
-RUN ROCM_VERSION=5.1.1 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.2
+RUN ROCM_VERSION=5.2 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
