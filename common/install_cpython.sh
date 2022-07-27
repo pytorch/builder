@@ -68,7 +68,7 @@ function build_cpython {
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
     # Only beta version of 3.11 is available right now
-    if [ "$py_ver" = "3.11.0" ] then
+    if [ "$py_ver" = "3.11.0" ]; then
         py_ver=$py_ver"b1"
     fi
     wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
