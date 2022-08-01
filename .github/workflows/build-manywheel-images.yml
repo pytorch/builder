@@ -15,6 +15,7 @@ on:
       - manywheel/Dockerfile
       - 'common/*'
       - manywheel/build_docker.sh
+  workflow_dispatch:
 
 env:
   DOCKER_REGISTRY: "docker.io"
