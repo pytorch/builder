@@ -8,6 +8,7 @@ on:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
       - manywheel/build_docker.sh
+      - manywheel/build_rocm.sh
       - 'common/*'
   pull_request:
     paths:
@@ -15,6 +16,7 @@ on:
       - manywheel/Dockerfile
       - 'common/*'
       - manywheel/build_docker.sh
+      - manywheel/build_rocm.sh
 
 env:
   DOCKER_REGISTRY: "docker.io"
