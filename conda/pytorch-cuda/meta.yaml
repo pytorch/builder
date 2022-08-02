@@ -1,0 +1,53 @@
+{% set build = 0 %}
+{% set version="1.0" %}
+
+{% set cuda_constraints=">=11.6,<11.7" %}
+{% if cuda_version == '11.7' %}
+{% set cuda_constraints=">=11.7,<11.8" %}
+{% endif %}
+
+package:
+  name: pytorch-cuda
+  version: {{ version }}
+build:
+  number: {{ build }}
+  string: cuda{{ cuda_version }}
+  noarch: generic
+requirements:
+  run_constrained:
+    - cuda {{ cuda_constraints }}
+    - cuda-cccl {{ cuda_constraints }}
+    - cuda-command-line-tools {{ cuda_constraints }}
+    - cuda-compiler {{ cuda_constraints }}
+    - cuda-cudart {{ cuda_constraints }}
+    - cuda-cudart-dev {{ cuda_constraints }}
+    - cuda-cuobjdump {{ cuda_constraints }}
+    - cuda-cupti {{ cuda_constraints }}
+    - cuda-cuxxfilt {{ cuda_constraints }}
+    - cuda-driver-dev {{ cuda_constraints }}
+    - cuda-gdb {{ cuda_constraints }}
+    - cuda-libraries {{ cuda_constraints }}
+    - cuda-libraries-dev {{ cuda_constraints }}
+    - cuda-cudaart-dev {{ cuda_constraints }}
+    - cuda-memcheck {{ cuda_constraints }}
+    - cuda-nvcc {{ cuda_constraints }}
+    - cuda-nvdisasm {{ cuda_constraints }}
+    - cuda-nvml-dev {{ cuda_constraints }}
+    - cuda-nvprof {{ cuda_constraints }}
+    - cuda-nvprune {{ cuda_constraints }}
+    - cuda-nvrtc {{ cuda_constraints }}
+    - cuda-nvrtc-dev {{ cuda_constraints }}
+    - cuda-nvtx {{ cuda_constraints }}
+    - cuda-nvvp {{ cuda_constraints }}
+    - cuda-runtime {{ cuda_constraints }}
+    - cuda-samples {{ cuda_constraints }}
+    - cuda-sanitizer-api {{ cuda_constraints }}
+    - cuda-toolkit {{ cuda_constraints }}
+    - cuda-tools {{ cuda_constraints }}
+    - cuda-visual-tools {{ cuda_constraints }}
+  # None, pytorch should depend on pytorch-cuda
+test:
+  commands:
+    - echo "pytorch-cuda metapackage is created."
+about:
+  summary: Metapackage to select the PyTorch variant. Use conda's pinning mechanism in your environment to control which variant you want.
