@@ -11,8 +11,6 @@ TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.13.0}
 TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-0.12.0}
 TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.13.0}
 
-PYTORCH_DIR=${PYTORCH_DIR:-~/pytorch}
-
 DRY_RUN=${DRY_RUN:-enabled}
 
 promote_s3() {
@@ -30,7 +28,7 @@ promote_s3() {
             PACKAGE_NAME="${package_name}" \
             PACKAGE_TYPE="${package_type}" \
             TEST_WITHOUT_GIT_TAG=1 \
-            DRY_RUN="${DRY_RUN}" ${PYTORCH_DIR}/scripts/release/promote/s3_to_s3.sh
+            DRY_RUN="${DRY_RUN}" ${DIR}/promote/s3_to_s3.sh
     )
     echo
 }
@@ -67,7 +65,7 @@ promote_pypi() {
         TEST_PYTORCH_PROMOTE_VERSION="${promote_version}" \
             PACKAGE_NAME="${package_name}" \
             TEST_WITHOUT_GIT_TAG=1 \
-            DRY_RUN="${DRY_RUN}" ${PYTORCH_DIR}/scripts/release/promote/wheel_to_pypi.sh
+            DRY_RUN="${DRY_RUN}" ${DIR}/promote/wheel_to_pypi.sh
     )
     echo
 }
