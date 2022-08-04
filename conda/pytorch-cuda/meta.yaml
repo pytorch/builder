@@ -25,26 +25,19 @@ requirements:
     - cuda-cupti {{ cuda_constraints }}
     - cuda-cuxxfilt {{ cuda_constraints }}
     - cuda-driver-dev {{ cuda_constraints }}
-    - cuda-gdb {{ cuda_constraints }}
     - cuda-libraries {{ cuda_constraints }}
     - cuda-libraries-dev {{ cuda_constraints }}
     - cuda-cudaart-dev {{ cuda_constraints }}
-    - cuda-memcheck {{ cuda_constraints }}
     - cuda-nvcc {{ cuda_constraints }}
-    - cuda-nvdisasm {{ cuda_constraints }}
     - cuda-nvml-dev {{ cuda_constraints }}
-    - cuda-nvprof {{ cuda_constraints }}
     - cuda-nvprune {{ cuda_constraints }}
     - cuda-nvrtc {{ cuda_constraints }}
     - cuda-nvrtc-dev {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
-    - cuda-nvvp {{ cuda_constraints }}
     - cuda-runtime {{ cuda_constraints }}
-    - cuda-samples {{ cuda_constraints }}
     - cuda-sanitizer-api {{ cuda_constraints }}
     - cuda-toolkit {{ cuda_constraints }}
     - cuda-tools {{ cuda_constraints }}
-    - cuda-visual-tools {{ cuda_constraints }}
   # None, pytorch should depend on pytorch-cuda
 test:
   commands:
