@@ -17,8 +17,13 @@ retry () {
 
 if ! [ -x "$(command -v curl)" ]; then
     if [ -f /etc/lsb-release ]; then
-	apt-get update
-	apt-get install -y curl
+      # TODO: Remove this once nvidia package repos are back online
+      # Comment out nvidia repositories to prevent them from getting apt-get updated, see https://github.com/pytorch/pytorch/issues/74968
+      # shellcheck disable=SC2046
+      sed -i 's/.*nvidia.*/# &/' $(find /etc/apt/ -type f -name "*.list")
+
+      apt-get update
+      apt-get install -y curl
     fi
 fi
 

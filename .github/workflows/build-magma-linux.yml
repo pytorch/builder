@@ -28,7 +28,7 @@ jobs:
     runs-on: linux.2xlarge
     strategy:
       matrix:
-        cuda_version: ["115"]
+        cuda_version: ["117", "116", "115"]
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2

@@ -1,6 +1,7 @@
 # syntax = docker/dockerfile:experimental
 ARG ROCM_VERSION=3.7
 ARG BASE_CUDA_VERSION=10.1
+
 ARG GPU_IMAGE=nvidia/cuda:${BASE_CUDA_VERSION}-devel-centos7
 FROM centos:7 as base
 
@@ -8,12 +9,13 @@ ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
+ARG DEVTOOLSET_VERSION=9
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
-ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
+RUN yum install -y devtoolset-${DEVTOOLSET_VERSION}-gcc devtoolset-${DEVTOOLSET_VERSION}-gcc-c++ devtoolset-${DEVTOOLSET_VERSION}-gcc-gfortran devtoolset-${DEVTOOLSET_VERSION}-binutils
+ENV PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
 
 RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     rpm -ivh epel-release-latest-7.noarch.rpm && \
@@ -106,7 +108,12 @@ RUN yum install -y \
 RUN yum install -y \
     https://repo.ius.io/ius-release-el7.rpm \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-RUN yum swap -y git git224-core
+RUN yum swap -y git git236-core
+# git236+ would refuse to run git commands in repos owned by other users
+# Which causes version check to fail, as pytorch repo is bind-mounted into the image
+# Override this behaviour by treating every folder as safe
+# For more details see https://github.com/pytorch/pytorch/issues/78659#issuecomment-1144107327
+RUN git config --global --add safe.directory "*"
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 # Install LLVM version
@@ -128,11 +135,12 @@ COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1
+ARG DEVTOOLSET_VERSION=9
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
-RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
-ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
+RUN yum install -y devtoolset-${DEVTOOLSET_VERSION}-gcc devtoolset-${DEVTOOLSET_VERSION}-gcc-c++ devtoolset-${DEVTOOLSET_VERSION}-gcc-gfortran devtoolset-${DEVTOOLSET_VERSION}-binutils
+ENV PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
 
 # cmake
 RUN yum install -y cmake3 && \
@@ -154,6 +162,8 @@ ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 # Install ROCm
 ADD ./common/install_rocm.sh install_rocm.sh
 RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
+ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
+RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 # cmake is already installed inside the rocm base image, but both 2 and 3 exist

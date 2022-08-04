@@ -25,6 +25,10 @@ OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
+    # TODO: Remove this once nvidia package repos are back online
+    # Comment out nvidia repositories to prevent them from getting apt-get updated, see https://github.com/pytorch/pytorch/issues/74968
+    # shellcheck disable=SC2046
+    sed -i 's/.*nvidia.*/# &/' $(find /etc/apt/ -type f -name "*.list")
     retry apt-get update
     retry apt-get -y install zip openssl
 fi
@@ -73,21 +77,6 @@ fi
 pydir="/opt/python/$DESIRED_PYTHON"
 export PATH="$pydir/bin:$PATH"
 
-# Clone pytorch source code
-pytorch_rootdir="/pytorch"
-if [[ ! -d "$pytorch_rootdir" ]]; then
-    # TODO probably safe to completely remove this
-    git clone https://github.com/pytorch/pytorch $pytorch_rootdir
-    pushd $pytorch_rootdir
-    if ! git checkout v${PYTORCH_BUILD_VERSION}; then
-          git checkout tags/v${PYTORCH_BUILD_VERSION}
-    fi
-else
-    pushd $pytorch_rootdir
-fi
-pushd $pytorch_rootdir
-git submodule update --init --recursive --jobs 0
-
 export PATCHELF_BIN=/usr/local/bin/patchelf
 patchelf_version=`$PATCHELF_BIN --version`
 echo "patchelf version: " $patchelf_version
@@ -99,6 +88,11 @@ fi
 ########################################################
 # Compile wheels as well as libtorch
 #######################################################
+if [[ -z "$PYTORCH_ROOT" ]]; then
+    echo "Need to set PYTORCH_ROOT env variable"
+    exit 1
+fi
+pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
 if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
@@ -183,7 +177,7 @@ fi
     mv libtorch/lib/libtorch_cpu.so.dbg debug/libtorch_cpu.so.dbg
 
     echo "${PYTORCH_BUILD_VERSION}" > libtorch/build-version
-    echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
+    echo "$(pushd $PYTORCH_ROOT && git rev-parse HEAD)" > libtorch/build-hash
 
 )
 

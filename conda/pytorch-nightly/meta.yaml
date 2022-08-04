@@ -12,6 +12,8 @@ requirements:
   build:
     - cmake
     - {{ compiler('c') }} # [win]
+    - pkg-config # [unix]
+    - libuv # [unix]
 
   host:
     - python
@@ -23,13 +25,10 @@ requirements:
     - mkl=2021.4 # [x86_64 and win and py >= 310]
     {% endif %}
     - typing_extensions
-    - dataclasses # [py36]
     - ninja
     - libuv # [win]
-    - libuv # [unix]
-    - pkg-config # [unix]
     - numpy=1.19 # [py <= 39]
-    - numpy>=1.21.2 # [py >= 310]
+    - numpy=1.21.5 # [py >= 310]
     - openssl=1.1.1l # [py >= 310 and linux]
 {{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
 {{ environ.get('MAGMA_PACKAGE', '') }}
@@ -39,7 +38,6 @@ requirements:
     {% if cross_compile_arm64 == 0 %}
     - mkl >=2018 # [x86_64]
     {% endif %}
-    - dataclasses # [py36]
     - libuv # [win]
     - intel-openmp # [win]
     - typing_extensions
@@ -82,6 +80,7 @@ build:
     - BUILD_TEST # [unix]
     - USE_PYTORCH_METAL_EXPORT # [osx]
     - USE_COREML_DELEGATE # [osx]
+    - _GLIBCXX_USE_CXX11_ABI # [unix]
 
 test:
  imports:

@@ -56,23 +56,34 @@ FROM cuda as cuda11.5
 RUN bash ./install_cuda.sh 11.5
 RUN bash ./install_magma.sh 11.5
 
+FROM cuda as cuda11.6
+RUN bash ./install_cuda.sh 11.6
+RUN bash ./install_magma.sh 11.6
+
+FROM cuda as cuda11.7
+RUN bash ./install_cuda.sh 11.7
+RUN bash ./install_magma.sh 11.7
+
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 ENV MKLROOT /opt/intel
 ADD ./common/install_rocm.sh install_rocm.sh
+ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 # gfortran needed for building magma from source for ROCm
 RUN apt-get update -y && \
     apt-get install gfortran -y && \
     apt-get clean
 
-FROM rocm as rocm4.5.2
-RUN ROCM_VERSION=4.5.2 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.1.1
+RUN ROCM_VERSION=5.1.1 bash ./install_rocm.sh && rm install_rocm.sh
+RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
-FROM rocm as rocm5.0
-RUN ROCM_VERSION=5.0 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.2
+RUN ROCM_VERSION=5.2 bash ./install_rocm.sh && rm install_rocm.sh
+RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final

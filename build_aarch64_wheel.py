@@ -63,6 +63,7 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
                                     {
                                         'DeviceName': '/dev/sda1',
                                         'Ebs': {
+                                            'DeleteOnTermination': True,
                                             'VolumeSize': 50,
                                             'VolumeType': 'standard'
                                         }
@@ -170,7 +171,7 @@ class RemoteHost:
         return self.check_output(["ls", "-1", path]).split("\n")
 
 
-def wait_for_connection(addr, port, timeout=5, attempt_cnt=5):
+def wait_for_connection(addr, port, timeout=15, attempt_cnt=5):
     import socket
     for i in range(attempt_cnt):
         try:
@@ -282,6 +283,7 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.10.1": ("0.11.2", "rc1"),
                                       "v1.10.2": ("0.11.3", "rc1"),
                                       "v1.11.0": ("0.12.0", "rc1"),
+                                      "v1.12.0": ("0.13.0", "rc4"),
                                   })
     print('Building TorchVision wheel')
     build_vars = ""
@@ -325,6 +327,7 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.10.1": ("0.11.1", "rc1"),
                                       "v1.10.2": ("0.11.2", "rc1"),
                                       "v1.11.0": ("0.12.0", "rc1"),
+                                      "v1.12.0": ("0.13.0", "rc2"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -363,6 +366,7 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.10.1": ("0.10.1", "rc1"),
                                       "v1.10.2": ("0.10.2", "rc1"),
                                       "v1.11.0": ("0.11.0", "rc1"),
+                                      "v1.12.0": ("0.12.0", "rc3"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
