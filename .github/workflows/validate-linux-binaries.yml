@@ -1,0 +1,33 @@
+name: Validate binary  images
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/validate-linux-binaries.yml
+  pull_request:
+    paths:
+      - .github/workflows/validate-linux-binaries.yml
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  WITH_PUSH: ${{ github.event_name == 'push' }}
+
+jobs:
+  validat-linux-binaries:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        cuda_version: ["11.7", "11.6",  "11.3", "10.2"]
+    env:
+      GPU_ARCH_TYPE: cuda
+      GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Checkout PyTorch
+        uses: actions/checkout@v2
