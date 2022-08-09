@@ -38,4 +38,4 @@ jobs:
           activate-environment: testenv
       - name: Test conda install
         run: |
-          conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+          conda install pytorch torchvision torchaudio cudatoolkit=${{ matrix.cuda_version }} -c pytorch
