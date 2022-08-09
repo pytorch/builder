@@ -36,3 +36,6 @@ jobs:
           auto-update-conda: true
           miniconda-version: "latest"
           activate-environment: testenv
+      - name: Test conda install
+        run: |
+        conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
