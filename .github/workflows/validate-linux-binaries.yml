@@ -36,6 +36,11 @@ jobs:
           auto-update-conda: true
           miniconda-version: "latest"
           activate-environment: testenv
-      - name: Test conda install
+      - name: Test conda install pytorch pre 11.6
+        if: ${{ matrix.cuda_version < 11.6 }}
         run: |
-          conda install pytorch torchvision torchaudio cudatoolkit=${{ matrix.cuda_version }} -c pytorch
+            conda install pytorch torchvision torchaudio cudatoolkit=${{ matrix.cuda_version }} -c pytorch-nightly
+       - name: Test conda install pytorch 11.6, 11.7
+        if: ${{ matrix.cuda_version >= 11.6 }}
+        run: |
+            conda install pytorch torchvision torchaudio pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly
