@@ -18,7 +18,7 @@ env:
   WITH_PUSH: ${{ github.event_name == 'push' }}
 
 jobs:
-  validat-linux-binaries:
+  validate-linux-binaries:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -38,4 +38,4 @@ jobs:
           activate-environment: testenv
       - name: Test conda install
         run: |
-        conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+          conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
