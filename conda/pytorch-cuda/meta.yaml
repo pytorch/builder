@@ -1,8 +1,6 @@
 {% set build = 0 %}
-{% set version="1.0" %}
-
 {% set cuda_constraints=">=11.6,<11.7" %}
-{% if cuda_version == '11.7' %}
+{% if version == '11.7' %}
 {% set cuda_constraints=">=11.7,<11.8" %}
 {% endif %}
 
@@ -11,11 +9,11 @@ package:
   version: {{ version }}
 build:
   number: {{ build }}
-  string: cuda{{ cuda_version }}
   noarch: generic
 requirements:
+  run:
+    - cuda={{ version }}
   run_constrained:
-    - cuda {{ cuda_constraints }}
     - cuda-cccl {{ cuda_constraints }}
     - cuda-command-line-tools {{ cuda_constraints }}
     - cuda-compiler {{ cuda_constraints }}
@@ -35,7 +33,6 @@ requirements:
     - cuda-nvrtc-dev {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
     - cuda-runtime {{ cuda_constraints }}
-    - cuda-sanitizer-api {{ cuda_constraints }}
     - cuda-toolkit {{ cuda_constraints }}
     - cuda-tools {{ cuda_constraints }}
   # None, pytorch should depend on pytorch-cuda
