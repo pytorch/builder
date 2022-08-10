@@ -43,4 +43,4 @@ jobs:
       - name: Test conda install pytorch 11.6, 11.7
         if: ${{ matrix.cuda_version >= 11.6 }}
         run: |
-          conda install pytorch  pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly
+          conda install pytorch pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
