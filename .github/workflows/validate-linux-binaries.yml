@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-20.04-m60
     strategy:
       matrix:
-        cuda_version: ["11.7", "11.6",  "11.3", "10.2"]
+        cuda_version: ["11.7", "11.6"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
@@ -50,7 +50,7 @@ jobs:
         run: |
           set -ex
           conda create -yp ${ENV_NAME} python=3.9 numpy
-          conda install --cwd /tmp -p ${ENV_NAME}  pytorch pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
+          conda install -p ${ENV_NAME}  pytorch pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
           # Test torch is importable, by changing cwd and running import commands
           conda run --cwd /tmp -p ${ENV_NAME} python3 -c "import torch;y=torch.randn([3,5]).cuda();print(y);print(torch.backends.cudnn.version())"
           conda env remove -p ${ENV_NAME}
