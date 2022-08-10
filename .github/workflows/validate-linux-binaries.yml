@@ -43,7 +43,14 @@ jobs:
         if: ${{ matrix.cuda_version < 11.6 }}
         run: |
           conda install pytorch torchvision torchaudio cudatoolkit=${{ matrix.cuda_version }} -c pytorch-nightly
-      - name: Test conda install pytorch 11.6, 11.7
+      - name: Test conda install pytorch
         if: ${{ matrix.cuda_version >= 11.6 }}
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
         run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=3.9 numpy
           conda install pytorch pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
+          # Test torch is importable, by changing cwd and running import commands
+          conda run --cwd /tmp -p ${ENV_NAME} python3 -c "import torch;y=torch.randn([3,5]).cuda();print(y);print(torch.backends.cudnn.version())"
+          conda env remove -p ${ENV_NAME}
