@@ -51,6 +51,10 @@ else
   cuda_ver="$3"
 fi
 
+if [[ "$cuda_ver" == 'cpu-cxx11-abi' ]]; then
+    cuda_ver="cpu"
+fi
+
 # cu80, cu90, cu100, cpu
 if [[ ${#cuda_ver} -eq 4 ]]; then
     cuda_ver_majmin="${cuda_ver:2:1}.${cuda_ver:3:1}"

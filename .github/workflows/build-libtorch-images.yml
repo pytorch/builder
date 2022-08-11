@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        cuda_version: ["11.6", "11.5", "11.3", "10.2"]
+        cuda_version: ["11.7", "11.6", "11.5", "11.3", "10.2"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        rocm_version: ["5.0", "5.1.1"]
+        rocm_version: ["5.1.1", "5.2"]
     env:
       GPU_ARCH_TYPE: rocm
       GPU_ARCH_VERSION: ${{ matrix.rocm_version }}

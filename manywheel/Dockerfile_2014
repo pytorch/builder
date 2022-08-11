@@ -89,6 +89,11 @@ RUN yum install -y \
     https://repo.ius.io/ius-release-el7.rpm \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 RUN yum swap -y git git236-core
+# git236+ would refuse to run git commands in repos owned by other users
+# Which causes version check to fail, as pytorch repo is bind-mounted into the image
+# Override this behaviour by treating every folder as safe
+# For more details see https://github.com/pytorch/pytorch/issues/78659#issuecomment-1144107327
+RUN git config --global --add safe.directory "*"
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 # Install LLVM version

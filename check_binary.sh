@@ -310,6 +310,16 @@ else
   popd
 fi
 
+###############################################################################
+# Check torch.git_version
+###############################################################################
+if [[ "$PACKAGE_TYPE" != 'libtorch' ]]; then
+  pushd /tmp
+  python -c 'import torch; assert torch.version.git_version != "Unknown"'
+  python -c 'import torch; assert torch.version.git_version != None'
+  popd
+fi
+
 
 ###############################################################################
 # Check for MKL
@@ -403,4 +413,13 @@ except RuntimeError as e:
     echo "PyTorch doesn't support TLS_TCP transport, please build with USE_GLOO_WITH_OPENSSL=1"
     exit 1
   fi
+fi
+
+###############################################################################
+# Check for C++ ABI compatibility between gcc7 and gcc9 compiled binaries
+###############################################################################
+if [[ "$(uname)" == 'Linux' && ("$PACKAGE_TYPE" == 'conda' || "$PACKAGE_TYPE" == 'manywheel') ]]; then
+  pushd /tmp
+  python -c "import torch; exit(0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1011' else 1)"
+  popd
 fi

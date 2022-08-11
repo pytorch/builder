@@ -26,7 +26,7 @@ jobs:
     runs-on: linux.2xlarge
     strategy:
       matrix:
-        cuda_version: ["10.2", "11.3", "11.5", "11.6", "cpu"]
+        cuda_version: ["10.2", "11.3", "11.5", "11.6", "11.7", "cpu"]
     env:
       CUDA_VERSION: ${{ matrix.cuda_version }}
     steps:
