@@ -49,7 +49,7 @@ jobs:
           set -ex
           conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
           # if [[ $CUDA_VER == "11.6" || $CUDA_VER == "11.7"  ]]; than
-          conda install -p ${ENV_NAME} pytorch cudatoolkit=11.6 -c pytorch -c conda-forge
+          conda install -p ${ENV_NAME} pytorch torchvision torchaudio cudatoolkit=11.6 -c pytorch -c conda-forge
           # conda install -p ${ENV_NAME}  pytorch pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
           # else
           #  conda install pytorch torchvision torchaudio cudatoolkit=${{ matrix.cuda_version }} -c pytorch-nightly
