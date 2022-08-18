@@ -55,5 +55,6 @@ jobs:
           #  conda install pytorch torchvision torchaudio cudatoolkit=${{ matrix.cuda_version }} -c pytorch-nightly
           #fi
           # Test torch is importable, by changing cwd and running import commands
-          conda run --cwd /tmp -p ${ENV_NAME} python3 -c "import torch;y=torch.randn([3,5]).cuda();print(y);print(torch.backends.cudnn.version())"
+          # conda run --cwd /tmp -p ${ENV_NAME} python3 -c "import torch;y=torch.randn([3,5]).cuda();print(y);print(torch.backends.cudnn.version())"
+          conda run --cwd /tmp -p ${ENV_NAME} python3 -c test\smoke_test\smoke_test.py
           conda env remove -p ${ENV_NAME}
