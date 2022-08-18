@@ -6,11 +6,13 @@ on:
       main
     paths:
       - magma/*
+      - magma/package_files/*
       - common/install_conda.sh
       - .github/workflows/build-magma-linux.yml
   pull_request:
     paths:
       - magma/*
+      - magma/package_files/*
       - common/install_conda.sh
       - .github/workflows/build-magma-linux.yml
 
