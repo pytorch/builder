@@ -1,0 +1,29 @@
+name: Validate windows runner
+
+on:
+  push:
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  WITH_PUSH: ${{ github.event_name == 'push' }}
+
+jobs:
+  validate-linux-binaries:
+    runs-on: windows-nvidia-m60
+#    strategy:
+#      matrix:
+#        cuda_version: ["11.6"]
+#        python_version: ["3.8"]
+#    env:
+#      GPU_ARCH_TYPE: cuda
+#      GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
+#      PYTHON_VERSION: ${{ matrix.python_version }}
+    steps:
+#      - name: Checkout PyTorch builder
+#        uses: actions/checkout@v2
+      - name: Check nvidia smi
+        run: |
+          nvidia-smi
