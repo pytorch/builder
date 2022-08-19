@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-20.04-m60
     strategy:
       matrix:
-        cuda_version: ["11.7"]
+        cuda_version: ["11.6"]
         python_version: ["3.8"]
     env:
       GPU_ARCH_TYPE: cuda
