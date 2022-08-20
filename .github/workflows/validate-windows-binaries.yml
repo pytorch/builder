@@ -13,6 +13,7 @@ env:
 jobs:
   validate-windows-runner:
     runs-on: windows-nvidia-m60
+    timeout-minutes: 60
 #    strategy:
 #      matrix:
 #        cuda_version: ["116"]
@@ -25,10 +26,17 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-#      - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
-#        uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
-      - name: Install CUDA Toolkit
-        run: windows/internal/cuda_install.bat
+#      - uses: msys2/setup-msys2@v2
+#      - name: Setup tmate session
+#        uses: mxschmitt/action-tmate@v3
+#        with:
+#          sudo: false
+#      - name: Install 7-zip
+#        run: windows/internal/7z_install.bat
+#      - name: Install CUDA Toolkit
+#        run: windows/internal/cuda_install.bat
+      - name: Install driver
+        run: windows/internal/driver_update.bat
       - name: Check nvidia smi
         run: |
           nvidia-smi
