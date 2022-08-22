@@ -18,9 +18,9 @@ import torchvision.transforms
 cuda_version_expected = os.environ['CUDA_VER']
 is_cuda_system = cuda_version_expected != "cpu"
 #todo add torch, torchvision and torchaudio tests
-print(torch.__version__)
-print(torchvision.__version__)
-print(torchaudio.__version__)
+print(f"torch: {torch.__version__}")
+print(f"torchvision: {torchvision.__version__}")
+print(f"torchaudio: {torchaudio.__version__}")
 print('Is torchvision useable?', all(x is not None for x in [torch.ops.image.decode_png, torch.ops.torchvision.roi_align]))
 if(not torch.cuda.is_available() and is_cuda_system):
     print(f"Expected CUDA {cuda_version_expected}. However CUDA is not loaded.")
