@@ -3,40 +3,52 @@ name: Validate windows runner
 on:
   push:
 
-env:
-  DOCKER_REGISTRY: "docker.io"
-  DOCKER_BUILDKIT: 1
-  DOCKER_ID: ${{ secrets.DOCKER_ID }}
-  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' }}
-
 jobs:
   validate-windows-runner:
-    runs-on: windows-nvidia-m60
+    runs-on: windows-2019
     timeout-minutes: 60
-#    strategy:
-#      matrix:
-#        cuda_version: ["116"]
-#        python_version: ["3.8"]
+    strategy:
+      matrix:
+        cuda_version: ["117"]
+        config: ["Release"]
     env:
-      CUDA_VERSION: "116"
-#      GPU_ARCH_TYPE: cuda
-#      GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
-#      PYTHON_VERSION: ${{ matrix.python_version }}
+      CUDA_VERSION: ${{ matrix.cuda_version }}
+      CONFIG: ${{ matrix.config }}
     steps:
-      - name: Checkout PyTorch builder
+      - name: Checkout pytorch/builder
         uses: actions/checkout@v2
-#      - uses: msys2/setup-msys2@v2
-#      - name: Setup tmate session
-#        uses: mxschmitt/action-tmate@v3
-#        with:
-#          sudo: false
-#      - name: Install 7-zip
-#        run: windows/internal/7z_install.bat
-#      - name: Install CUDA Toolkit
-#        run: windows/internal/cuda_install.bat
-      - name: Install driver
-        run: windows/internal/driver_update.bat
+#        - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
+#          uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
+#        - name: Install CUDA Toolkit
+#          run: windows/internal/cuda_install.bat
       - name: Check nvidia smi
         run: |
           nvidia-smi
+#
+#
+#    #    strategy:
+##      matrix:
+##        cuda_version: ["116"]
+##        python_version: ["3.8"]
+#    env:
+#      CUDA_VERSION: "116"
+##      GPU_ARCH_TYPE: cuda
+##      GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
+##      PYTHON_VERSION: ${{ matrix.python_version }}
+#    steps:
+#      - name: Checkout PyTorch builder
+#        uses: actions/checkout@v2
+##      - uses: msys2/setup-msys2@v2
+##      - name: Setup tmate session
+##        uses: mxschmitt/action-tmate@v3
+##        with:
+##          sudo: false
+##      - name: Install 7-zip
+##        run: windows/internal/7z_install.bat
+##      - name: Install CUDA Toolkit
+##        run: windows/internal/cuda_install.bat
+#      - name: Install driver
+#        run: windows/internal/driver_update.bat
+#      - name: Check nvidia smi
+#        run: |
+#          nvidia-smi
