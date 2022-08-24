@@ -30,12 +30,13 @@ on:
 env:
   BUILD_ENVIRONMENT: !{{ build_environment }}
   BUILDER_ROOT: /builder
-  PACKAGE_TYPE: !{{ config["package_type"] }}
 !{{ common.concurrency(build_environment) }}
 
 jobs:
 {%- for config in build_configs %}
   !{{ config["build_name"] }}-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: !{{ config["package_type"] }}
 
 {%- endfor %}

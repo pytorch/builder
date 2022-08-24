@@ -3,10 +3,6 @@ name: linux-binary-validate
 on:
   workflow_call:
     inputs:
-      BUILDER_ROOT:
-        required: true
-        type: string
-        description: Root directory for the pytorch/builder repository
       PACKAGE_TYPE:
         required: true
         type: string
@@ -47,7 +43,6 @@ jobs:
     timeout-minutes: 240
     env:
       DESIRED_RUNNER: ubuntu-20.04-m60
-      BUILDER_ROOT: ${{ inputs.BUILDER_ROOT }}
       PACKAGE_TYPE: ${{ inputs.PACKAGE_TYPE }}
       # TODO: This is a legacy variable that we eventually want to get rid of in
       #       favor of GPU_ARCH_VERSION
@@ -63,8 +58,6 @@ jobs:
         shell: bash
         run: |
           {
-            echo "PYTORCH_ROOT=${{ env.PYTORCH_ROOT }}"
-            echo "BUILDER_ROOT=${{ env.BUILDER_ROOT }}"
             echo "PACKAGE_TYPE=${{ env.PACKAGE_TYPE }}"
 
             echo "DESIRED_CUDA=${{ env.DESIRED_CUDA }}"

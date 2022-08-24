@@ -1,1 +1,160 @@
 # @generated DO NOT EDIT MANUALLY
+# Template is at:    .github/templates/linux_binary_validate_workflow.yml.j2
+# Generation script: .github/scripts/generate_ci_workflows.py
+name: linux-binary-validate-manywheel
+
+on:
+  push:
+    branches:
+      - nightly
+    tags:
+      # NOTE: Binary build pipelines should only get triggered on release candidate builds
+      # Release candidate tags look like: v1.11.0-rc1
+      - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
+      - 'ciflow/binaries/*'
+      - 'ciflow/binaries_wheel/*'
+  pull_request:
+    paths:
+      - .github/workflows/*
+  workflow_dispatch:
+
+env:
+  BUILD_ENVIRONMENT: linux-binary-validate-manywheel
+  BUILDER_ROOT: /builder
+concurrency:
+  group: linux-binary-validate-manywheel-${{ github.event.pull_request.number || github.ref_name }}-${{ github.ref_type == 'branch' && github.sha }}-${{ github.event_name == 'workflow_dispatch' }}
+  cancel-in-progress: true
+
+jobs:
+  manywheel-py3_7-cpu-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_7-cuda10_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_7-cuda11_3-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_7-cuda11_6-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_7-cuda11_7-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_7-rocm5_1_1-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_7-rocm5_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-cpu-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-cuda10_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-cuda11_3-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-cuda11_6-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-cuda11_7-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-rocm5_1_1-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_8-rocm5_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-cpu-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-cuda10_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-cuda11_3-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-cuda11_6-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-cuda11_7-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-rocm5_1_1-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_9-rocm5_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-cpu-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-cuda10_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-cuda11_3-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-cuda11_6-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-cuda11_7-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-rocm5_1_1-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_10-rocm5_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_11-cpu-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_11-cuda10_2-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_11-cuda11_3-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_11-cuda11_6-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
+  manywheel-py3_11-cuda11_7-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+    with:
+      PACKAGE_TYPE: manywheel
