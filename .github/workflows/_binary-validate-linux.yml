@@ -11,7 +11,6 @@ on:
         required: true
         type: string
         description: The build environment
-
       BUILDER_ROOT:
         required: true
         type: string
@@ -52,8 +51,6 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ env.DESIRED_RUNNER }}
-    timeout-minutes: 240
     env:
       DESIRED_RUNNER: ubuntu-20.04-m60
       BUILDER_ROOT: ${{ inputs.BUILDER_ROOT }}
@@ -69,6 +66,8 @@ jobs:
       DESIRED_PYTHON: ${{ inputs.DESIRED_PYTHON }}
       # Needed for conda builds
       BUILD_ENVIRONMENT: ${{ inputs.build_environment }}
+    runs-on: ${{ env.DESIRED_RUNNER }}
+    timeout-minutes: 240
     steps:
       - name: Make the env permanent during this workflow (but not the secrets)
         shell: bash
