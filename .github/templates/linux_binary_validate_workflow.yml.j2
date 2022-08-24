@@ -38,5 +38,7 @@ jobs:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: !{{ config["package_type"] }}
+      DESIRED_CUDA: !{{ config["desired_cuda"] }}
+      GPU_ARCH_TYPE: !{{ config["gpu_arch_type"] }}
 
 {%- endfor %}

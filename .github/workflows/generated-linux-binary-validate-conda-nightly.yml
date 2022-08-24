@@ -30,79 +30,119 @@ jobs:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   conda-py3_7-cuda10_2-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   conda-py3_7-cuda11_3-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   conda-py3_7-cuda11_6-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   conda-py3_7-cuda11_7-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   conda-py3_8-cpu-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   conda-py3_8-cuda10_2-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   conda-py3_8-cuda11_3-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   conda-py3_8-cuda11_6-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   conda-py3_8-cuda11_7-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   conda-py3_9-cpu-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   conda-py3_9-cuda10_2-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   conda-py3_9-cuda11_3-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   conda-py3_9-cuda11_6-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   conda-py3_9-cuda11_7-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   conda-py3_10-cpu-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   conda-py3_10-cuda10_2-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   conda-py3_10-cuda11_3-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   conda-py3_10-cuda11_6-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   conda-py3_10-cuda11_7-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: conda
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda

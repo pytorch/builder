@@ -30,95 +30,143 @@ jobs:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   libtorch-cpu-shared-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   libtorch-cpu-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   libtorch-cpu-static-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cpu
+      GPU_ARCH_TYPE: cpu
   libtorch-cuda10_2-shared-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda10_2-shared-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda10_2-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda10_2-static-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu102
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_3-shared-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_3-shared-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_3-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_3-static-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu113
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_6-shared-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_6-shared-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_6-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_6-static-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu116
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_7-shared-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_7-shared-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_7-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   libtorch-cuda11_7-static-without-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: cu117
+      GPU_ARCH_TYPE: cuda
   libtorch-rocm5_1_1-shared-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: rocm5.1.1
+      GPU_ARCH_TYPE: rocm
   libtorch-rocm5_1_1-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: rocm5.1.1
+      GPU_ARCH_TYPE: rocm
   libtorch-rocm5_2-shared-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: rocm5.2
+      GPU_ARCH_TYPE: rocm
   libtorch-rocm5_2-static-with-deps-pre-cxx11-build:
     uses: ./.github/workflows/_binary-validate-linux.yml
     with:
       PACKAGE_TYPE: libtorch
+      DESIRED_CUDA: rocm5.2
+      GPU_ARCH_TYPE: rocm
