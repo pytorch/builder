@@ -5,7 +5,6 @@ name: linux-binary-validate-libtorch-pre-cxx11
 
 on:
   push:
-    # NOTE: Meta Employees can trigger new nightlies using: https://fburl.com/trigger_pytorch_nightly_build
     branches:
       - nightly
     tags:
@@ -14,6 +13,9 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
       - 'ciflow/binaries/*'
       - 'ciflow/binaries_libtorch/*'
+  pull_request:
+    paths:
+      - .github/workflows/*
   workflow_dispatch:
 
 env:

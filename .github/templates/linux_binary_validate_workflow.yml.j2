@@ -8,9 +8,6 @@ name: !{{ build_environment }}
 
 on:
   push:
-    {%- if branches == "nightly" %}
-    # NOTE: Meta Employees can trigger new nightlies using: https://fburl.com/trigger_pytorch_nightly_build
-    {%- endif %}
     branches:
       - !{{ branches }}
     {%- if branches == "nightly" %}
@@ -25,6 +22,9 @@ on:
     {%- endif %}
       - '!{{ label }}/*'
 {%- endfor %}
+  pull_request:
+    paths:
+      - .github/workflows/*
   workflow_dispatch:
 
 env:
