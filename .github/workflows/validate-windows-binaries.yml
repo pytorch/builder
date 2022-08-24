@@ -31,8 +31,7 @@ jobs:
           echo %miniconda_exe%
           rmdir /s /q conda
           del miniconda.exe
-          curl -k https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
-          dir
+          curl -k https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
           start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=0 /D=%tmp_conda%
           conda --version
       - name: Check conda home
