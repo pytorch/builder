@@ -86,3 +86,4 @@ jobs:
           conda install -p ${ENV_NAME} ffmpeg
           conda install -p ${ENV_NAME} pytorch torchvision torchaudio pytorch-cuda=${DESIRED_CUDA} -c pytorch-nightly -c nvidia
           conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
