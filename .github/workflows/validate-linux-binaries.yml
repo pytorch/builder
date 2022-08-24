@@ -1,0 +1,93 @@
+name: Validate binary  images
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/validate-linux-binaries.yml
+  pull_request:
+    paths:
+      - .github/workflows/validate-linux-binaries.yml
+
+env:
+  DOCKER_REGISTRY: "docker.io"
+  DOCKER_BUILDKIT: 1
+  DOCKER_ID: ${{ secrets.DOCKER_ID }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+  WITH_PUSH: ${{ github.event_name == 'push' }}
+
+jobs:
+  generate-test-matrix:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 240
+    env:
+      TEST_RUNNER_TYPE: linux.2xlarge
+      ENABLE_DISTRIBUTED_TEST: 1
+      ENABLE_JIT_LEGACY_TEST: 1
+      ENABLE_FX2TRT_TEST: ''
+      ENABLE_MULTIGPU_TEST: ''
+      ENABLE_NOGPU_NO_AVX_TEST: ''
+      ENABLE_NOGPU_NO_AVX2_TEST: ''
+      ENABLE_SLOW_TEST: ''
+      ENABLE_DOCS_TEST: 1
+      ENABLE_BACKWARDS_COMPAT_TEST: 1
+      ENABLE_XLA_TEST: ''
+      ENABLE_NOARCH_TEST: ''
+      NUM_TEST_SHARDS: 2
+      MULTIGPU_RUNNER_TYPE: linux.16xlarge.nvidia.gpu
+      DISTRIBUTED_GPU_RUNNER_TYPE: linux.8xlarge.nvidia.gpu
+      NOGPU_RUNNER_TYPE: linux.2xlarge
+      PR_BODY: ${{ github.event.pull_request.body }}
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      render-matrix: ${{ steps.set-matrix.outputs.render-matrix }}
+    container:
+      image: python:3.9
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install typing-extensions==3.10
+      - name: Generating test matrix
+        id: set-matrix
+        run: .github/scripts/generate_pytorch_test_matrix.py
+
+  validate-linux-binaries:
+    runs-on: ubuntu-20.04-m60
+    needs: generate-test-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-build-matrix.outputs.matrix) }}
+    env:
+      GPU_ARCH_TYPE: cuda
+      GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
+      PACKAGE_TYPE: conda
+      DESIRED_PYTHON: ${{ matrix.python_version }}
+      DESIRED_CUDA: ${{ matrix.cuda_version }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
+      - name: Check nvidia smi
+        run: |
+          nvidia-smi
+      - name: Conda Install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+          CUDA_VER: ${{ matrix.cuda_version }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+          conda install -p ${ENV_NAME} ffmpeg
+          conda install -p ${ENV_NAME} pytorch torchvision torchaudio pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          ./check_binary.sh
+          conda env remove -p ${ENV_NAME}
