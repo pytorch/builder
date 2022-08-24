@@ -3,14 +3,6 @@ name: linux-binary-validate
 on:
   workflow_call:
     inputs:
-      build_name:
-        required: true
-        type: string
-        description: The build's name
-      build_environment:
-        required: true
-        type: string
-        description: The build environment
       BUILDER_ROOT:
         required: true
         type: string
@@ -66,8 +58,6 @@ jobs:
       LIBTORCH_VARIANT: ${{ inputs.LIBTORCH_VARIANT }}
       DESIRED_DEVTOOLSET: ${{ inputs.DESIRED_DEVTOOLSET }}
       DESIRED_PYTHON: ${{ inputs.DESIRED_PYTHON }}
-      # Needed for conda builds
-      BUILD_ENVIRONMENT: ${{ inputs.build_environment }}
     steps:
       - name: Make the env permanent during this workflow (but not the secrets)
         shell: bash
@@ -84,9 +74,6 @@ jobs:
             echo "LIBTORCH_VARIANT=${{ env.LIBTORCH_VARIANT }}"
             echo "DESIRED_DEVTOOLSET=${{ env.DESIRED_DEVTOOLSET }}"
             echo "DESIRED_PYTHON=${{ env.DESIRED_PYTHON }}"
-
-            echo "BINARY_ENV_FILE=${{ env.BINARY_ENV_FILE }}"
-            echo "BUILD_ENVIRONMENT=${{ env.BUILD_ENVIRONMENT }}"
           } >> "${GITHUB_ENV} }}"
 
       - name: Checkout PyTorch builder
