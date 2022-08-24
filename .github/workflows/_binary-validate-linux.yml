@@ -103,6 +103,7 @@ jobs:
           nvidia-smi
       - name: Install Pytorch conda and test
         if: ${{ inputs.PACKAGE_TYPE == 'conda' }}
+        run: |
           set -ex
           set ENV_NAME = conda-env-${{ github.run_id }}
           conda create -yp ${ENV_NAME} python=${DESIRED_PYTHON} numpy
