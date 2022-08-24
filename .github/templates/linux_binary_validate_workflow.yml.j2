@@ -30,6 +30,7 @@ on:
 env:
   BUILD_ENVIRONMENT: !{{ build_environment }}
   BUILDER_ROOT: /builder
+  PACKAGE_TYPE: !{{ config["package_type"] }}
 !{{ common.concurrency(build_environment) }}
 
 jobs:
