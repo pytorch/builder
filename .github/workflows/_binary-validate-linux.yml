@@ -89,9 +89,6 @@ jobs:
             echo "BINARY_ENV_FILE=${{ env.BINARY_ENV_FILE }}"
             echo "BUILD_ENVIRONMENT=${{ env.BUILD_ENVIRONMENT }}"
           } >> "${GITHUB_ENV} }}"
-      - name: List the env
-        shell: bash
-        run: env
 
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
