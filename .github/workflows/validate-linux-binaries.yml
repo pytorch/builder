@@ -19,7 +19,7 @@ env:
 
 jobs:
   generate-matrix:
-    uses: actions/pytorch/test-infra/generate_binary_build_matrix@main
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix@main
     with:
       package-type: conda
       os: linux
