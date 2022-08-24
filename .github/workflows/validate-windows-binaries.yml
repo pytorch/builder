@@ -11,19 +11,49 @@ jobs:
       matrix:
         cuda_version: ["117"]
         config: ["Release"]
+        python_version: ["3.8"]
+        pip_channel: [pytorch]
     env:
       CUDA_VERSION: ${{ matrix.cuda_version }}
       CONFIG: ${{ matrix.config }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
+      PIP_CHANNEL: ${{ matrix.pip_channel }}
     steps:
       - name: Checkout pytorch/builder
         uses: actions/checkout@v2
-      - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
-        uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
+#      - name: Enable MSVC dev commands to enable cl.exe  # FYI incompatible with shell: bash
+#        uses: ilammy/msvc-dev-cmd@dd5e2fa0a7de1e7929605d9ecc020e749d9856a3
       - name: test bash
         shell: bash
         run: |
           echo "test"
+      - name: Install Fresh Miniconda in Runner Temp Dir
+        shell: cmd
+        run: |
+          REM Install Miniconda3
+          set "CONDA_HOME=%CD%\conda"
+          set "tmp_conda=%CONDA_HOME%"
+          set "miniconda_exe=%CD%\miniconda.exe"
+          rmdir /s /q conda
+          del miniconda.exe
+          curl -k https://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
+          call conda\install_conda.bat
 
+          set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
+          set "ORIG_PATH=%PATH%"
+      - name: Conda Install pytorch and smoke test
+        shell: bash
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+          conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c ${{ matrix.conda_channel }}
+          # Test torch is importable
+          cd ${GITHUB_WORKSPACE}
+          export CUDA_VER=cpu
+          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
 #
 #
 #    #    strategy:
