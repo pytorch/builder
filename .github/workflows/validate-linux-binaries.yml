@@ -42,8 +42,6 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       render-matrix: ${{ steps.set-matrix.outputs.render-matrix }}
-    container:
-      image: python:3.9
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
@@ -51,7 +49,8 @@ jobs:
         run: pip install typing-extensions==3.10
       - name: Generating test matrix
         id: set-matrix
-        run: .github/scripts/generate_pytorch_test_matrix.py
+        run: |
+          python3 .github/scripts/generate_pytorch_test_matrix.py
 
   validate-linux-binaries:
     runs-on: ubuntu-20.04-m60
