@@ -22,8 +22,8 @@ jobs:
     runs-on: ubuntu-20.04-m60
     strategy:
       matrix:
-        cuda_version: ["11.6"]
-        python_version: ["3.8"]
+        cuda_version: ["11.3", "11.6"]
+        python_version: ["3.9"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
@@ -52,6 +52,7 @@ jobs:
           set -ex
           conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
           conda install -p ${ENV_NAME} ffmpeg
+          if [[ $DESIRED_CUDA ==  ]]
           conda install -p ${ENV_NAME} pytorch torchvision torchaudio pytorch-cuda=${{ matrix.cuda_version }} -c pytorch-nightly -c nvidia
           conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
 

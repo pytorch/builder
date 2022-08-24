@@ -1,0 +1,74 @@
+# @generated DO NOT EDIT MANUALLY
+# Template is at:    .github/templates/linux_binary_validate_workflow.yml.j2
+# Generation script: .github/scripts/generate_ci_workflows.py
+name: linux-binary-validate-libtorch-cxx11-abi
+
+on:
+  push:
+    # NOTE: Meta Employees can trigger new nightlies using: https://fburl.com/trigger_pytorch_nightly_build
+    branches:
+      - nightly
+    tags:
+      # NOTE: Binary build pipelines should only get triggered on release candidate builds
+      # Release candidate tags look like: v1.11.0-rc1
+      - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
+      - 'ciflow/binaries/*'
+      - 'ciflow/binaries_libtorch/*'
+  workflow_dispatch:
+
+env:
+  BUILD_ENVIRONMENT: linux-binary-validate-libtorch-cxx11-abi
+  BUILDER_ROOT: /builder
+concurrency:
+  group: linux-binary-validate-libtorch-cxx11-abi-${{ github.event.pull_request.number || github.ref_name }}-${{ github.ref_type == 'branch' && github.sha }}-${{ github.event_name == 'workflow_dispatch' }}
+  cancel-in-progress: true
+
+jobs:
+  libtorch-cpu-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cpu-shared-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cpu-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cpu-static-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda10_2-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda10_2-shared-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda10_2-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda10_2-static-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_3-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_3-shared-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_3-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_3-static-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_6-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_6-shared-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_6-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_6-static-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_7-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_7-shared-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_7-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-cuda11_7-static-without-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-rocm5_1_1-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-rocm5_1_1-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-rocm5_2-shared-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml
+  libtorch-rocm5_2-static-with-deps-cxx11-abi-build:
+    uses: ./.github/workflows/_binary-validate-linux.yml

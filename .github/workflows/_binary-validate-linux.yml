@@ -1,0 +1,111 @@
+name: linux-binary-validate
+
+on:
+  workflow_call:
+    inputs:
+      build_name:
+        required: true
+        type: string
+        description: The build's name
+      build_environment:
+        required: true
+        type: string
+        description: The build environment
+
+      BUILDER_ROOT:
+        required: true
+        type: string
+        description: Root directory for the pytorch/builder repository
+      PACKAGE_TYPE:
+        required: true
+        type: string
+        description: Package type
+      DESIRED_CUDA:
+        required: true
+        type: string
+        description: Desired Cuda version
+      GPU_ARCH_VERSION:
+        required: false
+        type: string
+        description: GPU Arch version
+      GPU_ARCH_TYPE:
+        required: true
+        type: string
+        description: GPU Arch type
+      LIBTORCH_CONFIG:
+        required: false
+        type: string
+        description: Desired libtorch config (for libtorch builds only)
+      LIBTORCH_VARIANT:
+        required: false
+        type: string
+        description: Desired libtorch variant (for libtorch builds only)
+      DESIRED_DEVTOOLSET:
+        required: false
+        type: string
+        description: Desired dev toolset
+      DESIRED_PYTHON:
+        required: false
+        type: string
+        description: Desired python version
+
+
+jobs:
+  build:
+    runs-on: ${{ env.DESIRED_RUNNER }}
+    timeout-minutes: 240
+    env:
+      DESIRED_RUNNER: ubuntu-20.04-m60
+      BUILDER_ROOT: ${{ inputs.BUILDER_ROOT }}
+      PACKAGE_TYPE: ${{ inputs.PACKAGE_TYPE }}
+      # TODO: This is a legacy variable that we eventually want to get rid of in
+      #       favor of GPU_ARCH_VERSION
+      DESIRED_CUDA: ${{ inputs.DESIRED_CUDA }}
+      GPU_ARCH_VERSION: ${{ inputs.GPU_ARCH_VERSION }}
+      GPU_ARCH_TYPE: ${{ inputs.GPU_ARCH_TYPE }}
+      LIBTORCH_CONFIG: ${{ inputs.LIBTORCH_CONFIG }}
+      LIBTORCH_VARIANT: ${{ inputs.LIBTORCH_VARIANT }}
+      DESIRED_DEVTOOLSET: ${{ inputs.DESIRED_DEVTOOLSET }}
+      DESIRED_PYTHON: ${{ inputs.DESIRED_PYTHON }}
+      # Needed for conda builds
+      BUILD_ENVIRONMENT: ${{ inputs.build_environment }}
+    steps:
+      - name: Make the env permanent during this workflow (but not the secrets)
+        shell: bash
+        run: |
+          {
+            echo "PYTORCH_ROOT=${{ env.PYTORCH_ROOT }}"
+            echo "BUILDER_ROOT=${{ env.BUILDER_ROOT }}"
+            echo "PACKAGE_TYPE=${{ env.PACKAGE_TYPE }}"
+
+            echo "DESIRED_CUDA=${{ env.DESIRED_CUDA }}"
+            echo "GPU_ARCH_VERSION=${{ env.GPU_ARCH_VERSION }}"
+            echo "GPU_ARCH_TYPE=${{ env.GPU_ARCH_TYPE }}"
+            echo "LIBTORCH_CONFIG=${{ env.LIBTORCH_CONFIG }}"
+            echo "LIBTORCH_VARIANT=${{ env.LIBTORCH_VARIANT }}"
+            echo "DESIRED_DEVTOOLSET=${{ env.DESIRED_DEVTOOLSET }}"
+            echo "DESIRED_PYTHON=${{ env.DESIRED_PYTHON }}"
+
+            echo "BINARY_ENV_FILE=${{ env.BINARY_ENV_FILE }}"
+            echo "BUILD_ENVIRONMENT=${{ env.BUILD_ENVIRONMENT }}"
+          } >> "${GITHUB_ENV} }}"
+      - name: List the env
+        shell: bash
+        run: env
+
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+
+      - name: Check nvidia smi
+        if: ${{ inputs.GPU_ARCH_TYPE == 'cuda' }}
+        shell: bash
+        run: |
+          nvidia-smi
+      - name: Install Pytorch conda and test
+        if: ${{ inputs.PACKAGE_TYPE == 'conda' }}
+          set -ex
+          set ENV_NAME = conda-env-${{ github.run_id }}
+          conda create -yp ${ENV_NAME} python=${DESIRED_PYTHON} numpy
+          conda install -p ${ENV_NAME} ffmpeg
+          conda install -p ${ENV_NAME} pytorch torchvision torchaudio pytorch-cuda=${DESIRED_CUDA} -c pytorch-nightly -c nvidia
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py

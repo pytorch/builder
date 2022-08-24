@@ -1,0 +1,120 @@
+name: Validate MacOS Binaries
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/validate-MacOS-binaries.yml
+  pull_request:
+    paths:
+      - .github/workflows/validate-MacOS-binaries.yml
+
+jobs:
+  validate-MacOS-conda-packages:
+    runs-on: ${{ matrix.mac_arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        mac_arch: [macos-m1-12, macos-12-xl]
+        python_version: ["3.8", "3.9", "3.10"]
+        conda_channel: [pytorch-nightly, pytorch-test, pytorch]
+        include:
+          - mac_arch: macos-12-xl
+            python_version: "3.7"
+            conda_channel: pytorch-nightly
+          - mac_arch: macos-12-xl
+            python_version: "3.7"
+            conda_channel: pytorch-test
+          - mac_arch: macos-12-xl
+            python_version: "3.7"
+            conda_channel: pytorch
+    env:
+      MAC_ARCH:  ${{ matrix.mac_arch }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
+    steps:
+      - name: Checkout PyTorch/Builder directory
+        uses: actions/checkout@v3
+      - name: Install Fresh Miniconda in Runner Temp Dir
+        run: |
+          set -ex
+          if [ ${MAC_ARCH} == 'macos-m1-12' ]; then
+            cd ${{ runner.temp }}
+            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+            sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
+          elif [ ${MAC_ARCH} == 'macos-12-xl' ]; then
+            cd ${{ runner.temp }}
+            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+            sh Miniconda3-latest-MacOSX-x86_64.sh -b -f  -p ${{ runner.temp }}
+          fi
+      - name: Conda Install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+          conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c ${{ matrix.conda_channel }}
+          # Test torch is importable
+          cd ${GITHUB_WORKSPACE}
+          export CUDA_VER=cpu
+          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
+
+  validate-MacOS-wheels:
+    runs-on: ${{ matrix.mac_arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        mac_arch: [macos-m1-12, macos-12-xl]
+        python_version: ["3.8", "3.9", "3.10"]
+        pip_channel: [pytorch-nightly, pytorch-test, pytorch]
+        include:
+          - mac_arch: macos-12-xl
+            python_version: "3.7"
+            pip_channel: pytorch-nightly
+          - mac_arch: macos-12-xl
+            python_version: "3.7"
+            pip_channel: pytorch-test
+          - mac_arch: macos-12-xl
+            python_version: "3.7"
+            pip_channel: pytorch
+    env:
+      MAC_ARCH:  ${{ matrix.mac_arch }}
+      PYTHON_VERSION: ${{ matrix.python_version }}
+      PIP_CHANNEL: ${{ matrix.pip_channel }}
+    steps:
+      - name: Checkout PyTorch/Builder directory
+        uses: actions/checkout@v3
+      - name: Install Fresh Miniconda in Runner Temp Dir
+        run: |
+          set -ex
+          if [ ${MAC_ARCH} == 'macos-m1-12' ]; then
+            cd ${{ runner.temp }}
+            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+            sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
+          elif [ ${MAC_ARCH} == 'macos-12-xl' ]; then
+            cd ${{ runner.temp }}
+            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+            sh Miniconda3-latest-MacOSX-x86_64.sh -b -f  -p ${{ runner.temp }}
+          fi
+      - name: pip install pytorch nightly and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+
+          if [ ${PIP_CHANNEL} == 'pytorch-nightly' ]; then
+            conda run -p ${ENV_NAME} pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu
+          elif [ ${PIP_CHANNEL} == 'pytorch-test' ]; then
+            conda run -p ${ENV_NAME} pip3 install --pre torch torchvision torchaudio  --extra-index-url https://download.pytorch.org/whl/test/cpu
+          else
+            conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio
+          fi
+
+          # Test torch is importable
+          cd ${GITHUB_WORKSPACE}
+          export CUDA_VER=cpu
+          conda run -p ${ENV_NAME} pip3 install ffmpeg
+          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
