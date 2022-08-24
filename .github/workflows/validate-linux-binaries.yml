@@ -18,46 +18,18 @@ env:
   WITH_PUSH: ${{ github.event_name == 'push' }}
 
 jobs:
-  generate-test-matrix:
-    runs-on: ubuntu-18.04
-    timeout-minutes: 240
-    env:
-      TEST_RUNNER_TYPE: linux.2xlarge
-      ENABLE_DISTRIBUTED_TEST: 1
-      ENABLE_JIT_LEGACY_TEST: 1
-      ENABLE_FX2TRT_TEST: ''
-      ENABLE_MULTIGPU_TEST: ''
-      ENABLE_NOGPU_NO_AVX_TEST: ''
-      ENABLE_NOGPU_NO_AVX2_TEST: ''
-      ENABLE_SLOW_TEST: ''
-      ENABLE_DOCS_TEST: 1
-      ENABLE_BACKWARDS_COMPAT_TEST: 1
-      ENABLE_XLA_TEST: ''
-      ENABLE_NOARCH_TEST: ''
-      NUM_TEST_SHARDS: 2
-      MULTIGPU_RUNNER_TYPE: linux.16xlarge.nvidia.gpu
-      DISTRIBUTED_GPU_RUNNER_TYPE: linux.8xlarge.nvidia.gpu
-      NOGPU_RUNNER_TYPE: linux.2xlarge
-      PR_BODY: ${{ github.event.pull_request.body }}
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-      render-matrix: ${{ steps.set-matrix.outputs.render-matrix }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Install dependencies
-        run: pip install typing-extensions==3.10
-      - name: Generating test matrix
-        id: set-matrix
-        run: |
-          python3 .github/scripts/generate_pytorch_test_matrix.py
+  generate-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix@main
+    with:
+      package-type: conda
+      os: linux
 
   validate-linux-binaries:
     runs-on: ubuntu-20.04-m60
     needs: generate-test-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-build-matrix.outputs.matrix) }}
+        uses: ${{ needs.generate-matrix.outputs.matrix }}
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
