@@ -23,14 +23,12 @@ jobs:
     with:
       package-type: conda
       os: linux
-
   process-matrix:
     needs: generate-matrix
+    runs-on: ubuntu-20.04
     run: |
-    jq 'map(. + {stable: "yes"})' needs.generate-matrix.outputs.matrix
-
+      jq 'map(. + {stable: "yes"})' needs.generate-matrix.outputs.matrix
   validate-linux-binaries-conda:
-
     needs: generate-matrix
     strategy:
       matrix:
