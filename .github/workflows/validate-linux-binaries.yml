@@ -63,5 +63,4 @@ jobs:
             esac
 
           conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
-          ./check_binary.sh
           conda env remove -p ${ENV_NAME}
