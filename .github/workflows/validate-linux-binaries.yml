@@ -21,6 +21,7 @@ jobs:
     strategy:
       matrix:
         ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Checkout PyTorch builder
