@@ -40,7 +40,7 @@ jobs:
     steps:
       - name: Display env variables
         run: |
-          echo ${{ matrix }}
+          echo ${{ matrix }} | python -m json.tool
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Install conda
