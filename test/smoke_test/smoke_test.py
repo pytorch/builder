@@ -15,7 +15,7 @@ import torch.nn as nn
 #import torchvision.datasets as dset
 #import torchvision.transforms
 cuda_version_expected = os.environ['CUDA_VER']
-is_cuda_system = cuda_version_expected != "cpu"
+is_cuda_system = cuda_version_expected != "cpu" and cuda_version_expected != ""
 #todo add torch, torchvision and torchaudio tests
 print(f"torch: {torch.__version__}")
 print(f"torchvision: {torchvision.__version__}")
