@@ -23,20 +23,15 @@ jobs:
     with:
       package-type: conda
       os: linux
-  process-matrix:
-    needs: generate-matrix
-    runs-on: ubuntu-20.04
-    run: |
-      jq 'map(. + {stable: "yes"})' needs.generate-matrix.outputs.matrix
   validate-linux-binaries-conda:
     needs: generate-matrix
     strategy:
       matrix:
         uses: ${{ fromJson(needs.generate-matrix.outputs.matrix).include }}
         include:
-          - gpu_arch_type: cpu
+          - gpu_arch_type: "cpu"
             runner_type: ubuntu-20.04
-          - gpu_arch_type: gpu
+          - gpu_arch_type: "gpu"
             runner_type: ubuntu-20.04-m60
     runs-on: ${{ matrix.runner_type }}
     env:
