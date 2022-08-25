@@ -11,7 +11,7 @@ jobs:
       fail-fast: false
       matrix:
 #        binaries_source: ["conda", "wheels"]
-        binaries_source: ["conda"]
+        binaries_source: ["conda", "wheels"]
         python_version: ["3.8"]
         channel: [pytorch]
 #        channel: [pytorch-nightly, pytorch-test, pytorch]
@@ -39,29 +39,36 @@ jobs:
 
       - name: Conda install python
         shell: cmd
-        run: conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+        run: conda create -y --name %ENV_NAME% python=%PYTHON_VERSION% numpy
 
       - name: Conda install pytorch
         if: matrix.binaries_source == 'conda'
         shell: cmd
-        run: conda install -p %ENV_NAME% pytorch torchvision torchaudio -c %CHANNEL%
+        run: |
+          conda activate %ENV_NAME%
+          conda install pytorch torchvision torchaudio -c %CHANNEL%
 
       - name: Pip install pytorch
         if: matrix.binaries_source == 'wheels' && contains( matrix.channel, '-' )
         shell: cmd
         run: |
+          conda activate %ENV_NAME%
           set SUFFIX=%CHANNEL:*-=%
-          conda run -p %ENV_NAME% pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%SUFFIX%/cpu
+          conda run pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%SUFFIX%/cpu
 
       - name: Pip install pytorch
         if: matrix.binaries_source == 'wheels' && matrix.pip_channel == 'pytorch'
         shell: cmd
-        run: conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio
+        run: |
+          conda activate %ENV_NAME%
+          conda run pip3 install torch torchvision torchaudio
 
       - name: Test torch is importable
         shell: cmd
         run: |
           echo %ENV_NAME%
           set CUDA_VER=cpu
-          conda run -p %ENV_NAME% python3 %GITHUB_WORKSPACE%/test/smoke_test/smoke_test.py
-          conda env remove -p %ENV_NAME%
+          conda activate %ENV_NAME%
+          conda run python3 %GITHUB_WORKSPACE%/test/smoke_test/smoke_test.py
+          conda deactivate
+          conda env remove --name %ENV_NAME%
