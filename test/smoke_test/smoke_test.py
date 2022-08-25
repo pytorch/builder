@@ -12,7 +12,6 @@ import torchaudio.pipelines  # noqa: F401
 import torchaudio.sox_effects  # noqa: F401
 import torchaudio.transforms  # noqa: F401
 import torchaudio.utils  # noqa: F401
-from torchaudio.io import StreamReader
 import torchvision.datasets as dset
 import torchvision.transforms
 cuda_version_expected = os.environ['CUDA_VER']

@@ -43,7 +43,6 @@ jobs:
         run: |
           set -ex
           conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-          conda install -p ${ENV_NAME} ffmpeg
           case $CUDA_VER in
            ("cpu") {
              conda install -p ${ENV_NAME} pytorch torchvision torchaudio  -c pytorch-nightly;
@@ -53,13 +52,13 @@ jobs:
              conda install -p ${ENV_NAME} pytorch torchvision torchaudio cudatoolkit=${CUDA_VER} -c pytorch-nightly;
             }
             ;;
-            ("11.6" || "11.7") {
+            ("11.6" | "11.7") {
               conda install -p ${ENV_NAME} pytorch torchvision torchaudio cudatoolkit=${CUDA_VER} -c pytorch-nightly -c nvidia;
             }
             ;;
            (*) echo "No binary available"
-                 ;;
-          esac
+            ;;
+            esac
 
           conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
           ./check_binary.sh
