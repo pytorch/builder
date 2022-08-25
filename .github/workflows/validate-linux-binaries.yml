@@ -33,7 +33,7 @@ jobs:
           miniconda-version: "latest"
           activate-environment: testenv
       - name: Check nvidia smi
-        if:
+        if: ${{ matrix.gpu_arch_type == "cuda" }}
         run: |
           nvidia-smi
       - name: Conda Install pytorch and smoke test
