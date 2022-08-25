@@ -43,6 +43,7 @@ jobs:
         run: |
           set -ex
           conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
+          echo $CUDA_VER
           case $CUDA_VER in
            ("cpu") {
              conda install -p ${ENV_NAME} pytorch torchvision torchaudio  -c pytorch-nightly;
