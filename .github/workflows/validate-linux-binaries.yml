@@ -29,7 +29,7 @@ jobs:
     needs: generate-matrix
     strategy:
       matrix:
-        uses: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+        uses: ${{ fromJson(needs.generate-matrix.outputs.matrix).include }}
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
