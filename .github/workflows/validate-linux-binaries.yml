@@ -46,7 +46,7 @@ jobs:
           conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
           case $DESIRED_CUDA in
            ("cpu") {
-             conda install -p ${ENV_NAME} pytorch torchvision torchaudio cpuonly  -c pytorch-nightly;
+             conda install -p ${ENV_NAME} pytorch torchvision cpuonly  -c pytorch-nightly;
            }
            ;;
            ("cu102" | "cu113") {
