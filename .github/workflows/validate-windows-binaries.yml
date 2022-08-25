@@ -7,68 +7,57 @@ jobs:
   validate-windows-runner:
     runs-on: windows-2019-m60
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        binaries_source: ["conda", "wheels"]
+        python_version: ["3.8"]
+        channel: [pytorch-nightly, pytorch-test, pytorch]
+    env:
+      PYTHON_VERSION: ${{ matrix.python_version }}
+      ENV_NAME: conda-env-${{ github.run_id }}
+      CHANNEL: ${{ matrix.channel }}
     steps:
+      - name: Checkout pytorch/builder
+        uses: actions/checkout@v2
+
       - name: Install Fresh Miniconda
         shell: cmd
         run: |
-          set CHANNEL=pytorch-nightly
-          echo %CHANNEL%
-          set PIP_CHANNEL=%CHANNEL:*-=%
-          echo %PIP_CHANNEL%
+          REM Install Miniconda3
+          set "CONDA_HOME=%CD%\conda"
+          set "tmp_conda=%CONDA_HOME%"
+          set "miniconda_exe=%CD%\miniconda.exe"
+          echo %miniconda_exe%
+          rmdir /s /q conda
+          del miniconda.exe
+          curl -k https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
+          start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /D=%tmp_conda%
+          conda --version
 
-#jobs:
-#  validate-windows-runner:
-#    runs-on: windows-2019-m60
-#    timeout-minutes: 60
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        binaries_source: ["conda", "wheels"]
-#        python_version: ["3.8", "3.9"]
-#        channel: [nightly, test, pytorch]
-#    env:
-#      PYTHON_VERSION: ${{ matrix.python_version }}
-#      ENV_NAME: conda-env-${{ github.run_id }}
-#      CHANNEL: ${{ matrix.channel }}
-#    steps:
-#      - name: Checkout pytorch/builder
-#        uses: actions/checkout@v2
-#
-#      - name: Install Fresh Miniconda
-#        shell: cmd
-#        run: |
-#          REM Install Miniconda3
-#          set "CONDA_HOME=%CD%\conda"
-#          set "tmp_conda=%CONDA_HOME%"
-#          set "miniconda_exe=%CD%\miniconda.exe"
-#          echo %miniconda_exe%
-#          rmdir /s /q conda
-#          del miniconda.exe
-#          curl -k https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
-#          start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /D=%tmp_conda%
-#          conda --version
-#
-#      - name: Conda install pytorch
-#        if: matrix.binaries_source == 'conda'
-#        shell: cmd
-#        run: |
-#          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
-#          conda install -p %ENV_NAME% pytorch torchvision torchaudio -c %CONDA_CHANNEL%
-#
-#      - name: Pip install pytorch
-#        shell: cmd
-#        if: matrix.binaries_source == 'wheels' && contains( ['nightly', 'test'], matrix.channel )
-#        run: conda run -p %ENV_NAME% pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/${{ matrix.channel }}/cpu
-#
-#      - name: Pip install pytorch
-#        if: matrix.binaries_source == 'wheels' && matrix.pip_channel == 'pytorch'
-#        shell: cmd
-#        run: conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio
-#
-#      - name: Test torch is importable
-#        shell: cmd
-#        run: |
-#          cd %GITHUB_WORKSPACE%
-#          set CUDA_VER=cpu
-#          conda run -p %ENV_NAME% python3 %GITHUB_WORKSPACE%/test/smoke_test/smoke_test.py
-#          conda env remove -p %ENV_NAME%
+      - name: Conda install pytorch
+        if: matrix.binaries_source == 'conda'
+        shell: cmd
+        run: |
+          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+          conda install -p %ENV_NAME% pytorch torchvision torchaudio -c %CHANNEL%
+
+      - name: Pip install pytorch
+        shell: cmd
+        if: matrix.binaries_source == 'wheels' && contains( matrix.channel, '-' )
+        run: |
+          set SUFFIX=%CHANNEL:*-=%
+          conda run -p %ENV_NAME% pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%SUFFIX%/cpu
+
+      - name: Pip install pytorch
+        if: matrix.binaries_source == 'wheels' && matrix.pip_channel == 'pytorch'
+        shell: cmd
+        run: conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio
+
+      - name: Test torch is importable
+        shell: cmd
+        run: |
+          cd %GITHUB_WORKSPACE%
+          set CUDA_VER=cpu
+          conda run -p %ENV_NAME% python3 %GITHUB_WORKSPACE%/test/smoke_test/smoke_test.py
+          conda env remove -p %ENV_NAME%
