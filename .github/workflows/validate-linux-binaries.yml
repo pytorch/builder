@@ -31,12 +31,16 @@ jobs:
     runs-on: "ubuntu-20.04"
     env:
       GPU_ARCH_TYPE: cuda
+      RUNNER: ${{ matrix.validation_runner }}
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
       PYTHON_VERSION: ${{ matrix.python_version }}
       PACKAGE_TYPE: conda
       DESIRED_PYTHON: ${{ matrix.python_version }}
       DESIRED_CUDA: ${{ matrix.cuda_version }}
     steps:
+      - name: Display env variables
+        run: |
+          echo $RUNNER
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Install conda
