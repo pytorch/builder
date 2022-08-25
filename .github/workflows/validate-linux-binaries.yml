@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-    runs-on: "ubuntu-20.04"
+    runs-on: ${{ matrix.validation_runner }}
     env:
       GPU_ARCH_TYPE: cuda
       RUNNER: ${{ matrix.validation_runner }}
