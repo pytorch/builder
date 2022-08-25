@@ -32,6 +32,7 @@ jobs:
         uses: ${{ fromJson(needs.generate-matrix.outputs.matrix).include }}
         include:
           - gpu_arch_type: cpu
+            desired_cuda: cpu
             runner_type: ubuntu-20.04
           - gpu_arch_type: gpu
             runner_type: ubuntu-20.04-m60
