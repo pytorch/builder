@@ -26,7 +26,8 @@ jobs:
   validate-linux-binaries-conda:
     needs: generate-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix).include }}
+      matrix:
+        ${{ fromJson(needs.generate-matrix.outputs.matrix).include }}
     runs-on: "ubuntu-20.04"
     env:
       GPU_ARCH_TYPE: cuda
