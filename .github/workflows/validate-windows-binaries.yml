@@ -10,9 +10,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        binaries_source: ["conda", "wheels"]
+#        binaries_source: ["conda", "wheels"]
+        binaries_source: ["conda"]
         python_version: ["3.8"]
-        channel: [pytorch-nightly, pytorch-test, pytorch]
+        channel: [pytorch]
+#        channel: [pytorch-nightly, pytorch-test, pytorch]
     env:
       PYTHON_VERSION: ${{ matrix.python_version }}
       ENV_NAME: conda-env-${{ github.run_id }}
@@ -35,16 +37,18 @@ jobs:
           start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /D=%tmp_conda%
           conda --version
 
+      - name: Conda install python
+        shell: cmd
+        run: conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+
       - name: Conda install pytorch
         if: matrix.binaries_source == 'conda'
         shell: cmd
-        run: |
-          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
-          conda install -p %ENV_NAME% pytorch torchvision torchaudio -c %CHANNEL%
+        run: conda install -p %ENV_NAME% pytorch torchvision torchaudio -c %CHANNEL%
 
       - name: Pip install pytorch
-        shell: cmd
         if: matrix.binaries_source == 'wheels' && contains( matrix.channel, '-' )
+        shell: cmd
         run: |
           set SUFFIX=%CHANNEL:*-=%
           conda run -p %ENV_NAME% pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%SUFFIX%/cpu
@@ -57,7 +61,7 @@ jobs:
       - name: Test torch is importable
         shell: cmd
         run: |
-          cd %GITHUB_WORKSPACE%
+          echo %ENV_NAME%
           set CUDA_VER=cpu
           conda run -p %ENV_NAME% python3 %GITHUB_WORKSPACE%/test/smoke_test/smoke_test.py
           conda env remove -p %ENV_NAME%
