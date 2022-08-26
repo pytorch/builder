@@ -25,19 +25,8 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
 fi
 
 # Determine ROCm version and architectures to build for
-#
-# NOTE: We should first check `DESIRED_CUDA` when determining `ROCM_VERSION`
-if [[ -n "$DESIRED_CUDA" ]]; then
-    if ! echo "${DESIRED_CUDA}"| grep "^rocm" >/dev/null 2>/dev/null; then
-        export DESIRED_CUDA="rocm${DESIRED_CUDA}"
-    fi
-    # rocm3.7, rocm3.5.1
-    ROCM_VERSION="$DESIRED_CUDA"
-    echo "Using $ROCM_VERSION as determined by DESIRED_CUDA"
-else
-    echo "Must set DESIRED_CUDA"
-    exit 1
-fi
+ROCM_VERSION="$GPU_ARCH_VERSION"
+echo "Using $ROCM_VERSION as determined by GPU_ARCH_VERSION"
 
 # Package directories
 WHEELHOUSE_DIR="wheelhouse$ROCM_VERSION"

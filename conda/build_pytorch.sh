@@ -33,8 +33,8 @@ retry () {
 
 # Parse arguments and determmine version
 ###########################################################
-if [[ -n "$DESIRED_CUDA" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
-    desired_cuda="$DESIRED_CUDA"
+if [[ -n "$GPU_ARCH_VERSION" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
+    desired_cuda="$GPU_ARCH_VERSION"
     build_version="$PYTORCH_BUILD_VERSION"
     build_number="$PYTORCH_BUILD_NUMBER"
 else
@@ -49,9 +49,11 @@ else
     build_version="$2"
     build_number="$3"
 fi
-if [[ "$desired_cuda" != cpu ]]; then
-  desired_cuda="$(echo $desired_cuda | tr -d cuda. )"
+
+if [[ $desired_cuda = "" ]]; then
+    desired_cuda="cpu"
 fi
+
 echo "Building cuda version $desired_cuda and pytorch version: $build_version build_number: $build_number"
 
 if [[ "$OSTYPE" == "msys" ]]; then

@@ -13,7 +13,7 @@ set -eux -o pipefail
 # 8. Magma is available for CUDA builds
 # 9. CuDNN is available for CUDA builds
 #
-# This script needs the env variables DESIRED_PYTHON, DESIRED_CUDA,
+# This script needs the env variables DESIRED_PYTHON, GPU_ARCH_VERSION
 # DESIRED_DEVTOOLSET and PACKAGE_TYPE
 #
 # This script expects PyTorch to be installed into the active Python (the
@@ -38,14 +38,9 @@ else
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
 fi
 
-if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
-  # cu90, cu92, cu100, cu101
-  if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
-    CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
-  elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
-    CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
-  fi
-  echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
+if [[ "$GPU_ARCH_TYPE" = 'cuda' ]]; then
+  CUDA_VERSION=${GPU_ARCH_VERSION}
+  echo "Using CUDA $CUDA_VERSION as determined by GPU_ARCH_VERSION"
 
   # Switch `/usr/local/cuda` to the desired CUDA version
   rm -rf /usr/local/cuda || true
@@ -366,7 +361,7 @@ if [[ "$OSTYPE" == "msys" ]]; then
 fi
 
 # Test that CUDA builds are setup correctly
-if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
+if [[ "$GPU_ARCH_TYPE" == 'cuda' ]]; then
   if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_and_run_example_cpp check-torch-cuda
   else

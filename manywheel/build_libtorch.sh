@@ -113,7 +113,7 @@ else
     export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 fi
 
-if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+if [[ "$GPU_ARCH_TYPE" = "rocm" ]]; then
     echo "Calling build_amd.py at $(date)"
     python tools/amd_build/build_amd.py
     # TODO remove this work-around once pytorch sources are updated

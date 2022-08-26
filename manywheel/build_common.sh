@@ -147,7 +147,7 @@ else
     export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 fi
 
-if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+if [[ "$GPU_ARCH_TYPE" = "rocm" ]]; then
     echo "Calling build_amd.py at $(date)"
     python tools/amd_build/build_amd.py
 fi
@@ -326,7 +326,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
             fi
 
             # ROCm workaround for roctracer dlopens
-            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+            if [[ "${GPU_ARCH_TYPE}" = "rocm" ]]; then
                 patchedpath=$(fname_without_so_number $destpath)
             else
                 patchedpath=$(fname_with_sha256 $destpath)
@@ -459,7 +459,10 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   echo "$(date) :: Running tests"
   pushd "$PYTORCH_ROOT"
   LD_LIBRARY_PATH=/usr/local/nvidia/lib64 \
-          "${SOURCE_DIR}/../run_tests.sh" manywheel "${py_majmin}" "$DESIRED_CUDA"
+    PACAKGE_TYPE=manywheel \
+    DESIRED_PYTHON="${py_majmin}" \
+    GPU_ARCH_TYPE=${GPU_ARCH_TYPE} \
+          "${SOURCE_DIR}/../run_tests.sh"
   popd
   echo "$(date) :: Finished tests"
 fi
