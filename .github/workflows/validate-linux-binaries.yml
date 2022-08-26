@@ -10,6 +10,7 @@ on:
     paths:
       - .github/workflows/validate-linux-binaries.yml
 
+jobs:
   generate-wheels-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
