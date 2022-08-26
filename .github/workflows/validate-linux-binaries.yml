@@ -16,6 +16,54 @@ jobs:
     with:
       package-type: wheel
       os: linux
+  validate-linux-binaries-conda:
+    needs: generate-cuda-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-cuda-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
+      - name: Check nvidia smi
+        if: ${{ matrix.gpu_arch_type == 'cuda' }}
+        run: |
+          nvidia-smi
+      - name: Conda Install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
+          case $DESIRED_CUDA in
+           ("cpu") {
+             conda install -p ${ENV_NAME} pytorch torchaudio torchvision cpuonly  -c pytorch;
+           }
+           ;;
+           ("cu102" | "cu113") {
+             conda install -p ${ENV_NAME} pytorch torchaudio torchvision cudatoolkit=${CUDA_VER} -c pytorch;
+            }
+            ;;
+            ("cu116" | "cu117") {
+              conda install -p ${ENV_NAME} pytorch torchaudio torchvision pytorch-cuda=${CUDA_VER} -c pytorch-nightly -c nvidia;
+            }
+            ;;
+           (*) echo "No binary available"
+            ;;
+            esac
+
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
   validate-linux-binaries-wheels:
     needs: generate-wheels-matrix
     strategy:
