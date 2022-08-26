@@ -40,7 +40,7 @@ jobs:
       - name: Conda Install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
-          CUDA_VER: ${{ matrix.gpu_arch_version }}
+          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
         run: |
           set -ex
