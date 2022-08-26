@@ -10,16 +10,16 @@ def smoke_test_cuda() -> None:
     is_cuda_system = desired_cuda != "cpu" and gpu_arch_ver != "" and desired_cuda.startswith("cu")
 
     if(not torch.cuda.is_available() and is_cuda_system):
-    print(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
-    sys.exit(1)
+        print(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
+        sys.exit(1)
     if(torch.cuda.is_available()):
         if(torch.version.cuda != gpu_arch_ver):
             print(f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}")
             sys.exit(1)
-    y=torch.randn([3,5]).cuda()
-    print(f"torch cuda: {torch.version.cuda}")
-    #todo add cudnn version validation
-    print(f"torch cudnn: {torch.backends.cudnn.version()}")
+        y=torch.randn([3,5]).cuda()
+        print(f"torch cuda: {torch.version.cuda}")
+        #todo add cudnn version validation
+        print(f"torch cudnn: {torch.backends.cudnn.version()}")
 
 def smoke_test_torchvision() -> None:
     import torchvision.datasets as dset
