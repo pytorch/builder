@@ -11,16 +11,21 @@ on:
       - .github/workflows/validate-linux-binaries.yml
 
 jobs:
+ generate-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: linux
   generate-wheels-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
       os: linux
   validate-linux-binaries-conda:
-    needs: generate-cuda-matrix
+    needs: generate-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-cuda-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
