@@ -51,10 +51,14 @@ jobs:
              conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio;
            }
            ;;
-           ("cu102" | "cu113" | "rocm5.1.1" | "rocm5.2") {
+           ("cu102" | "cu113") {
              conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/${DESIRED_CUDA}"
             }
             ;;
+            ("cu102" | "cu113" | "rocm5.1.1" | "rocm5.2") {
+             set CUDA_VER=""
+             conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/${DESIRED_CUDA}"
+            }
             ("cu116" | "cu117") {
               conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/${DESIRED_CUDA}"
             }
