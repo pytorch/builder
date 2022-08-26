@@ -25,23 +25,8 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
 fi
 
 
-# Determine CUDA version and architectures to build for
-if [[ -n "$GPU_ARCH_VERSION" ]]; then
-    # CUDA_VERSION should look like ${MAJOR}.${MINOR} (ex. 11.2)
-    CUDA_VERSION="${GPU_ARCH_VERSION:-}"
-
-    # There really has to be a better way to do this - eli
-    # Possibly limiting builds to specific cuda versions be delimiting images would be a choice
-    if [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-        echo "Switching to CUDA version ${CUDA_VERSION}"
-        /builder/conda/switch_cuda_version.sh "${CUDA_VERSION}"
-    fi
-else
-    CUDA_VERSION=$(nvcc --version|grep release|cut -f5 -d" "|cut -f1 -d",")
-    echo "CUDA $CUDA_VERSION Detected"
-fi
-
-cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
+CUDA_VERSION="${GPU_ARCH_VERSION:-}"
+cuda_version_nodot=$(echo "${CUDA_VERSION}" | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
@@ -50,7 +35,6 @@ case ${CUDA_VERSION} in
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     10.*)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     *)

@@ -10,7 +10,7 @@ set SRC_DIR=%~dp0\..
 if not exist "%SRC_DIR%\temp_build" mkdir "%SRC_DIR%\temp_build"
 
 set /a CUDA_VER=%CUDA_VERSION%
-set CUDA_VERSION_STR=%CUDA_VER%
+set /a CUDA_VERSION_STR=%CUDA_VERSION%
 set CUDNN_FOLDER="cuda"
 set CUDNN_LIB_FOLDER="lib\x64"
 
