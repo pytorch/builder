@@ -11,7 +11,7 @@ on:
       - .github/workflows/validate-linux-binaries.yml
 
 jobs:
- generate-conda-matrix:
+  generate-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
