@@ -10,7 +10,6 @@ on:
 #    paths:
 #      - .github/workflows/validate-windows-binaries.yml
 
-# test11
 jobs:
   generate-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
@@ -32,13 +31,26 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Install conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: testenv
+      - name: Install Fresh Miniconda
+        shell: cmd
+        run: |
+          REM Install Miniconda3
+          set "CONDA_HOME=%CD%\conda"
+          set "tmp_conda=%CONDA_HOME%"
+          set "miniconda_exe=%CD%\miniconda.exe"
+          echo %miniconda_exe%
+          rmdir /s /q conda
+          del miniconda.exe
+          curl -k https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
+          start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /D=%tmp_conda%
+          conda --version
+#      - name: Install conda
+#        uses: conda-incubator/setup-miniconda@v2
+#        with:
+#          python-version: ${{ matrix.python_version }}
+#          auto-update-conda: true
+#          miniconda-version: "latest"
+#          activate-environment: testenv
       - name: Check nvidia smi
         if: ${{ matrix.gpu_arch_type == 'cuda' }}
         shell: cmd
@@ -90,13 +102,26 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Install conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: testenv
+      - name: Install Fresh Miniconda
+        shell: cmd
+        run: |
+          REM Install Miniconda3
+          set "CONDA_HOME=%CD%\conda"
+          set "tmp_conda=%CONDA_HOME%"
+          set "miniconda_exe=%CD%\miniconda.exe"
+          echo %miniconda_exe%
+          rmdir /s /q conda
+          del miniconda.exe
+          curl -k https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
+          start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /D=%tmp_conda%
+          conda --version
+#      - name: Install conda
+#        uses: conda-incubator/setup-miniconda@v2
+#        with:
+#          python-version: ${{ matrix.python_version }}
+#          auto-update-conda: true
+#          miniconda-version: "latest"
+#          activate-environment: testenv
       - name: Check nvidia smi
         if: ${{ matrix.gpu_arch_type == 'cuda' }}
         shell: cmd
