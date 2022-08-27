@@ -56,41 +56,29 @@ jobs:
         shell: cmd
         run: |
           nvidia-smi
-      - name: Test matrix
+      - name: Conda Install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
         shell: cmd
         run: |
-          echo %ENV_NAME%
-          echo %GPU_ARCH_VER%
-          echo %DESIRED_CUDA%
-
-
-#      - name: Conda Install pytorch and smoke test
-#        env:
-#          ENV_NAME: conda-env-${{ github.run_id }}
-#          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
-#          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-#        shell: cmd
-#        run: |
-#          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
-#          IF "%DESIRED_CUDA%"=="cpu" (
-#            conda install -p %ENV_NAME% pytorch torchaudio torchvision cpuonly  -c pytorch
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
-#            conda install -p %ENV_NAME% pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
-#            conda install -p %ENV_NAME% pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
-#            conda install -p %ENV_NAME% pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
-#            conda install -p %ENV_NAME% pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
-#          ) ELSE (
-#            echo "No binary available"
-#          )
-#          conda run -p %ENV_NAME% python3  ./test/smoke_test/smoke_test.py
-#          conda env remove -p %ENV_NAME%
+          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+          IF "%DESIRED_CUDA%"=="cpu" (
+            conda install -p %ENV_NAME% pytorch torchaudio torchvision cpuonly  -c pytorch
+          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
+            conda install -p %ENV_NAME% pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
+            conda install -p %ENV_NAME% pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
+            conda install -p %ENV_NAME% pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
+            conda install -p %ENV_NAME% pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+          ) ELSE (
+            echo "No binary available"
+          )
+          conda run -p %ENV_NAME% python3  ./test/smoke_test/smoke_test.py
+          conda env remove -p %ENV_NAME%
 
   validate-windows-binaries-wheels:
     needs: generate-wheels-matrix
@@ -127,37 +115,26 @@ jobs:
         shell: cmd
         run: |
           nvidia-smi
-      - name: Test matrix
+      - name: Conda Install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
         shell: cmd
         run: |
-          echo %ENV_NAME%
-          echo %GPU_ARCH_VER%
-          echo %DESIRED_CUDA%
-#
-#      - name: Conda Install pytorch and smoke test
-#        env:
-#          ENV_NAME: conda-env-${{ github.run_id }}
-#          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
-#          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-#        shell: cmd
-#        run: |
-#          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
-#          IF "%DESIRED_CUDA%"=="cpu" (
-#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
-#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/cu102"
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
-#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/cu113"
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
-#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/cu116"
-#          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
-#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/cu117"
-#          ) ELSE (
-#            echo "No binary available"
-#          )
-#          conda run -p %ENV_NAME% python3  ./test/smoke_test/smoke_test.py
-#          conda env remove -p %ENV_NAME%
+          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+          IF "%DESIRED_CUDA%"=="cpu" (
+            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio
+          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
+            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/cu102"
+          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
+            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/cu113"
+          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
+            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/cu116"
+          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
+            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/cu117"
+          ) ELSE (
+            echo "No binary available"
+          )
+          conda run -p %ENV_NAME% python3  ./test/smoke_test/smoke_test.py
+          conda env remove -p %ENV_NAME%
