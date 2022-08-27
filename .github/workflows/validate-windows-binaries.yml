@@ -1,74 +1,138 @@
-name: Validate windows runner
+name: Validate binary  images
 
 on:
   push:
+#    branches:
+#      main
+#    paths:
+#      - .github/workflows/validate-windows-binaries.yml
+#  pull_request:
+#    paths:
+#      - .github/workflows/validate-windows-binaries.yml
 
+# test11
 jobs:
-  validate-windows-runner:
-    runs-on: windows-2019-m60
-    timeout-minutes: 60
+  generate-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: windows
+  generate-wheels-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: windows
+  validate-windows-binaries-conda:
+    needs: generate-conda-matrix
     strategy:
-      fail-fast: false
       matrix:
-#        binaries_source: ["conda", "wheels"]
-        binaries_source: ["conda", "wheels"]
-        python_version: ["3.8"]
-        channel: [pytorch]
-#        channel: [pytorch-nightly, pytorch-test, pytorch]
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
-      ENV_NAME: conda-env-${{ github.run_id }}
-      CHANNEL: ${{ matrix.channel }}
+        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
     steps:
-      - name: Checkout pytorch/builder
+      - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-
-      - name: Install Fresh Miniconda
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
+      - name: Check nvidia smi
+        if: ${{ matrix.gpu_arch_type == 'cuda' }}
         shell: cmd
         run: |
-          REM Install Miniconda3
-          set "CONDA_HOME=%CD%\conda"
-          set "tmp_conda=%CONDA_HOME%"
-          set "miniconda_exe=%CD%\miniconda.exe"
-          echo %miniconda_exe%
-          rmdir /s /q conda
-          del miniconda.exe
-          curl -k https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "%miniconda_exe%"
-          start /wait "" "%miniconda_exe%" /S /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /D=%tmp_conda%
-          conda --version
-
-      - name: Conda install python
-        shell: cmd
-        run: conda create -y --name %ENV_NAME% python=%PYTHON_VERSION% numpy
-
-      - name: Conda install pytorch
-        if: matrix.binaries_source == 'conda'
-        shell: cmd
-        run: |
-          conda activate %ENV_NAME%
-          conda install pytorch torchvision torchaudio -c %CHANNEL%
-
-      - name: Pip install pytorch
-        if: matrix.binaries_source == 'wheels' && contains( matrix.channel, '-' )
-        shell: cmd
-        run: |
-          conda activate %ENV_NAME%
-          set SUFFIX=%CHANNEL:*-=%
-          conda run pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%SUFFIX%/cpu
-
-      - name: Pip install pytorch
-        if: matrix.binaries_source == 'wheels' && matrix.pip_channel == 'pytorch'
-        shell: cmd
-        run: |
-          conda activate %ENV_NAME%
-          conda run pip3 install torch torchvision torchaudio
-
-      - name: Test torch is importable
+          nvidia-smi
+      - name: Test matrix
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+          DESIRED_CUDA: ${{ matrix.desired_cuda }}
         shell: cmd
         run: |
           echo %ENV_NAME%
-          set CUDA_VER=cpu
-          conda activate %ENV_NAME%
-          conda run python3 %GITHUB_WORKSPACE%/test/smoke_test/smoke_test.py
-          conda deactivate
-          conda env remove --name %ENV_NAME%
+          echo %GPU_ARCH_VER%
+          echo %DESIRED_CUDA%
+
+
+#      - name: Conda Install pytorch and smoke test
+#        env:
+#          ENV_NAME: conda-env-${{ github.run_id }}
+#          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+#          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+#        shell: cmd
+#        run: |
+#          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+#          IF "%DESIRED_CUDA%"=="cpu" (
+#            conda install -p %ENV_NAME% pytorch torchaudio torchvision cpuonly  -c pytorch
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
+#            conda install -p %ENV_NAME% pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
+#            conda install -p %ENV_NAME% pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
+#            conda install -p %ENV_NAME% pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
+#            conda install -p %ENV_NAME% pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+#          ) ELSE (
+#            echo "No binary available"
+#          )
+#          conda run -p %ENV_NAME% python3  ./test/smoke_test/smoke_test.py
+#          conda env remove -p %ENV_NAME%
+
+  validate-windows-binaries-wheels:
+    needs: generate-wheels-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-wheels-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
+      - name: Check nvidia smi
+        if: ${{ matrix.gpu_arch_type == 'cuda' }}
+        shell: cmd
+        run: |
+          nvidia-smi
+      - name: Test matrix
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+        shell: cmd
+        run: |
+          echo %ENV_NAME%
+          echo %GPU_ARCH_VER%
+          echo %DESIRED_CUDA%
+#
+#      - name: Conda Install pytorch and smoke test
+#        env:
+#          ENV_NAME: conda-env-${{ github.run_id }}
+#          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+#          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+#        shell: cmd
+#        run: |
+#          conda create -yp %ENV_NAME% python=%PYTHON_VERSION% numpy
+#          IF "%DESIRED_CUDA%"=="cpu" (
+#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
+#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/cu102"
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
+#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/cu113"
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
+#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/cu116"
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
+#            conda run -p %ENV_NAME% pip3 install torch torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/nightly/cu117"
+#          ) ELSE (
+#            echo "No binary available"
+#          )
+#          conda run -p %ENV_NAME% python3  ./test/smoke_test/smoke_test.py
+#          conda env remove -p %ENV_NAME%
