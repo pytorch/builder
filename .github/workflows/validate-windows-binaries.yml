@@ -42,34 +42,18 @@ jobs:
           del %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe
           echo %MINICONDA_INSTALL_PATH_WIN%\Scripts >> %GITHUB_PATH%
           echo %MINICONDA_INSTALL_PATH_WIN%\Library\bin >> %GITHUB_PATH%
-      - name: Setup conda environment
-        shell: cmd
-        env:
-          PYTHON_VERSION: ${{ matrix.python_version }}
-        run: |
-          set CONDA_ENV=%RUNNER_TEMP%\conda_environment_%GITHUB_RUN_ID%
-          conda create --yes --prefix %CONDA_ENV% python=%PYTHON_VERSION% numpy
-          echo CONDA_ENV=%CONDA_ENV% >> %GITHUB_ENV%
-          echo CONDA_RUN=conda run -p %CONDA_ENV% >> %GITHUB_ENV%
-          echo CONDA_INSTALL=conda install --yes -p %CONDA_ENV% >> %GITHUB_ENV%
-      - name: Check nvidia smi
-        if: ${{ matrix.gpu_arch_type == 'cuda' }}
-        shell: cmd
-        run: |
-          nvidia-smi
-      - name: Echo vars
-        shell: cmd
-        run: |
-          echo %CONDA_ENV%
-          echo %CONDA_INSTALL%
-          echo %GITHUB_PATH
-
       - name: Conda Install pytorch and smoke test
         env:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
+          PYTHON_VERSION: ${{ matrix.python_version }}
         shell: cmd
         run: |
+          set CONDA_ENV=%RUNNER_TEMP%\conda_environment_%GITHUB_RUN_ID%
+          conda create --yes --prefix %CONDA_ENV% python=%PYTHON_VERSION% numpy
+          set CONDA_RUN=conda run -p %CONDA_ENV%
+          set CONDA_INSTALL=conda install --yes -p %CONDA_ENV%
+
           IF "%DESIRED_CUDA%"=="cpu" (
             %CONDA_INSTALL% pytorch torchaudio torchvision cpuonly  -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
