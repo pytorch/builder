@@ -10,6 +10,11 @@ on:
 #    paths:
 #      - .github/workflows/validate-windows-binaries.yml
 jobs:
+  generate-conda-matrix-macos:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: macos
 #  generate-conda-matrix:
 #    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
 #    with:
@@ -60,23 +65,16 @@ jobs:
           auto-activate-base: false
           activate-environment: conda-env-${{ github.run_id }}
       - run: conda install --yes numpy
-      - shell: cmd /C CALL {0}
-        env:
-          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-        run: |
-          IF "%DESIRED_CUDA%"=="cpu" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision cpuonly  -c pytorch
-          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
-          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
-          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
-          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
-          ) ELSE (
-            echo "No binary available"
-          )
+      - if: matrix.desired_cuda == 'cpu'
+        run: conda install pytorch torchaudio torchvision cpuonly  -c pytorch
+      - if: matrix.desired_cuda == 'cu102'
+        run: conda install pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+      - if: matrix.desired_cuda == 'cu113'
+        run: conda install pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+      - if: matrix.desired_cuda == 'cu116'
+        run: conda install pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+      - if: matrix.desired_cuda == 'cu117'
+        run: conda intall pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
       - name: Run smoke test
         run: conda run test\smoke_test\smoke_test.py
 
