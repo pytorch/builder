@@ -31,43 +31,73 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Install Fresh Miniconda
-        shell: cmd
-        run: |
-          set MINICONDA_INSTALL_PATH_WIN=%RUNNER_TEMP%\miniconda
-          mkdir %MINICONDA_INSTALL_PATH_WIN%
-          set MINICONDA_URL=https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe
-          curl -fsSL %MINICONDA_URL% -o %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe
-          %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%MINICONDA_INSTALL_PATH_WIN%
-          del %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe
-          echo %MINICONDA_INSTALL_PATH_WIN%\Scripts >> %GITHUB_PATH%
-          echo %MINICONDA_INSTALL_PATH_WIN%\Library\bin >> %GITHUB_PATH%
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          miniconda-version: "latest"
       - name: Conda Install pytorch and smoke test
         env:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
           PYTHON_VERSION: ${{ matrix.python_version }}
-        shell: cmd
-        run: |
-          set CONDA_ENV=%RUNNER_TEMP%\conda_environment_%GITHUB_RUN_ID%
-          conda create --yes --prefix %CONDA_ENV% python=%PYTHON_VERSION% numpy
-          set CONDA_RUN=conda run -p %CONDA_ENV%
-          set CONDA_INSTALL=conda install --yes -p %CONDA_ENV%
+        shell: cmd /C CALL {0}
+        run: >-
+          conda install --yes numpy
 
           IF "%DESIRED_CUDA%"=="cpu" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision cpuonly  -c pytorch
+            conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+            conda install --yes pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+            conda install --yes pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+            conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
           ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
-            %CONDA_INSTALL% pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+            conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
           ) ELSE (
             echo "No binary available"
           )
-          %CONDA_RUN% ./test/smoke_test/smoke_test.py
+          conda run ./test/smoke_test/smoke_test.py
+
+
+#      - name: Install Fresh Miniconda
+#        shell: cmd
+#        run: |
+#          set MINICONDA_INSTALL_PATH_WIN=%RUNNER_TEMP%\miniconda
+#          mkdir %MINICONDA_INSTALL_PATH_WIN%
+#          set MINICONDA_URL=https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe
+#          curl -fsSL %MINICONDA_URL% -o %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe
+#          %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe /InstallationType=JustMe /RegisterPython=0 /S /D=%MINICONDA_INSTALL_PATH_WIN%
+#          del %MINICONDA_INSTALL_PATH_WIN%\miniconda.exe
+#          echo %MINICONDA_INSTALL_PATH_WIN%\Scripts >> %GITHUB_PATH%
+#          echo %MINICONDA_INSTALL_PATH_WIN%\Library\bin >> %GITHUB_PATH%
+#      - name: Conda Install pytorch and smoke test
+#        env:
+#          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+#          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+#          PYTHON_VERSION: ${{ matrix.python_version }}
+#        shell: cmd
+#        run: |
+#          set CONDA_ENV=%RUNNER_TEMP%\conda_environment_%GITHUB_RUN_ID%
+#          conda create --yes --prefix %CONDA_ENV% python=%PYTHON_VERSION% numpy
+#          set CONDA_RUN=conda run -p %CONDA_ENV%
+#          set CONDA_INSTALL=conda install --yes -p %CONDA_ENV%
+#
+#          IF "%DESIRED_CUDA%"=="cpu" (
+#            %CONDA_INSTALL% pytorch torchaudio torchvision cpuonly  -c pytorch
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
+#            %CONDA_INSTALL% pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
+#            %CONDA_INSTALL% pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
+#            %CONDA_INSTALL% pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+#          ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
+#            %CONDA_INSTALL% pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+#          ) ELSE (
+#            echo "No binary available"
+#          )
+#          %CONDA_RUN% ./test/smoke_test/smoke_test.py
 
 #  validate-windows-binaries-wheels:
 #    needs: generate-wheels-matrix
