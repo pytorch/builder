@@ -10,11 +10,6 @@ on:
 #    paths:
 #      - .github/workflows/validate-windows-binaries.yml
 jobs:
-  generate-conda-matrix-macos:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: conda
-      os: macos
 #  generate-conda-matrix:
 #    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
 #    with:
@@ -50,6 +45,26 @@ jobs:
           "package_type": "conda",
           "build_name": "conda-py3_7-cuda11_3",
           "validation_runner": "windows-2019-m60"
+        },
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cpu",
+          "gpu_arch_version": "",
+          "desired_cuda": "cpu",
+          "container_image": "pytorch/conda-builder:cpu",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cpu",
+          "validation_runner": "macos-m1-12"
+        },
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cpu",
+          "gpu_arch_version": "",
+          "desired_cuda": "cpu",
+          "container_image": "pytorch/conda-builder:cpu",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cpu",
+          "validation_runner": "ubuntu-20.04"
         }
         ]
       fail-fast: false
