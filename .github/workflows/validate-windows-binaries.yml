@@ -36,30 +36,26 @@ jobs:
         with:
           python-version: ${{ matrix.python_version }}
           miniconda-version: "latest"
-      - name: Conda Install pytorch and smoke test
-        env:
-          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
-          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-          PYTHON_VERSION: ${{ matrix.python_version }}
+      - run: conda install --yes numpy
         shell: cmd /C CALL {0}
-        run: >-
-          conda install --yes numpy
-
+      - run: |
           IF "%DESIRED_CUDA%"=="cpu" (
-            conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
+          conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
-            conda install --yes pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+          conda install --yes pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu113" (
-            conda install --yes pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+          conda install --yes pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu116" (
-            conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+          conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
           ) ELSE IF "%DESIRED_CUDA%"=="cu117" (
-            conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+          conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
           ) ELSE (
-            echo "No binary available"
+          echo "No binary available"
           )
-          conda run ./test/smoke_test/smoke_test.py
-
+        shell: cmd /C CALL {0}
+      - name: Run smoke test
+        run: conda run ./test/smoke_test/smoke_test.py
+        shell: cmd /C CALL {0}
 
 #      - name: Install Fresh Miniconda
 #        shell: cmd
