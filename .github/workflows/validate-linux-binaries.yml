@@ -54,7 +54,7 @@ jobs:
           conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
 
           set CHANNEL = "pytorch-${{ matrix.channel }}"
-          if [ ${{ matrix.channel }} eq "release" ]; then
+          if [[ ${{ matrix.channel }} == "release" ]]; then
             set CHANNEL = "pytorch"
           fi
 
@@ -108,7 +108,7 @@ jobs:
           conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
 
           set CHANNEL = "https://download.pytorch.org/whl/${{ matrix.channel }}"
-          if [ ${{ matrix.channel }} eq "release" ]; then
+          if [[ ${{ matrix.channel }} == "release" ]]; then
             set CHANNEL = "https://download.pytorch.org/whl"
           fi
 
