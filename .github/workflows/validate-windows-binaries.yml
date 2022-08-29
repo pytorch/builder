@@ -10,21 +10,43 @@ on:
 #    paths:
 #      - .github/workflows/validate-windows-binaries.yml
 jobs:
-  generate-conda-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: conda
-      os: windows
-  generate-wheels-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: windows
+#  generate-conda-matrix:
+#    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+#    with:
+#      package-type: conda
+#      os: windows
+#  generate-wheels-matrix:
+#    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+#    with:
+#      package-type: wheel
+#      os: windows
   validate-windows-binaries-conda:
-    needs: generate-conda-matrix
+#    needs: generate-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+#        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+        "include": [
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cpu",
+          "gpu_arch_version": "",
+          "desired_cuda": "cpu",
+          "container_image": "pytorch/conda-builder:cpu",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cpu",
+          "validation_runner": "windows-2019"
+        },
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cuda",
+          "gpu_arch_version": "11.3",
+          "desired_cuda": "cu113",
+          "container_image": "pytorch/conda-builder:cuda11.3",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cuda11_3",
+          "validation_runner": "windows-2019-m60"
+        }
+        ]
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
