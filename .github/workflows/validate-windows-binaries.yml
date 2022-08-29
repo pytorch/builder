@@ -38,7 +38,10 @@ jobs:
           miniconda-version: "latest"
       - run: conda install --yes numpy
         shell: cmd /C CALL {0}
-      - run: |
+      - shell: cmd /C CALL {0}
+        env:
+          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+        run: |
           IF "%DESIRED_CUDA%"=="cpu" (
           conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
           ) ELSE IF "%DESIRED_CUDA%"=="cu102" (
@@ -52,9 +55,8 @@ jobs:
           ) ELSE (
           echo "No binary available"
           )
-        shell: cmd /C CALL {0}
       - name: Run smoke test
-        run: conda run ./test/smoke_test/smoke_test.py
+        run: conda run test\smoke_test\smoke_test.py
         shell: cmd /C CALL {0}
 
 #      - name: Install Fresh Miniconda
