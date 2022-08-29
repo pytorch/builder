@@ -57,6 +57,13 @@ jobs:
         shell: cmd
         run: |
           nvidia-smi
+      - name: Echo vars
+        shell: cmd
+        run: |
+          echo %CONDA_ENV%
+          echo %CONDA_INSTALL%
+          echo %GITHUB_PATH
+
       - name: Conda Install pytorch and smoke test
         env:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
