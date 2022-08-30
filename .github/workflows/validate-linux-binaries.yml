@@ -51,11 +51,11 @@ jobs:
           sudo apt-get install unzip -y
           set -ex
 
-          export CHANNEL = "https://download.pytorch.org/libtorch/${{ matrix.channel }}"
+          export CHANNEL="https://download.pytorch.org/libtorch/${{ matrix.channel }}"
           if [[ ${{ matrix.channel }} == "release" ]]; then
-            export CHANNEL = "https://download.pytorch.org/libtorch"
+            export CHANNEL="https://download.pytorch.org/libtorch"
           fi
 
-          export LIBTORCH_PATH = "${CHANNEL}/${DESIRED_CUDA}/${BUILD_NAME}.zip"
+          export LIBTORCH_PATH="${CHANNEL}/${DESIRED_CUDA}/${BUILD_NAME}.zip"
           curl -O ${LIBTORCH_PATH}
           unzip "${BUILD_NAME}.zip"
