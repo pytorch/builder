@@ -1,4 +1,4 @@
-name: Validate binary  images
+name: Validate binary images
 
 on:
   push:
@@ -80,15 +80,15 @@ jobs:
           activate-environment: conda-env-${{ github.run_id }}
       - run: conda install --yes numpy
       - if: matrix.desired_cuda == 'cpu'
-        run: conda install pytorch torchaudio torchvision cpuonly  -c pytorch
+        run: conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
       - if: matrix.desired_cuda == 'cu102'
-        run: conda install pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
+        run: conda install --yes pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
       - if: matrix.desired_cuda == 'cu113'
-        run: conda install pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
+        run: conda install --yes pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
       - if: matrix.desired_cuda == 'cu116'
-        run: conda install pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
+        run: conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
       - if: matrix.desired_cuda == 'cu117'
-        run: conda intall pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+        run: conda intall --yes pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
       - name: Run smoke test windows
         if:  "contains(matrix.validation_runner, 'win')"
         run: conda run test\smoke_test\smoke_test.py
