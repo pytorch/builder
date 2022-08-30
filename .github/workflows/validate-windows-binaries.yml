@@ -90,8 +90,8 @@ jobs:
       - if: matrix.desired_cuda == 'cu117'
         run: conda intall pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
       - name: Run smoke test windows
-        if:  contains(matrix.validation_runner, 'win')
+        if:  "contains(matrix.validation_runner, 'win')"
         run: conda run test\smoke_test\smoke_test.py
       - name: Run smoke test non-windows
-        if:  !contains(matrix.validation_runner, 'win')
+        if:  "!contains(matrix.validation_runner, 'win')"
         run: conda run test/smoke_test/smoke_test.py
