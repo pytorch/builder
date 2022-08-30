@@ -52,9 +52,9 @@ jobs:
           set -ex
 
           set CHANNEL = "https://download.pytorch.org/libtorch/${{ matrix.channel }}"
-          if [[ ${{ matrix.channel }} == "release" ]]; then
-            set CHANNEL = "https://download.pytorch.org/libtorch"
-          fi
+          #if [[ ${{ matrix.channel }} == "release" ]]; then
+          #  set CHANNEL = "https://download.pytorch.org/libtorch"
+          #fi
 
           set LIBTORCH_PATH = "${CHANNEL}/${DESIRED_CUDA}/${BUILD_NAME}.zip"
           wget $LIBTORCH_PATH
