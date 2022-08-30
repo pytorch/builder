@@ -29,7 +29,7 @@ jobs:
       package-type: libtorch
       os: linux
       channel: all
-  validate-linux-libtorch-cpu-binaries:
+  validate-linux-libtorch-binaries:
     needs: generate-libtorch-matrix
     strategy:
       matrix:
