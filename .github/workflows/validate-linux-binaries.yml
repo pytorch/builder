@@ -56,6 +56,6 @@ jobs:
           #  set CHANNEL = "https://download.pytorch.org/libtorch"
           #fi
 
-          set LIBTORCH_PATH = "${CHANNEL}/${DESIRED_CUDA}/${BUILD_NAME}.zip"
-          wget $LIBTORCH_PATH
+          set LIBTORCH_PATH = "https://download.pytorch.org/libtorch//${DESIRED_CUDA}/${BUILD_NAME}.zip"
+          curl -O $LIBTORCH_PATH
           unzip "${BUILD_NAME}.zip"
