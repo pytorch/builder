@@ -6,8 +6,8 @@ import torchaudio
 
 def smoke_test_cuda() -> None:
     gpu_arch_ver = os.environ['GPU_ARCH_VER']
-    desired_cuda = os.environ['DESIRED_CUDA']
-    is_cuda_system = desired_cuda != "cpu" and gpu_arch_ver != "" and desired_cuda.startswith("cu")
+    gpu_arch_type = os.environ['GPU_ARCH_TYPE']
+    is_cuda_system = gpu_arch_type == "cuda"
 
     if(not torch.cuda.is_available() and is_cuda_system):
         print(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
