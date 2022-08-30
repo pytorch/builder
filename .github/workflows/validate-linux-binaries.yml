@@ -23,107 +23,38 @@ jobs:
       package-type: wheel
       os: linux
       channel: all
-  validate-linux-binaries-conda:
-    needs: generate-conda-matrix
+  generate-libtorch-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: libtorch
+      os: linux
+      channel: all
+  validate-linux-libtorch-cpu-binaries:
+    needs: generate-libtorch-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
       fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
+    runs-on: "ubuntu-20.04"
+    env:
+      PYTHON_VERSION: ${{ matrix.python_version }}
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Install conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: testenv
-      - name: Check nvidia smi
-        if: ${{ matrix.gpu_arch_type == 'cuda' }}
-        run: |
-          nvidia-smi
-      - name: Conda Install pytorch and smoke test
+      - name: Install pytorch and smoke test
         env:
-          ENV_NAME: conda-env-${{ github.run_id }}
-          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+          ENV_NAME: env-libtorch-${{ github.run_id }}
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
+          BUILD_NAME: ${{ matrix.build_name }}
+          ARCH: ${{matrix.architecture}}
         run: |
+          sudo apt-get install unzip -y
           set -ex
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
 
-          set CHANNEL = "pytorch-${{ matrix.channel }}"
+          set CHANNEL = "https://download.pytorch.org/libtorch/${{ matrix.channel }}"
           if [[ ${{ matrix.channel }} == "release" ]]; then
-            set CHANNEL = "pytorch"
+            set CHANNEL = "https://download.pytorch.org/libtorch"
           fi
 
-          case $DESIRED_CUDA in
-           ("cpu") {
-             conda install -p ${ENV_NAME} pytorch torchaudio torchvision cpuonly  -c ${CHANNEL};
-           }
-           ;;
-           ("cu102" | "cu113") {
-             conda install -p ${ENV_NAME} pytorch torchaudio torchvision cudatoolkit=${CUDA_VER} -c ${CHANNEL};
-            }
-            ;;
-            ("cu116" | "cu117") {
-              conda install -p ${ENV_NAME} pytorch torchaudio torchvision pytorch-cuda=${CUDA_VER} -c ${CHANNEL} -c nvidia;
-            }
-            ;;
-           (*) echo "No binary available"
-            ;;
-            esac
-
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
-          conda env remove -p ${ENV_NAME}
-  validate-linux-binaries-wheels:
-    needs: generate-wheels-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-wheels-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Install conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: testenv
-      - name: Check nvidia smi
-        if: ${{ matrix.gpu_arch_type == 'cuda' }}
-        run: |
-          nvidia-smi
-      - name: Conda Install pytorch and smoke test
-        env:
-          ENV_NAME: conda-env-${{ github.run_id }}
-          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
-          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-        run: |
-          set -ex
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-
-          set CHANNEL = "https://download.pytorch.org/whl/${{ matrix.channel }}"
-          if [[ ${{ matrix.channel }} == "release" ]]; then
-            set CHANNEL = "https://download.pytorch.org/whl"
-          fi
-
-          case $DESIRED_CUDA in
-           ("cpu") {
-             conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio --extra-index-url ${CHANNEL}/cpu;
-           }
-           ;;
-           ("cu102" | "cu113" | "rocm5.1.1" | "rocm5.2" | "cu116" | "cu117") {
-             conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio --extra-index-url ${CHANNEL}/${DESIRED_CUDA}
-            }
-            ;;
-           (*) echo "No binary available"
-            ;;
-            esac
-
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
-          conda env remove -p ${ENV_NAME}
+          wget ${CHANNEL}/${DESIRED_CUDA}/${BUILD_NAME}.zip
+          unzip ${BUILD_NAME}
