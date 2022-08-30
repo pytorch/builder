@@ -57,5 +57,5 @@ jobs:
           #fi
 
           set LIBTORCH_PATH = "https://download.pytorch.org/libtorch//${DESIRED_CUDA}/${BUILD_NAME}.zip"
-          curl -O $LIBTORCH_PATH
+          curl -O ${LIBTORCH_PATH}
           unzip "${BUILD_NAME}.zip"
