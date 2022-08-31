@@ -111,5 +111,5 @@ jobs:
         run: |
           sudo apt-get install unzip -y
           set -ex
-          curl -O libtorch.zip ${INSTALLATION}
+          curl ${INSTALLATION} -o libtorch.zip
           unzip libtorch.zip
