@@ -61,7 +61,7 @@ jobs:
           conda run -p ${ENV_NAME} $INSTALLATION
           conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
   validate-linux-binaries-wheels:
-    needs: generate-wheels-matrix
+    needs: generate-wheel-matrix
     strategy:
       matrix:
         ${{ fromJson(needs.generate-wheels-matrix.outputs.matrix) }}
