@@ -44,7 +44,7 @@ jobs:
         run: |
           nvidia-smi
       - name: Instlla Conda
-        - uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python_version }}
           auto-update-conda: true
@@ -55,8 +55,9 @@ jobs:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
           INSTALLATION: ${{ matrix.installation }}
+          ENV_NAME: conda-env-${{ github.run_id }}
         run: |
           set -ex
-          conda install numpy
-          conda run -n conda-env-${{ github.run_id }} $INSTALLATION
-          conda run -n conda-env-${{ github.run_id }} python3  ./test/smoke_test/smoke_test.py
+          conda -p ${ENV_NAME} install numpy
+          conda run -p ${ENV_NAME} $INSTALLATION
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
