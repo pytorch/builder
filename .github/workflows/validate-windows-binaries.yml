@@ -22,7 +22,7 @@ jobs:
           "container_image": "pytorch/conda-builder:cpu",
           "package_type": "conda",
           "build_name": "conda-py3_7-cpu",
-          "validation_runner": "windows-2019"
+          "validation_runner": "windows.4xlarge"
         },
         {
           "python_version": "3.7",
@@ -32,39 +32,39 @@ jobs:
           "container_image": "pytorch/conda-builder:cuda11.3",
           "package_type": "conda",
           "build_name": "conda-py3_7-cuda11_3",
-          "validation_runner": "windows-2019-m60"
+          "validation_runner": "windows.8xlarge.nvidia.gpu"
         },
-        {
-          "python_version": "3.7",
-          "gpu_arch_type": "cpu",
-          "gpu_arch_version": "",
-          "desired_cuda": "cpu",
-          "container_image": "pytorch/conda-builder:cpu",
-          "package_type": "conda",
-          "build_name": "conda-py3_7-cpu",
-          "validation_runner": "macos-m1-12"
-        },
-        {
-          "python_version": "3.7",
-          "gpu_arch_type": "cpu",
-          "gpu_arch_version": "",
-          "desired_cuda": "cpu",
-          "container_image": "pytorch/conda-builder:cpu",
-          "package_type": "conda",
-          "build_name": "conda-py3_7-cpu",
-          "validation_runner": "ubuntu-20.04"
-        },
-        {
-          "python_version": "3.8",
-          "gpu_arch_type": "cuda",
-          "gpu_arch_version": "11.6",
-          "desired_cuda": "cu116",
-          "container_image": "pytorch/conda-builder:cuda11.6",
-          "package_type": "conda",
-          "build_name": "conda-py3_8-cuda11_6",
-          "validation_runner": "ubuntu-20.04-m60",
-          "channel": "test"
-        }
+#        {
+#          "python_version": "3.7",
+#          "gpu_arch_type": "cpu",
+#          "gpu_arch_version": "",
+#          "desired_cuda": "cpu",
+#          "container_image": "pytorch/conda-builder:cpu",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_7-cpu",
+#          "validation_runner": "macos-m1-12"
+#        },
+#        {
+#          "python_version": "3.7",
+#          "gpu_arch_type": "cpu",
+#          "gpu_arch_version": "",
+#          "desired_cuda": "cpu",
+#          "container_image": "pytorch/conda-builder:cpu",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_7-cpu",
+#          "validation_runner": "ubuntu-20.04"
+#        },
+#        {
+#          "python_version": "3.8",
+#          "gpu_arch_type": "cuda",
+#          "gpu_arch_version": "11.6",
+#          "desired_cuda": "cu116",
+#          "container_image": "pytorch/conda-builder:cuda11.6",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_8-cuda11_6",
+#          "validation_runner": "ubuntu-20.04-m60",
+#          "channel": "test"
+#        }
         ]
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
@@ -78,6 +78,10 @@ jobs:
           miniconda-version: "latest"
           auto-activate-base: false
           activate-environment: conda-env-${{ github.run_id }}
+      - name: Check nvidia smi
+        if: ${{ matrix.gpu_arch_type == 'cuda' }}
+        run: |
+          nvidia-smi
       - run: conda install --yes numpy
       - if: matrix.desired_cuda == 'cpu'
         run: conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
