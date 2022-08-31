@@ -45,21 +45,18 @@ jobs:
           python-version: ${{ matrix.python_version }}
           auto-update-conda: true
           miniconda-version: "latest"
-          activate-environment: testenv
+          activate-environment: conda-env-${{ github.run_id }}
       - name: Check nvidia smi
         if: ${{ matrix.gpu_arch_type == 'cuda' }}
         run: |
           nvidia-smi
       - name: Conda Install pytorch and smoke test
         env:
-          ENV_NAME: conda-env-${{ github.run_id }}
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
           INSTALLATION: ${{ matrix.installation }}
         run: |
           set -ex
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-          conda activate ${ENV_NAME}
+          conda install numpy
           eval $INSTALLATION
           python3  ./test/smoke_test/smoke_test.py
-          conda env remove -p ${ENV_NAME}
