@@ -56,8 +56,8 @@ jobs:
           INSTALLATION: ${{ matrix.installation }}
         run: |
           set -ex
-          conda info
-          conda list
           conda install numpy
           eval $INSTALLATION
-          python3  ./test/smoke_test/smoke_test.py
+          conda info
+          conda list
+          conda run -p conda-env-${{ github.run_id }} python3  ./test/smoke_test/smoke_test.py
