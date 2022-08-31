@@ -60,4 +60,4 @@ jobs:
           eval $INSTALLATION
           conda info
           conda list
-          conda run -p conda-env-${{ github.run_id }} python3  ./test/smoke_test/smoke_test.py
+          conda run  python3  ./test/smoke_test/smoke_test.py
