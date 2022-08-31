@@ -29,40 +29,37 @@ jobs:
       package-type: libtorch
       os: linux
       channel: all
-  validate-linux-libtorch-binaries:
-    needs: generate-libtorch-matrix
+  validate-linux-binaries-conda:
+    needs: generate-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
       fail-fast: false
-    runs-on: "ubuntu-20.04"
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
+    runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Install pytorch and smoke test
-        env:
-          ENV_NAME: env-libtorch-${{ github.run_id }}
-          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-          ARCH: ${{matrix.architecture}}
-          LIBTORCH_VARIANT: ${{ matrix.libtorch_variant}}
-          DEVTOOLSET: ${{ matrix.devtoolset }}
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
+      - name: Check nvidia smi
+        if: ${{ matrix.gpu_arch_type == 'cuda' }}
         run: |
-          sudo apt-get install unzip -y
+          nvidia-smi
+      - name: Conda Install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+          GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
+          INSTALLATION: ${{ matrix.installation }}
+        run: |
           set -ex
-
-          export CHANNEL="https://download.pytorch.org/libtorch/${{ matrix.channel }}"
-          if [[ ${{ matrix.channel }} == "release" ]]; then
-            export CHANNEL="https://download.pytorch.org/libtorch"
-          fi
-
-          export BUILD_NAME="libtorch-${LIBTORCH_VARIANT}-latest.zip"
-          if [[ ${DEVTOOLSET} ==  "cxx11-abi" ]]; then
-            export BUILD_NAME="libtorch-${DEVTOOLSET}-${LIBTORCH_VARIANT}-latest.zip"
-          fi
-
-          export LIBTORCH_PATH="${CHANNEL}/${DESIRED_CUDA}/${BUILD_NAME}"
-          curl -O ${LIBTORCH_PATH}
-          ls -las
-          unzip "${BUILD_NAME}"
+          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
+          conda activate ${ENV_NAME}
+          eval $INSTALLATION
+          python3  ./test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
