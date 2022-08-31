@@ -37,19 +37,20 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: conda-env-${{ github.run_id }}
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Check nvidia smi
         if: ${{ matrix.gpu_arch_type == 'cuda' }}
         run: |
           nvidia-smi
-      - name: Install conda and run tests
+      - name: Instlla Conda
+        - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: conda-env-${{ github.run_id }}
+      - name: Install PyTorch and run tests
         env:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
@@ -57,7 +58,5 @@ jobs:
         run: |
           set -ex
           conda install numpy
-          eval $INSTALLATION
-          conda info
-          conda list
-          conda run  python3  ./test/smoke_test/smoke_test.py
+          conda run -n conda-env-${{ github.run_id }} $INSTALLATION
+          conda run -n conda-env-${{ github.run_id }} python3  ./test/smoke_test/smoke_test.py
