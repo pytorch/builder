@@ -64,7 +64,7 @@ jobs:
     needs: generate-wheel-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-wheels-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-wheel-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
