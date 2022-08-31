@@ -37,6 +37,12 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: conda-env-${{ github.run_id }}
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Check nvidia smi
@@ -44,16 +50,10 @@ jobs:
         run: |
           nvidia-smi
       - name: Install conda and run tests
-        uses: conda-incubator/setup-miniconda@v2
         env:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
           GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
           INSTALLATION: ${{ matrix.installation }}
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: conda-env-${{ github.run_id }}
         run: |
           set -ex
           conda info
