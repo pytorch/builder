@@ -38,14 +38,8 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Check
-        run: |
-          pwd
-          ls -las
-          ls .github/
-          ls .github/workflows/
       - name: Validate binary conda
-        uses: ./.github/workflows/_validate-linux-binary.yml
+        uses: ./.github/actions/validate-linux-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
