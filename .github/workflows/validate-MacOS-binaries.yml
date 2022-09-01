@@ -24,7 +24,7 @@ jobs:
     env: 
       MAC_ARCH:  ${{ matrix.validation_runner }}
       PYTHON_VERSION: ${{ matrix.python_version }} 
-      CON_CHANNEL: ${{ matrix.channel }}
+      INSTALLATION: ${{ matrix.installation }}
     steps:
       - name: Checkout PyTorch/Builder directory
         uses: actions/checkout@v3
@@ -47,15 +47,8 @@ jobs:
         run: |
           set -ex
           conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
-          if [ ${CON_CHANNEL} == 'nightly' ]; then 
-            conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-nightly
-          elif [ ${CON_CHANNEL} == 'test' ]; then 
-            conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-test
-          elif [ ${CON_CHANNEL} == 'release' ]; then 
-            conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch
-          fi
-          # Test torch is importable
-          cd ${GITHUB_WORKSPACE} 
+          conda install -p ${ENV_NAME} $INSTALLATION
+          #cd ${GITHUB_WORKSPACE} 
           conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
           conda env remove -p ${ENV_NAME}
 
@@ -76,7 +69,7 @@ jobs:
     env: 
       MAC_ARCH:  ${{ matrix.validation_runner }}
       PYTHON_VERSION: ${{ matrix.python_version }} 
-      PIP_CHANNEL: ${{ matrix.channel }}
+      INSTALLATION: ${{ matrix.installation }}
     steps:
       - name: Checkout PyTorch/Builder directory
         uses: actions/checkout@v3
@@ -100,17 +93,7 @@ jobs:
         run: |
           set -ex
           conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
-
-          if [ ${PIP_CHANNEL} == 'nightly' ]; then 
-            conda run -p ${ENV_NAME} pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu
-          elif [ ${PIP_CHANNEL} == 'test' ]; then 
-            conda run -p ${ENV_NAME} pip3 install --pre torch torchvision torchaudio  --extra-index-url https://download.pytorch.org/whl/test/cpu
-          elif [ ${PIP_CHANNEL} == 'release' ]; then 
-            conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio 
-          fi
-
-          # Test torch is importable
-          cd ${GITHUB_WORKSPACE} 
-          conda run -p ${ENV_NAME} pip3 install ffmpeg 
+          conda run -p ${ENV_NAME} $INSTALLTION
+          #cd ${GITHUB_WORKSPACE} 
           conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
           conda env remove -p ${ENV_NAME}
