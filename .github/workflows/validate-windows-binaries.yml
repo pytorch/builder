@@ -86,7 +86,9 @@ jobs:
           nvidia-smi
       - name: Run smoke test non-windows
         shell: bash -l {0}
-        run: ${{ matrix.installation }}
-      - name: Run smoke test non-windows
+        run: |
+          conda install numpy
+          ${{ matrix.installation }}
+      - name: Run smoke test
         shell: bash -l {0}
-        run: conda run test/smoke_test/smoke_test.py
+        run: conda run python test/smoke_test/smoke_test.py
