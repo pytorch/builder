@@ -53,6 +53,7 @@ jobs:
             conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-test
           elif [ ${CON_CHANNEL} == 'release' ]; then 
             conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch
+          fi
           # Test torch is importable
           cd ${GITHUB_WORKSPACE} 
           conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
