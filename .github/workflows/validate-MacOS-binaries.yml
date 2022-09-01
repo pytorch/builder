@@ -26,12 +26,10 @@ jobs:
     steps:
       - name: Checkout PyTorch/Builder directory
         uses: actions/checkout@v3
-      - name: Install Fresh Miniconda in Runner Temp Dir
-        run: |
-          set -ex
-          cd ${{ runner.temp }}
-          curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
-          sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
+      - name: Setup miniconda
+        uses: pytorch/test-infra/.github/actions/setup-miniconda@main
+        with:
+          python_version: ${{ matrix.python_version }}
       - name: Conda Install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
