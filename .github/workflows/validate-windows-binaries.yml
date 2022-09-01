@@ -84,11 +84,9 @@ jobs:
         if: ${{ matrix.gpu_arch_type == 'cuda' }}
         run: |
           nvidia-smi
-      - name: Run smoke test non-windows
+      - name: Install deps and run smoke test
         shell: bash -l {0}
         run: |
           conda install numpy
           ${{ matrix.installation }}
-      - name: Run smoke test
-        shell: bash -l {0}
-        run: conda run python test/smoke_test/smoke_test.py
+          conda run python test/smoke_test/smoke_test.py
