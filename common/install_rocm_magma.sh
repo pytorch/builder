@@ -9,6 +9,8 @@ set -ex
 # TODO (2)
 MKLROOT=${MKLROOT:-/opt/intel}
 
+apt-get install -y python
+
 # "install" hipMAGMA into /opt/rocm/magma by copying after build
 git clone https://bitbucket.org/icl/magma.git
 pushd magma
