@@ -1,0 +1,44 @@
+name: 'validate-linux-binary'
+description: 'Linux Binary Conda or Wheel Validation'
+inputs:
+  gpu_arch_type:
+    description: 'GPU arch type'
+    required: true
+    default: 'cpu'
+  gpu_arch_ver:
+    description: 'GPU arch version'
+    required: true
+    default: 'cpu'
+  installation:
+    description: 'Installation instructions'
+    required: true
+    default: ''
+  python_version:
+    description: 'Python version'
+    required: true
+    default: '3.9'
+runs:
+  using: "composite"
+  steps:
+    - name: Check nvidia smi
+      if: ${{ inputs.gpu_arch_type == 'cuda' }}
+      run: |
+        nvidia-smi
+    - name: Instlla Conda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ inputs.python_version }}
+        auto-update-conda: true
+        miniconda-version: "latest"
+        activate-environment: testenv
+    - name: Install PyTorch and run tests
+      env:
+        GPU_ARCH_VER: ${{ inputs.gpu_arch_version }}
+        GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
+        INSTALLATION: ${{ inputs.installation }}
+        ENV_NAME: conda-env-${{ github.run_id }}
+      run: |
+        set -ex
+        conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
+        conda run -p ${ENV_NAME} $INSTALLATION
+        conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
