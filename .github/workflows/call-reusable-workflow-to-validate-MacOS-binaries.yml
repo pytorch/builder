@@ -16,21 +16,6 @@ jobs:
 
   validate-MacOS-ARM64-conda-packages:
     needs: generate-ARM64-conda-matrix 
-    runs-on: ${{ matrix.validation_runner }} 
     uses: ./.github/workflows/validate-MacOS-binaries.yml
       with: 
         test-matrix: ${{ needs.generate-ARM64-conda-matrix.outputs.matrix }}
-
-  generate-ARM64-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: macos-arm64
-      channel: all
-
-  generate-X86_64-conda-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: conda
-      os: macos-x86_64
-      channel: all
