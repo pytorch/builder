@@ -1,0 +1,91 @@
+name: Validate binary images
+
+on:
+  push:
+jobs:
+#  generate-conda-matrix:
+#    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+#    with:
+#      package-type: conda
+#      os: windows
+  validate-windows-binaries-conda:
+#    needs: generate-conda-matrix
+    strategy:
+      matrix:
+#        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+        "include": [
+#        {
+#          "python_version": "3.7",
+#          "gpu_arch_type": "cpu",
+#          "gpu_arch_version": "",
+#          "desired_cuda": "cpu",
+#          "container_image": "pytorch/conda-builder:cpu",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_7-cpu",
+#          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
+#          "validation_runner": "windows-2019"
+#        },
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cuda",
+          "gpu_arch_version": "11.3",
+          "desired_cuda": "cu113",
+          "container_image": "pytorch/conda-builder:cuda11.3",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cuda11_3",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
+          "validation_runner": "windows-2019-m60"
+        },
+#        {
+#          "python_version": "3.7",
+#          "gpu_arch_type": "cpu",
+#          "gpu_arch_version": "",
+#          "desired_cuda": "cpu",
+#          "container_image": "pytorch/conda-builder:cpu",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_7-cpu",
+#          "validation_runner": "macos-m1-12"
+#        },
+#        {
+#          "python_version": "3.7",
+#          "gpu_arch_type": "cpu",
+#          "gpu_arch_version": "",
+#          "desired_cuda": "cpu",
+#          "container_image": "pytorch/conda-builder:cpu",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_7-cpu",
+#          "validation_runner": "ubuntu-20.04"
+#        },
+#        {
+#          "python_version": "3.8",
+#          "gpu_arch_type": "cuda",
+#          "gpu_arch_version": "11.6",
+#          "desired_cuda": "cu116",
+#          "container_image": "pytorch/conda-builder:cuda11.6",
+#          "package_type": "conda",
+#          "build_name": "conda-py3_8-cuda11_6",
+#          "validation_runner": "ubuntu-20.04-m60",
+#          "channel": "test"
+#        }
+        ]
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+#      - name: Install conda
+#        uses: conda-incubator/setup-miniconda@v2
+#        with:
+#          python-version: ${{ matrix.python_version }}
+#          miniconda-version: "latest"
+#          auto-activate-base: false
+#          activate-environment: conda-env-${{ github.run_id }}
+      - name: Check nvidia smi
+        if: ${{ matrix.gpu_arch_type == 'cuda' }}
+        run: |
+          nvidia-smi
+      - name: Conda version
+        run: conda --version
+#      - name: Run smoke test non-windows
+#        shell: bash -l {0}
+#        run: conda run test/smoke_test/smoke_test.py
