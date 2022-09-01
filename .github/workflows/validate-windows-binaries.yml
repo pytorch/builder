@@ -22,7 +22,7 @@ jobs:
           "container_image": "pytorch/conda-builder:cpu",
           "package_type": "conda",
           "build_name": "conda-py3_7-cpu",
-          "validation_runner": "windows.4xlarge"
+          "validation_runner": "windows-2019"
         },
         {
           "python_version": "3.7",
@@ -32,7 +32,7 @@ jobs:
           "container_image": "pytorch/conda-builder:cuda11.3",
           "package_type": "conda",
           "build_name": "conda-py3_7-cuda11_3",
-          "validation_runner": "windows.8xlarge.nvidia.gpu"
+          "validation_runner": "windows-2019-m60"
         },
 #        {
 #          "python_version": "3.7",
@@ -71,6 +71,9 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
+      - name: Try bash shell
+        shell: bash -l {0}
+        run: ls -l
       - name: Install conda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -93,9 +96,6 @@ jobs:
         run: conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
       - if: matrix.desired_cuda == 'cu117'
         run: conda intall --yes pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
-      - name: Run smoke test windows
-        if:  "contains(matrix.validation_runner, 'win')"
-        run: conda run test\smoke_test\smoke_test.py
       - name: Run smoke test non-windows
-        if:  "!contains(matrix.validation_runner, 'win')"
+        shell: bash -l {0}
         run: conda run test/smoke_test/smoke_test.py
