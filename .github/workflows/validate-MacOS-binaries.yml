@@ -7,22 +7,21 @@ on:
 
 
 jobs:
-  generate-conda-matrix:
+  generate-ARM64-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
-      os: macos
+      os: macos-arm64
       channel: all
       test-infra-ref: weiwangmeta/add-macos-x86_64-support
 
-  validate-MacOS-conda-packages:
+  validate-MacOS-ARM64-conda-packages:
     needs: generate-conda-matrix 
     runs-on: ${{ matrix.validation_runner }} 
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.generate-conda-matrix.outputs.matrix) }}
     env: 
-      MAC_ARCH:  ${{ matrix.validation_runner }}
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
     steps:
@@ -31,16 +30,9 @@ jobs:
       - name: Install Fresh Miniconda in Runner Temp Dir
         run: |
           set -ex
-          rm -rf ${{ runner.temp }}/*
-          if [ ${MAC_ARCH} == 'macos-m1-12' ]; then
-            cd ${{ runner.temp }}
-            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
-            sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
-          elif [ ${MAC_ARCH} == 'macos-12-xl' ]; then
-            cd ${{ runner.temp }}
-            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-            sh Miniconda3-latest-MacOSX-x86_64.sh -b -f  -p ${{ runner.temp }}
-          fi 
+          cd ${{ runner.temp }}
+          curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+          sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
       - name: Conda Install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
@@ -52,11 +44,11 @@ jobs:
           conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
           conda env remove -p ${ENV_NAME}
 
-  generate-wheel-matrix:
+  generate-ARM64-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
-      os: macos
+      os: macos-arm64
       channel: all
       test-infra-ref: weiwangmeta/add-macos-x86_64-support
 
@@ -67,7 +59,6 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.generate-wheel-matrix.outputs.matrix) }}
     env: 
-      MAC_ARCH:  ${{ matrix.validation_runner }}
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
     steps:
@@ -78,15 +69,9 @@ jobs:
       - name: Install Fresh Miniconda in Runner Temp Dir
         run: |
           set -ex
-          if [ ${MAC_ARCH} == 'macos-m1-12' ]; then
-            cd ${{ runner.temp }}
-            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
-            sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
-          elif [ ${MAC_ARCH} == 'macos-12-xl' ]; then
-            cd ${{ runner.temp }}
-            curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-            sh Miniconda3-latest-MacOSX-x86_64.sh -b -f  -p ${{ runner.temp }}
-          fi 
+          cd ${{ runner.temp }}
+          curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+          sh Miniconda3-latest-MacOSX-arm64.sh -b -f  -p ${{ runner.temp }}
       - name: pip install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
@@ -95,5 +80,80 @@ jobs:
           conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
           conda run -p ${ENV_NAME} $INSTALLATION
           #cd ${GITHUB_WORKSPACE} 
+          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
+
+  generate-X86_64-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: macos-x86_64
+      channel: all
+      test-infra-ref: weiwangmeta/add-macos-x86_64-support
+
+  validate-MacOS-X86_64-conda-packages:
+    needs: generate-conda-matrix 
+    runs-on: ${{ matrix.validation_runner }} 
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-conda-matrix.outputs.matrix) }}
+    env: 
+      PYTHON_VERSION: ${{ matrix.python_version }} 
+      INSTALLATION: ${{ matrix.installation }}
+    steps:
+      - name: Checkout PyTorch/Builder directory
+        uses: actions/checkout@v3
+      - name: Install Fresh Miniconda in Runner Temp Dir
+        run: |
+          set -ex
+          rm -rf ${{ runner.temp }}/*
+          cd ${{ runner.temp }}
+          curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+          sh Miniconda3-latest-MacOSX-x86_64.sh -b -f  -p ${{ runner.temp }}
+      - name: Conda Install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+          conda run -p ${ENV_NAME} $INSTALLATION
+          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
+
+  generate-X86_64-wheel-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: macos-x86_64
+      channel: all
+      test-infra-ref: weiwangmeta/add-macos-x86_64-support
+
+  validate-MacOS-X86_64-wheels:
+    needs: generate-wheel-matrix
+    runs-on: ${{ matrix.validation_runner }} 
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.generate-wheel-matrix.outputs.matrix) }}
+    env: 
+      PYTHON_VERSION: ${{ matrix.python_version }} 
+      INSTALLATION: ${{ matrix.installation }}
+    steps:
+      - name: Checkout PyTorch/Builder directory
+        uses: actions/checkout@v3
+        with: 
+          ref: weiwangmeta/testing_macos_nightly_wheels
+      - name: Install Fresh Miniconda in Runner Temp Dir
+        run: |
+          set -ex
+          cd ${{ runner.temp }}
+          curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+          sh Miniconda3-latest-MacOSX-x86_64.sh -b -f  -p ${{ runner.temp }}
+      - name: pip install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+          conda run -p ${ENV_NAME} $INSTALLATION
           conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
           conda env remove -p ${ENV_NAME}
