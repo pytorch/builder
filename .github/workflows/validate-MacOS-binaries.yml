@@ -24,6 +24,7 @@ jobs:
     env: 
       MAC_ARCH:  ${{ matrix.validation_runner }}
       PYTHON_VERSION: ${{ matrix.python_version }} 
+      CON_CHANNEL: ${{ matrix.channel }}
     steps:
       - name: Checkout PyTorch/Builder directory
         uses: actions/checkout@v3
@@ -46,7 +47,12 @@ jobs:
         run: |
           set -ex
           conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
-          conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c ${{ matrix.channel }}
+          if [ ${CON_CHANNEL} == 'nightly' ]; then 
+            conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-nightly
+          elif [ ${CON_CHANNEL} == 'test' ]; then 
+            conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-test
+          else
+            conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch
           # Test torch is importable
           cd ${GITHUB_WORKSPACE} 
           conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
