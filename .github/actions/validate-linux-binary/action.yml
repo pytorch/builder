@@ -35,7 +35,7 @@ runs:
     - name: Install PyTorch and run tests
       shell: bash
       env:
-        GPU_ARCH_VER: ${{ inputs.gpu_arch_version }}
+        GPU_ARCH_VER: ${{ inputs.gpu_arch_ver }}
         GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
         INSTALLATION: ${{ inputs.installation }}
         ENV_NAME: conda-env-${{ github.run_id }}
