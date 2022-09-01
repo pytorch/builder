@@ -70,6 +70,8 @@ jobs:
         ]
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
+    env:
+        CONDA_ENV: conda-env-${{ github.run_id }}
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
@@ -87,6 +89,7 @@ jobs:
       - name: Install deps and run smoke test
         shell: bash -l {0}
         run: |
-          conda install numpy
-          ${{ matrix.installation }}
-          conda run python test/smoke_test/smoke_test.py
+          set -ex
+          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
+          conda run -p ${ENV_NAME} ${{ matrix.installation }}
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
