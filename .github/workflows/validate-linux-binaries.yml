@@ -28,7 +28,7 @@ jobs:
       package-type: libtorch
       os: linux
       channel: nightly
-  validate-linux-binaries-conda:
+    validate-linux-binaries-conda:
     needs: generate-conda-matrix
     strategy:
       matrix:
@@ -38,28 +38,19 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Check nvidia smi
-        if: ${{ matrix.gpu_arch_type == 'cuda' }}
+      - name: Check
         run: |
-          nvidia-smi
-      - name: Instlla Conda
-        uses: conda-incubator/setup-miniconda@v2
+          pwd
+          ls -las
+          ls .github/
+          ls .github/workflows/
+      - name: Validate binary conda
+        uses: ./.github/workflows/_validate-linux-binary.yml
         with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: testenv
-      - name: Install PyTorch and run tests
-        env:
-          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
-          GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
-          INSTALLATION: ${{ matrix.installation }}
-          ENV_NAME: conda-env-${{ github.run_id }}
-        run: |
-          set -ex
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-          conda run -p ${ENV_NAME} $INSTALLATION
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
   validate-linux-binaries-wheels:
     needs: generate-wheel-matrix
     strategy:
