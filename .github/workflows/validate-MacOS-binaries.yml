@@ -1,133 +1,28 @@
 name: Validate MacOS Binaries
 
 on:
-  pull_request:
-    paths:
-      - .github/workflows/validate-MacOS-binaries.yml
-
+  workflow_call:
+    inputs:
+      test-matrix:
+        description: "The MacOS JSON Matrix to test"
+        default: ""
+        type: string 
 
 jobs:
-  generate-ARM64-conda-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: conda
-      os: macos-arm64
-      channel: all
-
-  validate-MacOS-ARM64-conda-packages:
-    needs: generate-ARM64-conda-matrix 
-    runs-on: ${{ matrix.validation_runner }} 
+  validate:
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-ARM64-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(inputs.test-matrix) }}
     env: 
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
+    runs-on: ${{ matrix.validation_runner }} 
     steps:
       - name: Checkout PyTorch/Builder directory
         uses: actions/checkout@v3
       - name: Setup miniconda
         uses: pytorch/test-infra/.github/actions/setup-miniconda@main
       - name: Conda Install pytorch and smoke test
-        env:
-          ENV_NAME: conda-env-${{ github.run_id }}
-        run: |
-          set -ex
-          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
-          conda run -p ${ENV_NAME} $INSTALLATION
-          #cd ${GITHUB_WORKSPACE} 
-          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
-          conda env remove -p ${ENV_NAME}
-
-  generate-ARM64-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: macos-arm64
-      channel: all
-
-  validate-MacOS-wheels:
-    needs: generate-ARM64-wheel-matrix
-    runs-on: ${{ matrix.validation_runner }} 
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-ARM64-wheel-matrix.outputs.matrix) }}
-    env: 
-      PYTHON_VERSION: ${{ matrix.python_version }} 
-      INSTALLATION: ${{ matrix.installation }}
-    steps:
-      - name: Checkout PyTorch/Builder directory
-        uses: actions/checkout@v3
-        with: 
-          ref: weiwangmeta/testing_macos_nightly_wheels
-      - name: Setup miniconda
-        uses: pytorch/test-infra/.github/actions/setup-miniconda@main
-      - name: pip install pytorch and smoke test
-        env:
-          ENV_NAME: conda-env-${{ github.run_id }}
-        run: |
-          set -ex
-          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
-          conda run -p ${ENV_NAME} $INSTALLATION
-          #cd ${GITHUB_WORKSPACE} 
-          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
-          conda env remove -p ${ENV_NAME}
-
-  generate-X86_64-conda-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: conda
-      os: macos-x86_64
-      channel: all
-
-  validate-MacOS-X86_64-conda-packages:
-    needs: generate-X86_64-conda-matrix 
-    runs-on: ${{ matrix.validation_runner }} 
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-X86_64-conda-matrix.outputs.matrix) }}
-    env: 
-      PYTHON_VERSION: ${{ matrix.python_version }} 
-      INSTALLATION: ${{ matrix.installation }}
-    steps:
-      - name: Checkout PyTorch/Builder directory
-        uses: actions/checkout@v3
-      - name: Setup miniconda
-        uses: pytorch/test-infra/.github/actions/setup-miniconda@main
-      - name: Conda Install pytorch and smoke test
-        env:
-          ENV_NAME: conda-env-${{ github.run_id }}
-        run: |
-          set -ex
-          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
-          conda run -p ${ENV_NAME} $INSTALLATION
-          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
-          conda env remove -p ${ENV_NAME}
-
-  generate-X86_64-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: macos-x86_64
-      channel: all
-
-  validate-MacOS-X86_64-wheels:
-    needs: generate-X86_64-wheel-matrix
-    runs-on: ${{ matrix.validation_runner }} 
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-X86_64-wheel-matrix.outputs.matrix) }}
-    env: 
-      PYTHON_VERSION: ${{ matrix.python_version }} 
-      INSTALLATION: ${{ matrix.installation }}
-    steps:
-      - name: Checkout PyTorch/Builder directory
-        uses: actions/checkout@v3
-        with: 
-          ref: weiwangmeta/testing_macos_nightly_wheels
-      - name: Setup miniconda
-        uses: pytorch/test-infra/.github/actions/setup-miniconda@main
-      - name: pip install pytorch and smoke test
         env:
           ENV_NAME: conda-env-${{ github.run_id }}
         run: |
