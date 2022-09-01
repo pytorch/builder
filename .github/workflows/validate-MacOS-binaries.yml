@@ -51,7 +51,7 @@ jobs:
             conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-nightly
           elif [ ${CON_CHANNEL} == 'test' ]; then 
             conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch-test
-          else
+          elif [ ${CON_CHANNEL} == 'release' ]; then 
             conda install -p ${ENV_NAME} pytorch torchvision torchaudio -c pytorch
           # Test torch is importable
           cd ${GITHUB_WORKSPACE} 
@@ -104,7 +104,7 @@ jobs:
             conda run -p ${ENV_NAME} pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu
           elif [ ${PIP_CHANNEL} == 'test' ]; then 
             conda run -p ${ENV_NAME} pip3 install --pre torch torchvision torchaudio  --extra-index-url https://download.pytorch.org/whl/test/cpu
-          else
+          elif [ ${PIP_CHANNEL} == 'release' ]; then 
             conda run -p ${ENV_NAME} pip3 install torch torchvision torchaudio 
           fi
 
