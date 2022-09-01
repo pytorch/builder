@@ -17,5 +17,6 @@ jobs:
   validate-MacOS-ARM64-conda-packages:
     needs: generate-ARM64-conda-matrix 
     uses: ./.github/workflows/validate-MacOS-binaries.yml
-      with: 
-        test-matrix: ${{ needs.generate-ARM64-conda-matrix.outputs.matrix }}
+    name: validate MacOS-ARM64-conda
+    with: 
+      test-matrix: ${{ needs.generate-ARM64-conda-matrix.outputs.matrix }}
