@@ -22,6 +22,7 @@ runs:
   steps:
     - name: Check nvidia smi
       if: ${{ inputs.gpu_arch_type == 'cuda' }}
+      shell: bash
       run: |
         nvidia-smi
     - name: Instlla Conda
@@ -32,6 +33,7 @@ runs:
         miniconda-version: "latest"
         activate-environment: testenv
     - name: Install PyTorch and run tests
+      shell: bash
       env:
         GPU_ARCH_VER: ${{ inputs.gpu_arch_version }}
         GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
