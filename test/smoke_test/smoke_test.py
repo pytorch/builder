@@ -5,8 +5,8 @@ import torchvision
 import torchaudio
 
 def smoke_test_cuda() -> None:
-    gpu_arch_ver = os.environ['GPU_ARCH_VER']
-    gpu_arch_type = os.environ['GPU_ARCH_TYPE']
+    gpu_arch_ver = os.getenv('GPU_ARCH_VER')
+    gpu_arch_type = os.getenv('GPU_ARCH_TYPE')
     is_cuda_system = gpu_arch_type == "cuda"
 
     if(not torch.cuda.is_available() and is_cuda_system):

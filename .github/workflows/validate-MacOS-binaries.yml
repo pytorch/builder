@@ -1,0 +1,33 @@
+name: Validate MacOS Binaries
+
+on:
+  workflow_call:
+    inputs:
+      test-matrix:
+        description: "The MacOS JSON Matrix to test"
+        default: ""
+        type: string 
+
+jobs:
+  validate:
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(inputs.test-matrix) }}
+    env: 
+      PYTHON_VERSION: ${{ matrix.python_version }} 
+      INSTALLATION: ${{ matrix.installation }}
+    runs-on: ${{ matrix.validation_runner }} 
+    steps:
+      - name: Checkout PyTorch/Builder directory
+        uses: actions/checkout@v3
+      - name: Setup miniconda
+        uses: pytorch/test-infra/.github/actions/setup-miniconda@main
+      - name: Conda Install pytorch and smoke test
+        env:
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          set -ex
+          conda create -yp ${ENV_NAME} python=${PYTHON_VERSION} numpy
+          conda run -p ${ENV_NAME} $INSTALLATION
+          conda run -p ${ENV_NAME} python3 ${GITHUB_WORKSPACE}/test/smoke_test/smoke_test.py
+          conda env remove -p ${ENV_NAME}
