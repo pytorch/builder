@@ -16,11 +16,11 @@ jobs:
       test-infra-ref: weiwangmeta/add-macos-x86_64-support
 
   validate-MacOS-ARM64-conda-packages:
-    needs: generate-conda-matrix 
+    needs: generate-ARM64-conda-matrix 
     runs-on: ${{ matrix.validation_runner }} 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-ARM64-conda-matrix.outputs.matrix) }}
     env: 
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
@@ -53,11 +53,11 @@ jobs:
       test-infra-ref: weiwangmeta/add-macos-x86_64-support
 
   validate-MacOS-wheels:
-    needs: generate-wheel-matrix
+    needs: generate-ARM64-wheel-matrix
     runs-on: ${{ matrix.validation_runner }} 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-wheel-matrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-ARM64-wheel-matrix.outputs.matrix) }}
     env: 
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
@@ -92,11 +92,11 @@ jobs:
       test-infra-ref: weiwangmeta/add-macos-x86_64-support
 
   validate-MacOS-X86_64-conda-packages:
-    needs: generate-conda-matrix 
+    needs: generate-X86_64-conda-matrix 
     runs-on: ${{ matrix.validation_runner }} 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-X86_64-conda-matrix.outputs.matrix) }}
     env: 
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
@@ -129,11 +129,11 @@ jobs:
       test-infra-ref: weiwangmeta/add-macos-x86_64-support
 
   validate-MacOS-X86_64-wheels:
-    needs: generate-wheel-matrix
+    needs: generate-X86_64-wheel-matrix
     runs-on: ${{ matrix.validation_runner }} 
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.generate-wheel-matrix.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.generate-X86_64-wheel-matrix.outputs.matrix) }}
     env: 
       PYTHON_VERSION: ${{ matrix.python_version }} 
       INSTALLATION: ${{ matrix.installation }}
