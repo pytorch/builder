@@ -20,3 +20,45 @@ jobs:
     name: validate MacOS-ARM64-conda
     with: 
       test-matrix: ${{ needs.generate-ARM64-conda-matrix.outputs.matrix }}
+
+  generate-ARM64-wheel-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: macos-arm64
+      channel: all
+
+  validate-MacOS-ARM64-wheel-packages:
+    needs: generate-ARM64-wheel-matrix 
+    uses: ./.github/workflows/validate-MacOS-binaries.yml
+    name: validate MacOS-ARM64-wheel
+    with: 
+      test-matrix: ${{ needs.generate-ARM64-wheel-matrix.outputs.matrix }}
+
+  generate-X86_64-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: macos-x86_64
+      channel: all
+
+  validate-MacOS-X86_64-conda-packages:
+    needs: generate-X86_64-conda-matrix 
+    uses: ./.github/workflows/validate-MacOS-binaries.yml
+    name: validate MacOS-X86_64-conda
+    with: 
+      test-matrix: ${{ needs.generate-X86_64-conda-matrix.outputs.matrix }}
+
+  generate-X86_64-wheel-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: macos-x86_64
+      channel: all
+
+  validate-MacOS-X86_64-wheel-packages:
+    needs: generate-X86_64-wheel-matrix 
+    uses: ./.github/workflows/validate-MacOS-binaries.yml
+    name: validate MacOS-X86_64-wheel
+    with: 
+      test-matrix: ${{ needs.generate-X86_64-wheel-matrix.outputs.matrix }}
