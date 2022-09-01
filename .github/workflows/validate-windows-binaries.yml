@@ -22,6 +22,7 @@ jobs:
           "container_image": "pytorch/conda-builder:cpu",
           "package_type": "conda",
           "build_name": "conda-py3_7-cpu",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
           "validation_runner": "windows-2019"
         },
         {
@@ -32,6 +33,7 @@ jobs:
           "container_image": "pytorch/conda-builder:cuda11.3",
           "package_type": "conda",
           "build_name": "conda-py3_7-cuda11_3",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
           "validation_runner": "windows-2019-m60"
         },
 #        {
@@ -68,6 +70,7 @@ jobs:
         ]
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
+    if: matrix.validation_runner == 'windows-2019'
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
@@ -85,17 +88,9 @@ jobs:
         if: ${{ matrix.gpu_arch_type == 'cuda' }}
         run: |
           nvidia-smi
-      - run: conda install --yes numpy
-      - if: matrix.desired_cuda == 'cpu'
-        run: conda install --yes pytorch torchaudio torchvision cpuonly  -c pytorch
-      - if: matrix.desired_cuda == 'cu102'
-        run: conda install --yes pytorch torchaudio torchvision cudatoolkit=10.2 -c pytorch
-      - if: matrix.desired_cuda == 'cu113'
-        run: conda install --yes pytorch torchaudio torchvision cudatoolkit=11.3 -c pytorch
-      - if: matrix.desired_cuda == 'cu116'
-        run: conda install --yes pytorch torchaudio torchvision pytorch-cuda=11.6 -c pytorch-nightly -c nvidia
-      - if: matrix.desired_cuda == 'cu117'
-        run: conda intall --yes pytorch torchaudio torchvision pytorch-cuda=11.7 -c pytorch-nightly -c nvidia
+      - name: Run smoke test non-windows
+        shell: bash -l {0}
+        run: ${{ matrix.installation }}
       - name: Run smoke test non-windows
         shell: bash -l {0}
         run: conda run test/smoke_test/smoke_test.py
