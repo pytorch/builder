@@ -54,6 +54,7 @@ jobs:
           "container_image": "pytorch/conda-builder:cpu",
           "package_type": "conda",
           "build_name": "conda-py3_7-cpu",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
           "validation_runner": "ubuntu-20.04"
         },
 #        {
@@ -90,6 +91,5 @@ jobs:
         shell: bash -l {0}
         run: |
           set -ex
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-          conda run -p ${ENV_NAME} ${{ matrix.installation }}
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          conda install numpy pytorch torchvision torchaudio cpuonly -c pytorch-nightly
+          conda run python3  ./test/smoke_test/smoke_test.py
