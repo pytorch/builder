@@ -1,0 +1,85 @@
+name: Validate binary images
+
+on:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/validate-linux-binaries.yml
+  pull_request:
+    paths:
+      - .github/workflows/validate-linux-binaries.yml
+jobs:
+  generate-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: linux
+      channel: nightly
+  generate-wheel-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: linux
+      channel: nightly
+  generate-libtorch-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: libtorch
+      os: linux
+      channel: nightly
+  validate-linux-binaries-conda:
+    needs: generate-conda-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Validate binary conda
+        uses: ./.github/actions/validate-linux-binary
+        with:
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
+  validate-linux-binaries-wheels:
+    needs: generate-wheel-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-wheel-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Validate binary wheel
+        uses: ./.github/actions/validate-linux-binary
+        with:
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
+  validate-linux-libtorch-binaries:
+    needs: generate-libtorch-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: "ubuntu-20.04"
+    env:
+      PYTHON_VERSION: ${{ matrix.python_version }}
+    steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
+      - name: Install pytorch and smoke test
+        env:
+          INSTALLATION: ${{ matrix.installation }}
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          sudo apt-get install unzip -y
+          set -ex
+          curl ${INSTALLATION} -o libtorch.zip
+          unzip libtorch.zip
