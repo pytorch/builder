@@ -89,7 +89,80 @@ else
 fi
 ROCM_INT=$(($ROCM_VERSION_MAJOR * 10000 + $ROCM_VERSION_MINOR * 100 + $ROCM_VERSION_PATCH))
 
-if [[ $ROCM_INT -ge 50200 ]]; then
+if [[ $ROCM_INT -ge 50300 ]]; then
+DEPS_LIST=(
+    "/opt/rocm/lib/libMIOpen.so.1"
+    "/opt/rocm/lib/libamdhip64.so.5"
+    "/opt/rocm/lib/libhipblas.so.0"
+    "/opt/rocm/lib/libhipfft.so"
+    "/opt/rocm/lib/libhiprand.so.1"
+    "/opt/rocm/lib/libhipsparse.so.0"
+    "/opt/rocm/lib/libhsa-runtime64.so.1"
+    "/opt/rocm/lib/libamd_comgr.so.2"
+    "/opt/rocm/magma/lib/libmagma.so"
+    "/opt/rocm/lib/librccl.so.1"
+    "/opt/rocm/lib/librocblas.so.0"
+    "/opt/rocm/lib/librocfft-device-0.so.0"
+    "/opt/rocm/lib/librocfft-device-1.so.0"
+    "/opt/rocm/lib/librocfft-device-2.so.0"
+    "/opt/rocm/lib/librocfft-device-3.so.0"
+    "/opt/rocm/lib/librocfft.so.0"
+    "/opt/rocm/lib/librocm_smi64.so.5"
+    "/opt/rocm/lib/librocrand.so.1"
+    "/opt/rocm/lib/librocsolver.so.0"
+    "/opt/rocm/lib/librocsparse.so.0"
+    "/opt/rocm/lib/libroctracer64.so.4"
+    "/opt/rocm/lib/libroctx64.so.4"
+    "$LIBGOMP_PATH"
+    "$LIBNUMA_PATH"
+    "$LIBELF_PATH"
+    "$LIBTINFO_PATH"
+    "$LIBDRM_PATH"
+    "$LIBDRM_AMDGPU_PATH"
+)
+
+DEPS_SONAME=(
+    "libMIOpen.so.1"
+    "libamdhip64.so.5"
+    "libhipblas.so.0"
+    "libhipfft.so"
+    "libhiprand.so.1"
+    "libhipsparse.so.0"
+    "libhsa-runtime64.so.1"
+    "libamd_comgr.so.2"
+    "libmagma.so"
+    "librccl.so.1"
+    "librocblas.so.0"
+    "librocfft-device-0.so.0"
+    "librocfft-device-1.so.0"
+    "librocfft-device-2.so.0"
+    "librocfft-device-3.so.0"
+    "librocfft.so.0"
+    "librocm_smi64.so.5"
+    "librocrand.so.1"
+    "librocsolver.so.0"
+    "librocsparse.so.0"
+    "libroctracer64.so.4"
+    "libroctx64.so.4"
+    "libgomp.so.1"
+    "libnuma.so.1"
+    "libelf.so.1"
+    "libtinfo.so.5"
+    "libdrm.so.2"
+    "libdrm_amdgpu.so.1"
+)
+
+DEPS_AUX_SRCLIST=(
+    "/opt/rocm/lib/rocblas/library/*"
+    "/opt/amdgpu/share/libdrm/amdgpu.ids"
+)
+
+DEPS_AUX_DSTLIST=(
+    "lib/rocblas/library/."
+    "share/libdrm/amdgpu.ids"
+)
+
+elif [[ $ROCM_INT -ge 50200 ]]; then
 DEPS_LIST=(
     "/opt/rocm/lib/libMIOpen.so.1"
     "/opt/rocm/lib/libamdhip64.so.5"
