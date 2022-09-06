@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/validate-linux-binaries.yml
+      - .test/smoke_test/*
 jobs:
   generate-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
@@ -28,6 +29,8 @@ jobs:
       package-type: libtorch
       os: linux
       channel: nightly
+
+
   validate-linux-binaries-conda:
     needs: generate-conda-matrix
     strategy:
