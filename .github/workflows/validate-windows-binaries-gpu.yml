@@ -95,6 +95,6 @@ jobs:
           ENV_NAME: conda-env-${{ github.run_id }}
         run: |
           $ErrorActionPreference = 'Stop'
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-          conda run -p ${ENV_NAME} $INSTALLATION
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          conda create -yp $env:ENV_NAME python=${{ matrix.python_version }} numpy
+          conda run -p $env:ENV_NAME $env:INSTALLATION
+          conda run -p $env:ENV_NAME python3  ./test/smoke_test/smoke_test.py
