@@ -97,4 +97,4 @@ jobs:
           $ErrorActionPreference = 'Stop'
           conda create -yp $env:ENV_NAME python=${{ matrix.python_version }} numpy
           conda run -p $env:ENV_NAME $env:INSTALLATION
-          conda run -p $env:ENV_NAME python3  ./test/smoke_test/smoke_test.py
+          conda run -p $env:ENV_NAME python ./test/smoke_test/smoke_test.py
