@@ -86,6 +86,15 @@ jobs:
           nvidia-smi
       - name: Conda version
         run: conda --version
-#      - name: Run smoke test non-windows
-#        shell: bash -l {0}
-#        run: conda run test/smoke_test/smoke_test.py
+      - name: Conda Install pytorch and smoke test
+        env:
+          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+          GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
+          CUDA_VER: ${{ matrix.desired_cuda }}
+          INSTALLATION: ${{ matrix.installation }}
+          ENV_NAME: conda-env-${{ github.run_id }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
+          conda run -p ${ENV_NAME} $INSTALLATION
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
