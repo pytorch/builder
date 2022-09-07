@@ -72,6 +72,12 @@ jobs:
         ]
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
+    env:
+      GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
+      GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
+      CUDA_VER: ${{ matrix.desired_cuda }}
+      INSTALLATION: ${{ matrix.installation }}
+      ENV_NAME: conda-env-${{ github.run_id }}
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
@@ -83,13 +89,19 @@ jobs:
           auto-update-conda: true
           miniconda-version: "latest"
           activate-environment: testenv
-      - name: Conda Install pytorch and smoke test
-        env:
-          GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
-          GPU_ARCH_TYPE: ${{ matrix.gpu_arch_type }}
-          CUDA_VER: ${{ matrix.desired_cuda }}
-          INSTALLATION: ${{ matrix.installation }}
-          ENV_NAME: conda-env-${{ github.run_id }}
+      - name: Conda Install pytorch and smoke test linux
+        if: "!contains(matrix.validation_runner, 'win')"
+        shell: bash -l {0}
+        run: |
+          conda install numpy python=${{ matrix.python_version }}
+          ${{ matrix.installation }}
+          conda info
+          conda list
+          which python
+          python --version
+          python  ./test/smoke_test/smoke_test.py
+      - name: Conda Install pytorch and smoke test windows
+        if: "contains(matrix.validation_runner, 'win')"
         run: |
           conda install numpy python=${{ matrix.python_version }}
           ${{ matrix.installation }}
