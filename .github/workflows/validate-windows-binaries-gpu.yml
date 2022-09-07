@@ -14,17 +14,17 @@ jobs:
       matrix:
 #        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
         "include": [
-#        {
-#          "python_version": "3.7",
-#          "gpu_arch_type": "cpu",
-#          "gpu_arch_version": "",
-#          "desired_cuda": "cpu",
-#          "container_image": "pytorch/conda-builder:cpu",
-#          "package_type": "conda",
-#          "build_name": "conda-py3_7-cpu",
-#          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
-#          "validation_runner": "windows-2019"
-#        },
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cpu",
+          "gpu_arch_version": "",
+          "desired_cuda": "cpu",
+          "container_image": "pytorch/conda-builder:cpu",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cpu",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
+          "validation_runner": "windows-2019"
+        },
         {
           "python_version": "3.7",
           "gpu_arch_type": "cuda",
@@ -46,46 +46,43 @@ jobs:
 #          "build_name": "conda-py3_7-cpu",
 #          "validation_runner": "macos-m1-12"
 #        },
-#        {
-#          "python_version": "3.7",
-#          "gpu_arch_type": "cpu",
-#          "gpu_arch_version": "",
-#          "desired_cuda": "cpu",
-#          "container_image": "pytorch/conda-builder:cpu",
-#          "package_type": "conda",
-#          "build_name": "conda-py3_7-cpu",
-#          "validation_runner": "ubuntu-20.04"
-#        },
-#        {
-#          "python_version": "3.8",
-#          "gpu_arch_type": "cuda",
-#          "gpu_arch_version": "11.6",
-#          "desired_cuda": "cu116",
-#          "container_image": "pytorch/conda-builder:cuda11.6",
-#          "package_type": "conda",
-#          "build_name": "conda-py3_8-cuda11_6",
-#          "validation_runner": "ubuntu-20.04-m60",
-#          "channel": "test"
-#        }
+        {
+          "python_version": "3.7",
+          "gpu_arch_type": "cpu",
+          "gpu_arch_version": "",
+          "desired_cuda": "cpu",
+          "container_image": "pytorch/conda-builder:cpu",
+          "package_type": "conda",
+          "build_name": "conda-py3_7-cpu",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
+          "validation_runner": "ubuntu-20.04"
+        },
+        {
+          "python_version": "3.8",
+          "gpu_arch_type": "cuda",
+          "gpu_arch_version": "11.6",
+          "desired_cuda": "cu116",
+          "container_image": "pytorch/conda-builder:cuda11.6",
+          "package_type": "conda",
+          "build_name": "conda-py3_8-cuda11_6",
+          "validation_runner": "ubuntu-20.04-m60",
+          "installation": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
+          "channel": "test"
+        }
         ]
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-#      - name: Install conda
-#        uses: conda-incubator/setup-miniconda@v2
-#        with:
-#          python-version: ${{ matrix.python_version }}
-#          miniconda-version: "latest"
-#          auto-activate-base: false
-#          activate-environment: conda-env-${{ github.run_id }}
-      - name: Check nvidia smi
-        if: ${{ matrix.gpu_arch_type == 'cuda' }}
-        run: |
-          nvidia-smi
-      - name: Conda version
-        run: conda --version
+      - name: Install conda
+        uses: conda-incubator/setup-miniconda@v2
+        if: matrix.validation_runner == 'windows-2019' || contains(matrix.validation_runner, 'ubuntu')
+        with:
+          python-version: ${{ matrix.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
       - name: Conda Install pytorch and smoke test
         env:
           GPU_ARCH_VER: ${{ matrix.gpu_arch_version }}
@@ -94,7 +91,10 @@ jobs:
           INSTALLATION: ${{ matrix.installation }}
           ENV_NAME: conda-env-${{ github.run_id }}
         run: |
-          $ErrorActionPreference = 'Stop'
-          conda create -yp $env:ENV_NAME python=${{ matrix.python_version }} numpy
-          conda run -p $env:ENV_NAME $env:INSTALLATION
-          conda run -p $env:ENV_NAME python ./test/smoke_test/smoke_test.py
+          conda install numpy python=${{ matrix.python_version }}
+          ${{ matrix.installation }}
+          conda info
+          conda list
+          which python
+          python --version
+          python  ./test/smoke_test/smoke_test.py

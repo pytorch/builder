@@ -1,8 +1,4 @@
 import os
-
-print(os.environ['CONDA_DEFAULT_ENV'])
-print(os.environ["CONDA_PREFIX"])
-
 import sys
 import torch
 import torchvision
