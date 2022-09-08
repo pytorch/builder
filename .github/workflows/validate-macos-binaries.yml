@@ -39,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-linux-binary@main
+        uses: pytorch/builder/.github/actions/validate-binary@main
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -55,7 +55,7 @@ jobs:
     runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-linux-binary@main
+        uses: pytorch/builder/.github/actions/validate-binary@main
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -71,7 +71,7 @@ jobs:
     runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-linux-binary@main
+        uses: pytorch/builder/.github/actions/validate-binary@main
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -87,7 +87,7 @@ jobs:
     runs-on: ${{ matrix.validation_runner }}
     steps:
       - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-linux-binary@main
+        uses: pytorch/builder/.github/actions/validate-binary@main
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
