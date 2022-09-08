@@ -46,7 +46,7 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
           target_os: macos
- validate-macos-arm64-binaries-wheel:
+  validate-macos-arm64-binaries-wheel:
     needs: generate-arm64-wheel-matrix
     strategy:
       matrix:
@@ -62,7 +62,7 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
           target_os: macos
-validate-macos-x86_64-binaries-conda:
+  validate-macos-x86_64-binaries-conda:
     needs: generate-x86_64-conda-matrix
     strategy:
       matrix:
@@ -78,7 +78,7 @@ validate-macos-x86_64-binaries-conda:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
           target_os: macos
- validate-macos-x86_64-binaries-wheel:
+  validate-macos-x86_64-binaries-wheel:
     needs: generate-x86_64-wheel-matrix
     strategy:
       matrix:
