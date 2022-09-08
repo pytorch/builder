@@ -1,5 +1,5 @@
 name: 'validate-windows-binary'
-description: 'Windows Windows Conda or Wheel Validation'
+description: 'Windows Binary Conda or Wheel Validation'
 inputs:
   gpu_arch_type:
     description: 'GPU arch type'
