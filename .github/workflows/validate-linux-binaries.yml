@@ -1,4 +1,4 @@
-name: Validate binary images
+name: Validate linux binaries
 
 on:
   push:
@@ -36,10 +36,8 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
       - name: Validate binary conda
-        uses: ./.github/actions/validate-linux-binary
+        uses: pytorch/builder/.github/actions/validate-binary@main
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -53,10 +51,8 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
       - name: Validate binary wheel
-        uses: ./.github/actions/validate-linux-binary
+        uses: pytorch/builder/.github/actions/validate-binary@main
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -72,8 +68,6 @@ jobs:
     env:
       PYTHON_VERSION: ${{ matrix.python_version }}
     steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
       - name: Install pytorch and smoke test
         env:
           INSTALLATION: ${{ matrix.installation }}
