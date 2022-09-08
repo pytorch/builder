@@ -1,5 +1,5 @@
-name: 'validate-linux-binary'
-description: 'Linux Binary Conda or Wheel Validation'
+name: 'validate-binary'
+description: 'Binary Conda or Wheel Validation for Linux and MacOS'
 inputs:
   gpu_arch_type:
     description: 'GPU arch type'
