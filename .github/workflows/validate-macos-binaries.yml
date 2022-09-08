@@ -45,7 +45,7 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
-          target_os: 'macos'
+          target_os: macos
  validate-macos-arm64-binaries-wheel:
     needs: generate-arm64-wheel-matrix
     strategy:
@@ -61,7 +61,7 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
-          target_os: 'macos'
+          target_os: macos
 validate-macos-x86_64-binaries-conda:
     needs: generate-x86_64-conda-matrix
     strategy:
@@ -77,7 +77,7 @@ validate-macos-x86_64-binaries-conda:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
-          target_os: 'macos'
+          target_os: macos
  validate-macos-x86_64-binaries-wheel:
     needs: generate-x86_64-wheel-matrix
     strategy:
@@ -93,4 +93,4 @@ validate-macos-x86_64-binaries-conda:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
-          target_os: 'macos'
+          target_os: macos
