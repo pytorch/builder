@@ -22,7 +22,7 @@ runs:
   steps:
     - name: Check nvidia smi
       if: ${{ inputs.gpu_arch_type == 'cuda' }}
-      shell: bash
+      shell: powershell
       run: |
         nvidia-smi
     - name: Install conda
