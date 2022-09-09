@@ -1,6 +1,0 @@
-runner_types:
-  linux.2xlarge:
-    instance_type: c5.2xlarge
-    os: linux
-    max_available: 20
-    disk_size: 150
