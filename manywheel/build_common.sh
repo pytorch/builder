@@ -357,19 +357,39 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         done
     fi
 
+    : "${C_SO_RPATH:='$ORIGIN:$ORIGIN/lib'}"
+    : "${LIB_SO_RPATH:='$ORIGIN'}"
+
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
-        $PATCHELF_BIN --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
+        echo "Setting rpath of $sofile to $C_SO_RPATH"
+        $PATCHELF_BIN --set-rpath $C_SO_RPATH $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 
     # set RPATH of lib/ files to $ORIGIN
     find $PREFIX/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN'
-        $PATCHELF_BIN --set-rpath '$ORIGIN' $sofile
+        echo "Setting rpath of $sofile to $LIB_SO_RPATH"
+        $PATCHELF_BIN --set-rpath $LIB_SO_RPATH $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
+
+    # add dependencies to METADATA
+    # set WHEEL_DEPENDENCIES to be a string in your wrapper script. e.g.: set the
+    # following in build_cuda.sh to get cuda dependencies.
+    #
+    # export WHEEL_DEPENDENCIES="Requires-Dist: nvidia-cublas-cu11\nRequires-Dist: nvidia-cuda-cupti-cu11"
+    #
+    # Notice that each dependency is prefixed 'Requires-Dist: ' and suffixed with a new line char.
+    # The last dependency in the string doesn't have the new line char.
+    # This formatting conforms to the METADATA file in a wheel.
+    if [[ -n "$WHEEL_DEPENDENCIES" ]]; then
+        metadata_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/METADATA/g')
+        if [[ -e $metadata_file ]]; then
+            echo "Adding dependencies to metadata file $metadata_file"
+            sed -i "/^Requires-Dist.*/a$WHEEL_DEPENDENCIES" $metadata_file
+        fi
+    fi
 
     # regenerate the RECORD file with new hashes
     record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
