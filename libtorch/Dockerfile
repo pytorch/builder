@@ -71,9 +71,10 @@ ENV MKLROOT /opt/intel
 ADD ./common/install_rocm.sh install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
-# gfortran needed for building magma from source for ROCm
+# gfortran and python needed for building magma from source for ROCm
 RUN apt-get update -y && \
     apt-get install gfortran -y && \
+    apt-get install python -y && \
     apt-get clean
 
 FROM rocm as rocm5.2
