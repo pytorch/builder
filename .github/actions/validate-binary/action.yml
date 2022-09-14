@@ -70,5 +70,6 @@ runs:
         conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
         conda run -p ${ENV_NAME} $INSTALLATION
         conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+        export LD_LIBRARY_PATH="$(dirname $(which python))/../lib"
         conda run -p ${ENV_NAME} bash ./check_binary.sh
         conda env remove -p ${ENV_NAME}
