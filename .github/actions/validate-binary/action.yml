@@ -21,6 +21,18 @@ inputs:
     description: 'Target OS linux or macos'
     required: false
     default: 'linux'
+  desired_cuda:
+    description: 'Desired CUDA'
+    required: true
+    default: 'cpu'
+  dev_toolset:
+    description: 'Dev Toolset'
+    required: true
+    default: 'cxx11-abi'
+  package_type:
+    description: 'Package Type'
+    required: true
+    default: 'conda'
 runs:
   using: "composite"
   steps:
@@ -49,9 +61,14 @@ runs:
         GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
         INSTALLATION: ${{ inputs.installation }}
         ENV_NAME: conda-env-${{ github.run_id }}
+        DESIRED_PYTHON: ${{ inputs.python_version }}
+        DESIRED_CUDA: ${{ inputs.desired_cuda }}
+        DESIRED_DEVTOOLSET: ${{ inputs.dev_toolset }}
+        PACKAGE_TYPE: ${{ inputs.package_type }}
       run: |
         set -ex
         conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
         conda run -p ${ENV_NAME} $INSTALLATION
         conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+        conda run -p ${ENV_NAME} bash ./check_binary.sh
         conda env remove -p ${ENV_NAME}
