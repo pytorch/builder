@@ -10,7 +10,7 @@ gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 
-    if(is_cuda_system)
+    if(is_cuda_system):
         import torch.nn as nn
         device = torch.device("cuda:0")
         rnn = nn.RNN(10, 20, 2).to(device)
