@@ -264,6 +264,8 @@ setup_link_flags () {
 }
 
 TEST_CODE_DIR="$(dirname ${BASH_SOURCE[0]})/test_example_code"
+echo "THIS IS TEST_CODE_DIR:"
+echo ${TEST_CODE_DIR}
 build_and_run_example_cpp () {
   if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     GLIBCXX_USE_CXX11_ABI=1
@@ -386,6 +388,7 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
     echo "Checking that exception handling works"
     python -c "import torch; from unittest import TestCase;TestCase().assertRaises(RuntimeError, lambda:torch.eye(7, 7, device='cuda:7'))"
 
+    echo ${TEST_CODE_DIR}
     echo "Checking that basic RNN works"
     python ${TEST_CODE_DIR}/rnn_smoke.py
 
