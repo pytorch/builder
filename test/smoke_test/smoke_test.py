@@ -10,7 +10,14 @@ gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 
-def smoke_test_cuda() -> None:
+    if(is_cuda_system)
+        import torch.nn as nn
+        device = torch.device("cuda:0")
+        rnn = nn.RNN(10, 20, 2).to(device)
+        inputs = torch.randn(5, 3, 10).to(device)
+        h0 = torch.randn(2, 3, 20).to(device)
+        output, hn = rnn(inputs, h0)
+
     if(not torch.cuda.is_available() and is_cuda_system):
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
     if(torch.cuda.is_available()):
