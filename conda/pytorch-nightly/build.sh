@@ -8,6 +8,7 @@ export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 export USE_LLVM="/opt/llvm_no_cxx11_abi"
 export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
+export PACKAGE_TYPE="conda"
 
 # set OPENSSL_ROOT_DIR=/opt/openssl if it exists
 if [[ -e /opt/openssl ]]; then
