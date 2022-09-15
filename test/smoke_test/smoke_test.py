@@ -18,6 +18,7 @@ def smoke_test_cuda() -> None:
             sys.exit(1)
         y=torch.randn([3,5]).cuda()
         print(f"torch cuda: {torch.version.cuda}")
+        printf(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
         #todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
 
