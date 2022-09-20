@@ -264,6 +264,7 @@ setup_link_flags () {
 }
 
 TEST_CODE_DIR="$(dirname ${BASH_SOURCE[0]})/test_example_code"
+echo ${TEST_CODE_DIR}
 build_and_run_example_cpp () {
   if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     GLIBCXX_USE_CXX11_ABI=1
