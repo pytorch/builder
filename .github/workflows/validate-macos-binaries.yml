@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/validate-macos-binaries.yml
+      - .test/smoke_test/*
 jobs:
   generate-arm64-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
