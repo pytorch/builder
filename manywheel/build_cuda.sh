@@ -250,7 +250,7 @@ elif [[ $CUDA_VERSION == "11.7" ]]; then
         "libgomp.so.1"
     )
 
-    if [[ "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" != *"cudnn"* ]]; then
+    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         echo "Bundling with cudnn and cublas."
         DEPS_LIST+=(
             "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
