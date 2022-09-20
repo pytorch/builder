@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      main
-      andysamfb
+      -main
+      -andysamfb
     paths:
       - .github/workflows/validate-linux-binaries.yml
   pull_request:
