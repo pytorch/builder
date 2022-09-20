@@ -6,9 +6,11 @@ on:
       main
     paths:
       - .github/workflows/validate-windows-binaries.yml
+      - .test/smoke_test/*
   pull_request:
     paths:
       - .github/workflows/validate-windows-binaries.yml
+      - .test/smoke_test/*
 jobs:
   generate-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
