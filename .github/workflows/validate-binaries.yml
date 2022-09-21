@@ -1,0 +1,60 @@
+name: Validate binaries
+
+# A reusable workflow that triggers a set of jobs that perform a smoke test / validation of pytorch binaries.
+# Optionally restricts validation to the specified OS and channel.
+# For the details about parameter values, see:
+#   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+# For an example of the `workflow_call` usage see:
+#   https://github.com/pytorch/builder/pull/1144
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system to generate for (linux, windows, macos, macos-arm64)"
+        required: true
+        type: string
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      os:
+        description: "Operating system to generate for (linux, windows, macos, macos-arm64)"
+        required: true
+        type: choice
+        default: all
+        options:
+          - windows
+          - linux
+          - macos
+          - all
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        default: all
+        options:
+          - release
+          - nightly
+          - test
+          - all
+
+jobs:
+  validate-windows-binaries:
+    if:  inputs.os == 'windows' || inputs.os == 'all'
+    uses: ./.github/workflows/validate-windows-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+
+  validate-linux-binaries:
+    if:  inputs.os == 'linux' || inputs.os == 'all'
+    uses: ./.github/workflows/validate-linux-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+
+  validate-mac-binaries:
+    if:  inputs.os == 'macos' || inputs.os == 'all'
+    uses: ./.github/workflows/validate-macos-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}

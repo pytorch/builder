@@ -1,0 +1,31 @@
+name: Validate nightly binaries (all OS)
+
+on:
+  schedule:
+    # At 2:30 pm UTC (7:30 am PDT)
+    - cron: "30 14 * * *"
+  # Have the ability to trigger this job manually through the API
+  workflow_dispatch:
+  push:
+    branches:
+      main
+    paths:
+      - .github/workflows/validate-nightly-binaries.yml
+      - .github/workflows/validate-linux-binaries.yml
+      - .github/workflows/validate-windows-binaries.yml
+      - .github/workflows/validate-macos-binaries.yml
+      - .test/smoke_test/*
+  pull_request:
+    paths:
+      - .github/workflows/validate-nightly-binaries.yml
+      - .github/workflows/validate-linux-binaries.yml
+      - .github/workflows/validate-windows-binaries.yml
+      - .github/workflows/validate-macos-binaries.yml
+      - .test/smoke_test/*
+
+jobs:
+  validate-nightly-binaries:
+    uses: ./.github/workflows/validate-binaries.yml
+    with:
+      channel: nightly
+      os: all

@@ -1,41 +1,55 @@
 name: Validate MacOS Binaries
 
 on:
-  pull_request:
-    paths:
-      - .github/workflows/validate-macos-binaries.yml
-      - .test/smoke_test/*
+  workflow_call:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+
 jobs:
-  generate-arm64-conda-matrix:
+  generate-macos-arm64-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
       os: macos-arm64
-      channel: nightly
-  generate-arm64-wheel-matrix:
+      channel: ${{ inputs.channel }}
+  generate-macos-arm64-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
       os: macos-arm64
-      channel: nightly
-  generate-x86_64-conda-matrix:
+      channel: ${{ inputs.channel }}
+  generate-macos-x86_64-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
       os: macos
-      channel: nightly
-  generate-x86_64-wheel-matrix:
+      channel: ${{ inputs.channel }}
+  generate-macos-x86_64-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
       os: macos
-      channel: nightly
+      channel: ${{ inputs.channel }}
 
   validate-macos-arm64-binaries-conda:
-    needs: generate-arm64-conda-matrix
+    needs: generate-macos-arm64-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-arm64-conda-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-macos-arm64-conda-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -48,10 +62,10 @@ jobs:
           python_version: ${{ matrix.python_version }}
           target_os: macos
   validate-macos-arm64-binaries-wheel:
-    needs: generate-arm64-wheel-matrix
+    needs: generate-macos-arm64-wheel-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-arm64-wheel-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-macos-arm64-wheel-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -64,10 +78,10 @@ jobs:
           python_version: ${{ matrix.python_version }}
           target_os: macos
   validate-macos-x86_64-binaries-conda:
-    needs: generate-x86_64-conda-matrix
+    needs: generate-macos-x86_64-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-x86_64-conda-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-macos-x86_64-conda-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -80,10 +94,10 @@ jobs:
           python_version: ${{ matrix.python_version }}
           target_os: macos
   validate-macos-x86_64-binaries-wheel:
-    needs: generate-x86_64-wheel-matrix
+    needs: generate-macos-x86_64-wheel-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-x86_64-wheel-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-macos-x86_64-wheel-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:

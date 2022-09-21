@@ -1,42 +1,49 @@
 name: Validate linux binaries
 
 on:
-  push:
-    branches:
-      main
-    paths:
-      - .github/workflows/validate-linux-binaries.yml
-      - .test/smoke_test/*
-  pull_request:
-    paths:
-      - .github/workflows/validate-linux-binaries.yml
-      - .test/smoke_test/*
+  workflow_call:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+
 jobs:
-  generate-conda-matrix:
+  generate-linux-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
       os: linux
-      channel: nightly
-  generate-wheel-matrix:
+      channel: ${{ inputs.channel }}
+  generate-linux-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
       os: linux
-      channel: nightly
-  generate-libtorch-matrix:
+      channel: ${{ inputs.channel }}
+  generate-linux-libtorch-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: libtorch
       os: linux
-      channel: nightly
-
+      channel: ${{ inputs.channel }}
 
   validate-linux-binaries-conda:
-    needs: generate-conda-matrix
+    needs: generate-linux-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-linux-conda-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -48,10 +55,10 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
   validate-linux-binaries-wheels:
-    needs: generate-wheel-matrix
+    needs: generate-linux-wheel-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-wheel-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-linux-wheel-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -63,10 +70,10 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
   validate-linux-libtorch-binaries:
-    needs: generate-libtorch-matrix
+    needs: generate-linux-libtorch-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-linux-libtorch-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: "ubuntu-20.04"
     env:
