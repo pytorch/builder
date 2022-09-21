@@ -11,25 +11,25 @@ jobs:
     with:
       package-type: conda
       os: macos-arm64
-      channel: all
+      channel: nightly
   generate-arm64-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
       os: macos-arm64
-      channel: all
+      channel: nightly
   generate-x86_64-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
-      os: macos-x86_64
-      channel: all
+      os: macos
+      channel: nightly
   generate-x86_64-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
-      os: macos-x86_64
-      channel: all
+      os: macos
+      channel: nightly
 
   validate-macos-arm64-binaries-conda:
     needs: generate-arm64-conda-matrix
