@@ -374,23 +374,6 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         $PATCHELF_BIN --print-rpath $sofile
     done
 
-    # add dependencies to METADATA
-    # set WHEEL_DEPENDENCIES to be a string in your wrapper script. e.g.: set the
-    # following in build_cuda.sh to get cuda dependencies.
-    #
-    # export WHEEL_DEPENDENCIES="Requires-Dist: nvidia-cublas-cu11\nRequires-Dist: nvidia-cuda-cupti-cu11"
-    #
-    # Notice that each dependency is prefixed 'Requires-Dist: ' and suffixed with a new line char.
-    # The last dependency in the string doesn't have the new line char.
-    # This formatting conforms to the METADATA file in a wheel.
-    if [[ -n "$WHEEL_DEPENDENCIES" ]]; then
-        metadata_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/METADATA/g')
-        if [[ -e $metadata_file ]]; then
-            echo "Adding dependencies to metadata file $metadata_file"
-            sed -i "/^Requires-Dist.*/a$WHEEL_DEPENDENCIES" $metadata_file
-        fi
-    fi
-
     # regenerate the RECORD file with new hashes
     record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
     if [[ -e $record_file ]]; then
