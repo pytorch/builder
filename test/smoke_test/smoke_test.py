@@ -23,8 +23,8 @@ def smoke_test_cuda() -> None:
     if(torch.ops.torchvision.__cuda__version() != gpu_arch_ver):
         raise RuntimeError(f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}")
     # check torchaudio's cuda version against system cuda version
-    if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio.__version__.split("+")
-        raise RuntimeError(f"Wrong CUDA version. Loaded: {torchaudio.__version__} Expected: {gpu_arch_ver}
+    if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio.__version__.split("+"):
+        raise RuntimeError(f"Wrong CUDA version. Loaded: {torchaudio.__version__} Expected: {gpu_arch_ver}")
 
 
 
