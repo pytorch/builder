@@ -1,0 +1,96 @@
+name: Validate MacOS Binaries
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-macos-binaries.yml
+jobs:
+  generate-arm64-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: macos-arm64
+      channel: all
+  generate-arm64-wheel-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: macos-arm64
+      channel: all
+  generate-x86_64-conda-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: conda
+      os: macos-x86_64
+      channel: all
+  generate-x86_64-wheel-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: macos-x86_64
+      channel: all
+
+  validate-macos-arm64-binaries-conda:
+    needs: generate-arm64-conda-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-arm64-conda-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Validate binary conda
+        uses: pytorch/builder/.github/actions/validate-binary@main
+        with:
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
+          target_os: macos
+  validate-macos-arm64-binaries-wheel:
+    needs: generate-arm64-wheel-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-arm64-wheel-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Validate binary wheel
+        uses: pytorch/builder/.github/actions/validate-binary@main
+        with:
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
+          target_os: macos
+  validate-macos-x86_64-binaries-conda:
+    needs: generate-x86_64-conda-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-x86_64-conda-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Validate binary conda
+        uses: pytorch/builder/.github/actions/validate-binary@main
+        with:
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
+          target_os: macos
+  validate-macos-x86_64-binaries-wheel:
+    needs: generate-x86_64-wheel-matrix
+    strategy:
+      matrix:
+        ${{ fromJson(needs.generate-x86_64-wheel-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ${{ matrix.validation_runner }}
+    steps:
+      - name: Validate binary wheel
+        uses: pytorch/builder/.github/actions/validate-binary@main
+        with:
+          gpu_arch_type: ${{ matrix.gpu_arch_type }}
+          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
+          installation: ${{ matrix.installation }}
+          python_version: ${{ matrix.python_version }}
+          target_os: macos

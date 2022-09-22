@@ -1,0 +1,57 @@
+name: 'validate-binary'
+description: 'Binary Conda or Wheel Validation for Linux and MacOS'
+inputs:
+  gpu_arch_type:
+    description: 'GPU arch type'
+    required: true
+    default: 'cpu'
+  gpu_arch_ver:
+    description: 'GPU arch version'
+    required: true
+    default: 'cpu'
+  installation:
+    description: 'Installation instructions'
+    required: true
+    default: ''
+  python_version:
+    description: 'Python version'
+    required: true
+    default: '3.9'
+  target_os:
+    description: 'Target OS linux or macos'
+    required: false
+    default: 'linux'
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout PyTorch builder
+      uses: actions/checkout@v2
+    - name: Check nvidia smi
+      if: ${{ inputs.gpu_arch_type == 'cuda' }}
+      shell: bash
+      run: |
+        nvidia-smi
+    - name: Install Conda Linux
+      if: ${{ inputs.target_os == 'linux' }}
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: ${{ inputs.python_version }}
+        auto-update-conda: true
+        miniconda-version: "latest"
+        activate-environment: testenv
+    - name: Install Conda MacOS
+      if: ${{ inputs.target_os == 'macos' }}
+      uses: pytorch/test-infra/.github/actions/setup-miniconda@main
+    - name: Install PyTorch and run tests
+      shell: bash
+      env:
+        GPU_ARCH_VER: ${{ inputs.gpu_arch_ver }}
+        GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
+        INSTALLATION: ${{ inputs.installation }}
+        ENV_NAME: conda-env-${{ github.run_id }}
+      run: |
+        set -ex
+        conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
+        conda run -p ${ENV_NAME} $INSTALLATION
+        conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+        conda env remove -p ${ENV_NAME}
