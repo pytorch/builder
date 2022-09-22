@@ -24,7 +24,7 @@ on:
       - .test/smoke_test/*
 
 jobs:
-  validate-nightly-binaries:
+  validate-release-binaries:
     uses: ./.github/workflows/validate-binaries.yml
     with:
       channel: release
