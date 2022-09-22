@@ -67,10 +67,11 @@ runs:
         PACKAGE_TYPE: ${{ inputs.package_type }}
       run: |
         set -ex
+        echo $PWD
         conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
         conda run -p ${ENV_NAME} $INSTALLATION
         # conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
         export LD_LIBRARY_PATH="$(dirname $(which python))/../lib"
-        # pushd /tmp
-        conda run -p ${ENV_NAME} bash /builder/check_binary.sh
+
+        conda run -p ${ENV_NAME} bash /home/runner/work/builder/builder/check_binary.sh
         conda env remove -p ${ENV_NAME}
