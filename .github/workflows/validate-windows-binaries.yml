@@ -75,7 +75,7 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
 
-  validate-linux-libtorch-binaries:
+  validate-windows-libtorch-binaries:
     needs: generate-windows-libtorch-matrix
     strategy:
       matrix:
