@@ -19,6 +19,14 @@ def smoke_test_cuda() -> None:
         print(f"torch cuda: {torch.version.cuda}")
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
+    # check torchvision's cuda version against system cuda version
+    if(torch.ops.torchvision.__cuda__version() != gpu_arch_ver):
+        raise RuntimeError(f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}")
+    # check torchaudio's cuda version against system cuda version
+    if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio.__version__.split("+")
+        raise RuntimeError(f"Wrong CUDA version. Loaded: {torchaudio.__version__} Expected: {gpu_arch_ver}
+
+
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
