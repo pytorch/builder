@@ -67,9 +67,9 @@ function build_cpython {
     check_var $py_ver
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
-    # Only beta version of 3.11 is available right now
+    # Only rc2 version of 3.11 is available right now
     if [ "$py_ver" = "3.11.0" ]; then
-        py_ver=$py_ver"b1"
+        py_ver=$py_ver"rc2"
     fi
     wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
     if [ $(lex_pyver $py_ver) -lt $(lex_pyver 3.3) ]; then
