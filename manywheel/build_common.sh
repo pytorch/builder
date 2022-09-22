@@ -357,8 +357,8 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         done
     fi
 
-    : "${C_SO_RPATH:='$ORIGIN:$ORIGIN/lib'}"
-    : "${LIB_SO_RPATH:='$ORIGIN'}"
+    : "${C_SO_RPATH:='\$ORIGIN:\$ORIGIN/lib'}"
+    : "${LIB_SO_RPATH:='\$ORIGIN'}"
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
