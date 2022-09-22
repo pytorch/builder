@@ -1,40 +1,49 @@
-name: Validate binary images
+name: Validate Windows binary images
 
 on:
-  push:
-    branches:
-      main
-    paths:
-      - .github/workflows/validate-windows-binaries.yml
-      - .test/smoke_test/*
-  pull_request:
-    paths:
-      - .github/workflows/validate-windows-binaries.yml
-      - .test/smoke_test/*
+  workflow_call:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+
 jobs:
-  generate-conda-matrix:
+  generate-windows-conda-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: conda
       os: windows
-      channel: nightly
-  generate-wheel-matrix:
+      channel: ${{ inputs.channel }}
+  generate-windows-wheel-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: wheel
       os: windows
-      channel: nightly
-  generate-libtorch-matrix:
+      channel: ${{ inputs.channel }}
+  generate-windows-libtorch-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: libtorch
       os: windows
-      channel: nightly
+      channel: ${{ inputs.channel }}
+
   validate-windows-binaries-conda:
-    needs: generate-conda-matrix
+    needs: generate-windows-conda-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-windows-conda-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -47,11 +56,12 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
+
   validate-windows-binaries-wheel:
-    needs: generate-wheel-matrix
+    needs: generate-windows-wheel-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-wheel-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-windows-wheel-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
@@ -64,11 +74,12 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
+
   validate-linux-libtorch-binaries:
-    needs: generate-libtorch-matrix
+    needs: generate-windows-libtorch-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-windows-libtorch-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: "windows-2019"
     env:
