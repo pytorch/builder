@@ -359,15 +359,15 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
-        $PATCHELF_BIN --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
+        echo "Setting rpath of $sofile to ${C_SO_RPATH:-'$ORIGIN:$ORIGIN/lib'}"
+        $PATCHELF_BIN --set-rpath ${C_SO_RPATH:-'$ORIGIN:$ORIGIN/lib'} $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 
     # set RPATH of lib/ files to $ORIGIN
     find $PREFIX/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN'
-        $PATCHELF_BIN --set-rpath '$ORIGIN' $sofile
+        echo "Setting rpath of $sofile to ${LIB_SO_RPATH:-'$ORIGIN'}"
+        $PATCHELF_BIN --set-rpath ${LIB_SO_RPATH:-'$ORIGIN'} $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 

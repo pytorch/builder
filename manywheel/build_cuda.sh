@@ -274,6 +274,15 @@ elif [[ $CUDA_VERSION == "11.7" ]]; then
             "libcublas.so.11"
             "libcublasLt.so.11"
         )
+    else
+        echo "Using cudnn and cublas from pypi."
+        CUDA_RPATHS=(
+            '$ORIGIN/../../nvidia/cublas/lib'
+            '$ORIGIN/../../nvidia/cudnn/lib'
+        )
+        CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
+        export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
+        export LIB_SO_RPATH=$CUDA_RPATHS':$ORIGIN'
     fi
 else
     echo "Unknown cuda version $CUDA_VERSION"
