@@ -54,6 +54,10 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
+          desired_cuda: ${{ matrix.desired_cuda }}
+          dev_toolset: ''
+          package_type: conda
+          target_os: linux
   validate-linux-binaries-wheels:
     needs: generate-linux-wheel-matrix
     strategy:
@@ -69,6 +73,10 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
+          desired_cuda: ${{ matrix.desired_cuda }}
+          dev_toolset: ''
+          package_type: wheel
+          target_os: linux
   validate-linux-libtorch-binaries:
     needs: generate-linux-libtorch-matrix
     strategy:
@@ -79,12 +87,31 @@ jobs:
     env:
       PYTHON_VERSION: ${{ matrix.python_version }}
     steps:
+      - name: Install Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: ${{ inputs.python_version }}
+          auto-update-conda: true
+          miniconda-version: "latest"
+          activate-environment: testenv
+
       - name: Install pytorch and smoke test
+        shell: bash
         env:
           INSTALLATION: ${{ matrix.installation }}
           ENV_NAME: conda-env-${{ github.run_id }}
+          DESIRED_PYTHON: ${{ matrix.python_version }}
+          DESIRED_CUDA: ${{ matrix.desired_cuda }}
+          DESIRED_DEVTOOLSET: ${{ matrix.devtoolset }}
+          PACKAGE_TYPE: libtorch
         run: |
           sudo apt-get install unzip -y
           set -ex
           curl ${INSTALLATION} -o libtorch.zip
           unzip libtorch.zip
+          conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
+          export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
+          export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
+          conda run -p ${ENV_NAME} python3 ./test/smoke_test/smoke_test.py
+          conda run -p ${ENV_NAME} --cwd libtorch env LD_LIBRARY_PATH=${LD_LIBRARY_PATH} bash ./../check_binary.sh
+          conda env remove -p ${ENV_NAME}
