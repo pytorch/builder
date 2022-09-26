@@ -1,6 +1,9 @@
 import os
 import sys
 import torch
+# the following import would invoke 
+# _check_cuda_version()
+# via torchvision.extension._check_cuda_version()
 import torchvision
 import torchaudio
 from pathlib import Path
@@ -9,6 +12,16 @@ gpu_arch_ver = os.getenv("GPU_ARCH_VER")
 gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
+
+# helper function to return the conda list output, e.g.
+# torchaudio                0.13.0.dev20220922      py39_cu102    pytorch-nightly
+def get_anaconda_output_for_package(pkg_name_str): 
+    import subprocess as sp
+    cmd = 'conda list ' + pkg_name_str + ' |grep ' + pkg_name_str
+    output = sp.getoutput(cmd)
+    return output
+
+
 
 def smoke_test_cuda() -> None:
     if(not torch.cuda.is_available() and is_cuda_system):
@@ -20,11 +33,17 @@ def smoke_test_cuda() -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
     # leverage torchvision's existing cuda check: raise runtime error if mismatch
-    torchvision.extension._check_cuda_version()
+
 
     # check torchaudio's cuda version against system cuda version
-    if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio.__version__.split("+"):
-        raise RuntimeError(f"Wrong CUDA version. Loaded: {torchaudio.__version__} Expected: {gpu_arch_ver}")
+    # torchaudio runtime does not retain cuda version
+    # relying solely on anaconda output
+    torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
+    print('cu' + str(gpu_arch_ver).replace(".", ""))
+    if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
+        import re
+        loaded_cuda_str = re.findall('cu\d+', torchaudio_allstr)[0]
+        raise RuntimeError(f"Wrong CUDA version. Loaded: {loaded_cuda_str} Expected: {gpu_arch_ver}")
 
 
 
@@ -103,11 +122,11 @@ def main() -> None:
     print(f"torchvision: {torchvision.__version__}")
     print(f"torchaudio: {torchaudio.__version__}")
     smoke_test_cuda()
-    smoke_test_conv2d()
-    smoke_test_torchaudio()
-    smoke_test_torchvision()
-    smoke_test_torchvision_read_decode()
-    smoke_test_torchvision_resnet50_classify()
+    #smoke_test_conv2d()
+    #smoke_test_torchaudio()
+    #smoke_test_torchvision()
+    #smoke_test_torchvision_read_decode()
+    #smoke_test_torchvision_resnet50_classify()
 
 if __name__ == "__main__":
     main()
