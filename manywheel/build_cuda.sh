@@ -283,6 +283,7 @@ elif [[ $CUDA_VERSION == "11.7" ]]; then
         CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
         export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
         export LIB_SO_RPATH=$CUDA_RPATHS':$ORIGIN'
+        export FORCE_RPATH="--force-rpath"
     fi
 else
     echo "Unknown cuda version $CUDA_VERSION"
