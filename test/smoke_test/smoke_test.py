@@ -62,19 +62,10 @@ def smoke_test_cuda() -> None:
         print(f"torch cuda: {torch.version.cuda}")
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
-    # leverage torchvision's existing cuda check: raise runtime error if mismatch
 
-
-    # check torchaudio's cuda version against system cuda version
-    # torchaudio runtime does not retain cuda version
-    # relying solely on anaconda output
-    torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
-    print('cu' + str(gpu_arch_ver).replace(".", ""))
-    if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
-        loaded_cuda_str = re.findall('cu\d+', torchaudio_allstr)[0]
-        raise RuntimeError(f"Wrong CUDA version. Loaded: {loaded_cuda_str} Expected: {gpu_arch_ver}")
-
-
+    # just print out cuda version, as version check were perform during import
+    print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
+    print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
