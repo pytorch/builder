@@ -63,9 +63,20 @@ def smoke_test_cuda() -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
 
-    # just print out cuda version, as version check were perform during import
-    print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
-    print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
+    
+    if installation_str.find('nightly') != -1:  
+        # just print out cuda version, as version check were perform during import
+        print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
+        print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
+    else:
+        # torchaudio runtime added the cuda verison check on 09/23/2022 via
+        # https://github.com/pytorch/audio/pull/2707
+        # so relying on anaconda output for pytorch-test and pytorch channel
+        torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
+        if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
+            raise RuntimeError(f"CUDA version mismatch. Loaded: {torchaudio_allstr.replace(" ", "")} Expected: {gpu_arch_ver}")
+ 
+ 
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
