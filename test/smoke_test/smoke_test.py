@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import torch
 # the following import would invoke 
@@ -10,6 +11,9 @@ from pathlib import Path
 
 gpu_arch_ver = os.getenv("GPU_ARCH_VER")
 gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
+# need installation env variable to tell nightly
+installation_str = os.getenv("INSTALLATION")
+print(installation_str)
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 
@@ -17,10 +21,36 @@ SCRIPT_DIR = Path(__file__).parent
 # torchaudio                0.13.0.dev20220922      py39_cu102    pytorch-nightly
 def get_anaconda_output_for_package(pkg_name_str): 
     import subprocess as sp
-    cmd = 'conda list ' + pkg_name_str + ' |grep ' + pkg_name_str
+
+    # ignore the header row: 
+    # Name                    Version                   Build  Channel
+    cmd = 'conda list -f ' + pkg_name_str + ' |tail -n 1 '
     output = sp.getoutput(cmd)
     return output
 
+# only makes sense to check nightly package where dates are known
+def check_nightly_binaries_date() -> None: 
+    torch_str = torch.__version__
+    ta_str = torchaudio.__version__
+    tv_str = torchvision.__version__
+
+    date_t_str = re.findall('dev\d+', torch.__version__ )
+    date_ta_str = re.findall('dev\d+', torchaudio.__version__ )
+    date_tv_str = re.findall('dev\d+', torchvision.__version__ )
+    
+    # check that the above three lists are equal and none of them is empty
+    if not date_t_str or not date_t_str == date_ta_str == date_tv_str:
+        raise RuntimeError(f"Expected torch, torchaudio, torchvision to be the same date. But they are from {date_t_str}, {date_ta_str}, {date_tv_str} respectively")
+
+    # check that the date is recent, at this point, date_torch_str is not empty
+    binary_date_str = date_t_str[0][3:]
+    from datetime import datetime
+
+    binary_date_obj = datetime.strptime(binary_date_str, '%Y%m%d').date()
+    today_obj = datetime.today().date()
+    delta = today_obj - binary_date_obj
+    if delta.days >= 2:
+        raise RuntimeError(f"the binaries are from {binary_date_obj} and are more than 2 days old!")
 
 
 def smoke_test_cuda() -> None:
@@ -41,7 +71,6 @@ def smoke_test_cuda() -> None:
     torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
     print('cu' + str(gpu_arch_ver).replace(".", ""))
     if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
-        import re
         loaded_cuda_str = re.findall('cu\d+', torchaudio_allstr)[0]
         raise RuntimeError(f"Wrong CUDA version. Loaded: {loaded_cuda_str} Expected: {gpu_arch_ver}")
 
@@ -121,6 +150,8 @@ def main() -> None:
     print(f"torch: {torch.__version__}")
     print(f"torchvision: {torchvision.__version__}")
     print(f"torchaudio: {torchaudio.__version__}")
+    if installation_str.find('nightly') != -1:  
+      check_nightly_binaries_date()
     smoke_test_cuda()
     #smoke_test_conv2d()
     #smoke_test_torchaudio()
