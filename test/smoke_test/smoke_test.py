@@ -73,7 +73,7 @@ def smoke_test_cuda() -> None:
         # https://github.com/pytorch/audio/pull/2707
         # so relying on anaconda output for pytorch-test and pytorch channel
         torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
-        if 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
+        if is_cuda_system and 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
             raise RuntimeError(f"CUDA version issue. Loaded: {torchaudio_allstr} Expected: {gpu_arch_ver}")
  
  
