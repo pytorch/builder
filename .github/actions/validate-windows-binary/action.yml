@@ -38,6 +38,7 @@ runs:
       env:
         GPU_ARCH_VER: ${{ inputs.gpu_arch_ver }}
         GPU_ARCH_TYPE: ${{ inputs.gpu_arch_type }}
+        INSTALLATION: ${{ inputs.installation }}
         CUDA_VER: ${{ inputs.desired_cuda }}
       run: |
         conda install numpy pillow python=${{ inputs.python_version }}
