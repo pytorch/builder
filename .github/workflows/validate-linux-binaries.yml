@@ -91,14 +91,14 @@ jobs:
     - name: Checkout PyTorch builder
       uses: actions/checkout@v2
     - name: Check nvidia smi
-      if: ${{ inputs.gpu_arch_type == 'cuda' }}
+      if: ${{ matrix.gpu_arch_type == 'cuda' }}
       shell: bash
       run: |
         nvidia-smi
     - name: Install Conda
       uses: conda-incubator/setup-miniconda@v2
       with:
-        python-version: ${{ inputs.python_version }}
+        python-version: ${{ matrix.python_version }}
         auto-update-conda: true
         miniconda-version: "latest"
         activate-environment: testenv
@@ -115,7 +115,7 @@ jobs:
         PACKAGE_TYPE: ${{ matrix.package_type }}
       run: |
         set -ex
-        conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
+        conda create -yp ${ENV_NAME} python=${DESIRED_PYTHON} numpy
         conda run -p ${ENV_NAME} sudo -E apt-get install unzip -y
         conda run -p ${ENV_NAME} curl ${INSTALLATION} -o libtorch.zip
         conda run -p ${ENV_NAME} unzip libtorch.zip
