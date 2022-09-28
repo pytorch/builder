@@ -65,7 +65,7 @@ def smoke_test_cuda() -> None:
 
     
     if installation_str.find('nightly') != -1:  
-        # just print out cuda version, as version check were perform during import
+        # just print out cuda version, as version check were already performed during import
         print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
         print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
     else:
@@ -152,9 +152,9 @@ def main() -> None:
     print(f"torch: {torch.__version__}")
     print(f"torchvision: {torchvision.__version__}")
     print(f"torchaudio: {torchaudio.__version__}")
+    smoke_test_cuda()
     if installation_str.find('nightly') != -1:  
       check_nightly_binaries_date()
-    smoke_test_cuda()
     #smoke_test_conv2d()
     #smoke_test_torchaudio()
     #smoke_test_torchvision()
