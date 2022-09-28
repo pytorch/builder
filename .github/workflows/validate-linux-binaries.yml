@@ -87,6 +87,7 @@ jobs:
     runs-on: ${{ matrix.validation_runner }}
     env:
       PYTHON_VERSION: ${{ matrix.python_version }}
+    steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Instlla Conda
