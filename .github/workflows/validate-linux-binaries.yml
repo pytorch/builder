@@ -119,6 +119,7 @@ jobs:
         conda run -p ${ENV_NAME} sudo -E apt-get install unzip -y
         conda run -p ${ENV_NAME} curl ${INSTALLATION} -o libtorch.zip
         conda run -p ${ENV_NAME} unzip libtorch.zip
+        conda run ls -l libtorch
         conda run -p ${ENV_NAME} --cwd libtorch python3  ./../test/smoke_test/smoke_test.py
         export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
