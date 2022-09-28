@@ -113,7 +113,7 @@ jobs:
           unzip libtorch.zip
           ls -l libtorch
           cd libtorch
-          python3 ./test/smoke_test/smoke_test.py
+          python3 ./../test/smoke_test/smoke_test.py
           cd ..
           conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
           conda run -p ${ENV_NAME} --cwd libtorch ls -l
