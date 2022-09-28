@@ -106,7 +106,6 @@ jobs:
           DESIRED_CUDA: ${{ matrix.desired_cuda }}
           DESIRED_DEVTOOLSET: ${{ matrix.devtoolset }}
           PACKAGE_TYPE: libtorch
-          LD_LIBRARY_PATH: /usr/local/cuda/lib
         run: |
           sudo apt-get install unzip -y
           set -ex
