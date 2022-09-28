@@ -111,7 +111,6 @@ jobs:
           unzip libtorch.zip
           conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
           conda run -p ${ENV_NAME} ls -l ./${ENV_NAME}
-          conda run -p ${ENV_NAME} --cwd libtorch python3  ./${ENV_NAME}/test/smoke_test/smoke_test.py
           export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
           export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
           conda run -p ${ENV_NAME} --cwd libtorch env LD_LIBRARY_PATH=${LD_LIBRARY_PATH} bash ./../check_binary.sh
