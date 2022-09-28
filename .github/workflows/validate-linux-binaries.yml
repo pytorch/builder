@@ -110,6 +110,7 @@ jobs:
           sudo apt-get install unzip -y
           set -ex
           curl ${INSTALLATION} -o libtorch.zip
+          ls -l
           unzip libtorch.zip
           conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
           export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
