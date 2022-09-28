@@ -77,11 +77,12 @@ jobs:
           dev_toolset: ''
           package_type: wheel
           target_os: linux
+
   validate-linux-libtorch-binaries:
     needs: generate-linux-libtorch-matrix
     strategy:
       matrix:
-        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
+        ${{ fromJson(needs.generate-linux-libtorch-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     env:
@@ -110,9 +111,9 @@ jobs:
           sudo apt-get install unzip -y
           set -ex
           curl ${INSTALLATION} -o libtorch.zip
-          ls -l
           unzip libtorch.zip
           conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
+          conda run -p ${ENV_NAME} --cwd libtorch python3 ./test/smoke_test/smoke_test.py
           export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
           export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
           conda run -p ${ENV_NAME} --cwd libtorch env LD_LIBRARY_PATH=${LD_LIBRARY_PATH} bash ./../check_binary.sh
