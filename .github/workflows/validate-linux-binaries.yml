@@ -37,7 +37,7 @@ jobs:
     with:
       package-type: libtorch
       os: linux
-      channel: ${{ inputs.channel }}
+      channel: nightly
 
   validate-linux-binaries-conda:
     needs: generate-linux-conda-matrix
