@@ -78,7 +78,7 @@ jobs:
           package_type: wheel
           target_os: linux
   validate-linux-libtorch-binaries:
-    needs: generate-libtorch-matrix
+    needs: generate-linux-libtorch-matrix
     strategy:
       matrix:
         ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
