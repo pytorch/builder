@@ -114,4 +114,4 @@ jobs:
           export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
           export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
           conda run -p ${ENV_NAME} --cwd libtorch env LD_LIBRARY_PATH=${LD_LIBRARY_PATH} bash ./../check_binary.sh
-        conda env remove -p ${ENV_NAME}
+          conda env remove -p ${ENV_NAME}
