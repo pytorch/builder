@@ -47,8 +47,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: .github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -66,8 +68,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: .github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -77,7 +81,6 @@ jobs:
           dev_toolset: ''
           package_type: wheel
           target_os: linux
-
   validate-linux-libtorch-binaries:
     needs: generate-linux-libtorch-matrix
     strategy:
