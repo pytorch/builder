@@ -133,6 +133,10 @@ COPY --from=libpng             /usr/local/include/libpng*            /usr/local/
 COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/lib/
 COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 
+ADD manywheel/utils/switch_python.sh  /opt/python/switch_python.sh
+ADD manywheel/utils/entrypoint.sh  /bin/entrypoint.sh
+ENTRYPOINT ["bash", "entrypoint.sh"]
+
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.1
 ARG DEVTOOLSET_VERSION=9
