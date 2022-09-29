@@ -50,7 +50,7 @@ jobs:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Validate binary conda
-        uses: .github/actions/validate-binary
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -71,7 +71,7 @@ jobs:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
       - name: Validate binary wheel
-        uses: .github/actions/validate-binary
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
