@@ -90,7 +90,7 @@ jobs:
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
-      - name: Instlla Conda
+      - name: Install Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python_version }}
