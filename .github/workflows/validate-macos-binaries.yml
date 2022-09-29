@@ -53,8 +53,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -63,6 +65,8 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: conda
           target_os: macos
+          desired_cuda: ${{ matrix.desired_cuda }}
+          package_type: conda
   validate-macos-arm64-binaries-wheel:
     needs: generate-macos-arm64-wheel-matrix
     strategy:
@@ -71,8 +75,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -81,6 +87,8 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: wheel
           target_os: macos
+          desired_cuda: ${{ matrix.desired_cuda }}
+          package_type: wheel
   validate-macos-x86_64-binaries-conda:
     needs: generate-macos-x86_64-conda-matrix
     strategy:
@@ -89,8 +97,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -99,6 +109,8 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: conda
           target_os: macos
+          desired_cuda: ${{ matrix.desired_cuda }}
+          package_type: conda
   validate-macos-x86_64-binaries-wheel:
     needs: generate-macos-x86_64-wheel-matrix
     strategy:
@@ -107,8 +119,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
@@ -117,3 +131,5 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: wheel
           target_os: macos
+          desired_cuda: ${{ matrix.desired_cuda }}
+          package_type: wheel
