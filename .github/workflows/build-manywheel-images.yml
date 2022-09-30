@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-docker-cuda:
-    runs-on: ubuntu-18.04
+    runs-on: linux.2xlarge
     strategy:
       matrix:
         cuda_version: ["11.7", "11.6", "11.5", "11.3", "10.2"]
@@ -44,7 +44,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-rocm:
-    runs-on: ubuntu-18.04
+    runs-on: linux.2xlarge
     strategy:
       matrix:
         rocm_version: ["5.1.1", "5.2"]
@@ -63,7 +63,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu:
-    runs-on: ubuntu-18.04
+    runs-on: linux.2xlarge
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v2
