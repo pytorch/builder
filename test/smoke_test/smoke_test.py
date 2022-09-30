@@ -24,9 +24,10 @@ def get_anaconda_output_for_package(pkg_name_str):
 
     # ignore the header row: 
     # Name                    Version                   Build  Channel
-    cmd = 'conda list -f ' + pkg_name_str + ' |tail -n 1 '
+    cmd = 'conda list -f ' + pkg_name_str 
     output = sp.getoutput(cmd)
-    return output
+    # Get the last line only
+    return output.strip().split('\n')[-1]
 
 # only makes sense to check nightly package where dates are known
 def check_nightly_binaries_date() -> None: 
