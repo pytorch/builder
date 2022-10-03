@@ -77,7 +77,6 @@ def smoke_test_torchvision_resnet50_classify() -> None:
     if(category_name != expected_category):
         raise RuntimeError(f"Failed ResNet50 classify {category_name} Expected: {expected_category}")
 
-
 def smoke_test_torchaudio() -> None:
     import torchaudio.compliance.kaldi  # noqa: F401
     import torchaudio.datasets  # noqa: F401
@@ -87,7 +86,6 @@ def smoke_test_torchaudio() -> None:
     import torchaudio.sox_effects  # noqa: F401
     import torchaudio.transforms  # noqa: F401
     import torchaudio.utils  # noqa: F401
-
 
 def main() -> None:
     #todo add torch, torchvision and torchaudio tests
