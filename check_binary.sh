@@ -330,13 +330,15 @@ echo "Uname: ${unamem}"
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
   build_and_run_example_cpp check-torch-mkl
-else if [[ "$(uname -m)" != "arm64" ]]; then
+elif [[ "$unamem" != "arm64" ]]; then
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     echo "Checking that MKL is available"
     pushd /tmp
     python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
     popd
   fi
+else
+  echo 'Not testing for MKL'
 fi
 
 ###############################################################################
