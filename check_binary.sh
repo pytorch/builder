@@ -325,6 +325,8 @@ fi
 # Check for MKL
 ###############################################################################
 
+unamem=$(uname -m)
+echo "Uname: ${unamem}"
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
   build_and_run_example_cpp check-torch-mkl
