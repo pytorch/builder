@@ -7,6 +7,13 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
+  pull_request:
+    paths:
+      - .github/workflows/validate-release-binaries.yml
+      - .github/workflows/validate-linux-binaries.yml
+      - .github/workflows/validate-windows-binaries.yml
+      - .github/workflows/validate-macos-binaries.yml
+      - .test/smoke_test/*
   workflow_dispatch:
     inputs:
       channel:
