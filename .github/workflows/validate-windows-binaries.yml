@@ -33,19 +33,6 @@ jobs:
       package-type: conda
       os: windows
       channel: ${{ inputs.channel }}
-  generate-windows-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: windows
-      channel: ${{ inputs.channel }}
-  generate-windows-libtorch-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: libtorch
-      os: windows
-      channel: ${{ inputs.channel }}
-
   validate-windows-binaries-conda:
     needs: generate-windows-conda-matrix
     strategy:
@@ -63,38 +50,3 @@ jobs:
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
-
-  validate-windows-binaries-wheel:
-    needs: generate-windows-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-windows-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Validate binary wheel
-        uses: ./.github/actions/validate-windows-binary
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-
-  validate-windows-libtorch-binaries:
-    needs: generate-windows-libtorch-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-windows-libtorch-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: "windows-2019"
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
-    steps:
-      - name: Install pytorch and smoke test
-        shell: powershell
-        run: |
-          $install = '${{ matrix.installation }}'
-          Invoke-WebRequest -Uri $install -OutFile 'libtorch.zip'
-          Expand-Archive -Force libtorch.zip .
