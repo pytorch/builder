@@ -2,7 +2,6 @@ import os
 import sys
 import torch
 import torchvision
-import torchaudio
 from pathlib import Path
 
 gpu_arch_ver = os.getenv("GPU_ARCH_VER")
@@ -78,25 +77,13 @@ def smoke_test_torchvision_resnet50_classify() -> None:
         raise RuntimeError(f"Failed ResNet50 classify {category_name} Expected: {expected_category}")
 
 
-def smoke_test_torchaudio() -> None:
-    import torchaudio.compliance.kaldi  # noqa: F401
-    import torchaudio.datasets  # noqa: F401
-    import torchaudio.functional  # noqa: F401
-    import torchaudio.models  # noqa: F401
-    import torchaudio.pipelines  # noqa: F401
-    import torchaudio.sox_effects  # noqa: F401
-    import torchaudio.transforms  # noqa: F401
-    import torchaudio.utils  # noqa: F401
-
 
 def main() -> None:
     #todo add torch, torchvision and torchaudio tests
     print(f"torch: {torch.__version__}")
     print(f"torchvision: {torchvision.__version__}")
-    print(f"torchaudio: {torchaudio.__version__}")
     smoke_test_cuda()
     smoke_test_conv2d()
-    smoke_test_torchaudio()
     smoke_test_torchvision()
     smoke_test_torchvision_read_decode()
     smoke_test_torchvision_resnet50_classify()
