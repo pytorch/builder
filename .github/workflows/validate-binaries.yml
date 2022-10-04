@@ -7,6 +7,13 @@ name: Validate binaries
 # For an example of the `workflow_call` usage see:
 #   https://github.com/pytorch/builder/pull/1144
 on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-release-binaries.yml
+      - .github/workflows/validate-linux-binaries.yml
+      - .github/workflows/validate-windows-binaries.yml
+      - .github/workflows/validate-macos-binaries.yml
+      - .test/smoke_test/*
   workflow_call:
     inputs:
       os:
