@@ -32,7 +32,7 @@ jobs:
     with:
       package-type: conda
       os: windows
-      channel: ${{ inputs.channel }}
+      channel: nightly
   validate-windows-binaries-conda:
     needs: generate-windows-conda-matrix
     strategy:
