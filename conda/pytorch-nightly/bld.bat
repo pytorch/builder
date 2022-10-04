@@ -117,8 +117,6 @@ if NOT "%build_with_cuda%" == "" (
     if exist "C:\Windows\System32\zlibwapi.dll" (
         copy "C:\Windows\System32\zlibwapi.dll"  %SP_DIR%\torch\lib
     )
-
-
 )
 
 exit /b 0
