@@ -156,11 +156,11 @@ def main() -> None:
     smoke_test_cuda()
     if installation_str.find('nightly') != -1:  
       check_nightly_binaries_date()
-    #smoke_test_conv2d()
-    #smoke_test_torchaudio()
-    #smoke_test_torchvision()
-    #smoke_test_torchvision_read_decode()
-    #smoke_test_torchvision_resnet50_classify()
+    smoke_test_conv2d()
+    smoke_test_torchaudio()
+    smoke_test_torchvision()
+    smoke_test_torchvision_read_decode()
+    smoke_test_torchvision_resnet50_classify()
 
 if __name__ == "__main__":
     main()
