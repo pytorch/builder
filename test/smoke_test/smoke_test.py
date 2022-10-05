@@ -63,6 +63,8 @@ def smoke_test_cuda() -> None:
         print(f"torch cuda: {torch.version.cuda}")
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
+        print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
+
 
     
     if installation_str.find('nightly') != -1:  
