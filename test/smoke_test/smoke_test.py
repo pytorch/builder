@@ -11,9 +11,8 @@ from pathlib import Path
 
 gpu_arch_ver = os.getenv("GPU_ARCH_VER")
 gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
-# need installation env variable to tell nightly
+# use installation env variable to tell if it is nightly channel
 installation_str = os.getenv("INSTALLATION")
-print(installation_str)
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 
@@ -29,7 +28,6 @@ def get_anaconda_output_for_package(pkg_name_str):
     # Get the last line only
     return output.strip().split('\n')[-1]
 
-# only makes sense to check nightly package where dates are known
 def check_nightly_binaries_date() -> None: 
     torch_str = torch.__version__
     ta_str = torchaudio.__version__
@@ -64,8 +62,6 @@ def smoke_test_cuda() -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
-
-
     
     if installation_str.find('nightly') != -1:  
         # just print out cuda version, as version check were already performed during import
@@ -78,8 +74,6 @@ def smoke_test_cuda() -> None:
         torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
         if is_cuda_system and 'cu'+str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr:
             raise RuntimeError(f"CUDA version issue. Loaded: {torchaudio_allstr} Expected: {gpu_arch_ver}")
- 
- 
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
@@ -156,8 +150,11 @@ def main() -> None:
     print(f"torchvision: {torchvision.__version__}")
     print(f"torchaudio: {torchaudio.__version__}")
     smoke_test_cuda()
+
+    # only makes sense to check nightly package where dates are known
     if installation_str.find('nightly') != -1:  
       check_nightly_binaries_date()
+
     smoke_test_conv2d()
     smoke_test_torchaudio()
     smoke_test_torchvision()
