@@ -1,4 +1,5 @@
-name: Validate release binaries (all OS)
+# Scheduled validation of the release binaries
+name: cron
 
 on:
   schedule:
@@ -8,7 +9,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      main
+      - main
     paths:
       - .github/workflows/validate-release-binaries.yml
       - .github/workflows/validate-linux-binaries.yml
@@ -24,7 +25,7 @@ on:
       - .test/smoke_test/*
 
 jobs:
-  validate-release-binaries:
+  release:
     uses: ./.github/workflows/validate-binaries.yml
     with:
       channel: release

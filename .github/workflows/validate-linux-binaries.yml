@@ -39,7 +39,7 @@ jobs:
       os: linux
       channel: ${{ inputs.channel }}
 
-  validate-linux-binaries-conda:
+  linux-conda:
     needs: generate-linux-conda-matrix
     strategy:
       matrix:
@@ -58,7 +58,8 @@ jobs:
           dev_toolset: ''
           package_type: conda
           target_os: linux
-  validate-linux-binaries-wheels:
+
+  linux-wheel:
     needs: generate-linux-wheel-matrix
     strategy:
       matrix:
@@ -78,7 +79,7 @@ jobs:
           package_type: wheel
           target_os: linux
 
-  validate-linux-libtorch-binaries:
+  linux-libt:
     needs: generate-linux-libtorch-matrix
     strategy:
       matrix:
