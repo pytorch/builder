@@ -45,7 +45,7 @@ jobs:
       os: macos
       channel: ${{ inputs.channel }}
 
-  validate-macos-arm64-binaries-conda:
+  mac-arm64-conda:
     needs: generate-macos-arm64-conda-matrix
     strategy:
       matrix:
@@ -63,7 +63,8 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: conda
           target_os: macos
-  validate-macos-arm64-binaries-wheel:
+
+  mac-arm64-wheel:
     needs: generate-macos-arm64-wheel-matrix
     strategy:
       matrix:
@@ -81,7 +82,8 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: wheel
           target_os: macos
-  validate-macos-x86_64-binaries-conda:
+
+  mac-x64-conda:
     needs: generate-macos-x86_64-conda-matrix
     strategy:
       matrix:
@@ -99,7 +101,8 @@ jobs:
           desired_cuda: ${{ matrix.desired_cuda }}
           package_type: conda
           target_os: macos
-  validate-macos-x86_64-binaries-wheel:
+
+  mac-x64-wheel:
     needs: generate-macos-x86_64-wheel-matrix
     strategy:
       matrix:

@@ -39,7 +39,7 @@ jobs:
       os: windows
       channel: ${{ inputs.channel }}
 
-  validate-windows-binaries-conda:
+  win-conda:
     needs: generate-windows-conda-matrix
     strategy:
       matrix:
@@ -57,7 +57,7 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
 
-  validate-windows-binaries-wheel:
+  win-wheel:
     needs: generate-windows-wheel-matrix
     strategy:
       matrix:
@@ -75,7 +75,7 @@ jobs:
           installation: ${{ matrix.installation }}
           python_version: ${{ matrix.python_version }}
 
-  validate-windows-libtorch-binaries:
+  win-libt:
     needs: generate-windows-libtorch-matrix
     strategy:
       matrix:
