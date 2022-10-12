@@ -23,14 +23,19 @@ SCRIPT_DIR = Path(__file__).parent
 def get_anaconda_output_for_package(pkg_name_str):
     import subprocess as sp
 
-    cmd = "conda list --explicit"
-    output = sp.getoutput(cmd)
-    for item in output.split("\n"):
-        if pkg_name_str in item:
-            return item
-
-    # Get the last line only
-    return f"{pkg_name_str} can't be found"
+    # If we are installing using conda just list package name
+    if installation_str.find("conda install") != -1:
+        cmd = "conda list --explicit"
+        output = sp.getoutput(cmd)
+        for item in output.split("\n"):
+            if pkg_name_str in item:
+                return item
+        return f"{pkg_name_str} can't be found"
+    else:
+        cmd = "conda list -f " + pkg_name_str
+        output = sp.getoutput(cmd)
+        # Get the last line only
+        return output.strip().split('\n')[-1]
 
 
 def check_nightly_binaries_date() -> None:
