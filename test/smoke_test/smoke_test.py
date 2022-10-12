@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import torch
-# the following import would invoke 
+# the following import would invoke
 # _check_cuda_version()
 # via torchvision.extension._check_cuda_version()
 import torchvision
@@ -16,19 +16,21 @@ installation_str = os.getenv("INSTALLATION")
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 
-# helper function to return the conda list output, e.g.
-# torchaudio                0.13.0.dev20220922      py39_cu102    pytorch-nightly
-def get_anaconda_output_for_package(pkg_name_str): 
+# helper function to return the conda installed packages
+# and return  package we are insterseted in
+def get_anaconda_output_for_package(pkg_name_str):
     import subprocess as sp
 
-    # ignore the header row: 
-    # Name                    Version                   Build  Channel
-    cmd = 'conda list -f ' + pkg_name_str 
+    cmd = 'conda list --explicit'
     output = sp.getoutput(cmd)
-    # Get the last line only
-    return output.strip().split('\n')[-1]
+    for item in output.split("\n"):
+        if pkg_name_str in item:
+            return item;
 
-def check_nightly_binaries_date() -> None: 
+    # Get the last line only
+    return f"{pkg_name_str} can't be found"
+
+def check_nightly_binaries_date() -> None:
     torch_str = torch.__version__
     ta_str = torchaudio.__version__
     tv_str = torchvision.__version__
@@ -36,7 +38,7 @@ def check_nightly_binaries_date() -> None:
     date_t_str = re.findall('dev\d+', torch.__version__ )
     date_ta_str = re.findall('dev\d+', torchaudio.__version__ )
     date_tv_str = re.findall('dev\d+', torchvision.__version__ )
-    
+
     # check that the above three lists are equal and none of them is empty
     if not date_t_str or not date_t_str == date_ta_str == date_tv_str:
         raise RuntimeError(f"Expected torch, torchaudio, torchvision to be the same date. But they are from {date_t_str}, {date_ta_str}, {date_tv_str} respectively")
@@ -62,8 +64,8 @@ def smoke_test_cuda() -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
-    
-    if installation_str.find('nightly') != -1:  
+
+    if installation_str.find('nightly') != -1:
         # just print out cuda version, as version check were already performed during import
         print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
         print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
@@ -152,7 +154,7 @@ def main() -> None:
     smoke_test_cuda()
 
     # only makes sense to check nightly package where dates are known
-    if installation_str.find('nightly') != -1:  
+    if installation_str.find('nightly') != -1:
       check_nightly_binaries_date()
 
     smoke_test_conv2d()
