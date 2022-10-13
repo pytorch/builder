@@ -195,6 +195,8 @@ def main() -> None:
     smoke_test_torchvision()
     smoke_test_torchvision_read_decode()
     smoke_test_torchvision_resnet50_classify()
+    if torch.cuda.is_available():
+        smoke_test_torchvision_resnet50_classify("cuda")
 
 
 if __name__ == "__main__":
