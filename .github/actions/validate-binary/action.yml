@@ -44,7 +44,7 @@ runs:
       run: |
         nvidia-smi
     - name: Install Conda Linux
-      if: ${{ inputs.target_os == 'linux' }}
+      if: ${{ inputs.target_os == 'linux' && inputs.python_version != '3.11' }}
       uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ inputs.python_version }}
@@ -66,16 +66,29 @@ runs:
         DESIRED_DEVTOOLSET: ${{ inputs.dev_toolset }}
         PACKAGE_TYPE: ${{ inputs.package_type }}
       run: |
-        set -ex
-        conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
-        conda run -p ${ENV_NAME} $INSTALLATION
-        if [ $DESIRED_PYTHON == "3.11" ]; then
-          conda run -p ${ENV_NAME} python3 --package torchonly ./test/smoke_test/smoke_test.py
-        else
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
-        fi
 
-        export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
-        conda run -p ${ENV_NAME} env LD_LIBRARY_PATH=$LD_LIBRARY_PATH bash ${PWD}/check_binary.sh
-        conda env remove -p ${ENV_NAME}
+        if [ $DESIRED_PYTHON == '3.11' ]; then
+          set -ex
+          export CPYTHON_VERSIONS=3.11.0
+          sudo apt-get install build-essential gdb lcov libbz2-dev libffi-dev \
+          libgdbm-dev liblzma-dev libncurses5-dev libreadline6-dev \
+          libsqlite3-dev libssl-dev lzma lzma-dev tk-dev uuid-dev zlib1g zlib1g-dev -y
+
+          export PYTHON_PATH="/opt/_internal/cpython-3.11.0rc2/bin/"
+          export PIP_PATH="${PYTHON_PATH}/pip"
+          export PIP_INSTALLATION="${INSTALLATION/pip3/"$PIP_PATH"}"
+          ./common/install_cpython.sh
+
+          eval ${PYTHON_PATH}/python --version
+          eval ${PIP_INSTALLATION}
+          eval ${PYTHON_PATH}/python ./test/smoke_test/smoke_test.py --package torchonly
+        else
+          set -ex
+          conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
+          conda run -p ${ENV_NAME} $INSTALLATION
+          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+          export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
+          export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
+          conda run -p ${ENV_NAME} env LD_LIBRARY_PATH=$LD_LIBRARY_PATH bash ${PWD}/check_binary.sh
+          conda env remove -p ${ENV_NAME}
+        fi

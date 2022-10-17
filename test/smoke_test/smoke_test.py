@@ -5,14 +5,13 @@ from pathlib import Path
 import argparse
 import torch
 
-
-
 gpu_arch_ver = os.getenv("GPU_ARCH_VER")
 gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
 # use installation env variable to tell if it is nightly channel
 installation_str = os.getenv("INSTALLATION")
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
+NIGHTLY_ALLOWED_DELTA = 3
 
 # helper function to return the conda installed packages
 # and return  package we are insterseted in
@@ -35,32 +34,31 @@ def get_anaconda_output_for_package(pkg_name_str):
 
 
 def check_nightly_binaries_date(package: str) -> None:
+    from datetime import datetime, timedelta
+    format_dt = '%Y%m%d'
+
     torch_str = torch.__version__
     date_t_str = re.findall("dev\d+", torch.__version__)
+    date_t_delta = datetime.now() - datetime.strptime(date_t_str.lstrip("dev"), format_dt)
+    if date_t_delta.days >= NIGHTLY_ALLOWED_DELTA:
+        raise RuntimeError(
+            f"the binaries are from {date_t_str} and are more than {NIGHTLY_ALLOWED_DELTA} days old!"
+        )
 
     if(package == "all"):
         ta_str = torchaudio.__version__
         tv_str = torchvision.__version__
         date_ta_str = re.findall("dev\d+", torchaudio.__version__)
         date_tv_str = re.findall("dev\d+", torchvision.__version__)
+        date_ta_delta = datetime.now() - datetime.strptime(date_ta_str.lstrip("dev"), format_dt)
+        date_tv_delta = datetime.now() - datetime.strptime(date_tv_str.lstrip("dev"), format_dt)
 
         # check that the above three lists are equal and none of them is empty
-        if not date_t_str or not date_t_str == date_ta_str == date_tv_str:
+        if date_ta_delta.days > NIGHTLY_ALLOWED_DELTA or date_tv_delta.days > NIGHTLY_ALLOWED_DELTA:
             raise RuntimeError(
-                f"Expected torch, torchaudio, torchvision to be the same date. But they are from {date_t_str}, {date_ta_str}, {date_tv_str} respectively"
+                f"Expected torchaudio, torchvision to be less then {NIGHTLY_ALLOWED_DELTA} days. But they are from {date_ta_str}, {date_tv_str} respectively"
             )
 
-    # check that the date is recent, at this point, date_torch_str is not empty
-    binary_date_str = date_t_str[0][3:]
-    from datetime import datetime
-
-    binary_date_obj = datetime.strptime(binary_date_str, "%Y%m%d").date()
-    today_obj = datetime.today().date()
-    delta = today_obj - binary_date_obj
-    if delta.days >= 2:
-        raise RuntimeError(
-            f"the binaries are from {binary_date_obj} and are more than 2 days old!"
-        )
 
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
@@ -76,6 +74,8 @@ def smoke_test_cuda(package: str) -> None:
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
     if(package == 'all'):
+        import torchaudio
+        import torchvision
         if installation_str.find("nightly") != -1:
             # just print out cuda version, as version check were already performed during import
             print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
@@ -165,6 +165,7 @@ def smoke_test_torchvision_resnet50_classify(device: str = "cpu") -> None:
 
 
 def smoke_test_torchaudio() -> None:
+    import torchaudio
     import torchaudio.compliance.kaldi  # noqa: F401
     import torchaudio.datasets  # noqa: F401
     import torchaudio.functional  # noqa: F401
@@ -184,20 +185,18 @@ def main() -> None:
         choices=["all", "torchonly"],
         default="all",
     )
-
+    options = parser.parse_args()
     print(f"torch: {torch.__version__}")
+
     smoke_test_cuda(options.package)
     smoke_test_conv2d()
 
     # only makes sense to check nightly package where dates are known
     if installation_str.find("nightly") != -1:
-        check_nightly_binaries_date()
+        check_nightly_binaries_date(options.package)
 
     if options.package == "all":
         import torchaudio
-        # the following import would invoke
-        # _check_cuda_version()
-        # via torchvision.extension._check_cuda_version()
         import torchvision
         print(f"torchvision: {torchvision.__version__}")
         print(f"torchaudio: {torchaudio.__version__}")
