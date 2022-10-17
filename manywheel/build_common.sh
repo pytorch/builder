@@ -162,11 +162,23 @@ else
     echo "BUILD_DEBUG_INFO was not set, skipping debug info"
 fi
 
+if [[ "$DISABLE_RCCL" = 1 ]]; then
+    echo "Disabling NCCL/RCCL in pyTorch"
+    USE_RCCL=0
+    USE_NCCL=0
+    USE_KINETO=0
+else
+    USE_RCCL=1
+    USE_NCCL=1
+    USE_KINETO=1
+fi
+
 echo "Calling setup.py bdist at $(date)"
 time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-     EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-     BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
-     python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
+    EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+    BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
+    USE_NCCL=${USE_NCCL} USE_RCCL=${USE_RCCL} USE_KINETO=${USE_KINETO} \
+    python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
 echo "Finished setup.py bdist at $(date)"
 
 # Build libtorch packages
