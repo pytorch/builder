@@ -29,6 +29,7 @@ for whl_file in "$@"; do
     )
     version_with_suffix=$(grep '^Version:' "${whl_dir}"/*/METADATA | cut -d' ' -f2)
     version_with_suffix_escaped=${version_with_suffix/+/%2B}
+
     # Remove all suffixed +bleh versions
     version_no_suffix=${version_with_suffix/+*/}
     new_whl_file=${OUTPUT_DIR}/$(basename "${whl_file/${version_with_suffix_escaped}/${version_no_suffix}}")
@@ -37,6 +38,12 @@ for whl_file in "$@"; do
     dirname_dist_info_folder=$(dirname "${dist_info_folder}")
     (
         set -x
+
+        # Special build with pypi cudnn remove it from version
+        if [[ $whl_file == *"with-pypi-cudnn"* ]]; then
+            sed -i -e "s/-with-pypi-cudnn//g" ./torch/version.py
+        fi
+
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
         # Moves distinfo from one with a version suffix to one without
         # Example: torch-1.8.0+cpu.dist-info => torch-1.8.0.dist-info
