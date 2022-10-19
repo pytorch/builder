@@ -46,6 +46,8 @@ def check_nightly_binaries_date(package: str) -> None:
         )
 
     if(package == "all"):
+        import torchaudio
+        import torchvision
         ta_str = torchaudio.__version__
         tv_str = torchvision.__version__
         date_ta_str = re.findall("dev\d+", torchaudio.__version__)
