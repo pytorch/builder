@@ -39,7 +39,7 @@ def check_nightly_binaries_date(package: str) -> None:
 
     torch_str = torch.__version__
     date_t_str = re.findall("dev\d+", torch.__version__)
-    date_t_delta = datetime.now() - datetime.strptime(date_t_str.lstrip("dev"), format_dt)
+    date_t_delta = datetime.now() - datetime.strptime(date_t_str[0][3:], format_dt)
     if date_t_delta.days >= NIGHTLY_ALLOWED_DELTA:
         raise RuntimeError(
             f"the binaries are from {date_t_str} and are more than {NIGHTLY_ALLOWED_DELTA} days old!"
@@ -50,8 +50,8 @@ def check_nightly_binaries_date(package: str) -> None:
         tv_str = torchvision.__version__
         date_ta_str = re.findall("dev\d+", torchaudio.__version__)
         date_tv_str = re.findall("dev\d+", torchvision.__version__)
-        date_ta_delta = datetime.now() - datetime.strptime(date_ta_str.lstrip("dev"), format_dt)
-        date_tv_delta = datetime.now() - datetime.strptime(date_tv_str.lstrip("dev"), format_dt)
+        date_ta_delta = datetime.now() - datetime.strptime(date_ta_str[0][3:], format_dt)
+        date_tv_delta = datetime.now() - datetime.strptime(date_tv_str[0][3:], format_dt)
 
         # check that the above three lists are equal and none of them is empty
         if date_ta_delta.days > NIGHTLY_ALLOWED_DELTA or date_tv_delta.days > NIGHTLY_ALLOWED_DELTA:
