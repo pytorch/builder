@@ -86,7 +86,7 @@ runs:
           set -ex
           conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
 
-          if [ $TARGET_OS == 'linux' && $DESIRED_CUDA == '11.6' ]; then
+          if [ $TARGET_OS == 'linux' && $DESIRED_CUDA == 'cu116' ]; then
             conda run -p ${ENV_NAME} conda install pytorch pytorch-cuda=11.6 -c pytorch -c nvidia
             conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py --package torchonly
           else
