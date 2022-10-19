@@ -32,6 +32,7 @@ jobs:
       package-type: wheel
       os: linux
       channel: ${{ inputs.channel }}
+      with-py311: enable
   generate-linux-libtorch-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
@@ -67,8 +68,10 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.validation_runner }}
     steps:
+      - name: Checkout PyTorch builder
+        uses: actions/checkout@v2
       - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
+        uses: ./.github/actions/validate-binary
         with:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
