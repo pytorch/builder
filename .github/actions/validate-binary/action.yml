@@ -65,6 +65,7 @@ runs:
         DESIRED_CUDA: ${{ inputs.desired_cuda }}
         DESIRED_DEVTOOLSET: ${{ inputs.dev_toolset }}
         PACKAGE_TYPE: ${{ inputs.package_type }}
+        TARGET_OS: ${{ inputs.target_os }}
       run: |
 
         if [ $DESIRED_PYTHON == '3.11' ]; then
@@ -74,7 +75,6 @@ runs:
           libgdbm-dev liblzma-dev libncurses5-dev libreadline6-dev \
           libsqlite3-dev libssl-dev lzma lzma-dev tk-dev uuid-dev zlib1g zlib1g-dev -y
 
-          export PYTHON_PATH="/opt/_internal/cpython-3.11.0rc2/bin/"
           export PIP_PATH="${PYTHON_PATH}/pip"
           export PIP_INSTALLATION="${INSTALLATION/pip3/"$PIP_PATH"}"
           ./common/install_cpython.sh
@@ -85,10 +85,18 @@ runs:
         else
           set -ex
           conda create -yp ${ENV_NAME} python=${{ inputs.python_version }} numpy
-          conda run -p ${ENV_NAME} $INSTALLATION
-          conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
-          export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
-          export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
-          conda run -p ${ENV_NAME} env LD_LIBRARY_PATH=$LD_LIBRARY_PATH bash ${PWD}/check_binary.sh
-          conda env remove -p ${ENV_NAME}
+
+          if [ $TARGET_OS == 'linux' && $DESIRED_CUDA == '11.6' ]; then
+            conda run -p ${ENV_NAME} conda install pytorch pytorch-cuda=11.6 -c pytorch -c nvidia
+            conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py --package torchonly
+          else
+            conda run -p ${ENV_NAME} $INSTALLATION
+            conda run -p ${ENV_NAME} python3  ./test/smoke_test/smoke_test.py
+            export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
+            export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
+            conda run -p ${ENV_NAME} env LD_LIBRARY_PATH=$LD_LIBRARY_PATH bash ${PWD}/check_binary.sh
+            conda env remove -p ${ENV_NAME}
+          fi
+
+
         fi
