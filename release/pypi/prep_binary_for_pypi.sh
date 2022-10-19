@@ -40,8 +40,8 @@ for whl_file in "$@"; do
         set -x
 
         # Special build with pypi cudnn remove it from version
-        if [[ $whl_file == *"with-pypi-cudnn"* ]]; then
-            sed -i -e "s/-with-pypi-cudnn//g" ./torch/version.py
+        if [[ $whl_file == *"with.pypi.cudnn"* ]]; then
+            sed -i -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
         fi
 
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
