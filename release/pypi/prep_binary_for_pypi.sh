@@ -12,6 +12,19 @@
 set -eou pipefail
 shopt -s globstar
 
+# Function copied from manywheel/build_common.sh
+make_wheel_record() {
+    FPATH=$1
+    if echo $FPATH | grep RECORD >/dev/null 2>&1; then
+        # if the RECORD file, then
+        echo "$FPATH,,"
+    else
+        HASH=$(openssl dgst -sha256 -binary $FPATH | openssl base64 | sed -e 's/+/-/g' | sed -e 's/\//_/g' | sed -e 's/=//g')
+        FSIZE=$(ls -nl $FPATH | awk '{print $5}')
+        echo "$FPATH,sha256=$HASH,$FSIZE"
+    fi
+}
+
 OUTPUT_DIR=${OUTPUT_DIR:-$(pwd)}
 
 tmp_dir="$(mktemp -d)"
@@ -49,6 +62,19 @@ for whl_file in "$@"; do
         # Example: torch-1.8.0+cpu.dist-info => torch-1.8.0.dist-info
         mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}"
         cd "${whl_dir}"
+
+        # copied from manywheel/build_common.sh
+        # regenerate the RECORD file with new hashes
+        record_file="${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}/RECORD"
+        if [[ -e $record_file ]]; then
+            echo "Generating new record file $record_file"
+            rm -f $record_file
+            # generate records for folders in wheel
+            find * -type f | while read fname; do
+                echo $(make_wheel_record $fname) >>$record_file
+            done
+        fi
+
         zip -qr "${new_whl_file}" .
     )
 done
