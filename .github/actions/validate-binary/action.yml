@@ -93,10 +93,10 @@ runs:
           set -ex
 
           # Special case Pypi installation instructions
-          if [ ! -z ${INSTALLATION_PYPI} ]; then
+          if [ ! -z "${INSTALLATION_PYPI}" ]; then
             conda create -yp ${ENV_NAME}_pypi python=${{ inputs.python_version }} numpy
             conda run -p ${ENV_NAME}_pypi $INSTALLATION_PYPI
-            conda run -p ${ENV_NAME}_pypi python3  ./test/smoke_test/smoke_test.py --package torchonly
+            conda run -p ${ENV_NAME}_pypi python3 ./test/smoke_test/smoke_test.py --package torchonly
             conda env remove -p ${ENV_NAME}_pypi
           fi
 
