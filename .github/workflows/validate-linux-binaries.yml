@@ -76,6 +76,7 @@ jobs:
           gpu_arch_type: ${{ matrix.gpu_arch_type }}
           gpu_arch_ver: ${{ matrix.gpu_arch_version }}
           installation: ${{ matrix.installation }}
+          installation_pypi: ${{ matrix.installation_pypi }}
           python_version: ${{ matrix.python_version }}
           desired_cuda: ${{ matrix.desired_cuda }}
           dev_toolset: ''
