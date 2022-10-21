@@ -150,6 +150,12 @@ RUN yum install -y cmake3 && \
 RUN yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
 RUN yum install -y ninja-build
 
+# Install compiler cache (do this last, so we get priority in PATH)
+COPY ./common/install_cache.sh install_cache.sh
+ENV PATH /opt/cache/bin:$PATH
+RUN bash ./install_cache.sh && rm install_cache.sh
+ENV CMAKE_CUDA_COMPILER_LAUNCHER=/opt/cache/bin/sccache
+
 FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
@@ -177,5 +183,5 @@ RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
 # Install compiler cache (do this last, so we get priority in PATH)
 COPY ./common/install_cache.sh install_cache.sh
 ENV PATH /opt/cache/bin:$PATH
-RUN bash ./install_cache.sh && rm install_cache.sh
+RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_cache.sh && rm install_cache.sh
 ENV CMAKE_CUDA_COMPILER_LAUNCHER=/opt/cache/bin/sccache
