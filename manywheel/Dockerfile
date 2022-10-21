@@ -173,3 +173,9 @@ RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 ADD ./common/install_miopen.sh install_miopen.sh
 RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
+
+# Install compiler cache (do this last, so we get priority in PATH)
+COPY ./common/install_cache.sh install_cache.sh
+ENV PATH /opt/cache/bin:$PATH
+RUN bash ./install_cache.sh && rm install_cache.sh
+ENV CMAKE_CUDA_COMPILER_LAUNCHER=/opt/cache/bin/sccache
