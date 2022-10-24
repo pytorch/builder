@@ -37,10 +37,9 @@ jobs:
         uses: actions/checkout@v2
       - name: Authenticate if WITH_PUSH
         run: |
-          # DEBUG with new cuda images
-          #if [[ "${WITH_PUSH}" == true ]]; then
-          echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
-          # fi
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
