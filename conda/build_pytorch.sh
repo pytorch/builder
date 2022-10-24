@@ -106,7 +106,7 @@ if [[ -z "$DESIRED_PYTHON" ]]; then
     fi
 fi
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    DEVELOPER_DIR=/Applications/Xcode9.app/Contents/Developer
+    DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
 fi
 if [[ "$desired_cuda" == 'cpu' ]]; then
     cpu_only=1
