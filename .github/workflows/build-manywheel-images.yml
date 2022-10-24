@@ -3,7 +3,8 @@ name: Build manywheel docker images
 on:
   push:
     branches:
-      main
+      - main
+      - add-sccache-support
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
