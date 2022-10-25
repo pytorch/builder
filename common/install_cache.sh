@@ -22,11 +22,11 @@ install_ubuntu() {
 }
 
 install_centos() {
-  # Install sccache from PyTorch fork to get the version that supports NVCC
+  # Install sccache from source get the version that supports NVCC
   echo "Preparing to build sccache from source"
   yum install -y cargo openssl-devel
   echo "Checking out sccache repo"
-  git clone https://github.com/pytorch/sccache
+  git clone https://github.com/mozilla/sccache
   cd sccache
   echo "Building sccache"
   cargo build --release
