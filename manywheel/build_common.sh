@@ -49,12 +49,14 @@ if [[ -n "$SCCACHE_BUCKET" ]] && which sccache > /dev/null; then
     trap_add sccache_epilogue EXIT
 else
     # Not using sscache if it's not setup properly
-    sudo rm -f /opt/cache/bin/cc
-    sudo rm -f /opt/cache/bin/c++
-    sudo rm -f /opt/cache/bin/clang
-    sudo rm -f /opt/cache/bin/clang++
-    sudo rm -f /opt/cache/bin/gcc
-    sudo rm -f /opt/cache/bin/g++
+    rm -f /opt/cache/bin/cc
+    rm -f /opt/cache/bin/c++
+    rm -f /opt/cache/bin/clang
+    rm -f /opt/cache/bin/clang++
+    rm -f /opt/cache/bin/gcc
+    rm -f /opt/cache/bin/g++
+
+    unset CMAKE_CUDA_COMPILER_LAUNCHER
 fi
 
 # Require only one python installation
