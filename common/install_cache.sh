@@ -26,6 +26,8 @@ install_centos() {
   echo "Preparing to build sccache from source"
   yum install -y cargo openssl-devel
   echo "Checking out sccache repo"
+  # TODO: https://github.com/pytorch/sccache is very outdated, so let's take
+  # a note here to update it later with the latest code from upstream
   git clone https://github.com/mozilla/sccache
   cd sccache
   echo "Building sccache"
