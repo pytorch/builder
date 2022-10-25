@@ -54,7 +54,7 @@ jobs:
         run: |
           conda install -y conda-build anaconda-client
       - name: Push MAGMA to anaconda
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         run: |
           anaconda --token $ANACONDA_TOKEN upload -u pytorch --force magma/output/linux-64/magma-cuda*.bz2
         env:

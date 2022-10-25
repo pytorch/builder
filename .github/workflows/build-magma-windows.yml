@@ -36,7 +36,7 @@ jobs:
         with:
           path: magma_*_cuda*_*.7z
   push-windows-magma:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment: magma
     runs-on: ubuntu-18.04
     needs: build-windows-magma
