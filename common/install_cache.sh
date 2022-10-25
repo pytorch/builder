@@ -21,6 +21,22 @@ install_ubuntu() {
   apt-get autoclean && apt-get clean
 }
 
+install_centos() {
+  # Install sccache from PyTorch fork to get the version that supports NVCC
+  echo "Preparing to build sccache from source"
+  yum install -y cargo openssl-devel
+  echo "Checking out sccache repo"
+  git clone https://github.com/pytorch/sccache
+  cd sccache
+  echo "Building sccache"
+  cargo build --release
+  cp target/release/sccache /opt/cache/bin
+  echo "Cleaning up"
+  cd ..
+  rm -rf sccache
+  yum remove -y cargo rustc
+}
+
 install_binary() {
   echo "Downloading sccache binary from S3 repo"
   curl --retry 3 https://s3.amazonaws.com/ossci-linux/sccache -o /opt/cache/bin/sccache
@@ -39,6 +55,9 @@ else
   case "$ID" in
     ubuntu)
       install_ubuntu
+      ;;
+    centos)
+      install_centos
       ;;
     *)
       install_binary
