@@ -9,6 +9,8 @@ install_ubuntu() {
   # Instead use lib and headers from OpenSSL1.1 installed in `install_openssl.sh``
   apt-get install -y cargo
   echo "Checking out sccache repo"
+  # TODO: https://github.com/pytorch/sccache is very outdated, so let's take
+  # a note here to update it later with the latest code from upstream
   git clone https://github.com/pytorch/sccache
   cd sccache
   echo "Building sccache"
@@ -22,17 +24,19 @@ install_ubuntu() {
 }
 
 install_centos() {
-  # Install sccache from source get the version that supports NVCC
+  # Install sccache from source to get the version that supports NVCC
   echo "Preparing to build sccache from source"
   yum install -y cargo openssl-devel
-  echo "Checking out sccache repo"
-  # TODO: https://github.com/pytorch/sccache is very outdated, so let's take
-  # a note here to update it later with the latest code from upstream
-  git clone https://github.com/mozilla/sccache
-  cd sccache
+
+  echo "Download sccache 0.3.0"
+  wget https://github.com/mozilla/sccache/archive/refs/tags/v0.3.0.tar.gz
+  tar xfz v0.3.0.tar.gz
+
+  cd sccache-0.3.0
   echo "Building sccache"
   cargo build --release
   cp target/release/sccache /opt/cache/bin
+
   echo "Cleaning up"
   cd ..
   rm -rf sccache
