@@ -4,6 +4,60 @@
 set -ex
 SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
+# Courtesy of pytorch/.jenkins/pytorch/common_utils.sh
+#
+# - 1st arg:  code to add
+# - remaining args:  names of traps to modify
+#
+trap_add() {
+    trap_add_cmd=$1; shift || fatal "${FUNCNAME[0]} usage error"
+    for trap_add_name in "$@"; do
+        trap -- "$(
+            # helper fn to get existing trap command from output
+            # of trap -p
+            extract_trap_cmd() { printf '%s\n' "$3"; }
+            # print existing trap command with newline
+            eval "extract_trap_cmd $(trap -p "${trap_add_name}")"
+            # print the new trap command
+            printf '%s\n' "${trap_add_cmd}"
+        )" "${trap_add_name}" \
+            || fatal "unable to add to trap ${trap_add_name}"
+    done
+}
+# set the trace attribute for the above function.  this is
+# required to modify DEBUG or RETURN traps because functions don't
+# inherit them unless the trace attribute is set
+declare -f -t trap_add
+
+# Initialize sccache
+if [[ -n "$SCCACHE_BUCKET" ]] && which sccache > /dev/null; then
+    # Save sccache logs to file
+    sccache --stop-server > /dev/null  2>&1 || true
+    rm -f ~/sccache_error.log || true
+
+    export SCCACHE_IDLE_TIMEOUT=1200
+    export SCCACHE_ERROR_LOG=~/sccache_error.log
+    export RUST_LOG=sccache::server=error
+
+    # Report sccache stats for easier debugging
+    sccache --zero-stats
+    function sccache_epilogue() {
+        sccache --show-stats
+        sccache --stop-server || true
+    }
+
+    trap_add sccache_epilogue EXIT
+else
+    # Not using sscache if it's not setup properly
+    rm -f /opt/cache/bin/cc
+    rm -f /opt/cache/bin/c++
+    rm -f /opt/cache/bin/clang
+    rm -f /opt/cache/bin/clang++
+    rm -f /opt/cache/bin/gcc
+    rm -f /opt/cache/bin/g++
+
+    unset CMAKE_CUDA_COMPILER_LAUNCHER
+fi
 
 # Require only one python installation
 if [[ -z "$DESIRED_PYTHON" ]]; then
