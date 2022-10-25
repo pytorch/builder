@@ -30,7 +30,7 @@ trap_add() {
 declare -f -t trap_add
 
 # Initialize sccache
-if which sccache > /dev/null; then
+if [[ -n "$SCCACHE_BUCKET" ]] && which sccache > /dev/null; then
     # Save sccache logs to file
     sccache --stop-server > /dev/null  2>&1 || true
     rm -f ~/sccache_error.log || true
@@ -47,6 +47,14 @@ if which sccache > /dev/null; then
     }
 
     trap_add sccache_epilogue EXIT
+else
+    # Not using sscache if it's not setup properly
+    sudo rm -f /opt/cache/bin/cc
+    sudo rm -f /opt/cache/bin/c++
+    sudo rm -f /opt/cache/bin/clang
+    sudo rm -f /opt/cache/bin/clang++
+    sudo rm -f /opt/cache/bin/gcc
+    sudo rm -f /opt/cache/bin/g++
 fi
 
 # Require only one python installation

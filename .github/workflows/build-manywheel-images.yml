@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - add-sccache-support
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
