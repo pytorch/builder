@@ -292,6 +292,7 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.11.0": ("0.12.0", "rc1"),
                                       "v1.12.0": ("0.13.0", "rc4"),
                                       "v1.12.1": ("0.13.1", "rc6"),
+                                      "v1.13.0": ("0.14.0", "rc4"),
                                   })
     print('Building TorchVision wheel')
     build_vars = ""
@@ -337,6 +338,7 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.11.0": ("0.12.0", "rc1"),
                                       "v1.12.0": ("0.13.0", "rc2"),
                                       "v1.12.1": ("0.13.1", "rc5"),
+                                      "v1.13.0": ("0.14.0", "rc3"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -377,6 +379,7 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.11.0": ("0.11.0", "rc1"),
                                       "v1.12.0": ("0.12.0", "rc3"),
                                       "v1.12.1": ("0.12.1", "rc5"),
+                                      "v1.13.0": ("0.13.0", "rc4"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
