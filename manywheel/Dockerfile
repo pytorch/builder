@@ -21,8 +21,9 @@ RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &
     rpm -ivh epel-release-latest-7.noarch.rpm && \
     rm -f epel-release-latest-7.noarch.rpm
 
-# cmake
-RUN python3 -mpip install cmake==3.18.4 && \
+# cmake-3.18.4 from pip
+RUN yum install -y python3-pip && \
+    python3 -mpip install cmake==3.18.4 && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 RUN yum install -y autoconf aclocal automake make
