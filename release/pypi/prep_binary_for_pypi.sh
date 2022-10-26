@@ -63,17 +63,20 @@ for whl_file in "$@"; do
         mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}"
         cd "${whl_dir}"
 
-        # copied from manywheel/build_common.sh
-        # regenerate the RECORD file with new hashes
-        record_file="${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}/RECORD"
-        if [[ -e $record_file ]]; then
-            echo "Generating new record file $record_file"
-            rm -f $record_file
-            # generate records for folders in wheel
-            find * -type f | while read fname; do
-                echo $(make_wheel_record $fname) >>$record_file
-            done
-        fi
+        (
+            set +x
+            # copied from manywheel/build_common.sh
+            # regenerate the RECORD file with new hashes
+            record_file="${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}/RECORD"
+            if [[ -e $record_file ]]; then
+                echo "Generating new record file $record_file"
+                rm -f $record_file
+                # generate records for folders in wheel
+                find * -type f | while read fname; do
+                    echo $(make_wheel_record $fname) >>$record_file
+                done
+            fi
+        )
 
         zip -qr "${new_whl_file}" .
     )
