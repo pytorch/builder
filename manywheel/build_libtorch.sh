@@ -228,6 +228,11 @@ fname_with_sha256() {
     fi
 }
 
+fname_without_so_number() {
+    LINKNAME=$(echo $1 | sed -e 's/\.so.*/.so/g')
+    echo "$LINKNAME"
+}
+
 make_wheel_record() {
     FPATH=$1
     if echo $FPATH | grep RECORD >/dev/null 2>&1; then
@@ -277,8 +282,12 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
             if [[ "$filepath" != "$destpath" ]]; then
                 cp $filepath $destpath
             fi
-
-            patchedpath=$(fname_with_sha256 $destpath)
+            
+            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+                patchedpath=$(fname_without_so_number $destpath)
+            else
+                patchedpath=$(fname_with_sha256 $destpath)
+            fi
             patchedname=$(basename $patchedpath)
             if [[ "$destpath" != "$patchedpath" ]]; then
                 mv $destpath $patchedpath
@@ -292,9 +301,9 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
             find $PREFIX -name '*.so*' | while read sofile; do
                 origname=${DEPS_SONAME[i]}
                 patchedname=${patched[i]}
-                if [[ "$origname" != "$patchedname" ]]; then
+                if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
                     set +e
-                    $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
+                    origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname*") 
                     ERRCODE=$?
                     set -e
                     if [ "$ERRCODE" -eq "0" ]; then
