@@ -54,7 +54,14 @@ for whl_file in "$@"; do
 
         # Special build with pypi cudnn remove it from version
         if [[ $whl_file == *"with.pypi.cudnn"* ]]; then
+            rm -rf "${whl_dir}/caffe2"
+            rm -rf "${whl_dir}"/torch/lib/libnvrtc*
+            find "${whl_dir}/torch/include/caffe2" -maxdepth 1 -mindepth 1 -type d|grep -v serialize|xargs rm -rf
+            sed -i -e "/^Requires-Dist: nvidia-cublas-cu11 (==11.10.3.66).*/a Requires-Dist: nvidia-cuda-nvrtc-cu11 (==11.7.99)" "${whl_dir}"/*/METADATA
+
             sed -i -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
+            patchelf --set-rpath '$ORIGIN/../../nvidia/cublas/lib:$ORIGIN/../../nvidia/cudnn/lib:$ORIGIN/../../nvidia/cuda_nvrtc/lib:$ORIGIN' \
+                $(find "${whl_dir}/torch/lib" -name "*.so")
         fi
 
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
@@ -78,6 +85,6 @@ for whl_file in "$@"; do
             fi
         )
 
-        zip -qr "${new_whl_file}" .
+        zip -qr9 "${new_whl_file}" .
     )
 done
