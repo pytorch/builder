@@ -56,7 +56,7 @@ for whl_file in "$@"; do
         if [[ $whl_file == *"with.pypi.cudnn"* ]]; then
             rm -rf "${whl_dir}/caffe2"
             rm -rf "${whl_dir}"/torch/lib/libnvrtc*
-            find "${whl_dir}/torch/include/caffe2" -maxdepth 1 -type d|grep -v serialize|xargs rm -rf
+            find "${whl_dir}/torch/include/caffe2" -maxdepth 1 -mindepth 1 -type d|grep -v serialize|xargs rm -rf
             sed -i -e "/^Requires-Dist: nvidia-cublas-cu11 (==11.10.3.66).*/a Requires-Dist: nvidia-cuda-nvrtc-cu11 (==11.7.99)" "${whl_dir}"/*/METADATA
 
             sed -i -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
