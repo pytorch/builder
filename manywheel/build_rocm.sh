@@ -52,6 +52,25 @@ if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 
+# To make version comparison easier, create an integer representation.
+ROCM_VERSION_CLEAN=$(echo ${ROCM_VERSION} | sed s/rocm//)
+save_IFS="$IFS"
+IFS=. ROCM_VERSION_ARRAY=(${ROCM_VERSION_CLEAN})
+IFS="$save_IFS"
+if [[ ${#ROCM_VERSION_ARRAY[@]} == 2 ]]; then
+    ROCM_VERSION_MAJOR=${ROCM_VERSION_ARRAY[0]}
+    ROCM_VERSION_MINOR=${ROCM_VERSION_ARRAY[1]}
+    ROCM_VERSION_PATCH=0
+elif [[ ${#ROCM_VERSION_ARRAY[@]} == 3 ]]; then
+    ROCM_VERSION_MAJOR=${ROCM_VERSION_ARRAY[0]}
+    ROCM_VERSION_MINOR=${ROCM_VERSION_ARRAY[1]}
+    ROCM_VERSION_PATCH=${ROCM_VERSION_ARRAY[2]}
+else
+    echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
+    exit 1
+fi
+ROCM_INT=$(($ROCM_VERSION_MAJOR * 10000 + $ROCM_VERSION_MINOR * 100 + $ROCM_VERSION_PATCH))
+
 # Required ROCm libraries
 ROCM_SO_FILES=(
     "libMIOpen.so"
@@ -78,6 +97,9 @@ ROCM_SO_FILES=(
     "libroctx64.so"
 )
 
+if [[ $ROCM_INT -ge 50400 ]]; then
+    ROCM_SO_FILES+=("libhiprtc.so")
+fi
 
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
@@ -106,25 +128,6 @@ do
     file_name="${lib##*/}" # Substring removal of path to get filename
     OS_SO_FILES[${#OS_SO_FILES[@]}]=$file_name # Append lib to array
 done
-
-# To make version comparison easier, create an integer representation.
-ROCM_VERSION_CLEAN=$(echo ${ROCM_VERSION} | sed s/rocm//)
-save_IFS="$IFS"
-IFS=. ROCM_VERSION_ARRAY=(${ROCM_VERSION_CLEAN})
-IFS="$save_IFS"
-if [[ ${#ROCM_VERSION_ARRAY[@]} == 2 ]]; then
-    ROCM_VERSION_MAJOR=${ROCM_VERSION_ARRAY[0]}
-    ROCM_VERSION_MINOR=${ROCM_VERSION_ARRAY[1]}
-    ROCM_VERSION_PATCH=0
-elif [[ ${#ROCM_VERSION_ARRAY[@]} == 3 ]]; then
-    ROCM_VERSION_MAJOR=${ROCM_VERSION_ARRAY[0]}
-    ROCM_VERSION_MINOR=${ROCM_VERSION_ARRAY[1]}
-    ROCM_VERSION_PATCH=${ROCM_VERSION_ARRAY[2]}
-else
-    echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
-    exit 1
-fi
-ROCM_INT=$(($ROCM_VERSION_MAJOR * 10000 + $ROCM_VERSION_MINOR * 100 + $ROCM_VERSION_PATCH))
 
 # rocBLAS library files
 if [[ $ROCM_INT -ge 50200 ]]; then
