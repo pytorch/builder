@@ -20,74 +20,37 @@ on:
           - all
 
 jobs:
-  generate-windows-conda-matrix:
+  generate-windows-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: conda
-      os: windows
-      channel: ${{ inputs.channel }}
-  generate-windows-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: windows
-      channel: ${{ inputs.channel }}
-  generate-windows-libtorch-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: libtorch
+      package-type: all
       os: windows
       channel: ${{ inputs.channel }}
 
-  win-conda:
-    needs: generate-windows-conda-matrix
+  win:
+    needs: generate-windows-matrix
     strategy:
-      matrix:
-        ${{ fromJson(needs.generate-windows-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
       fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Validate binary conda
-        uses: ./.github/actions/validate-windows-binary
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
+    uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: "pytorch/builder"
+      job-name: ${{ matrix.build_name }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export INSTALLATION="${{ matrix.installation }}"
+        export CUDA_VER="${{ matrix.desired_cuda }}"
 
-  win-wheel:
-    needs: generate-windows-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-windows-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Validate binary wheel
-        uses: ./.github/actions/validate-windows-binary
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-
-  win-libt:
-    needs: generate-windows-libtorch-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-windows-libtorch-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: "windows-2019"
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
-    steps:
-      - name: Install pytorch and smoke test
-        shell: powershell
-        run: |
-          $install = '${{ matrix.installation }}'
-          Invoke-WebRequest -Uri $install -OutFile 'libtorch.zip'
-          Expand-Archive -Force libtorch.zip .
+        if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
+          curl ${{ matrix.installation }} -o libtorch.zip
+          unzip libtorch.zip
+        else
+          conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
+          conda activate ${ENV_NAME}
+          eval $INSTALLATION
+          python ./test/smoke_test/smoke_test.py
+        fi

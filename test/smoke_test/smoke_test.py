@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 import argparse
 import torch
+import platform
 
 gpu_arch_ver = os.getenv("GPU_ARCH_VER")
 gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
@@ -78,7 +79,7 @@ def smoke_test_cuda(package: str) -> None:
     if(package == 'all'):
         import torchaudio
         import torchvision
-        if installation_str.find("nightly") != -1:
+        if installation_str.find("nightly") != -1 or platform.system() == "Windows" :
             # just print out cuda version, as version check were already performed during import
             print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
             print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
