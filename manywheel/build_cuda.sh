@@ -24,37 +24,9 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
 
-# Determine CUDA version and architectures to build for
-#
-# NOTE: We should first check `DESIRED_CUDA` when determining `CUDA_VERSION`,
-# because in some cases a single Docker image can have multiple CUDA versions
-# on it, and `nvcc --version` might not show the CUDA version we want.
-if [[ -n "$DESIRED_CUDA" ]]; then
-    # If the DESIRED_CUDA already matches the format that we expect
-    if [[ ${DESIRED_CUDA} =~ ^[0-9]+\.[0-9]+$ ]]; then
-        CUDA_VERSION=${DESIRED_CUDA}
-    else
-        # cu90, cu92, cu100, cu101
-        if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
-            CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
-        elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
-            CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
-        fi
-    fi
-    echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
 
-    # There really has to be a better way to do this - eli
-    # Possibly limiting builds to specific cuda versions be delimiting images would be a choice
-    if [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-        echo "Switching to CUDA version $desired_cuda"
-        /builder/conda/switch_cuda_version.sh "${DESIRED_CUDA}"
-    fi
-else
-    CUDA_VERSION=$(nvcc --version|grep release|cut -f5 -d" "|cut -f1 -d",")
-    echo "CUDA $CUDA_VERSION Detected"
-fi
-
-cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
+CUDA_VERSION="${GPU_ARCH_VERSION:-}"
+cuda_version_nodot=$(echo "${CUDA_VERSION}" | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
@@ -63,7 +35,6 @@ case ${CUDA_VERSION} in
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     10.*)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     *)
@@ -289,9 +260,6 @@ else
     echo "Unknown cuda version $CUDA_VERSION"
     exit 1
 fi
-
-# builder/test.sh requires DESIRED_CUDA to know what tests to exclude
-export DESIRED_CUDA="$cuda_version_nodot"
 
 # Switch `/usr/local/cuda` to the desired CUDA version
 rm -rf /usr/local/cuda || true

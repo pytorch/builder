@@ -5,4 +5,4 @@
 # TODO: Remove this once we fully move binary builds on master to GHA
 
 SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-DESIRED_CUDA=${DESIRED_CUDA:-cpu} bash ${SCRIPTPATH}/build_pytorch.sh
+bash ${SCRIPTPATH}/build_pytorch.sh

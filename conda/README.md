@@ -20,7 +20,6 @@ docker push pytorch/conda-builder
 # building pytorch
 docker run --rm -it \
     -e PACKAGE_TYPE=conda \
-    -e DESIRED_CUDA=cu92 \
     -e DESIRED_PYTHON=3.8 \
     -e PYTORCH_BUILD_VERSION=1.5.0 \
     -e PYTORCH_BUILD_NUMBER=1 \

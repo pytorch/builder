@@ -43,26 +43,32 @@ RUN bash ./install_conda.sh && rm install_conda.sh
 FROM base as cuda
 RUN rm -rf /usr/local/cuda-*
 ADD ./common/install_cuda.sh install_cuda.sh
+ENV GPU_ARCH_TYPE=cuda
 
 FROM cuda as cuda10.2
 RUN bash ./install_cuda.sh 10.2
 ENV DESIRED_CUDA=10.2
+ENV GPU_ARCH_TYPE=10.2
 
 FROM cuda as cuda11.3
 RUN bash ./install_cuda.sh 11.3
 ENV DESIRED_CUDA=11.3
+ENV GPU_ARCH_TYPE=11.3
 
 FROM cuda as cuda11.5
 RUN bash ./install_cuda.sh 11.5
 ENV DESIRED_CUDA=11.5
+ENV GPU_ARCH_TYPE=11.5
 
 FROM cuda as cuda11.6
 RUN bash ./install_cuda.sh 11.6
 ENV DESIRED_CUDA=11.6
+ENV GPU_ARCH_TYPE=11.6
 
 FROM cuda as cuda11.7
 RUN bash ./install_cuda.sh 11.7
 ENV DESIRED_CUDA=11.7
+ENV GPU_ARCH_TYPE=11.7
 
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
