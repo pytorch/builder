@@ -79,6 +79,8 @@ def smoke_test_cuda(package: str) -> None:
     if(package == 'all'):
         import torchaudio
         import torchvision
+        # There is an issue with current windows runners calling conda from python
+        # https://github.com/pytorch/test-infra/issues/1054
         if installation_str.find("nightly") != -1 or platform.system() == "Windows" :
             # just print out cuda version, as version check were already performed during import
             print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
