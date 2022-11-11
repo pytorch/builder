@@ -12,7 +12,7 @@ build:
   noarch: generic
 requirements:
   run:
-    - cuda={{ version }}
+    - cuda-runtime={{ version }}
   run_constrained:
     - cuda-cccl {{ cuda_constraints }}
     - cuda-command-line-tools {{ cuda_constraints }}
@@ -25,7 +25,6 @@ requirements:
     - cuda-driver-dev {{ cuda_constraints }}
     - cuda-libraries {{ cuda_constraints }}
     - cuda-libraries-dev {{ cuda_constraints }}
-    - cuda-cudaart-dev {{ cuda_constraints }}
     - cuda-nvcc {{ cuda_constraints }}
     - cuda-nvml-dev {{ cuda_constraints }}
     - cuda-nvprune {{ cuda_constraints }}
