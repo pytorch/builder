@@ -168,7 +168,7 @@ def main():
 
         update_versions(versions, release_matrix)
         with open("published_versions.json", "w") as outfile:
-            json.dump(versions, outfile, indent=4)
+            json.dump(versions, outfile, indent=2)
 
     #template = read_quick_start_module_template()
     #versions_str = json.dumps(gen_install_matrix(versions))
