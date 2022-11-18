@@ -1,13 +1,6 @@
 name: Test post PR
 on:
-  push:
-    branches:
-      - site
-    paths:
-      - .github/**
-  pull_request:
-    paths:
-      - .github/**
+  workflow_dispatch:
 
 jobs:
   generate-json-file:
