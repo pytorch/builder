@@ -1,0 +1,26 @@
+name: Test post PR
+on:
+  push:
+    branches:
+      - site
+    paths:
+      - .github/**
+  pull_request:
+    paths:
+      - .github/**
+
+jobs:
+  generate-json-file:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout pytorch.github.io
+        uses: actions/checkout@v2
+      - name: Create json file
+        shell: bash
+        run: |
+          pwd
+          touch dummy.json
+      - name: create pull request
+        run: gh pr create -B site -H update_release_workflow --title 'Update quick start module instructions' --body 'Created by Github action'
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
