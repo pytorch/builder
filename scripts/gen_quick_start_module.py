@@ -163,14 +163,14 @@ def main():
         "--version",
         help="Version to generate the instructions for",
         type=str,
-        default="1.12.0",
+        default="preview",
     )
     parser.add_argument(
         "--autogenerate",
         help="Is this call being initiated from workflow? update published_versions",
         type=str,
         choices=[ENABLE, DISABLE],
-        default=ENABLE,
+        default=DISABLE,
     )
 
     options = parser.parse_args()
