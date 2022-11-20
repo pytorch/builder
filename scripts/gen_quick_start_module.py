@@ -57,11 +57,26 @@ def read_quick_start_module_template():
     with open(os.path.join(BASE_DIR, "_includes", "quick-start-module.js")) as fp:
         return fp.read()
 
-def update_versions(versions, release_matrix):
-    rc = {}
+def update_versions(versions, release_matrix, version):
     version_map = {
         "preview": "preview",
     }
+
+    # Generating for a specific version
+    if(version != "preview"):
+        version_map = {
+            version: version,
+        }
+        if version in versions["versions"]:
+            if version != versions["latest_stable"]:
+                raise RuntimeError(f"Can only update prview, latest stable: {versions['latest_stable']} or new version")
+        else:
+            import copy
+            new_version = copy.deepcopy(versions["versions"]["preview"])
+            versions["versions"][version] = new_version
+            versions["latest_stable"] = version
+
+    # Perform update of the json file from release matrix
     for ver, ver_key in version_map.items():
         for os_key, os_vers in versions["versions"][ver_key].items():
             for pkg_key, pkg_vers in os_vers.items():
@@ -148,14 +163,14 @@ def main():
         "--version",
         help="Version to generate the instructions for",
         type=str,
-        default="preview",
+        default="1.12.0",
     )
     parser.add_argument(
         "--autogenerate",
         help="Is this call being initiated from workflow? update published_versions",
         type=str,
         choices=[ENABLE, DISABLE],
-        default=DISABLE,
+        default=ENABLE,
     )
 
     options = parser.parse_args()
@@ -166,8 +181,8 @@ def main():
         for osys in OperatingSystem:
             release_matrix[osys.value] = read_matrix_for_os(osys)
 
-        update_versions(versions, release_matrix)
-        with open("published_versions.json", "w") as outfile:
+        update_versions(versions, release_matrix, options.version)
+        with open("published_versions_mutated.json", "w") as outfile:
             json.dump(versions, outfile, indent=2)
 
     #template = read_quick_start_module_template()

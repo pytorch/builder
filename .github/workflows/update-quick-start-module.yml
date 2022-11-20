@@ -16,6 +16,11 @@ on:
         type: string
 
 jobs:
+  validate-binaries:
+    uses: pytorch/builder/.github/workflows/validate-binaries.yml@main
+    with:
+      os: all
+      channel: ${{ inputs.channel }}
   linux-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
@@ -54,7 +59,7 @@ jobs:
           MACOS_MATRIX: ${{ needs.macos-matrix.outputs.matrix }}
           VERSION: ${{ inputs.version }}
         run: |
-          pwd
+          set -ex
           printf '%s\n' "$LINUX_MATRIX" > linux_matrix.json
           printf '%s\n' "$WINDOWS_MATRIX" > windows_matrix.json
           printf '%s\n' "$MACOS_MATRIX" > macos_matrix.json

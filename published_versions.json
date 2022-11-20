@@ -75,15 +75,18 @@
         "pip": {
           "cuda.x": {
             "note": "# CUDA is not available on MacOS, please use default package",
-            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
+            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu",
+            "default": true
           },
           "cuda.y": {
             "note": "# CUDA is not available on MacOS, please use default package",
-            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
+            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu",
+            "default": true
           },
           "rocm5.x": {
             "note": "# ROCm is not available on MacOS, please use default package",
-            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu"
+            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/cpu",
+            "default": true
           },
           "accnone": {
             "note": "# MPS acceleration is available on MacOS 12.3+",
@@ -93,15 +96,18 @@
         "conda": {
           "cuda.x": {
             "note": "# CUDA is not available on MacOS, please use default package",
-            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly"
+            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly",
+            "default": true
           },
           "cuda.y": {
             "note": "# CUDA is not available on MacOS, please use default package",
-            "command": "conda install pytorch torchvision torchaudio  -c pytorch-nightly"
+            "command": "conda install pytorch torchvision torchaudio  -c pytorch-nightly",
+            "default": true
           },
           "rocm5.x": {
             "note": "# ROCm is not available on MacOS, please use default package",
-            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly"
+            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly",
+            "default": true
           },
           "accnone": {
             "note": "# MPS acceleration is available on MacOS 12.3+",
