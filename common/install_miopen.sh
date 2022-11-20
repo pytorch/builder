@@ -88,6 +88,11 @@ fi
 
 git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
+# Don't build MLIR to save docker build time 
+# since we are disabling MLIR backend for MIOpen anyway
+if [[ $ROCM_INT -ge 50200 ]] && [[ $ROCM_INT -lt 50400 ]]; then
+    sed -i '/rocMLIR/d' requirements.txt
+fi
 ## MIOpen minimum requirements
 cmake -P install_deps.cmake --minimum
 ## Build MIOpen
