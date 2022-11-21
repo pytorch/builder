@@ -45,6 +45,10 @@ def read_published_versions():
     with open(os.path.join(BASE_DIR, "published_versions.json")) as fp:
         return json.load(fp)
 
+def write_published_versions(versions):
+    with open(os.path.join(BASE_DIR, "published_versions.json", "w"))) as outfile:
+            json.dump(versions, outfile, indent=2)
+
 def read_matrix_for_os(osys: OperatingSystem):
     try:
         with open(os.path.join(BASE_DIR, f"{osys.value}_matrix.json")) as fp:
@@ -163,14 +167,14 @@ def main():
         "--version",
         help="Version to generate the instructions for",
         type=str,
-        default="preview",
+        default="1.13.0",
     )
     parser.add_argument(
         "--autogenerate",
         help="Is this call being initiated from workflow? update published_versions",
         type=str,
         choices=[ENABLE, DISABLE],
-        default=DISABLE,
+        default=ENABLE,
     )
 
     options = parser.parse_args()
@@ -182,12 +186,11 @@ def main():
             release_matrix[osys.value] = read_matrix_for_os(osys)
 
         update_versions(versions, release_matrix, options.version)
-        with open("published_versions_mutated.json", "w") as outfile:
-            json.dump(versions, outfile, indent=2)
+        write_published_versions(versions)
 
-    #template = read_quick_start_module_template()
-    #versions_str = json.dumps(gen_install_matrix(versions))
-    #print(template.replace("{{ installMatrix }}", versions_str))
+    # template = read_quick_start_module_template()
+    # versions_str = json.dumps(gen_install_matrix(versions))
+    # print(template.replace("{{ installMatrix }}", versions_str))
 
 
 if __name__ == "__main__":
