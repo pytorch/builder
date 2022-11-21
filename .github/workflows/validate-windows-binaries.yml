@@ -29,6 +29,7 @@ jobs:
   get-ref:
     id: branch
     run: |
+      set -ex
       if [[ ${{ github.repository }} == *"builder"* ]]; then
         echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
       else
