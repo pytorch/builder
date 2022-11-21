@@ -27,41 +27,54 @@ jobs:
       os: windows
       channel: ${{ inputs.channel }}
   get-ref:
-    id: branch
-    run: |
-      set -ex
-      if [[ ${{ github.repository }} == *"builder"* ]]; then
-        echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
-      else
-        echo "ref=main" >> $GITHUB_OUTPUT
-      fi
+    steps:
+      - name:
+        id: branch
+        run: |
+          set -ex
+          if [[ ${{ github.repository }} == *"builder"* ]]; then
+            echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=main" >> $GITHUB_OUTPUT
+          fi
 
   win:
-    needs: [generate-windows-matrix, get-ref]
-    strategy:
-      matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
-      fail-fast: false
-    uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
-    name: ${{ matrix.build_name }}
-    with:
-      runner: ${{ matrix.validation_runner }}
-      repository: "pytorch/builder"
-      ref: ${{ needs.get.ref.branch.ref }}
-      job-name: ${{ matrix.build_name }}
-      script: |
-        set -ex
-        export ENV_NAME="conda-env-${{ github.run_id }}"
-        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
-        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
-        export INSTALLATION="${{ matrix.installation }}"
-        export CUDA_VER="${{ matrix.desired_cuda }}"
+    steps:
+      - name: Get ref branch
+        run: |
+          set -ex
+          if [[ ${{ github.repository }} == *"builder"* ]]; then
+            echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          else
+            echo "ref=main" >> $GITHUB_OUTPUT
+          fi
+        id: get-ref-branch
+      - name: Test windows matrix
+          needs: generate-windows-matrix
+          strategy:
+            matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
+            fail-fast: false
+          uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
+          name: ${{ matrix.build_name }}
+          with:
+            runner: ${{ matrix.validation_runner }}
+            repository: "pytorch/builder"
+            ref:  ${{ steps.get-ref-branch.outputs.ref }}
+            job-name: ${{ matrix.build_name }}
+            script: |
+              set -ex
+              export ENV_NAME="conda-env-${{ github.run_id }}"
+              export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+              export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+              export INSTALLATION="${{ matrix.installation }}"
+              export CUDA_VER="${{ matrix.desired_cuda }}"
 
-        if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
-          curl ${{ matrix.installation }} -o libtorch.zip
-          unzip libtorch.zip
-        else
-          conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
-          conda activate ${ENV_NAME}
-          eval $INSTALLATION
-          python ./test/smoke_test/smoke_test.py
-        fi
+              if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
+                curl ${{ matrix.installation }} -o libtorch.zip
+                unzip libtorch.zip
+              else
+                conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
+                conda activate ${ENV_NAME}
+                eval $INSTALLATION
+                python ./test/smoke_test/smoke_test.py
+              fi
