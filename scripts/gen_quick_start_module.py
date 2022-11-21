@@ -46,7 +46,7 @@ def read_published_versions():
         return json.load(fp)
 
 def write_published_versions(versions):
-    with open(os.path.join(BASE_DIR, "published_versions.json", "w")) as outfile:
+    with open(os.path.join(BASE_DIR, "published_versions.json"), "w") as outfile:
             json.dump(versions, outfile, indent=2)
 
 def read_matrix_for_os(osys: OperatingSystem):
