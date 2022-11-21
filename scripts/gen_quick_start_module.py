@@ -27,10 +27,11 @@ DISABLE = "disable"
 # TBD drive the mapping via:
 #  1. Scanning release matrix and picking 2 latest cuda versions and 1 latest rocm
 #  2. Possibility to override the scanning algorithm with arguments passed from workflow
+# Create issue on failure. Test plan, workflow , Automatically run for Release and Nightly
 acc_arch_map = {
         "accnone": ("cpu", ""),
         "cuda.x": ("cuda", "11.6"),
-        "cuda.y": ("cuda", "11.7"),
+        "cuda.y": ("cuda", "10.2"),
         "rocm5.x": ("rocm", "5.2")
     }
 
@@ -133,6 +134,9 @@ def update_versions(versions, release_matrix, version):
                                 if(instr['versions'] is not None):
                                     instr['versions'][LIBTORCH_DWNL_INSTR[RELEASE]] = rel_entry_release["installation"]
                                     instr['versions'][LIBTORCH_DWNL_INSTR[DEBUG]] = rel_entry_debug["installation"]
+                            elif os_key == OperatingSystem.MACOS.value:
+                                instr['versions']["Download here:"] = pkg_arch_matrix[0]["installation"]
+
 
 
 def gen_install_matrix(versions) -> Dict[str, str]:
