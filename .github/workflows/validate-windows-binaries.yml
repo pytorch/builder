@@ -37,6 +37,7 @@ jobs:
     with:
       runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
+      ref: main
       job-name: ${{ matrix.build_name }}
       script: |
         set -ex
