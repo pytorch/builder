@@ -17,6 +17,10 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        type: string
   workflow_dispatch:
     inputs:
       os:
@@ -39,6 +43,10 @@ on:
           - nightly
           - test
           - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        type: string
 
 jobs:
   win:
@@ -46,6 +54,7 @@ jobs:
     uses: ./.github/workflows/validate-windows-binaries.yml
     with:
       channel: ${{ inputs.channel }}
+      ref: ref: ${{ inputs.ref || github.ref }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
