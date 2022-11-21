@@ -26,9 +26,17 @@ jobs:
       package-type: all
       os: windows
       channel: ${{ inputs.channel }}
+  get-ref:
+    id: branch
+    run: |
+      if [[ ${{ github.repository }} == *"builder"* ]]; then
+        echo "ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+      else
+        echo "ref=main" >> $GITHUB_OUTPUT
+      fi
 
   win:
-    needs: generate-windows-matrix
+    needs: [generate-windows-matrix, get-ref]
     strategy:
       matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
       fail-fast: false
@@ -37,7 +45,7 @@ jobs:
     with:
       runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
-      ref: main
+      ref: ${{ needs.get.ref.branch.ref }}
       job-name: ${{ matrix.build_name }}
       script: |
         set -ex
