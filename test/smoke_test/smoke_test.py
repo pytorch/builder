@@ -14,26 +14,6 @@ is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 NIGHTLY_ALLOWED_DELTA = 3
 
-# helper function to return the conda installed packages
-# and return  package we are insterseted in
-def get_anaconda_output_for_package(pkg_name_str):
-    import subprocess as sp
-
-    # If we are installing using conda just list package name
-    if installation_str.find("conda install") != -1:
-        cmd = "conda list --explicit"
-        output = sp.getoutput(cmd)
-        for item in output.split("\n"):
-            if pkg_name_str in item:
-                return item
-        return f"{pkg_name_str} can't be found"
-    else:
-        cmd = "conda list -f " + pkg_name_str
-        output = sp.getoutput(cmd)
-        # Get the last line only
-        return output.strip().split('\n')[-1]
-
-
 def check_nightly_binaries_date(package: str) -> None:
     from datetime import datetime, timedelta
     format_dt = '%Y%m%d'
@@ -62,6 +42,18 @@ def check_nightly_binaries_date(package: str) -> None:
                 f"Expected torchaudio, torchvision to be less then {NIGHTLY_ALLOWED_DELTA} days. But they are from {date_ta_str}, {date_tv_str} respectively"
             )
 
+def check_cuda_version(version: str, dlibary: str):
+    version = torch.ops.torchaudio.cuda_version()
+    if version is not None and torch.version.cuda is not None:
+        version_str = str(version)
+        ta_version = f"{version_str[:-3]}.{version_str[-2]}"
+        t_version = torch.version.cuda.split(".")
+        t_version = f"{t_version[0]}.{t_version[1]}"
+        if ta_version != t_version:
+            raise RuntimeError(
+                "Detected that PyTorch and {dlibary} were compiled with different CUDA versions. "
+                f"PyTorch has CUDA version {t_version} whereas {dlibary} has CUDA version {ta_version}. "
+            )
 
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
@@ -76,27 +68,14 @@ def smoke_test_cuda(package: str) -> None:
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
-    if(package == 'all'):
+    if(package == 'all' and is_cuda_system):
         import torchaudio
         import torchvision
-        # There is an issue with current windows runners calling conda from python
-        # https://github.com/pytorch/test-infra/issues/1054
-        if installation_str.find("nightly") != -1 or platform.system() == "Windows" :
-            # just print out cuda version, as version check were already performed during import
-            print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
-            print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
-        else:
-            # torchaudio runtime added the cuda verison check on 09/23/2022 via
-            # https://github.com/pytorch/audio/pull/2707
-            # so relying on anaconda output for pytorch-test and pytorch channel
-            torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
-            if (
-                is_cuda_system
-                and "cu" + str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr
-            ):
-                raise RuntimeError(
-                    f"CUDA version issue. Loaded: {torchaudio_allstr} Expected: {gpu_arch_ver}"
-                )
+        print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
+        print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
+        check_cuda_version(torch.ops.torchvision._cuda_version(), "TorchVision")
+        check_cuda_version(torch.ops.torchaudio.cuda_version(), "TorchAudio")
+
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
