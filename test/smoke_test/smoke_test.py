@@ -64,8 +64,8 @@ def smoke_test_cuda(package: str) -> None:
         print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
         if (
             gpu_arch_ver != torch.ops.torchvision._cuda_version() or
-            gpu_arch_ver != torch.ops.torchaudio.cuda_version():
-            )
+            gpu_arch_ver != torch.ops.torchaudio.cuda_version()
+            ):
             raise RuntimeError(
                     f"Wrong CUDA version. Vision: {torch.ops.torchvision._cuda_version()} \
                     Audio: {ttorch.ops.torchaudio.cuda_version()} Expected: {gpu_arch_ver}"
