@@ -7,6 +7,11 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -18,108 +23,57 @@ on:
           - nightly
           - test
           - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
 
 jobs:
-  generate-linux-conda-matrix:
+  generate-linux-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: conda
-      os: linux
-      channel: ${{ inputs.channel }}
-  generate-linux-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: linux
-      channel: ${{ inputs.channel }}
-      with-py311: enable
-  generate-linux-libtorch-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: libtorch
+      package-type: all
       os: linux
       channel: ${{ inputs.channel }}
 
-  linux-conda:
-    needs: generate-linux-conda-matrix
+  linux:
+    needs: generate-linux-matrix
     strategy:
-      matrix:
-        ${{ fromJson(needs.generate-linux-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
       fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-          desired_cuda: ${{ matrix.desired_cuda }}
-          dev_toolset: ''
-          package_type: conda
-          target_os: linux
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    name: ${{ matrix.build_name }}
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: ${{ matrix.build_name }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export INSTALLATION="${{ matrix.installation }}"
+        export CUDA_VER="${{ matrix.desired_cuda }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
+        export DESIRED_DEVTOOLSET="${{ matrix.dev_toolset }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
+        export TARGET_OS="linux"
 
-  linux-wheel:
-    needs: generate-linux-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-linux-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Validate binary wheel
-        uses: ./.github/actions/validate-binary
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          installation_pypi: ${{ matrix.installation_pypi }}
-          python_version: ${{ matrix.python_version }}
-          desired_cuda: ${{ matrix.desired_cuda }}
-          dev_toolset: ''
-          package_type: wheel
-          target_os: linux
-
-  linux-libt:
-    needs: generate-linux-libtorch-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-linux-libtorch-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Install Conda
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: ${{ matrix.python_version }}
-          auto-update-conda: true
-          miniconda-version: "latest"
-          activate-environment: testenv
-      - name: Install pytorch and smoke test
-        shell: bash
-        env:
-          INSTALLATION: ${{ matrix.installation }}
-          ENV_NAME: conda-env-${{ github.run_id }}
-          DESIRED_PYTHON: ${{ matrix.python_version }}
-          DESIRED_CUDA: ${{ matrix.desired_cuda }}
-          DESIRED_DEVTOOLSET: ${{ matrix.devtoolset }}
-          PACKAGE_TYPE: libtorch
-        run: |
-          sudo apt-get install unzip -y
-          set -ex
-          curl ${INSTALLATION} -o libtorch.zip
+        if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
+          curl ${{ matrix.installation }} -o libtorch.zip
           unzip libtorch.zip
-          conda create -yp ${ENV_NAME} python=${{ matrix.python_version }} numpy
-          export LD_LIBRARY_PATH="$(dirname $(which python))/lib"
-          export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/cuda/lib
-          if [[ ${{ matrix.libtorch_variant }} == "static-with-deps" ]]; then
-            conda run -p ${ENV_NAME} --cwd libtorch env LD_LIBRARY_PATH=${LD_LIBRARY_PATH} bash ./../check_binary.sh
-          fi
-          conda env remove -p ${ENV_NAME}
+        else
+          conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
+          conda activate ${ENV_NAME}
+          eval $INSTALLATION
+          export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
+          export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
+
+          python --version
+          python  ./test/smoke_test/smoke_test.py
+
+          ${PWD}/check_binary.sh
+        fi
