@@ -104,12 +104,15 @@ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CXX=${ROCM_INSTALL_PATH}/llvm/bin/clang
     -DCMAKE_PREFIX_PATH="${ROCM_INSTALL_PATH}/hip;${ROCM_INSTALL_PATH}"
 make MIOpen -j $(nproc)
 make -j $(nproc) package
-yum install -y miopen-*.rpm
-popd
-rm -rf MIOpen
 
-# Cleanup
+# clean up since CI runner was running out of disk space
+rm -rf /usr/local/cget
+rm -rf /tmp/*
 yum clean all
 rm -rf /var/cache/yum
 rm -rf /var/lib/yum/yumdb
 rm -rf /var/lib/yum/history
+
+yum install -y miopen-*.rpm
+popd
+rm -rf MIOpen
