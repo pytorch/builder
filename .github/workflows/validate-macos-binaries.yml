@@ -7,6 +7,11 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -18,105 +23,83 @@ on:
           - nightly
           - test
           - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
 
 jobs:
-  generate-macos-arm64-conda-matrix:
+  generate-macos-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: conda
-      os: macos-arm64
-      channel: ${{ inputs.channel }}
-  generate-macos-arm64-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: wheel
-      os: macos-arm64
-      channel: ${{ inputs.channel }}
-  generate-macos-x86_64-conda-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: conda
+      package-type: all
       os: macos
       channel: ${{ inputs.channel }}
-  generate-macos-x86_64-wheel-matrix:
+  generate-macos-arm64-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: wheel
-      os: macos
+      package-type: all
+      os: macos-arm64
       channel: ${{ inputs.channel }}
 
-  mac-arm64-conda:
-    needs: generate-macos-arm64-conda-matrix
+  macos:
+    needs: generate-macos-matrix
     strategy:
-      matrix:
-        ${{ fromJson(needs.generate-macos-arm64-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
       fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-          desired_cuda: ${{ matrix.desired_cuda }}
-          package_type: conda
-          target_os: macos
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: ${{ matrix.build_name }}
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: ${{ matrix.build_name }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export INSTALLATION="${{ matrix.installation }}"
+        export CUDA_VER="${{ matrix.desired_cuda }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
+        export DESIRED_DEVTOOLSET="${{ matrix.devtoolset }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
+        export TARGET_OS="macos"
+        conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
+        conda activate ${ENV_NAME}
 
-  mac-arm64-wheel:
-    needs: generate-macos-arm64-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-macos-arm64-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-          desired_cuda: ${{ matrix.desired_cuda }}
-          package_type: wheel
-          target_os: macos
+        if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
+          curl ${{ matrix.installation }} -o libtorch.zip
+          unzip libtorch.zip
+        else
+          eval $INSTALLATION
+          python  ./test/smoke_test/smoke_test.py
+        fi
 
-  mac-x64-conda:
-    needs: generate-macos-x86_64-conda-matrix
+  macos-arm64:
+    needs: generate-macos-arm64-matrix
     strategy:
-      matrix:
-        ${{ fromJson(needs.generate-macos-x86_64-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
       fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-          desired_cuda: ${{ matrix.desired_cuda }}
-          package_type: conda
-          target_os: macos
-
-  mac-x64-wheel:
-    needs: generate-macos-x86_64-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-macos-x86_64-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-          desired_cuda: ${{ matrix.desired_cuda }}
-          package_type: wheel
-          target_os: macos
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: ${{ matrix.build_name }}
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: ${{ matrix.build_name }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export INSTALLATION="${{ matrix.installation }}"
+        export CUDA_VER="${{ matrix.desired_cuda }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
+        conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
+        conda activate ${ENV_NAME}
+        eval $INSTALLATION
+        python  ./test/smoke_test/smoke_test.py
