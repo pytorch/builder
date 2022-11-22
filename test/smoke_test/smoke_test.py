@@ -79,24 +79,18 @@ def smoke_test_cuda(package: str) -> None:
     if(package == 'all'):
         import torchaudio
         import torchvision
-        # There is an issue with current windows runners calling conda from python
-        # https://github.com/pytorch/test-infra/issues/1054
-        if installation_str.find("nightly") != -1 or platform.system() == "Windows" :
-            # just print out cuda version, as version check were already performed during import
-            print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
-            print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
-        else:
-            # torchaudio runtime added the cuda verison check on 09/23/2022 via
-            # https://github.com/pytorch/audio/pull/2707
-            # so relying on anaconda output for pytorch-test and pytorch channel
-            torchaudio_allstr = get_anaconda_output_for_package(torchaudio.__name__)
-            if (
-                is_cuda_system
-                and "cu" + str(gpu_arch_ver).replace(".", "") not in torchaudio_allstr
-            ):
-                raise RuntimeError(
-                    f"CUDA version issue. Loaded: {torchaudio_allstr} Expected: {gpu_arch_ver}"
+
+        # just print out cuda version, as version check were already performed during import
+        print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
+        print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
+        if( gpu_arch_ver != torch.ops.torchvision._cuda_version() or
+            gpu_arch_ver != torch.ops.torchaudio.cuda_version() )
+            raise RuntimeError(
+                    f"Wrong CUDA version. Vision: {torch.ops.torchvision._cuda_version()} \
+                    Audio: {ttorch.ops.torchaudio.cuda_version()} Expected: {gpu_arch_ver}"
                 )
+
+
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
