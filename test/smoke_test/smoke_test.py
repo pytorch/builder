@@ -42,6 +42,18 @@ def check_nightly_binaries_date(package: str) -> None:
                 f"Expected torchaudio, torchvision to be less then {NIGHTLY_ALLOWED_DELTA} days. But they are from {date_ta_str}, {date_tv_str} respectively"
             )
 
+def check_cuda_version(version: str, dlibary: str):
+    version = torch.ops.torchaudio.cuda_version()
+    if version is not None and torch.version.cuda is not None:
+        version_str = str(version)
+        ta_version = f"{version_str[:-3]}.{version_str[-2]}"
+        t_version = torch.version.cuda.split(".")
+        t_version = f"{t_version[0]}.{t_version[1]}"
+        if ta_version != t_version:
+            raise RuntimeError(
+                "Detected that PyTorch and {dlibary} were compiled with different CUDA versions. "
+                f"PyTorch has CUDA version {t_version} whereas {dlibary} has CUDA version {ta_version}. "
+            )
 
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
@@ -56,20 +68,14 @@ def smoke_test_cuda(package: str) -> None:
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
-    if(package == 'all'):
+    if(package == 'all' and is_cuda_system):
         import torchaudio
         import torchvision
-
         print(f"torchvision cuda: {torch.ops.torchvision._cuda_version()}")
         print(f"torchaudio cuda: {torch.ops.torchaudio.cuda_version()}")
-        if (
-            gpu_arch_ver != torch.ops.torchvision._cuda_version() or
-            gpu_arch_ver != torch.ops.torchaudio.cuda_version()
-            ):
-            raise RuntimeError(
-                    f"Wrong CUDA version. Vision: {torch.ops.torchvision._cuda_version()} \
-                    Audio: {ttorch.ops.torchaudio.cuda_version()} Expected: {gpu_arch_ver}"
-                )
+        check_cuda_version(torch.ops.torchvision._cuda_version(), "TorchVision")
+        check_cuda_version(torch.ops.torchaudio.cuda_version(), "TorchAudio")
+
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
