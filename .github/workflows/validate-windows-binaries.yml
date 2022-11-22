@@ -7,6 +7,11 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -18,6 +23,11 @@ on:
           - nightly
           - test
           - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-windows-matrix:
@@ -37,6 +47,7 @@ jobs:
     with:
       runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
       script: |
         set -ex
