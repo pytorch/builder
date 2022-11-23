@@ -19,7 +19,7 @@
           },
           "rocm5.x": {
             "note": null,
-            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/rocm5.2/"
+            "command": "pip3 install --pre torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/nightly/rocm5.2"
           }
         },
         "conda": {
@@ -96,22 +96,22 @@
         "conda": {
           "cuda.x": {
             "note": "# CUDA is not available on MacOS, please use default package",
-            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly",
+            "command": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
             "default": true
           },
           "cuda.y": {
             "note": "# CUDA is not available on MacOS, please use default package",
-            "command": "conda install pytorch torchvision torchaudio  -c pytorch-nightly",
+            "command": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
             "default": true
           },
           "rocm5.x": {
             "note": "# ROCm is not available on MacOS, please use default package",
-            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly",
+            "command": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly",
             "default": true
           },
           "accnone": {
             "note": "# MPS acceleration is available on MacOS 12.3+",
-            "command": "conda install pytorch torchvision torchaudio -c pytorch-nightly"
+            "command": "conda install pytorch torchvision torchaudio cpuonly -c pytorch-nightly"
           }
         },
         "libtorch": {
@@ -224,7 +224,7 @@
           },
           "rocm5.x": {
             "note": null,
-            "command": "pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/rocm5.2/"
+            "command": "pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/rocm5.2"
           }
         },
         "conda": {
@@ -310,7 +310,7 @@
           },
           "accnone": {
             "note": null,
-            "command": "conda install pytorch torchvision torchaudio -c pytorch"
+            "command": "conda install pytorch torchvision torchaudio cpuonly -c pytorch"
           }
         },
         "libtorch": {
@@ -619,8 +619,7 @@
           },
           "cuda10.2": {
             "note": "CUDA-10.2 PyTorch builds are no longer available for Windows, please use CUDA-11.6",
-            "versions": {
-            }
+            "versions": {}
           },
           "cuda.x": {
             "note": null,
@@ -858,8 +857,7 @@
           },
           "cuda10.2": {
             "note": "CUDA-10.2 PyTorch builds are no longer available for Windows, please use CUDA-11.6",
-            "versions": {
-            }
+            "versions": {}
           },
           "cuda.x": {
             "note": null,
@@ -1057,8 +1055,7 @@
           },
           "cuda10.2": {
             "note": "CUDA-10.2 PyTorch builds are no longer available for Windows, please use CUDA-11.3",
-            "versions": {
-            }
+            "versions": {}
           },
           "cuda.x": {
             "note": null,
@@ -2073,7 +2070,7 @@
         },
         "conda": {
           "cuda.x": {
-            "note": "<b>NOTE:</b> Pytorch LTS version 1.8.2 is only supported for Python <= 3.8" ,
+            "note": "<b>NOTE:</b> Pytorch LTS version 1.8.2 is only supported for Python <= 3.8",
             "command": "conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch-lts"
           },
           "cuda.y": {
