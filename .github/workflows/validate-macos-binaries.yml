@@ -67,8 +67,11 @@ jobs:
         export DESIRED_DEVTOOLSET="${{ matrix.devtoolset }}"
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export TARGET_OS="macos"
+        export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
+        export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
         conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
         conda activate ${ENV_NAME}
+
 
         if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
           curl ${{ matrix.installation }} -o libtorch.zip
@@ -76,6 +79,7 @@ jobs:
         else
           eval $INSTALLATION
           python  ./test/smoke_test/smoke_test.py
+          ${PWD}/check_binary.sh
         fi
 
   macos-arm64:
@@ -99,7 +103,11 @@ jobs:
         export CUDA_VER="${{ matrix.desired_cuda }}"
         export DESIRED_PYTHON="${{ matrix.python_version }}"
         export DESIRED_CUDA="${{ matrix.desired_cuda }}"
+        export TARGET_OS="macos"
+        export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
+        export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
         conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
         conda activate ${ENV_NAME}
         eval $INSTALLATION
         python  ./test/smoke_test/smoke_test.py
+        ${PWD}/check_binary.sh
