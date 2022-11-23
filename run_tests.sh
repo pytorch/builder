@@ -94,7 +94,7 @@ else
     retry pip install -q hypothesis protobuf pytest setuptools || true
     numpy_ver=1.15
     case "$(python --version 2>&1)" in
-      *2* | *3.5* | *3.6*)
+      *2.* | *3.5* | *3.6*)
         numpy_ver=1.11
         ;;
     esac
