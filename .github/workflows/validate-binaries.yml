@@ -63,9 +63,11 @@ jobs:
     uses: ./.github/workflows/validate-linux-binaries.yml
     with:
       channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
 
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
     uses: ./.github/workflows/validate-macos-binaries.yml
     with:
       channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
