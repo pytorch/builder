@@ -27,11 +27,10 @@ DISABLE = "disable"
 # TBD drive the mapping via:
 #  1. Scanning release matrix and picking 2 latest cuda versions and 1 latest rocm
 #  2. Possibility to override the scanning algorithm with arguments passed from workflow
-# Create issue on failure. Test plan, workflow , Automatically run for Release and Nightly
 acc_arch_map = {
         "accnone": ("cpu", ""),
         "cuda.x": ("cuda", "11.6"),
-        "cuda.y": ("cuda", "10.2"),
+        "cuda.y": ("cuda", "11.7"),
         "rocm5.x": ("rocm", "5.2")
     }
 
@@ -50,9 +49,9 @@ def write_published_versions(versions):
     with open(os.path.join(BASE_DIR, "published_versions.json"), "w") as outfile:
             json.dump(versions, outfile, indent=2)
 
-def read_matrix_for_os(osys: OperatingSystem):
+def read_matrix_for_os(osys: OperatingSystem, value: str):
     try:
-        with open(os.path.join(BASE_DIR, f"{osys.value}_matrix.json")) as fp:
+        with open(os.path.join(BASE_DIR, f"{osys.value}_{value}_matrix.json")) as fp:
             return json.load(fp)["include"]
     except FileNotFoundError as e:
         raise ImportError(f"Release matrix not found for: {osys.value} error: {e.strerror}") from e
@@ -62,10 +61,16 @@ def read_quick_start_module_template():
     with open(os.path.join(BASE_DIR, "_includes", "quick-start-module.js")) as fp:
         return fp.read()
 
-def update_versions(versions, release_matrix, version):
+def update_versions(versions, release_matrix, release_version):
     version_map = {
         "preview": "preview",
     }
+    version = ""
+
+    if(release_version == "nightly"):
+        version = "preview"
+    else:
+        version = release_matrix[OperatingSystem.LINUX.value][0]["stable_version"]
 
     # Generating for a specific version
     if(version != "preview"):
@@ -134,9 +139,6 @@ def update_versions(versions, release_matrix, version):
                                 if(instr['versions'] is not None):
                                     instr['versions'][LIBTORCH_DWNL_INSTR[RELEASE]] = rel_entry_release["installation"]
                                     instr['versions'][LIBTORCH_DWNL_INSTR[DEBUG]] = rel_entry_debug["installation"]
-                            elif os_key == OperatingSystem.MACOS.value:
-                                instr['versions']["Download here:"] = pkg_arch_matrix[0]["installation"]
-
 
 
 def gen_install_matrix(versions) -> Dict[str, str]:
@@ -168,12 +170,6 @@ def gen_install_matrix(versions) -> Dict[str, str]:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--version",
-        help="Version to generate the instructions for",
-        type=str,
-        default="1.13.0",
-    )
-    parser.add_argument(
         "--autogenerate",
         help="Is this call being initiated from workflow? update published_versions",
         type=str,
@@ -186,15 +182,19 @@ def main():
 
     if options.autogenerate == ENABLE:
         release_matrix = {}
-        for osys in OperatingSystem:
-            release_matrix[osys.value] = read_matrix_for_os(osys)
+        for val in ("nightly", "release"):
+            release_matrix[val] = {}
+            for osys in OperatingSystem:
+                release_matrix[val][osys.value] = read_matrix_for_os(osys, val)
 
-        update_versions(versions, release_matrix, options.version)
+        for val in ("nightly", "release"):
+            update_versions(versions, release_matrix[val], val)
+
         write_published_versions(versions)
 
-    # template = read_quick_start_module_template()
-    # versions_str = json.dumps(gen_install_matrix(versions))
-    # print(template.replace("{{ installMatrix }}", versions_str))
+    #template = read_quick_start_module_template()
+    #versions_str = json.dumps(gen_install_matrix(versions))
+    #print(template.replace("{{ installMatrix }}", versions_str))
 
 
 if __name__ == "__main__":
