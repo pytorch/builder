@@ -266,7 +266,10 @@ else
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
-    if [[ "$desired_cuda" == "11.7" ]]; then
+    if [[ "$desired_cuda" == "11.8" ]]; then
+	    export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=11.9,<12.0 # [not osx]"
+	    export MAGMA_PACKAGE="    - magma-cuda118 # [not osx and not win]"
+    elif [[ "$desired_cuda" == "11.7" ]]; then
 	    export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=11.7,<11.8 # [not osx]"
 	    export MAGMA_PACKAGE="    - magma-cuda117 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.6" ]]; then
