@@ -39,6 +39,7 @@ jobs:
 
   win:
     needs: generate-windows-matrix
+    continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
       fail-fast: false

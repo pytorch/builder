@@ -39,6 +39,7 @@ jobs:
 
   linux:
     needs: generate-linux-matrix
+    continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
       fail-fast: false

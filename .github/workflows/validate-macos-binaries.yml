@@ -45,6 +45,7 @@ jobs:
 
   macos:
     needs: generate-macos-matrix
+    continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
       fail-fast: false
@@ -84,6 +85,7 @@ jobs:
 
   macos-arm64:
     needs: generate-macos-arm64-matrix
+    continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
       fail-fast: false
