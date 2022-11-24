@@ -170,11 +170,10 @@ ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 # cmake is already installed inside the rocm base image, but both 2 and 3 exist
 # cmake3 is needed for the later MIOpen custom build, so that step is last.
-RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
-    rm -f /usr/bin/cmake && \
-    ln -s /usr/local/bin/cmake /usr/bin/cmake && \
-    ln -s /usr/local/bin/cmake /usr/bin/cmake3
+RUN rpm -e cmake && \
+    pip3 install cmake==3.18.4 && \
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake && \
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake3
 
 ADD ./common/install_miopen.sh install_miopen.sh
 RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
