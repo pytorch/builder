@@ -78,6 +78,9 @@ if "%CUDA_VERSION%" == "116" (
 if "%CUDA_VERSION%" == "117" (
     set "CONDA_EXTRA_ARGS=-c=nvidia"
 )
+if "%CUDA_VERSION%" == "118" (
+    set "CONDA_EXTRA_ARGS=-c=nvidia"
+)
 
 rmdir /s /q conda
 del miniconda.exe

@@ -27,11 +27,11 @@ IF "%NVTOOLSEXT_PATH%"=="" (
     )
 )
 
-IF "%CUDA_PATH_V113%"=="" (
-    IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3\bin\nvcc.exe" (
-        set "CUDA_PATH_V113=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.3"
+IF "%CUDA_PATH_V118%"=="" (
+    IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\nvcc.exe" (
+        set "CUDA_PATH_V118=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8"
     ) ELSE (
-        echo CUDA 11.3 not found, failing
+        echo CUDA 11.8 not found, failing
         exit /b 1
     )
 )
@@ -43,8 +43,8 @@ IF "%BUILD_VISION%" == "" (
     set NVCC_FLAGS=-D__CUDA_NO_HALF_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_80,code=compute_80 -gencode=arch=compute_86,code=compute_86
 )
 
-set "CUDA_PATH=%CUDA_PATH_V113%"
-set "PATH=%CUDA_PATH_V113%\bin;%PATH%"
+set "CUDA_PATH=%CUDA_PATH_V118%"
+set "PATH=%CUDA_PATH_V118%\bin;%PATH%"
 
 :optcheck
 
