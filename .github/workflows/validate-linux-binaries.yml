@@ -71,6 +71,7 @@ jobs:
           curl ${{ matrix.installation }} -o libtorch.zip
           unzip libtorch.zip
         else
+          INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
           eval $INSTALLATION
           python  ./test/smoke_test/smoke_test.py
           ${PWD}/check_binary.sh
