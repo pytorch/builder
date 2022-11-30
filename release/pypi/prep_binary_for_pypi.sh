@@ -58,7 +58,6 @@ for whl_file in "$@"; do
             rm -rf "${whl_dir}"/torch/lib/libnvrtc*
 
             sed -i -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
-            patchelf --replace-needed libnvrtc-d833c4f3.so.11.2 libnvrtc.so.11.2 "${whl_dir}/torch/lib/libcaffe2_nvrtc.so"
         fi
 
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;

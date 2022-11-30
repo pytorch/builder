@@ -147,13 +147,9 @@ elif [[ $CUDA_VERSION == "11.7" ]]; then
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
     DEPS_LIST=(
-        "/usr/local/cuda/lib64/libcudart.so.11.0"
-        "/usr/local/cuda/lib64/libnvToolsExt.so.1"
         "$LIBGOMP_PATH"
     )
     DEPS_SONAME=(
-        "libcudart.so.11.0"
-        "libnvToolsExt.so.1"
         "libgomp.so.1"
     )
 
@@ -171,6 +167,8 @@ elif [[ $CUDA_VERSION == "11.7" ]]; then
             "/usr/local/cuda/lib64/libcublasLt.so.11"
             "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.7, it links to 11.7.50
             "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
+            "/usr/local/cuda/lib64/libcudart.so.11.0"
+            "/usr/local/cuda/lib64/libnvToolsExt.so.1"
         )
         DEPS_SONAME+=(
             "libcudnn_adv_infer.so.8"
@@ -238,14 +236,23 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
             "libcublasLt.so.11"
             "libnvrtc.so.11.2"
             "libnvrtc-builtins.so.11.7"
+            "libcudart.so.11.0"
+            "libnvToolsExt.so.1"
         )
     else
-        echo "Using cudnn, cublas, nccl, and nvrtc from pypi."
+        echo "Using nvidia libs from pypi."
         CUDA_RPATHS=(
             '$ORIGIN/../../nvidia/cublas/lib'
+            '$ORIGIN/../../nvidia/cuda_cupti/lib'
             '$ORIGIN/../../nvidia/cuda_nvrtc/lib'
+            '$ORIGIN/../../nvidia/cuda_runtime/lib'
             '$ORIGIN/../../nvidia/cudnn/lib'
+            '$ORIGIN/../../nvidia/cufft/lib'
+            '$ORIGIN/../../nvidia/curand/lib'
+            '$ORIGIN/../../nvidia/cusolver/lib'
+            '$ORIGIN/../../nvidia/cusparse/lib'
             '$ORIGIN/../../nvidia/nccl/lib'
+            '$ORIGIN/../../nvidia/nvtx/lib'
         )
         CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
         export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
@@ -253,6 +260,9 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
         export FORCE_RPATH="--force-rpath"
         export USE_STATIC_NCCL=0
         export USE_SYSTEM_NCCL=1
+        export ATEN_STATIC_CUDA=0
+        export USE_CUDA_STATIC_LINK=0
+        export USE_CUPTI_SO=1
     fi
 else
     echo "Unknown cuda version $CUDA_VERSION"
