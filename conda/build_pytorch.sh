@@ -251,6 +251,7 @@ build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
     export USE_CUDA=0
     export CONDA_CUDATOOLKIT_CONSTRAINT=""
+    export CONDA_TRITON_CONSTRAINT=""
     export MAGMA_PACKAGE=""
     export CUDA_VERSION="0.0"
     export CUDNN_VERSION="0.0"
@@ -282,7 +283,7 @@ else
     if [[ "$OSTYPE" != "msys" ]]; then
         # TODO: Remove me when Triton has a proper release channel
         TRITON_SHORTHASH=$(cut -c1-10 $pytorch_rootdir/.github/ci_commit_pins/triton.txt)
-        export CONDA_CUDATOOLKIT_CONSTRAINT="${CONDA_CUDATOOLKIT_CONSTRAINT}\n    - torchtriton==2.0.0+${TRITON_SHORTHASH}"
+        export CONDA_TRITON_CONSTRAINT="    - torchtriton==2.0.0+${TRITON_SHORTHASH}"
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
