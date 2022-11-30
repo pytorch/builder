@@ -31,7 +31,7 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
-# Parse arguments and determmine version
+# Parse arguments and determine version
 ###########################################################
 if [[ -n "$DESIRED_CUDA" && -n "$PYTORCH_BUILD_VERSION" && -n "$PYTORCH_BUILD_NUMBER" ]]; then
     desired_cuda="$DESIRED_CUDA"
@@ -245,7 +245,7 @@ fi
 meta_yaml="$build_folder/meta.yaml"
 echo "Using conda-build folder $build_folder"
 
-# Switch between CPU or CUDA configerations
+# Switch between CPU or CUDA configurations
 ###########################################################
 build_string_suffix="$PYTORCH_BUILD_NUMBER"
 if [[ -n "$cpu_only" ]]; then
@@ -278,6 +278,11 @@ else
     else
         echo "unhandled desired_cuda: $desired_cuda"
         exit 1
+    fi
+    if [[ "$OSTYPE" != "msys" ]]; then
+        # TODO: Remove me when Triton has a proper release channel
+        TRITON_SHORTHASH=$(cut -c1-10 $pytorch_rootdir/.github/ci_commit_pins/triton.txt)
+        export CONDA_CUDATOOLKIT_CONSTRAINT="${CONDA_CUDATOOLKIT_CONSTRAINT}\n    - torchtriton==2.0.0+${TRITON_SHORTHASH}"
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
