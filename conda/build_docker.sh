@@ -11,6 +11,7 @@ if [[ ${CUDA_VERSION:0:2} == "10" ]]; then
   DEVTOOLSET_VERSION="7"
 fi
 
+# add a empty line
 case ${CUDA_VERSION} in
   cpu)
     BASE_TARGET=base
