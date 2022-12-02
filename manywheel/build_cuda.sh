@@ -263,6 +263,8 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
         export ATEN_STATIC_CUDA=0
         export USE_CUDA_STATIC_LINK=0
         export USE_CUPTI_SO=1
+        export NCCL_INCLUDE_DIR="/usr/local/cuda/include/"
+        export NCCL_LIB_DIR="/usr/local/cuda/lib64/"
     fi
 else
     echo "Unknown cuda version $CUDA_VERSION"
