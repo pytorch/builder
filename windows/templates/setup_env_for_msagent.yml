@@ -4,13 +4,6 @@ parameters:
 steps:
 - ${{ if eq(parameters.msagent, 'true') }}:
   - task: BatchScript@1
-    displayName: 'Install VS 2017'
-    inputs:
-      filename: 'windows/internal/vs_install.bat'
-
-      modifyEnvironment: true
-
-  - task: BatchScript@1
     enabled: false
     displayName: 'Environment fix'
     inputs:
