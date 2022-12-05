@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 set -ex
 
 conda create -y -n ${ENV_NAME} python=${DESIRED_PYTHON} numpy pillow
