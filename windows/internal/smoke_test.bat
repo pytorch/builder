@@ -51,7 +51,10 @@ set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 pip install -q numpy protobuf "mkl>=2019"
 if errorlevel 1 exit /b 1
 
-if "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
+if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
+    call internal\install_nightly_package.bat
+    if errorlevel 1 exit /b 1
+) else (
     for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
     if errorlevel 1 exit /b 1
 )
@@ -103,16 +106,20 @@ set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
-if "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
-    for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install %CONDA_EXTRA_ARGS% -y "%%i" --offline
-    if ERRORLEVEL 1 exit /b 1
-
-    if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
-
-    :: We do an update --all here since that will install the dependencies for any package that's installed offline
-    call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
-    if ERRORLEVEL 1 exit /b 1
+if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
+    call internal\install_nightly_package.bat
+    if errorlevel 1 exit /b 1
+    goto smoke_test
 )
+
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install %CONDA_EXTRA_ARGS% -y "%%i" --offline
+if ERRORLEVEL 1 exit /b 1
+
+if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
+
+:: We do an update --all here since that will install the dependencies for any package that's installed offline
+call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
+if ERRORLEVEL 1 exit /b 1
 
 goto smoke_test
 
@@ -161,7 +168,10 @@ echo "install and test libtorch"
 if "%VC_YEAR%" == "2017" powershell internal\vs2017_install.ps1
 if ERRORLEVEL 1 exit /b 1
 
-if "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
+if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
+    call internal\install_nightly_package.bat
+    if errorlevel 1 exit /b 1
+) else (
     for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
     if ERRORLEVEL 1 exit /b 1
 )
