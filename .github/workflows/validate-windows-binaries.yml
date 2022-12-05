@@ -56,5 +56,6 @@ jobs:
         export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
         export INSTALLATION="${{ matrix.installation }}"
         export CUDA_VER="${{ matrix.desired_cuda }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
         export TARGET_OS="windows"
         ./.github/scripts/validate_binaries.sh
