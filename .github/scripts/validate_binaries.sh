@@ -5,7 +5,10 @@ if [[ ${PACKAGE_TYPE} == "libtorch" ]]; then
     curl ${INSTALLATION} -o libtorch.zip
     unzip libtorch.zip
 else
-    eval "$(conda shell.bash hook)"
+    if [[ ${TARGET_OS} != 'windows' ]]; then
+        eval "$(conda shell.bash hook)"
+    fi
+
     conda create -y -n ${ENV_NAME} python=${DESIRED_PYTHON} numpy pillow
     conda activate ${ENV_NAME}
     export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
