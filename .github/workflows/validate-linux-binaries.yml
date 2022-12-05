@@ -61,4 +61,4 @@ jobs:
         export DESIRED_DEVTOOLSET="${{ matrix.devtoolset }}"
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export TARGET_OS="linux"
-        ../scripts/validate_binaries.sh
+       ./.github/scripts/validate_binaries.sh
