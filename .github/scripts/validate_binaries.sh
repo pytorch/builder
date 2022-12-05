@@ -1,5 +1,6 @@
+#!/usr/bin/env bash
 set -ex
-
+eval "$(conda shell.bash hook)"
 conda create -y -n ${ENV_NAME} python=${DESIRED_PYTHON} numpy pillow
 conda activate ${ENV_NAME}
 export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
