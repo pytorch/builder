@@ -50,6 +50,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
       script: |
+        set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
         export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
