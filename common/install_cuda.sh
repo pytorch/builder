@@ -73,6 +73,16 @@ function install_118 {
     cd ..
     rm -rf tmp_cudnn
     ldconfig
+
+    # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
+    mkdir tmp_nccl && cd tmp_nccl
+    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.15.5/nccl_2.15.5-1+cuda11.8_x86_64.txz
+    tar xf nccl_2.15.5-1+cuda11.8_x86_64.txz
+    cp -a nccl_2.15.5-1+cuda11.8_x86_64/include/* /usr/local/cuda/include/
+    cp -a nccl_2.15.5-1+cuda11.8_x86_64/lib/* /usr/local/cuda/lib64/
+    cd ..
+    rm -rf tmp_nccl
+    ldconfig
 }
 
 function prune_116 {
