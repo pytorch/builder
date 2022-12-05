@@ -57,13 +57,4 @@ jobs:
         export INSTALLATION="${{ matrix.installation }}"
         export CUDA_VER="${{ matrix.desired_cuda }}"
         export TARGET_OS="windows"
-
-        if [[ ${{ matrix.package_type }} == "libtorch" ]]; then
-          curl ${{ matrix.installation }} -o libtorch.zip
-          unzip libtorch.zip
-        else
-          conda create -y -n ${ENV_NAME} python=${{ matrix.python_version }} numpy pillow
-          conda activate ${ENV_NAME}
-          eval $INSTALLATION
-          python ./test/smoke_test/smoke_test.py
-        fi
+        ./.github/scripts/validate_binaries.sh
