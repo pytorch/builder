@@ -51,7 +51,7 @@ set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 pip install -q numpy protobuf "mkl>=2019"
 if errorlevel 1 exit /b 1
 
-if "%TEST_NIGHTLY_PACKAGE%" == "1" (
+if "%PYTORCH_BUILD_VERSION%" == "1" (
     call internal\install_nightly_package.bat
     if errorlevel 1 exit /b 1
 ) else (
@@ -106,7 +106,7 @@ set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
-if "%TEST_NIGHTLY_PACKAGE%" == "1" (
+if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
     call internal\install_nightly_package.bat
     if errorlevel 1 exit /b 1
     goto smoke_test
@@ -168,7 +168,7 @@ echo "install and test libtorch"
 if "%VC_YEAR%" == "2017" powershell internal\vs2017_install.ps1
 if ERRORLEVEL 1 exit /b 1
 
-if "%TEST_NIGHTLY_PACKAGE%" == "1" (
+if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
     call internal\install_nightly_package.bat
     if errorlevel 1 exit /b 1
 ) else (
