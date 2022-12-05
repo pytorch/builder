@@ -18,7 +18,7 @@ else
     INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
     eval $INSTALLATION
     python  ./test/smoke_test/smoke_test.py
-    if [[ ${TARGET_OS} != 'macos' and ${TARGET_OS} != 'windows' ]]; then
+    if [[ ${TARGET_OS} != 'macos' && ${TARGET_OS} != 'windows' ]]; then
         ${PWD}/check_binary.sh
     fi
 fi
