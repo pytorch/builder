@@ -5,13 +5,8 @@ if "%PACKAGE_TYPE%" == "libtorch" goto libtorch
 :wheel
 echo "install pytorch wheel from nightly"
 
-set pip_url="https://download.pytorch.org/whl/nightly/%DESIRED_CUDA%/torch_nightly.html"
-if "%DESIRED_CUDA%" == "cu102" (
-    set package_name_and_version="torch==%NIGHTLIES_DATE_PREAMBLE%%DATE%"
-) else (
-    set package_name_and_version="torch==%NIGHTLIES_DATE_PREAMBLE%%DATE%+%DESIRED_CUDA%"
-)
-pip install "%package_name_and_version%" -f "%pip_url%" --no-cache-dir --no-index -q
+set pip_url="https://download.pytorch.org/whl/nightly/%DESIRED_CUDA%"
+pip3 install --pre torch --extra-index-url %pip_url%
 if errorlevel 1 exit /b 1
 
 exit /b 0
@@ -54,11 +49,8 @@ if "%LIBTORCH_CONFIG%" == "debug" (
 ) else (
     set NAME_PREFIX=libtorch-win-shared-with-deps
 )
-if "%DESIRED_CUDA%" == "cu102" (
-    set package_name=%NAME_PREFIX%-%NIGHTLIES_DATE_PREAMBLE%%DATE%.zip
-) else (
-    set package_name=%NAME_PREFIX%-%NIGHTLIES_DATE_PREAMBLE%%DATE%%%2B%DESIRED_CUDA%.zip
-)
+
+set package_name=%NAME_PREFIX%-%NIGHTLIES_DATE_PREAMBLE%%DATE%%%2B%DESIRED_CUDA%.zip
 set libtorch_url="https://download.pytorch.org/libtorch/nightly/%DESIRED_CUDA%/%package_name%"
 curl --retry 3 -k "%libtorch_url%" -o %package_name%
 if ERRORLEVEL 1 exit /b 1
