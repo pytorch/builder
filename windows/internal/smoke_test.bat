@@ -51,13 +51,8 @@ set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 pip install -q numpy protobuf "mkl>=2019"
 if errorlevel 1 exit /b 1
 
-if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
-    call internal\install_nightly_package.bat
-    if errorlevel 1 exit /b 1
-) else (
-    for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
-    if errorlevel 1 exit /b 1
-)
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
+if errorlevel 1 exit /b 1
 
 goto smoke_test
 
@@ -69,17 +64,14 @@ set "CONDA_HOME=%CD%\conda"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
 set "CONDA_EXTRA_ARGS="
-if "%CUDA_VERSION%" == "115" (
-    set "CONDA_EXTRA_ARGS=-c=nvidia"
-)
 if "%CUDA_VERSION%" == "116" (
-    set "CONDA_EXTRA_ARGS=-c=nvidia"
+    set "CONDA_EXTRA_ARGS=pytorch-cuda=11.6 -c nvidia -c pytorch-nightly"
 )
 if "%CUDA_VERSION%" == "117" (
-    set "CONDA_EXTRA_ARGS=-c=nvidia"
+    set "CONDA_EXTRA_ARGS=pytorch-cuda=11.7 -c nvidia -c pytorch-nightly"
 )
 if "%CUDA_VERSION%" == "118" (
-    set "CONDA_EXTRA_ARGS=-c=nvidia"
+    set "CONDA_EXTRA_ARGS=pytorch-cuda=11.8 -c nvidia -c pytorch-nightly"
 )
 
 rmdir /s /q conda
@@ -96,9 +88,8 @@ if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
-call conda update -n base -y -c defaults conda
-
-call conda install %CONDA_EXTRA_ARGS% -yq protobuf numpy
+:: do conda install to make sure all the dependencies are installed
+call conda install -yq pytorch %CONDA_EXTRA_ARGS%
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
@@ -106,25 +97,16 @@ set CUDA_VER_MAJOR=%CUDA_VERSION:~0,-1%
 set CUDA_VER_MINOR=%CUDA_VERSION:~-1,1%
 set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
-if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
-    call internal\install_nightly_package.bat
-    if errorlevel 1 exit /b 1
-    goto smoke_test
-)
-
-for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install %CONDA_EXTRA_ARGS% -y "%%i" --offline
+:: Install package we just build
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install -yq "%%i" --offline
 if ERRORLEVEL 1 exit /b 1
 
 if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
 
-:: We do an update --all here since that will install the dependencies for any package that's installed offline
-call conda update --all %CONDA_EXTRA_ARGS% -y -c pytorch -c defaults -c numba/label/dev
-if ERRORLEVEL 1 exit /b 1
-
 goto smoke_test
 
 :install_cpu_torch
-call conda install %CONDA_EXTRA_ARGS% -y cpuonly -c pytorch
+call conda install %CONDA_EXTRA_ARGS% -y cpuonly -c pytorch-nightly
 if ERRORLEVEL 1 exit /b 1
 
 :smoke_test
@@ -168,13 +150,8 @@ echo "install and test libtorch"
 if "%VC_YEAR%" == "2017" powershell internal\vs2017_install.ps1
 if ERRORLEVEL 1 exit /b 1
 
-if NOT "%PYTORCH_BUILD_VERSION%"=="%PYTORCH_BUILD_VERSION:dev=%" (
-    call internal\install_nightly_package.bat
-    if errorlevel 1 exit /b 1
-) else (
-    for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
-    if ERRORLEVEL 1 exit /b 1
-)
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
+if ERRORLEVEL 1 exit /b 1
 
 pushd tmp\libtorch
 
