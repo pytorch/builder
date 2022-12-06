@@ -35,6 +35,8 @@ requirements:
     - cuda-runtime {{ cuda_constraints }}
     - cuda-toolkit {{ cuda_constraints }}
     - cuda-tools {{ cuda_constraints }}
+    # Should be incompatible with cpuonly package
+    - cpuonly <0
   # None, pytorch should depend on pytorch-cuda
 test:
   commands:
