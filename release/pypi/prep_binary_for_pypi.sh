@@ -88,10 +88,10 @@ for whl_file in "$@"; do
             record_file="${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}/RECORD"
             if [[ -e $record_file ]]; then
                 echo "Generating new record file $record_file"
-                rm -f $record_file
+                : > "$record_file"
                 # generate records for folders in wheel
                 find * -type f | while read fname; do
-                    echo $(make_wheel_record $fname) >>$record_file
+                    make_wheel_record "$fname" >>"$record_file"
                 done
             fi
         )
