@@ -41,8 +41,12 @@ RUN bash ./install_conda.sh && rm install_conda.sh
 
 # Install CUDA
 FROM base as cuda
+ARG CUDA_VERSION=10.2
 RUN rm -rf /usr/local/cuda-*
 ADD ./common/install_cuda.sh install_cuda.sh
+ENV CUDA_HOME=/usr/local/cuda-${CUDA_VERSION}
+# Make things in our path by default
+ENV PATH=/usr/local/cuda-${CUDA_VERSION}/bin:$PATH
 
 FROM cuda as cuda11.6
 RUN bash ./install_cuda.sh 11.6
