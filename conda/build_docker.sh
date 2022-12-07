@@ -52,6 +52,11 @@ if [[ "${DOCKER_TAG}" =~ ^cuda* ]]; then
     set -x
     docker tag ${DOCKER_IMAGE} "pytorch/conda-builder:cuda${CUDA_VERSION/./}"
   )
+  # Test that we're using the right CUDA compiler
+  (
+    set -x
+    docker run --rm "${DOCKER_IMAGE}" nvcc --version | grep "cuda_${CUDA_VERSION}"
+  )
 fi
 
 if [[ -n ${GITHUB_REF} ]]; then
