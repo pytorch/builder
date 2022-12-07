@@ -49,6 +49,7 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
+      timeout: 60
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
