@@ -47,6 +47,14 @@ requirements:
     - cuda-runtime {{ cuda_constraints }}
     - cuda-toolkit {{ cuda_constraints }}
     - cuda-tools {{ cuda_constraints }}
+    - cuda-gdb {{ cuda_constraints }}
+    - cuda-memcheck {{ cuda_constraints }}
+    - cuda-nsight {{ cuda_constraints }}
+    - cuda-nsight-compute {{ cuda_constraints }}
+    - cuda-nvdisasm {{ cuda_constraints }}
+    - cuda-nvprof {{ cuda_constraints }}
+    - cuda-nvvp {{ cuda_constraints }}
+    - cuda-sanitizer-ap {{ cuda_constraints }}
     - libcufft {{ libcufft_constraints }}
     - libcufft-dev {{ libcufft_constraints }}
     - libcublas {{ libcublas_constraints }}
