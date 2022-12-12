@@ -1,7 +1,9 @@
 {% set build = 0 %}
 {% set cuda_constraints=">=11.6,<11.7" %}
+{% set libcufft_constraints=">=10.6.0.107,<10.7.2.91" %}
 {% if version == '11.7' %}
 {% set cuda_constraints=">=11.7,<11.8" %}
+{% set libcufft_constraints=">=10.7.2.91,<10.9.0.58" %}
 {% endif %}
 
 package:
@@ -35,6 +37,8 @@ requirements:
     - cuda-runtime {{ cuda_constraints }}
     - cuda-toolkit {{ cuda_constraints }}
     - cuda-tools {{ cuda_constraints }}
+    - libcufft {{ libcufft_constraints }}
+    - libcufft-dev {{ libcufft_constraints }}
   # None, pytorch should depend on pytorch-cuda
 test:
   commands:
