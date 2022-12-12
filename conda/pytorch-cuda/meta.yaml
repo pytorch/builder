@@ -54,7 +54,7 @@ requirements:
     - cuda-nvdisasm {{ cuda_constraints }}
     - cuda-nvprof {{ cuda_constraints }}
     - cuda-nvvp {{ cuda_constraints }}
-    - cuda-sanitizer-ap {{ cuda_constraints }}
+    - cuda-sanitizer-api {{ cuda_constraints }}
     - libcufft {{ libcufft_constraints }}
     - libcufft-dev {{ libcufft_constraints }}
     - libcublas {{ libcublas_constraints }}
