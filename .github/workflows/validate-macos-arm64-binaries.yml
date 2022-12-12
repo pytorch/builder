@@ -1,4 +1,4 @@
-name: Validate MacOS Binaries
+name: Validate MacOS ARM64 Binaries
 
 on:
   workflow_call:
@@ -30,16 +30,16 @@ on:
         type: string
 
 jobs:
-  generate-macos-matrix:
+  generate-macos-arm64-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
       package-type: all
-      os: macos
+      os: macos-arm64
       channel: ${{ inputs.channel }}
-  macos:
-    needs: generate-macos-matrix
+  macos-arm64:
+    needs: generate-macos-arm64-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
     name: ${{ matrix.build_name }}
@@ -57,7 +57,6 @@ jobs:
         export CUDA_VER="${{ matrix.desired_cuda }}"
         export DESIRED_PYTHON="${{ matrix.python_version }}"
         export DESIRED_CUDA="${{ matrix.desired_cuda }}"
-        export DESIRED_DEVTOOLSET="${{ matrix.devtoolset }}"
         export PACKAGE_TYPE="${{ matrix.package_type }}"
-        export TARGET_OS="macos"
+        export TARGET_OS="macos-arm64"
         ./.github/scripts/validate_binaries.sh
