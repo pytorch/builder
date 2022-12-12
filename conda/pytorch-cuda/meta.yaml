@@ -1,9 +1,19 @@
 {% set build = 0 %}
 {% set cuda_constraints=">=11.6,<11.7" %}
-{% set libcufft_constraints=">=10.6.0.107,<10.7.2.91" %}
+{% set libcufft_constraints=">=10.7.0.55,<10.7.2.50" %}
+{% set libcublas_constraints=">=11.8.1.74,<11.10.1.25" %}
+{% set libcusolver_constraints=">=11.3.2.55,<11.3.5.50" %}
+{% set libcusparse_constraints=">=11.7.1.55,<11.7.3.50" %}
+{% set libnpp_constraints=">=11.6.0.55,<11.7.3.21" %}
+{% set libnvjpeg_constraints=">=11.6.0.55,<11.7.2.34" %}
 {% if version == '11.7' %}
 {% set cuda_constraints=">=11.7,<11.8" %}
-{% set libcufft_constraints=">=10.7.2.91,<10.9.0.58" %}
+{% set libcufft_constraints=">=10.7.2.50,<10.9.0.58" %}
+{% set libcublas_constraints=">=11.10.1.25,<11.11.3.6" %}
+{% set libcusolver_constraints=">=11.3.5.50,<11.4.1.48" %}
+{% set libcusparse_constraints=">=11.7.3.50,<11.7.5.86" %}
+{% set libnpp_constraints=">=11.7.3.21,<11.8.0.86" %}
+{% set libnvjpeg_constraints=">=11.7.2.34,<11.9.0.86" %}
 {% endif %}
 
 package:
@@ -39,6 +49,16 @@ requirements:
     - cuda-tools {{ cuda_constraints }}
     - libcufft {{ libcufft_constraints }}
     - libcufft-dev {{ libcufft_constraints }}
+    - libcublas {{ libcublas_constraints }}
+    - libcublas-dev {{ libcublas_constraints }}
+    - libcusolver {{ libcusolver_constraints }}
+    - libcusolver-dev {{ libcusolver_constraints }}
+    - libcusparse {{ libcusparse_constraints }}
+    - libcusparse-dev {{ libcusparse_constraints }}
+    - libnpp {{ libnpp_constraints }}
+    - libnpp-dev {{ libnpp_constraints }}
+    - libnvjpeg {{ libnvjpeg_constraints }}
+    - libnvjpeg-dev {{ libnvjpeg_constraints }}
   # None, pytorch should depend on pytorch-cuda
 test:
   commands:
