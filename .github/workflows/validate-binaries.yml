@@ -71,3 +71,10 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+
+  mac-arm64:
+    if:  inputs.os == 'macos' || inputs.os == 'all'
+    uses: ./.github/workflows/validate-macos-arm64-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
