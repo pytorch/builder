@@ -41,7 +41,7 @@ requirements:
     - libuv # [win]
     - intel-openmp # [win]
     - typing_extensions
-    - sympy # [linux]
+    - sympy
     {% if cross_compile_arm64 == 0 %}
     - blas * mkl
     {% endif %}
