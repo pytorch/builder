@@ -1,4 +1,11 @@
-{% set build = 0 %}
+# Package to manage cuda version in PyTorch
+# Please note: Build number should be advanced with
+# every deployment. After the deployment to production
+# use following links to validate the correctness of
+# deployment:
+# https://conda.anaconda.org/pytorch/noarch/
+# https://conda.anaconda.org/pytorch/noarch/repodata.json
+{% set build = 1 %}
 {% set cuda_constraints=">=11.6,<11.7" %}
 {% set libcufft_constraints=">=10.7.0.55,<10.7.2.50" %}
 {% set libcublas_constraints=">=11.8.1.74,<11.10.1.25" %}
