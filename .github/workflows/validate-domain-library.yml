@@ -4,8 +4,6 @@ name: Validate domain libary
 # Optionally restricts validation to the specified OS and channel.
 # For the details about parameter values, see:
 #   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-# For an example of the `workflow_call` usage see:
-#   https://github.com/pytorch/builder/pull/1144
 on:
   workflow_call:
     inputs:
@@ -36,7 +34,6 @@ on:
         type: string
 
 jobs:
-
   generate-linux-conda-matrix:
     if:  (inputs.os == 'linux' || inputs.os == 'all') && (inputs.package_type == 'conda' || inputs.package_type == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
