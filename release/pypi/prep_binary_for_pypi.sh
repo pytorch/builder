@@ -95,6 +95,7 @@ for whl_file in "$@"; do
             fi
         )
 
+        rm -rf "${new_whl_file}"
         zip -qr9 "${new_whl_file}" .
     )
 done
