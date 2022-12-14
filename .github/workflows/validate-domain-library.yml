@@ -5,6 +5,38 @@ name: Validate domain libary
 # For the details about parameter values, see:
 #   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
 on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+      package-type:
+        description: "Package type (conda, wheel, all)"
+        required: true
+        type: choice
+        options:
+          - conda
+          - wheel
+          - all
+      repository:
+        description: "Path to repository to checkout"
+        required: true
+        type: string
+      smoke_test:
+        description: "Path to a smoke test script"
+        required: true
+        type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
   workflow_call:
     inputs:
       os:
