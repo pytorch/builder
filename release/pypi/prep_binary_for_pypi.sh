@@ -77,15 +77,7 @@ for whl_file in "$@"; do
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
         # Moves distinfo from one with a version suffix to one without
         # Example: torch-1.8.0+cpu.dist-info => torch-1.8.0.dist-info
-
-        echo "Before moving dist_info_folder"
-        ls -l "${whl_dir}"
-
         mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}"
-
-        echo "After moving dist_info_folder"
-        ls -l "${whl_dir}"
-
         cd "${whl_dir}"
 
         (

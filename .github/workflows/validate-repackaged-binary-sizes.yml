@@ -8,10 +8,14 @@ name: Validate manywheel binaries
 #  * download the binaries,
 #  * run release/pypi/prep_binary_for_pypi.sh
 #  * run smoke tests on the repackaged binaries
-#  * display the size before and after repackaging
+#  * display the size before and after repackaging as the workflow annotation
+#  * optionally upload the repackaged binaries as artifacts (for debug or promotion)
 
 on:
   pull_request:
+    paths:
+      - .github/workflows/validate-repackaged-binary-sizes.yml
+      - release/pypi/prep_binary_for_pypi.sh
 
 jobs:
   validate-binary-size:
@@ -20,21 +24,26 @@ jobs:
       matrix:
         whl:
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp310-cp310-linux_x86_64.whl
-            python: "3.10"
+            python: "3.10"  # python version to use for smoke tests
+            upload_artifact: false # upload the repackaged binary as an artifact
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp37-cp37m-linux_x86_64.whl
             python: "3.7"
+            artifact: false
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp38-cp38-linux_x86_64.whl
             python: "3.8"
+            artifact: false
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp39-cp39-linux_x86_64.whl
             python: "3.9"
-    #          - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp311-cp311-linux_x86_64.whl
-    #            python: "3.11"
+            artifact: false
+     #    - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp311-cp311-linux_x86_64.whl
+     #      python: "3.11"
+     #      artifact: false
 
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     with:
       runner: linux.4xlarge.nvidia.gpu
       job-name: "Validate binary size"
-      upload-artifact: pipy_wheel
+      upload-artifact: ${{ matrix.whl.upload_artifact == 'true' && 'repackaged-binary' || '' }}
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
