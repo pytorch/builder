@@ -21,21 +21,20 @@ jobs:
         whl:
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp310-cp310-linux_x86_64.whl
             python: "3.10"
-#          - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp311-cp311-linux_x86_64.whl
-#            python: "3.11"
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp37-cp37m-linux_x86_64.whl
             python: "3.7"
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp38-cp38-linux_x86_64.whl
             python: "3.8"
           - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp39-cp39-linux_x86_64.whl
             python: "3.9"
+    #          - url: https://download.pytorch.org/whl/test/cu117_pypi_cudnn/torch-1.13.1%2Bcu117.with.pypi.cudnn-cp311-cp311-linux_x86_64.whl
+    #            python: "3.11"
 
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     with:
       runner: linux.4xlarge.nvidia.gpu
-      repository: "pytorch/builder"
-      ref: ${{ github.ref }}
       job-name: "Validate binary size"
+      upload-artifact: pipy_wheel
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -65,6 +64,9 @@ jobs:
         
         NEW_FILENAME=$(ls -1 *.whl | head -n 1)
         echo "::notice:: $FILENAME before: $SIZE_BEFORE after: $(du -h $NEW_FILENAME | cut -f1)"
+        
+        # cp to ${RUNNER_ARTIFACT_DIR}
+        cp $NEW_FILENAME ${RUNNER_ARTIFACT_DIR}/
         
         # create conda env
         conda create -y -n $ENV_NAME python=$DESIRED_PYTHON
