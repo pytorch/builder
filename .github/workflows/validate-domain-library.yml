@@ -5,44 +5,13 @@ name: Validate domain libary
 # For the details about parameter values, see:
 #   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
 on:
-  workflow_dispatch:
-    inputs:
-      channel:
-        description: "Channel to use (nightly, test, release, all)"
-        required: true
-        type: choice
-        options:
-          - release
-          - nightly
-          - test
-          - all
-      package-type:
-        description: "Package type (conda, wheel, all)"
-        required: true
-        type: choice
-        options:
-          - conda
-          - wheel
-          - all
-      repository:
-        description: "Path to repository to checkout"
-        required: true
-        type: string
-      smoke_test:
-        description: "Path to a smoke test script"
-        required: true
-        type: string
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
   workflow_call:
     inputs:
       os:
         description: "Operating system to generate for (linux, windows, macos, macos-arm64)"
-        required: true
+        required: false
         type: string
+        default: "all"
       channel:
         description: "Channel to use (nightly, test, release, all)"
         required: true
@@ -52,10 +21,11 @@ on:
         default: ""
         required: false
         type: string
-      package-type:
+      package_type:
         description: "Package type (conda, wheel, all)"
-        required: true
+        required: false
         type: string
+        default: "all"
       repository:
         description: "Path to repository to checkout"
         required: true
@@ -89,12 +59,12 @@ jobs:
       matrix: ${{ fromJson(needs.generate-linux-conda-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
-    name: "text-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
     with:
       runner: "linux.2xlarge"
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "text-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -110,12 +80,12 @@ jobs:
       matrix: ${{ fromJson(needs.generate-linux-wheel-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
-    name: "text-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
     with:
       runner: "linux.2xlarge"
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "text-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
