@@ -307,7 +307,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
 else
   # NS: TODO remove me once changes to pytorch circleci test script are landed
   if [[ "$PACKAGE_TYPE" == 'conda' && "$(uname)" == 'Linux' ]]; then
-    conda install -y sympy
+    pip install sympy
   fi
   pushd /tmp
   python -c 'import torch'
