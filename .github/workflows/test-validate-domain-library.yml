@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-linux-conda:
+  test-all-conda:
     uses: ./.github/workflows/validate-domain-library.yml
     with:
       package_type: "conda"
-      os: "linux"
+      os: "all"
       channel: "release"
       repository: "pytorch/builder"
       ref: main
