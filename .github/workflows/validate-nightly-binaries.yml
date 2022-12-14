@@ -25,7 +25,6 @@ on:
       - .github/workflows/validate-macos-binaries.yml
       - .github/workflows/validate-macos-arm64-binaries.yml
       - test/smoke_test/*
-
 jobs:
   nightly:
     uses: ./.github/workflows/validate-binaries.yml
