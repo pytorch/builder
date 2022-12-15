@@ -40,7 +40,7 @@ for whl_file in "$@"; do
         set -x
         unzip -q "${whl_file}" -d "${whl_dir}"
     )
-    version_with_suffix=$(grep '^Version:' "${whl_dir}"/*/METADATA | cut -d' ' -f2)
+    version_with_suffix=$(grep '^Version:' "${whl_dir}"/*/METADATA | cut -d' ' -f2 | tr -d "[:space:]")
     version_with_suffix_escaped=${version_with_suffix/+/%2B}
 
     # Remove all suffixed +bleh versions
