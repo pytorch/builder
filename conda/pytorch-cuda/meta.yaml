@@ -5,7 +5,7 @@
 # deployment:
 # https://conda.anaconda.org/pytorch/noarch/
 # https://conda.anaconda.org/pytorch/noarch/repodata.json
-{% set build = 1 %}
+{% set build = 2 %}
 {% set cuda_constraints=">=11.6,<11.7" %}
 {% set libcufft_constraints=">=10.7.0.55,<10.7.2.50" %}
 {% set libcublas_constraints=">=11.8.1.74,<11.10.1.25" %}
@@ -21,6 +21,14 @@
 {% set libcusparse_constraints=">=11.7.3.50,<11.7.5.86" %}
 {% set libnpp_constraints=">=11.7.3.21,<11.8.0.86" %}
 {% set libnvjpeg_constraints=">=11.7.2.34,<11.9.0.86" %}
+{% elif version == '11.8' %}
+{% set cuda_constraints=">=11.8,<12.0" %}
+{% set libcufft_constraints=">=10.9.0.58,<11.0.0.21" %}
+{% set libcublas_constraints=">=11.11.3.6,<12.0.1.189" %}
+{% set libcusolver_constraints=">=11.4.1.48,<11.4.2.57" %}
+{% set libcusparse_constraints=">=11.7.5.86,<12.0.0.76" %}
+{% set libnpp_constraints=">=11.8.0.86,<12.0.0.30" %}
+{% set libnvjpeg_constraints=">=11.9.0.86,<12.0.0.28" %}
 {% endif %}
 
 package:
@@ -41,31 +49,20 @@ requirements:
     - cuda-cuobjdump {{ cuda_constraints }}
     - cuda-cupti {{ cuda_constraints }}
     - cuda-cuxxfilt {{ cuda_constraints }}
-    - cuda-driver-dev {{ cuda_constraints }}
     - cuda-libraries {{ cuda_constraints }}
-    - cuda-libraries-dev {{ cuda_constraints }}
-    - cuda-cudaart-dev {{ cuda_constraints }}
     - cuda-nvcc {{ cuda_constraints }}
-    - cuda-nvml-dev {{ cuda_constraints }}
     - cuda-nvprune {{ cuda_constraints }}
     - cuda-nvrtc {{ cuda_constraints }}
-    - cuda-nvrtc-dev {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
     - cuda-runtime {{ cuda_constraints }}
     - cuda-toolkit {{ cuda_constraints }}
     - cuda-tools {{ cuda_constraints }}
     - libcufft {{ libcufft_constraints }}
-    - libcufft-dev {{ libcufft_constraints }}
     - libcublas {{ libcublas_constraints }}
-    - libcublas-dev {{ libcublas_constraints }}
     - libcusolver {{ libcusolver_constraints }}
-    - libcusolver-dev {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
-    - libcusparse-dev {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
-    - libnpp-dev {{ libnpp_constraints }}
     - libnvjpeg {{ libnvjpeg_constraints }}
-    - libnvjpeg-dev {{ libnvjpeg_constraints }}
   # None, pytorch should depend on pytorch-cuda
 test:
   commands:
