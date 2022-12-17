@@ -52,6 +52,22 @@ jobs:
       os: windows
       channel: ${{ inputs.channel }}
       with-cuda: disable
+  generate-macos-matrix:
+    if:  (inputs.os == 'macos' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: macos
+      channel: ${{ inputs.channel }}
+      with-cuda: disable
+  generate-macos-arm64-matrix:
+    if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: macos-arm64
+      channel: ${{ inputs.channel }}
+      with-cuda: disable
   validate-linux:
     if:  (inputs.os == 'linux' || inputs.os == 'all')
     needs: generate-linux-matrix
@@ -94,3 +110,43 @@ jobs:
         export CHANNEL="${{ matrix.channel }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
         eval $SMOKE_TEST
+  validate-macos:
+    if:  (inputs.os == 'macos' || inputs.os == 'all')
+    needs: generate-macos-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    with:
+      runner:  ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
+        export CHANNEL="${{ matrix.channel }}"
+       ./.github/scripts/validate_binaries.sh
+  validate-macos-arm64:
+    if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
+    needs: generate-macos-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    with:
+      runner:  ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "macos-arm64-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
+        export CHANNEL="${{ matrix.channel }}"
+       ./.github/scripts/validate_binaries.sh
