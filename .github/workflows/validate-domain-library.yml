@@ -36,32 +36,48 @@ on:
         type: string
 
 jobs:
-  generate-linux-conda-matrix:
-    if:  (inputs.os == 'linux' || inputs.os == 'all') && (inputs.package_type == 'conda' || inputs.package_type == 'all')
+  generate-linux-matrix:
+    if:  (inputs.os == 'linux' || inputs.os == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: conda
+      package-type: ${{ inputs.package_type }}
       os: linux
       channel: ${{ inputs.channel }}
       with-cuda: disable
-  generate-linux-wheel-matrix:
-    if:  (inputs.os == 'linux' || inputs.os == 'all') && (inputs.package_type == 'wheel' || inputs.package_type == 'all')
+  generate-windows-matrix:
+    if:  (inputs.os == 'windows' || inputs.os == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: wheel
-      os: linux
-      channel: ${{ inputs.channel || 'nightly' }}
+      package-type: ${{ inputs.package_type }}
+      os: windows
+      channel: ${{ inputs.channel }}
       with-cuda: disable
-  validate-conda-linux:
-    if:  (inputs.os == 'linux' || inputs.os == 'all') && (inputs.package_type == 'conda' || inputs.package_type == 'all')
-    needs: generate-linux-conda-matrix
+  generate-macos-matrix:
+    if:  (inputs.os == 'macos' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: macos
+      channel: ${{ inputs.channel }}
+      with-cuda: disable
+  generate-macos-arm64-matrix:
+    if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: macos-arm64
+      channel: ${{ inputs.channel }}
+      with-cuda: disable
+  validate-linux:
+    if:  (inputs.os == 'linux' || inputs.os == 'all')
+    needs: generate-linux-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-linux-conda-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
     with:
-      runner: "linux.2xlarge"
+      runner: ${{ matrix.validation_runner }}
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
       job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
@@ -73,19 +89,61 @@ jobs:
         export CHANNEL="${{ matrix.channel }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
         eval $SMOKE_TEST
-  validate-wheel-linux:
-    if: (inputs.os == 'linux' || inputs.os == 'all') && (inputs.package_type == 'wheel' || inputs.package_type == 'all')
-    needs: generate-linux-wheel-matrix
+  validate-windows:
+    if:  (inputs.os == 'windows' || inputs.os == 'all')
+    needs: generate-windows-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-linux-wheel-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
       fail-fast: false
-    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
-    name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
+    name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}"
     with:
-      runner: "linux.2xlarge"
+      runner: ${{ matrix.validation_runner }}
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
+        export CHANNEL="${{ matrix.channel }}"
+        export SMOKE_TEST="${{ inputs.smoke_test }}"
+        eval $SMOKE_TEST
+  validate-macos:
+    if:  (inputs.os == 'macos' || inputs.os == 'all')
+    needs: generate-macos-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    with:
+      runner:  ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export DESIRED_PYTHON="${{ matrix.python_version }}"
+        export PACKAGE_TYPE="${{ matrix.package_type }}"
+        export CHANNEL="${{ matrix.channel }}"
+        export SMOKE_TEST="${{ inputs.smoke_test }}"
+        eval $SMOKE_TEST
+  validate-macos-arm64:
+    if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
+    needs: generate-macos-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    with:
+      runner:  ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "macos-arm64-${{ matrix.package_type }}-${{ matrix.python_version }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
