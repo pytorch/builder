@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-all-conda:
+  test-validate-domain-library:
     uses: ./.github/workflows/validate-domain-library.yml
     with:
-      package_type: "conda"
+      package_type: "conda,wheel"
       os: "all"
       channel: "release"
       repository: "pytorch/builder"
