@@ -56,22 +56,8 @@ for whl_file in "$@"; do
         if [[ $whl_file == *"with.pypi.cudnn"* ]]; then
             rm -rf "${whl_dir}/caffe2"
             rm -rf "${whl_dir}"/torch/lib/libnvrtc*
-            sed -i -e "s/Requires-Dist: nvidia-cuda-runtime-cu11/Requires-Dist: nvidia-cuda-runtime-cu11 (==11.7.99)/" "${whl_dir}"/*/METADATA
-            sed -i -e "/^Requires-Dist: nvidia-cublas-cu11 (==11.10.3.66).*/a Requires-Dist: nvidia-cuda-nvrtc-cu11 (==11.7.99) ; platform_system == \"Linux\"" "${whl_dir}"/*/METADATA
 
             sed -i -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
-            find "${whl_dir}/torch/" -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-                patchelf --set-rpath '$ORIGIN/../../nvidia/cublas/lib:$ORIGIN/../../nvidia/cudnn/lib:$ORIGIN/../../nvidia/cuda_nvrtc/lib:$ORIGIN:$ORIGIN/lib' \
-                    --force-rpath $sofile
-                patchelf --print-rpath $sofile
-            done
-
-            find "${whl_dir}/torch/lib" -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-                patchelf --set-rpath '$ORIGIN/../../nvidia/cublas/lib:$ORIGIN/../../nvidia/cudnn/lib:$ORIGIN/../../nvidia/cuda_nvrtc/lib:$ORIGIN' \
-                    --force-rpath $sofile
-                patchelf --print-rpath $sofile
-            done
-            patchelf --replace-needed libnvrtc-d833c4f3.so.11.2 libnvrtc.so.11.2 "${whl_dir}/torch/lib/libcaffe2_nvrtc.so"
         fi
 
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
