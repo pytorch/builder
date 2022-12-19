@@ -142,14 +142,22 @@ DEPS_SONAME=(
     "libcublasLt.so.11"
     "libgomp.so.1"
 )
-elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
+elif [[ $CUDA_VERSION == "11.7" ]]; then
     export USE_STATIC_CUDNN=0
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
     DEPS_LIST=(
+        "/usr/local/cuda/lib64/libcudart.so.11.0"
+        "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+        "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.7, it links to 11.7.50
+        "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
         "$LIBGOMP_PATH"
     )
     DEPS_SONAME=(
+        "libcudart.so.11.0"
+        "libnvToolsExt.so.1"
+        "libnvrtc.so.11.2"
+        "libnvrtc-builtins.so.11.7"
         "libgomp.so.1"
     )
 
@@ -165,10 +173,6 @@ elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
             "/usr/local/cuda/lib64/libcudnn.so.8"
             "/usr/local/cuda/lib64/libcublas.so.11"
             "/usr/local/cuda/lib64/libcublasLt.so.11"
-            "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.7, it links to 11.7.50
-            "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
-            "/usr/local/cuda/lib64/libcudart.so.11.0"
-            "/usr/local/cuda/lib64/libnvToolsExt.so.1"
         )
         DEPS_SONAME+=(
             "libcudnn_adv_infer.so.8"
@@ -182,31 +186,69 @@ elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
             "libcublasLt.so.11"
         )
     else
-        echo "Using nvidia libs from pypi."
+        echo "Using cudnn and cublas from pypi."
         CUDA_RPATHS=(
             '$ORIGIN/../../nvidia/cublas/lib'
-            '$ORIGIN/../../nvidia/cuda_cupti/lib'
-            '$ORIGIN/../../nvidia/cuda_nvrtc/lib'
-            '$ORIGIN/../../nvidia/cuda_runtime/lib'
             '$ORIGIN/../../nvidia/cudnn/lib'
-            '$ORIGIN/../../nvidia/cufft/lib'
-            '$ORIGIN/../../nvidia/curand/lib'
-            '$ORIGIN/../../nvidia/cusolver/lib'
-            '$ORIGIN/../../nvidia/cusparse/lib'
-            '$ORIGIN/../../nvidia/nccl/lib'
-            '$ORIGIN/../../nvidia/nvtx/lib'
         )
         CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
         export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
         export LIB_SO_RPATH=$CUDA_RPATHS':$ORIGIN'
         export FORCE_RPATH="--force-rpath"
-        export USE_STATIC_NCCL=0
-        export USE_SYSTEM_NCCL=1
-        export ATEN_STATIC_CUDA=0
-        export USE_CUDA_STATIC_LINK=0
-        export USE_CUPTI_SO=1
-        export NCCL_INCLUDE_DIR="/usr/local/cuda/include/"
-        export NCCL_LIB_DIR="/usr/local/cuda/lib64/"
+    fi
+elif [[ $CUDA_VERSION == "11.8" ]]; then
+    export USE_STATIC_CUDNN=0
+    # Try parallelizing nvcc as well
+    export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
+    DEPS_LIST=(
+        "/usr/local/cuda/lib64/libcudart.so.11.0"
+        "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+        "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.8, it links to 11.8.89
+        "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.8"
+        "$LIBGOMP_PATH"
+    )
+    DEPS_SONAME=(
+        "libcudart.so.11.0"
+        "libnvToolsExt.so.1"
+        "libnvrtc.so.11.2"
+        "libnvrtc-builtins.so.11.8"
+        "libgomp.so.1"
+    )
+
+    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+        echo "Bundling with cudnn and cublas."
+        DEPS_LIST+=(
+            "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn.so.8"
+            "/usr/local/cuda/lib64/libcublas.so.11"
+            "/usr/local/cuda/lib64/libcublasLt.so.11"
+        )
+        DEPS_SONAME+=(
+            "libcudnn_adv_infer.so.8"
+            "libcudnn_adv_train.so.8"
+            "libcudnn_cnn_infer.so.8"
+            "libcudnn_cnn_train.so.8"
+            "libcudnn_ops_infer.so.8"
+            "libcudnn_ops_train.so.8"
+            "libcudnn.so.8"
+            "libcublas.so.11"
+            "libcublasLt.so.11"
+        )
+    else
+        echo "Using cudnn and cublas from pypi."
+        CUDA_RPATHS=(
+            '$ORIGIN/../../nvidia/cublas/lib'
+            '$ORIGIN/../../nvidia/cudnn/lib'
+        )
+        CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
+        export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
+        export LIB_SO_RPATH=$CUDA_RPATHS':$ORIGIN'
+        export FORCE_RPATH="--force-rpath"
     fi
 else
     echo "Unknown cuda version $CUDA_VERSION"
