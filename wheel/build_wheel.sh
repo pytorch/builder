@@ -128,7 +128,7 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
     popd
 fi
 pushd "$pytorch_rootdir"
-git submodule update --init --recursive --jobs 0
+git submodule update --init --recursive
 popd
 
 ##########################
