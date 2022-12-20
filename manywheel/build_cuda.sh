@@ -165,10 +165,9 @@ elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
             "/usr/local/cuda/lib64/libcudnn.so.8"
             "/usr/local/cuda/lib64/libcublas.so.11"
             "/usr/local/cuda/lib64/libcublasLt.so.11"
-            "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.7, it links to 11.7.50
-            "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
             "/usr/local/cuda/lib64/libcudart.so.11.0"
             "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+            "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake, it links to more specific cuda version
         )
         DEPS_SONAME+=(
             "libcudnn_adv_infer.so.8"
@@ -180,7 +179,26 @@ elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
             "libcudnn.so.8"
             "libcublas.so.11"
             "libcublasLt.so.11"
+            "libcudart.so.11.0"
+            "libnvToolsExt.so.1"
+            "libnvrtc.so.11.2"
         )
+        if [[ $CUDA_VERSION == "11.7" ]]; then
+            DEPS_LIST+=(
+                "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
+            )
+            DEPS_SONAME+=(
+                "libnvrtc-builtins.so.11.7"
+            )
+        fi
+        if [[ $CUDA_VERSION == "11.8" ]]; then
+            DEPS_LIST+=(
+                "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.8"
+            )
+            DEPS_SONAME+=(
+                "libnvrtc-builtins.so.11.8"
+            )
+        fi
     else
         echo "Using nvidia libs from pypi."
         CUDA_RPATHS=(
