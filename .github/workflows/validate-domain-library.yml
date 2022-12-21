@@ -34,6 +34,11 @@ on:
         description: "Path to a smoke test script"
         required: true
         type: string
+      with_cuda:
+        description: "With cuda enable/disable"
+        required: false
+        type: string
+        default: disable
 
 jobs:
   generate-linux-matrix:
@@ -43,7 +48,7 @@ jobs:
       package-type: ${{ inputs.package_type }}
       os: linux
       channel: ${{ inputs.channel }}
-      with-cuda: disable
+      with-cuda: ${{ inputs.with_cuda }}
   generate-windows-matrix:
     if:  (inputs.os == 'windows' || inputs.os == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
@@ -51,7 +56,7 @@ jobs:
       package-type: ${{ inputs.package_type }}
       os: windows
       channel: ${{ inputs.channel }}
-      with-cuda: disable
+      with-cuda: ${{ inputs.with_cuda }}
   generate-macos-matrix:
     if:  (inputs.os == 'macos' || inputs.os == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
@@ -59,7 +64,7 @@ jobs:
       package-type: ${{ inputs.package_type }}
       os: macos
       channel: ${{ inputs.channel }}
-      with-cuda: disable
+      with-cuda: ${{ inputs.with_cuda }}
   generate-macos-arm64-matrix:
     if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
@@ -67,7 +72,7 @@ jobs:
       package-type: ${{ inputs.package_type }}
       os: macos-arm64
       channel: ${{ inputs.channel }}
-      with-cuda: disable
+      with-cuda: ${{ inputs.with_cuda }}
   validate-linux:
     if:  (inputs.os == 'linux' || inputs.os == 'all')
     needs: generate-linux-matrix
