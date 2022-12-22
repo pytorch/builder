@@ -93,6 +93,9 @@ jobs:
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export CHANNEL="${{ matrix.channel }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
         eval $SMOKE_TEST
   validate-windows:
     if:  (inputs.os == 'windows' || inputs.os == 'all')
@@ -114,6 +117,9 @@ jobs:
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export CHANNEL="${{ matrix.channel }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
         export TARGET_OS="windows"
         eval $SMOKE_TEST
   validate-macos:
@@ -136,6 +142,9 @@ jobs:
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export CHANNEL="${{ matrix.channel }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
         eval $SMOKE_TEST
   validate-macos-arm64:
     if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
@@ -157,4 +166,7 @@ jobs:
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export CHANNEL="${{ matrix.channel }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
+        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
+        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
         eval $SMOKE_TEST
