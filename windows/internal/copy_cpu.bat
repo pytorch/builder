@@ -1,3 +1,6 @@
 copy "%CONDA_LIB_PATH%\libiomp*5md.dll" pytorch\torch\lib
+
 :: Should be set in build_pytorch.bat
-copy "%libuv_ROOT%\bin\uv.dll" pytorch\torch\lib
+if "%CROSS_COMPILE_ARM64%" == "" (
+    copy "%libuv_ROOT%\bin\uv.dll" pytorch\torch\lib
+)

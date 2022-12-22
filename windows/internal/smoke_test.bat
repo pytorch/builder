@@ -161,6 +161,12 @@ IF "%VC_YEAR%" == "2019" (
     set VC_VERSION_UPPER=17
 )
 
+if "%CROSS_COMPILE_ARM64%" == "" (
+    set VSDEVCMD_ARCH=x64
+) else (
+    set VSDEVCMD_ARCH=x64_arm64
+)
+
 for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [%VC_VERSION_LOWER%^,%VC_VERSION_UPPER%^) -property installationPath`) do (
     if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
         set "VS15INSTALLDIR=%%i"
@@ -174,7 +180,7 @@ IF "%VS15VCVARSALL%"=="" (
     echo Visual Studio %VC_YEAR% C++ BuildTools is required to compile PyTorch test on Windows
     exit /b 1
 )
-call "%VS15VCVARSALL%" x64
+call "%VS15VCVARSALL%" %VSDEVCMD_ARCH%
 
 set install_root=%CD%
 set INCLUDE=%INCLUDE%;%install_root%\include;%install_root%\include\torch\csrc\api\include
