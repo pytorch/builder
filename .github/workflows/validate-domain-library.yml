@@ -80,12 +80,12 @@ jobs:
       matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
-    name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
     with:
       runner: ${{ matrix.validation_runner }}
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -104,12 +104,12 @@ jobs:
       matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
-    name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
     with:
       runner: ${{ matrix.validation_runner }}
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -129,12 +129,12 @@ jobs:
       matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
-    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
     with:
       runner:  ${{ matrix.validation_runner }}
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -153,12 +153,12 @@ jobs:
       matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
-    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}"
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
     with:
       runner:  ${{ matrix.validation_runner }}
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
-      job-name: "macos-arm64-${{ matrix.package_type }}-${{ matrix.python_version }}"
+      job-name: "macos-arm64-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
