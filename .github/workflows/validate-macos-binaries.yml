@@ -60,4 +60,7 @@ jobs:
         export DESIRED_DEVTOOLSET="${{ matrix.devtoolset }}"
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export TARGET_OS="macos"
+        memory_pressure
+        sw_vers
+        sysctl -n hw.ncpu
         ./.github/scripts/validate_binaries.sh

@@ -59,4 +59,7 @@ jobs:
         export DESIRED_CUDA="${{ matrix.desired_cuda }}"
         export PACKAGE_TYPE="${{ matrix.package_type }}"
         export TARGET_OS="macos-arm64"
+        memory_pressure
+        sw_vers
+        sysctl -n hw.ncpu
         ./.github/scripts/validate_binaries.sh
