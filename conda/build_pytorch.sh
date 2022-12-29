@@ -207,8 +207,6 @@ if [[ "$(uname)" == 'Darwin' ]]; then
         rm "$miniconda_sh"
     export PATH="$tmp_conda/bin:$PATH"
     retry conda install -yq conda-build
-    # Install py-lief=0.12.0 containing https://github.com/lief-project/LIEF/pull/579 to speed up the builds
-    retry conda install -yq  py-lief==0.12.0 -c malfet
 elif [[ "$OSTYPE" == "msys" ]]; then
     export tmp_conda="${WIN_PACKAGE_WORK_DIR}\\conda"
     export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
