@@ -162,7 +162,7 @@ class S3Index:
         out.append('<!DOCTYPE html>')
         out.append('<html>')
         out.append('  <body>')
-        out.append('    <h1>Links for {}</h1>'.format(package_name))
+        out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
         # Adding html footer
@@ -183,7 +183,7 @@ class S3Index:
         out.append('<html>')
         out.append('  <body>')
         for pkg_name in sorted(self.get_package_names(subdir)):
-            out.append(f'    <a href="{pkg_name}/">{pkg_name}</a><br/>')
+            out.append(f'    <a href="{pkg_name.replace("_","-")}/">{pkg_name.replace("_","-")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
@@ -214,9 +214,10 @@ class S3Index:
                 Body=self.to_simple_packages_html(subdir=subdir)
             )
             for pkg_name in self.get_package_names(subdir=subdir):
-                print(f"INFO Uploading {subdir}/{pkg_name}/index.html")
+                compat_pkg_name = pkg_name.lower().replace("_", "-")
+                print(f"INFO Uploading {subdir}/{compat_pkg_name}/index.html")
                 BUCKET.Object(
-                    key=f"{subdir}/{pkg_name}/index.html"
+                    key=f"{subdir}/{compat_pkg_name}/index.html"
                 ).put(
                     ACL='public-read',
                     CacheControl='no-cache,no-store,must-revalidate',
