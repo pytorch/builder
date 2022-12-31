@@ -96,6 +96,8 @@ class S3Index:
                 to_hide.add(obj)
             elif between_bad_dates(package_build_time):
                 to_hide.add(obj)
+            elif "torchtriton" in package_name:
+                to_hide.add(obj)
             else:
                 packages[package_name] += 1
         return set(self.objects).difference({
