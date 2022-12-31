@@ -44,7 +44,7 @@ def extract_package_build_time(full_package_name: str) -> datetime:
     result = search(PACKAGE_DATE_REGEX, full_package_name)
     if result is not None:
         try:
-            return datetime.strptime(result.group(2), "%Y%M%d")
+            return datetime.strptime(result.group(2), "%Y%m%d")
         except ValueError:
             # Ignore any value errors since they probably shouldn't be hidden anyways
             pass
@@ -92,7 +92,9 @@ class S3Index:
             full_package_name = path.basename(obj)
             package_name = full_package_name.split('-')[0]
             package_build_time = extract_package_build_time(full_package_name)
-            if packages[package_name] >= KEEP_THRESHOLD or between_bad_dates(package_build_time):
+            if packages[package_name] >= KEEP_THRESHOLD:
+                to_hide.add(obj)
+            elif between_bad_dates(package_build_time):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
