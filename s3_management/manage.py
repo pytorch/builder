@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
-import tempfile
 import time
 
 from os import path, makedirs
+from datetime import datetime
 from collections import defaultdict
 from typing import Iterator, List, Type, Dict, Set, TypeVar, Optional
-from re import sub, match
+from re import sub, match, search
 from packaging.version import parse
 
-import botocore
 import boto3
 
 
@@ -31,10 +30,26 @@ PREFIXES_WITH_HTML = {
     "whl/test": "torch_test.html",
 }
 
+# Should match torch-2.0.0.dev20221221+cu118-cp310-cp310-linux_x86_64.whl as:
+# Group 1: torch-2.0.0.dev
+# Group 2: 20221221
+PACKAGE_DATE_REGEX = r"([a-zA-z]*-[0-9.]*.dev)([0-9]*)"
+
 # How many packages should we keep of a specific package?
 KEEP_THRESHOLD = 60
 
 S3IndexType = TypeVar('S3IndexType', bound='S3Index')
+
+def extract_package_build_time(full_package_name: str) -> datetime:
+    result = search(PACKAGE_DATE_REGEX, full_package_name)
+    if result is not None:
+        return datetime.strptime(result.group(2), "%Y%M%d")
+    return datetime.now()
+
+def between_bad_dates(package_build_time: datetime):
+    start_bad = datetime(year=2022, month=11, day=29)
+    end_bad = datetime(year=2022, month=12, day=29)
+    return start_bad <= package_build_time <= end_bad
 
 
 class S3Index:
@@ -70,8 +85,10 @@ class S3Index:
         packages: Dict[str, int] = defaultdict(int)
         to_hide: Set[str] = set()
         for obj in all_sorted_packages:
-            package_name = path.basename(obj).split('-')[0]
-            if packages[package_name] >= KEEP_THRESHOLD:
+            full_package_name = path.basename(obj)
+            package_name = full_package_name.split('-')[0]
+            package_build_time = extract_package_build_time(full_package_name)
+            if packages[package_name] >= KEEP_THRESHOLD or between_bad_dates(package_build_time):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
