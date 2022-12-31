@@ -51,7 +51,7 @@ def extract_package_build_time(full_package_name: str) -> datetime:
     return datetime.now()
 
 def between_bad_dates(package_build_time: datetime):
-    start_bad = datetime(year=2022, month=11, day=29)
+    start_bad = datetime(year=2022, month=8, day=17)
     end_bad = datetime(year=2022, month=12, day=29)
     return start_bad <= package_build_time <= end_bad
 
