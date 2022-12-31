@@ -43,7 +43,11 @@ S3IndexType = TypeVar('S3IndexType', bound='S3Index')
 def extract_package_build_time(full_package_name: str) -> datetime:
     result = search(PACKAGE_DATE_REGEX, full_package_name)
     if result is not None:
-        return datetime.strptime(result.group(2), "%Y%M%d")
+        try:
+            return datetime.strptime(result.group(2), "%Y%M%d")
+        except ValueError:
+            # Ignore any value errors since they probably shouldn't be hidden anyways
+            pass
     return datetime.now()
 
 def between_bad_dates(package_build_time: datetime):
