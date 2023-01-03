@@ -124,7 +124,8 @@ class S3Index:
                 to_hide.add(obj)
             elif between_bad_dates(package_build_time):
                 to_hide.add(obj)
-            elif package_name not in PACKAGE_ALLOW_LIST:
+            elif (package_name not in PACKAGE_ALLOW_LIST or
+                  package_name.replace("-", "_") not in PACKAGE_ALLOW_LIST):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
