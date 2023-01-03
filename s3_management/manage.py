@@ -30,6 +30,34 @@ PREFIXES_WITH_HTML = {
     "whl/test": "torch_test.html",
 }
 
+PACKAGE_ALLOW_LIST = {
+    "Pillow",
+    "certifi",
+    "charset-normalizer",
+    "cmake",
+    "filelock",
+    "idna",
+    "mpmath",
+    "nestedtensor",
+    "networkx",
+    "numpy",
+    "packaging",
+    "pytorch-triton",
+    "requests",
+    "sympy",
+    "torch",
+    "torcharrow",
+    "torchaudio",
+    "torchcsprng",
+    "torchdata",
+    "torchdistx",
+    "torchrec",
+    "torchtext",
+    "torchvision",
+    "typing-extensions",
+    "urllib3",
+}
+
 # Should match torch-2.0.0.dev20221221+cu118-cp310-cp310-linux_x86_64.whl as:
 # Group 1: torch-2.0.0.dev
 # Group 2: 20221221
@@ -96,7 +124,7 @@ class S3Index:
                 to_hide.add(obj)
             elif between_bad_dates(package_build_time):
                 to_hide.add(obj)
-            elif "torchtriton" in package_name:
+            elif package_name not in PACKAGE_ALLOW_LIST:
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
