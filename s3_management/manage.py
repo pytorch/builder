@@ -30,10 +30,14 @@ PREFIXES_WITH_HTML = {
     "whl/test": "torch_test.html",
 }
 
+# NOTE: This refers to the name on the wheels themselves and not the name of
+# package as specified by setuptools, for packages with "-" (hyphens) in their
+# names you need to convert them to "_" (underscores) in order for them to be
+# allowed here since the name of the wheels is compared here
 PACKAGE_ALLOW_LIST = {
     "Pillow",
     "certifi",
-    "charset-normalizer",
+    "charset_normalizer",
     "cmake",
     "filelock",
     "idna",
@@ -42,7 +46,7 @@ PACKAGE_ALLOW_LIST = {
     "networkx",
     "numpy",
     "packaging",
-    "pytorch-triton",
+    "pytorch_triton",
     "requests",
     "sympy",
     "torch",
@@ -54,7 +58,7 @@ PACKAGE_ALLOW_LIST = {
     "torchrec",
     "torchtext",
     "torchvision",
-    "typing-extensions",
+    "typing_extensions",
     "urllib3",
 }
 
@@ -120,12 +124,13 @@ class S3Index:
             full_package_name = path.basename(obj)
             package_name = full_package_name.split('-')[0]
             package_build_time = extract_package_build_time(full_package_name)
+            # Hard pass on packages that are included in our allow list
+            if package_name not in PACKAGE_ALLOW_LIST:
+                to_hide.add(obj)
+                continue
             if packages[package_name] >= KEEP_THRESHOLD:
                 to_hide.add(obj)
             elif between_bad_dates(package_build_time):
-                to_hide.add(obj)
-            elif (package_name not in PACKAGE_ALLOW_LIST or
-                  package_name.replace("-", "_") not in PACKAGE_ALLOW_LIST):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
