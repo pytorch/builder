@@ -40,7 +40,11 @@ function do_cpython_build {
     mkdir -p ${prefix}/lib
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
-    CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
+    if [[ -z  ${WITH_OPENSSL} ]]; then
+        CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
+    else
+        CFLAGS="-Wformat" ./configure --prefix=${prefix} --with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto --disable-shared $unicode_flags > /dev/null
+    fi
 
     make -j40 > /dev/null
     make install > /dev/null
@@ -61,7 +65,6 @@ function do_cpython_build {
     ln -s ${prefix} /opt/python/${abi_tag}
 }
 
-
 function build_cpython {
     local py_ver=$1
     check_var $py_ver
@@ -77,7 +80,6 @@ function build_cpython {
     rm -f Python-$py_ver.tgz
 }
 
-
 function build_cpythons {
     check_var $GET_PIP_URL
     curl -sLO $GET_PIP_URL
@@ -86,7 +88,6 @@ function build_cpythons {
     done
     rm -f get-pip.py
 }
-
 
 mkdir -p /opt/python
 mkdir -p /opt/_internal
