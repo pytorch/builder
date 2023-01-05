@@ -1,14 +1,9 @@
-if "%VC_YEAR%" == "2017" powershell windows/internal/vs2017_install.ps1
 if "%VC_YEAR%" == "2019" powershell windows/internal/vs2019_install.ps1
 if "%VC_YEAR%" == "2022" powershell windows/internal/vs2022_install.ps1
 
 set VC_VERSION_LOWER=17
 set VC_VERSION_UPPER=18
-IF "%VC_YEAR%" == "2017" (
-    set VC_VERSION_LOWER=15
-    set VC_VERSION_UPPER=16
-)
-IF "%VC_YEAR%" == "2019" (
+if "%VC_YEAR%" == "2019" (
     set VC_VERSION_LOWER=16
     set VC_VERSION_UPPER=17
 )
