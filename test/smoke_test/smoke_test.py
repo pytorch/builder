@@ -8,10 +8,10 @@ import platform
 import importlib
 import subprocess
 
-gpu_arch_ver = os.getenv("GPU_ARCH_VER")
-gpu_arch_type = os.getenv("GPU_ARCH_TYPE")
+gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
+gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 # use installation env variable to tell if it is nightly channel
-installation_str = os.getenv("INSTALLATION")
+installation_str = os.getenv("MATRIX_INSTALLATION")
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 NIGHTLY_ALLOWED_DELTA = 3

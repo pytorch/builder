@@ -22,6 +22,19 @@ set -eux -o pipefail
 # libtorch package.
 
 
+if [[ -z ${DESIRED_PYTHON:-} ]]; then
+  export DESIRED_PYTHON=${MATRIX_PYTHON_VERSION:-}
+fi
+if [[ -z ${DESIRED_CUDA:-} ]]; then
+  export DESIRED_CUDA=${MATRIX_DESIRED_CUDA:-}
+fi
+if [[ -z ${DESIRED_DEVTOOLSET:-} ]]; then
+  export DESIRED_DEVTOOLSET=${MATRIX_DESIRED_DEVTOOLSET:-}
+fi
+if [[ -z ${PACKAGE_TYPE:-} ]]; then
+  export PACKAGE_TYPE=${MATRIX_PACKAGE_TYPE:-}
+fi
+
 # The install root depends on both the package type and the os
 # All MacOS packages use conda, even for the wheel packages.
 if [[ "$PACKAGE_TYPE" == libtorch ]]; then

@@ -24,6 +24,7 @@ on:
       - .github/workflows/validate-windows-binaries.yml
       - .github/workflows/validate-macos-binaries.yml
       - .github/workflows/validate-macos-arm64-binaries.yml
+      - .github/scripts/validate_binaries.sh
       - test/smoke_test/*
 jobs:
   nightly:
