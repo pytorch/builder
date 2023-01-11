@@ -50,16 +50,10 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
+      binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
-        export GPU_ARCH_VER="${{ matrix.gpu_arch_version }}"
-        export GPU_ARCH_TYPE="${{ matrix.gpu_arch_type }}"
-        export INSTALLATION="${{ matrix.installation }}"
-        export CUDA_VER="${{ matrix.desired_cuda }}"
-        export DESIRED_PYTHON="${{ matrix.python_version }}"
-        export DESIRED_CUDA="${{ matrix.desired_cuda }}"
-        export DESIRED_DEVTOOLSET="${{ matrix.devtoolset }}"
-        export PACKAGE_TYPE="${{ matrix.package_type }}"
         export TARGET_OS="linux"
-        ./.github/scripts/validate_binaries.sh
+        eval "$(conda shell.bash hook)"
+        source ./.github/scripts/validate_binaries.sh
