@@ -86,6 +86,7 @@ jobs:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
       job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -104,6 +105,7 @@ jobs:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
       job-name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -123,6 +125,7 @@ jobs:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
       job-name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
@@ -142,6 +145,7 @@ jobs:
       repository: ${{ inputs.repository }}
       ref: ${{ inputs.ref || github.ref }}
       job-name: "macos-arm64-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
