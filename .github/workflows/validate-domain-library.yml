@@ -39,6 +39,11 @@ on:
         required: false
         type: string
         default: disable
+      install_torch:
+        description: "Create new conda environment and preinstall torch"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   generate-linux-matrix:
@@ -91,6 +96,13 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+        fi
         eval $SMOKE_TEST
   validate-windows:
     if:  (inputs.os == 'windows' || inputs.os == 'all')
@@ -111,6 +123,13 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
         export TARGET_OS="windows"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+        fi
         eval $SMOKE_TEST
   validate-macos:
     if:  (inputs.os == 'macos' || inputs.os == 'all')
@@ -131,6 +150,13 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+        fi
         eval $SMOKE_TEST
   validate-macos-arm64:
     if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
@@ -150,4 +176,11 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos-arm64"
+        if [[ ${{inputs.pre_create_conda_env}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+        fi
         eval $SMOKE_TEST
