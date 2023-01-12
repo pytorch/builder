@@ -279,9 +279,9 @@ replace_needed_sofiles() {
     find $1 -name '*.so*' | while read sofile; do
         origname=$2
         patchedname=$3
-        if [[ "$origname" != "$patchedname" ]]; then
+        if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
             set +e
-            $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
+            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname*") 
             ERRCODE=$?
             set -e
             if [ "$ERRCODE" -eq "0" ]; then
