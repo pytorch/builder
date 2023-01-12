@@ -102,6 +102,19 @@ jobs:
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
           eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
         fi
         eval $SMOKE_TEST
   validate-windows:
@@ -129,6 +142,19 @@ jobs:
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
           eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
         fi
         eval $SMOKE_TEST
   validate-macos:
@@ -156,6 +182,19 @@ jobs:
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
           eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
         fi
         eval $SMOKE_TEST
   validate-macos-arm64:
@@ -176,11 +215,24 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos-arm64"
-        if [[ ${{inputs.pre_create_conda_env}} == 'true' ]]; then
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
           conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
           conda activate ${ENV_NAME}
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
           export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
           eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
         fi
         eval $SMOKE_TEST
