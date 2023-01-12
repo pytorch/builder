@@ -388,7 +388,18 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
 
     # Install the built package and run tests, unless it's for mac cross compiled arm64
     if [[ -z "$CROSS_COMPILE_ARM64" ]]; then
-        conda install -y "$built_package"
+        # Install the package as if from local repo instead of tar.bz2 directly in order
+        # to trigger runtime dependency installation. See https://github.com/conda/conda/issues/1884
+        # Notes:
+        # - pytorch-nightly is included to install torchtriton
+        # - nvidia is included for cuda builds, there's no harm in listing the channel for cpu builds
+        if [[ "$OSTYPE" == "msys" ]]; then
+          # note the extra slash: `pwd -W` returns `c:/path/to/dir`, we need to add an extra slash for the URI
+          local_channel="/$(pwd -W)/$output_folder"
+        else
+          local_channel="$(pwd)/$output_folder"
+        fi
+        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c pytorch-nightly -c nvidia
 
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"

@@ -72,21 +72,6 @@ fi
 
 # Environment initialization
 if [[ "$package_type" == conda || "$(uname)" == Darwin ]]; then
-    # Why are there two different ways to install dependencies after installing an offline package?
-    # The "cpu" conda package for pytorch doesn't actually depend on "cpuonly" which means that
-    # when we attempt to update dependencies using "conda update --all" it will attempt to install
-    # whatever "cudatoolkit" your current computer relies on (which is sometimes none). When conda
-    # tries to install this cudatoolkit that correlates with your current hardware it will also
-    # overwrite the currently installed "local" pytorch package meaning you aren't actually testing
-    # the right package.
-    # TODO (maybe): Make the "cpu" package of pytorch depend on "cpuonly"
-    if [[ "$cuda_ver" = 'cpu' ]]; then
-      # Installing cpuonly will also install dependencies as well
-      retry conda install -y -c pytorch cpuonly
-    else
-      # Install dependencies from installing the pytorch conda package offline
-      retry conda update -yq --all -c defaults -c pytorch -c numba/label/dev
-    fi
     # Install the testing dependencies
     retry conda install -yq future hypothesis ${NUMPY_PACKAGE} ${PROTOBUF_PACKAGE} pytest setuptools six typing_extensions pyyaml
 else
@@ -140,15 +125,21 @@ python -c "import torch; exit(0 if torch.__version__ == '$expected_version' else
 
 # Test that CUDA builds are setup correctly
 if [[ "$cuda_ver" != 'cpu' ]]; then
-    # Test CUDA archs
-    echo "Checking that CUDA archs are setup correctly"
-    timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
+    cuda_installed=1
+    nvidia-smi || cuda_installed=0
+    if [[ "$cuda_installed" == 0 ]]; then
+      echo "Skip CUDA tests for machines without a Nvidia GPU card"
+    else
+      # Test CUDA archs
+      echo "Checking that CUDA archs are setup correctly"
+      timeout 20 python -c 'import torch; torch.randn([3,5]).cuda()'
 
-    # These have to run after CUDA is initialized
-    echo "Checking that magma is available"
-    python -c 'import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)'
-    echo "Checking that CuDNN is available"
-    python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
+      # These have to run after CUDA is initialized
+      echo "Checking that magma is available"
+      python -c 'import torch; torch.rand(1).cuda(); exit(0 if torch.cuda.has_magma else 1)'
+      echo "Checking that CuDNN is available"
+      python -c 'import torch; exit(0 if torch.backends.cudnn.is_available() else 1)'
+    fi
 fi
 
 # Check that OpenBlas is not linked to on Macs
