@@ -281,7 +281,7 @@ replace_needed_sofiles() {
         patchedname=$3
         if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
             set +e
-            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname*") 
+            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*") 
             ERRCODE=$?
             set -e
             if [ "$ERRCODE" -eq "0" ]; then
