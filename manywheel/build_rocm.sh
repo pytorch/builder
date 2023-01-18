@@ -114,7 +114,7 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
     LIBNUMA_PATH="/usr/lib/x86_64-linux-gnu/libnuma.so.1"
     LIBELF_PATH="/usr/lib/x86_64-linux-gnu/libelf.so.1"
-    LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.5"
+    LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.6"
     LIBDRM_PATH="/usr/lib/x86_64-linux-gnu/libdrm.so.2"
     LIBDRM_AMDGPU_PATH="/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1"
     MAYBE_LIB64=lib
