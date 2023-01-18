@@ -167,7 +167,7 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake=3.22.* "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
