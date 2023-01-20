@@ -66,10 +66,10 @@ function install_118 {
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
-    wget -q https://ossci-linux.s3.amazonaws.com/cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz -O cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz
-    tar xf cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz
-    cp -a cudnn-linux-x86_64-8.5.0.96_cuda11-archive/include/* /usr/local/cuda/include/
-    cp -a cudnn-linux-x86_64-8.5.0.96_cuda11-archive/lib/* /usr/local/cuda/lib64/
+    wget -q https://developer.download.nvidia.com/compute/redist/cudnn/v8.7.0/local_installers/11.8/cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz -O cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz
+    tar xf cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz
+    cp -a cudnn-linux-x86_64-8.7.0.84_cuda11-archive/include/* /usr/local/cuda/include/
+    cp -a cudnn-linux-x86_64-8.7.0.84_cuda11-archive/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_cudnn
     ldconfig
