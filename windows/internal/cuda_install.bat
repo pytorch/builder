@@ -22,6 +22,7 @@ if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR
 if %CUDA_VER% EQU 116 goto cuda116
 if %CUDA_VER% EQU 117 goto cuda117
 if %CUDA_VER% EQU 118 goto cuda118
+if %CUDA_VER% EQU 120 goto cuda120
 
 echo CUDA %CUDA_VERSION_STR% is not supported
 exit /b 1
