@@ -36,6 +36,15 @@ IF "%CUDA_PATH_V118%"=="" (
     )
 )
 
+IF "%CUDA_PATH_V120%"=="" (
+    IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin\nvcc.exe" (
+        set "CUDA_PATH_V120=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0"
+    ) ELSE (
+        echo CUDA 12.0 not found, failing
+        exit /b 1
+    )
+)
+
 IF "%BUILD_VISION%" == "" (
     set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0;6.0;6.1;7.0;7.5;8.0;8.6;9.0
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all

@@ -35,6 +35,11 @@ if "%desired_cuda%" == "11.8" (
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
 
+if "%desired_cuda%" == "12.0" (
+    set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;9.0
+    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
+)
+
 :cuda_flags_end
 
 set DISTUTILS_USE_SDK=1
