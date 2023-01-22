@@ -30,7 +30,7 @@ jobs:
     runs-on: linux.2xlarge
     strategy:
       matrix:
-        cuda_version: ["118", "117", "116"]
+        cuda_version: ["120","118", "117", "116"]
     steps:
       - name: Checkout PyTorch builder
         uses: actions/checkout@v2
@@ -45,7 +45,7 @@ jobs:
       - name: Install conda
         uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
           auto-update-conda: true
           miniconda-version: "latest"
           activate-environment: build-linux-magma

@@ -199,6 +199,14 @@ elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
                 "libnvrtc-builtins.so.11.8"
             )
         fi
+        if [[ $CUDA_VERSION == "12.0" ]]; then
+            DEPS_LIST+=(
+                "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.0"
+            )
+            DEPS_SONAME+=(
+                "libnvrtc-builtins.so.12.0"
+            )
+        fi
     else
         echo "Using nvidia libs from pypi."
         CUDA_RPATHS=(
