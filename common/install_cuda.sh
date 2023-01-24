@@ -55,7 +55,7 @@ function install_117 {
 }
 
 function install_118 {
-    echo "Installing CUDA 11.8 and cuDNN 8.5 and NCCL 2.15"
+    echo "Installing CUDA 11.8 and cuDNN 8.7 and NCCL 2.15"
     rm -rf /usr/local/cuda-11.8 /usr/local/cuda
     # install CUDA 11.8.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
