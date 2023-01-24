@@ -58,12 +58,12 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    11.8)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6;9.0"
+    11.[678])
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
-    11.[67])
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
+    10.*)
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     *)
