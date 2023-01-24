@@ -31,7 +31,7 @@ on:
 
 jobs:
   generate-macos-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@install_instructions
     with:
       package-type: all
       os: macos
