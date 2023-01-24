@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex -o pipefail
+set -uex -o pipefail
 
 PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
