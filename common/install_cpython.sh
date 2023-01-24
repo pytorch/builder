@@ -40,7 +40,7 @@ function do_cpython_build {
     mkdir -p ${prefix}/lib
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
-    if [[ -z  ${WITH_OPENSSL+x} ]]; then
+    if [[ -z  "${WITH_OPENSSL+x}" ]]; then
         CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
     else
         CFLAGS="-Wformat" ./configure --prefix=${prefix} --with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto --disable-shared $unicode_flags > /dev/null
