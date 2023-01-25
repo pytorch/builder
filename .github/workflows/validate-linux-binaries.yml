@@ -37,6 +37,7 @@ jobs:
       os: linux
       channel: ${{ inputs.channel }}
       with-py311: enable
+      test-infra-ref: install_instructions
 
   linux:
     needs: generate-linux-matrix

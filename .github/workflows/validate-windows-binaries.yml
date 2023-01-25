@@ -36,6 +36,7 @@ jobs:
       package-type: all
       os: windows
       channel: ${{ inputs.channel }}
+      test-infra-ref: install_instructions
 
   win:
     needs: generate-windows-matrix

@@ -36,6 +36,7 @@ jobs:
       package-type: all
       os: macos-arm64
       channel: ${{ inputs.channel }}
+      test-infra-ref: install_instructions
   macos-arm64:
     needs: generate-macos-arm64-matrix
     strategy:

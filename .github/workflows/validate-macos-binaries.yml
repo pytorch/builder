@@ -36,6 +36,7 @@ jobs:
       package-type: all
       os: macos
       channel: ${{ inputs.channel }}
+      test-infra-ref: install_instructions
   macos:
     needs: generate-macos-matrix
     strategy:
