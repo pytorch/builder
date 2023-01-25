@@ -6,6 +6,7 @@ name: Validate binaries
 #   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
 # For an example of the `workflow_call` usage see:
 #   https://github.com/pytorch/builder/pull/1144
+#   misc change
 on:
   workflow_call:
     inputs:
