@@ -74,8 +74,8 @@ RUN ROCM_VERSION=5.3 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
-FROM rocm as rocm5.4
-RUN ROCM_VERSION=5.4 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.4.1
+RUN ROCM_VERSION=5.4.1 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
