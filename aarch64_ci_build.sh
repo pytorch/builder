@@ -6,6 +6,12 @@ PYTHON_VERSION=3.10
 ###############################################################################
 # Install conda
 ###############################################################################
+echo "Install builder OS dependencies"
+apt-get install -y ninja-build g++ git cmake gfortran unzip curl
+
+###############################################################################
+# Install conda
+###############################################################################
 echo 'Installing conda-forge'
 curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
 chmod +x ~/mambaforge.sh
