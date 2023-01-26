@@ -147,7 +147,9 @@ goto end
 :libtorch
 echo "install and test libtorch"
 
-if "%VC_YEAR%" == "2017" powershell internal\vs2017_install.ps1
+if "%VC_YEAR%" == "2019" powershell internal\vs2019_install.ps1
+if "%VC_YEAR%" == "2022" powershell internal\vs2022_install.ps1
+
 if ERRORLEVEL 1 exit /b 1
 
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
@@ -155,11 +157,11 @@ if ERRORLEVEL 1 exit /b 1
 
 pushd tmp\libtorch
 
-set VC_VERSION_LOWER=16
-set VC_VERSION_UPPER=17
-IF "%VC_YEAR%" == "2017" (
-    set VC_VERSION_LOWER=15
-    set VC_VERSION_UPPER=16
+set VC_VERSION_LOWER=17
+set VC_VERSION_UPPER=18
+IF "%VC_YEAR%" == "2019" (
+    set VC_VERSION_LOWER=16
+    set VC_VERSION_UPPER=17
 )
 
 for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [%VC_VERSION_LOWER%^,%VC_VERSION_UPPER%^) -property installationPath`) do (
@@ -172,7 +174,7 @@ for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio
 
 :vswhere
 IF "%VS15VCVARSALL%"=="" (
-    echo Visual Studio 2017 C++ BuildTools is required to compile PyTorch test on Windows
+    echo Visual Studio %VC_YEAR% C++ BuildTools is required to compile PyTorch test on Windows
     exit /b 1
 )
 call "%VS15VCVARSALL%" x64

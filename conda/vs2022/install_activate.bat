@@ -1,5 +1,5 @@
-set YEAR=2017
-set VER=15
+set YEAR=2022
+set VER=17
 
 mkdir "%PREFIX%\etc\conda\activate.d"
 copy "%RECIPE_DIR%\activate.bat" "%PREFIX%\etc\conda\activate.d\vs%YEAR%_compiler_vars.bat"
