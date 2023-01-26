@@ -10,7 +10,7 @@ PATH=/opt/conda/bin:$PATH
 ###############################################################################
 echo "Install builder OS dependencies"
 apt-get update
-apt-get install -y ninja-build g++ git cmake gfortran unzip curl
+apt-get install -y ninja-build g++ git cmake gfortran unzip curl build-essential
 
 ###############################################################################
 # Install conda
