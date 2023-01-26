@@ -231,10 +231,10 @@ def start_build(branch="master",
         build_ArmComputeLibrary(git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
-        os.system(f"cd /pytorch ; export ACL_ROOT_DIR=$HOME/acl; {build_vars} python3 setup.py bdist_wheel")
+        os.system(f"cd /pytorch ; export ACL_ROOT_DIR=/acl; {build_vars} python3 setup.py bdist_wheel")
         print('Repair the wheel')
         pytorch_wheel_name = list_dir("pytorch/dist")[0]
-        os.system(f"export LD_LIBRARY_PATH=/acl/build:/pytorch/build/lib; auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")
+        os.system(f"export LD_LIBRARY_PATH=/acl/build:/pytorch/build/lib; auditwheel repair /pytorch/dist/{pytorch_wheel_name}")
         print('replace the original wheel with the repaired one')
         pytorch_repaired_wheel_name = list_dir("wheelhouse")[0]
         os.system(f"cp /wheelhouse/{pytorch_repaired_wheel_name} /pytorch/dist/{pytorch_wheel_name}")
