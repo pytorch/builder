@@ -220,7 +220,7 @@ def start_build(branch="master",
     print('Building PyTorch wheel')
     # Breakpad build fails on aarch64
     build_vars = "USE_BREAKPAD=0 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    os.system(f"cd /pytorch")
+    os.system(f"cd /pytorch; pip install requirements.txt")
     if branch == 'nightly':
         build_date = os.system("git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = os.system("cat pytorch/version.txt").strip()[:-2]
