@@ -12,7 +12,7 @@ def list_dir(path: str) -> List[str]:
 
 def build_OpenBLAS(git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
-    os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
+    os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.21 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
     os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
 
@@ -20,7 +20,7 @@ def build_OpenBLAS(git_clone_flags: str = "") -> None:
 def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
     os.system("cd / && mkdir /acl")
-    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.05 {git_clone_flags}")
+    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
     os.system(f"cd ComputeLibrary; export acl_install_dir=/acl; " \
                 f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
                 f"cp -r arm_compute $acl_install_dir; " \
@@ -224,14 +224,14 @@ def start_build(branch="master",
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     if branch == 'nightly':
         build_date = os.system("git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
-        version = os.system("cat pytorch/version.txt").strip()[:-2]
+        version = os.system("cat /pytorch/version.txt").strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
     if branch.startswith("v1."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
     if enable_mkldnn:
         build_ArmComputeLibrary(git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
-        os.system(f"export ACL_ROOT_DIR=/acl; export LD_LIBRARY_PATH=/acl/build")
+        os.system(f"export ACL_ROOT_DIR=/acl; export LD_LIBRARY_PATH=/acl/build; export ACL_LIBRARY=/acl/build")
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
         os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
         print('Repair the wheel')
