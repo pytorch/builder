@@ -21,12 +21,12 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
     os.system("cd / && mkdir /acl")
     os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.05 {git_clone_flags}")
-    os.system(f"cd ComputeLibrary; export acl_install_dir=/acl && " \
-                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build && " \
-                f"cp -r arm_compute $acl_install_dir && " \
-                f"cp -r include $acl_install_dir && " \
-                f"cp -r utils $acl_install_dir && " \
-                f"cp -r support $acl_install_dir && cd /")
+    os.system(f"cd ComputeLibrary; export acl_install_dir=/acl; " \
+                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
+                f"cp -r arm_compute $acl_install_dir; " \
+                f"cp -r include $acl_install_dir; " \
+                f"cp -r utils $acl_install_dir; " \
+                f"cp -r support $acl_install_dir; cd /")
 
 
 def embed_libgomp(use_conda, wheel_name) -> None:
@@ -217,9 +217,6 @@ def start_build(branch="master",
 
     print("Build and Install OpenBLAS")
     build_OpenBLAS(git_clone_flags)
-
-    print('Checking out PyTorch repo')
-    os.system(f"cd /; git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
     # Breakpad build fails on aarch64
