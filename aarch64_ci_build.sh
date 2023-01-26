@@ -21,9 +21,6 @@ chmod +x ~/mambaforge.sh
 ~/mambaforge.sh -b -p /opt/conda
 rm ~/mambaforge.sh
 /opt/conda/bin/conda install -y -c conda-forge python=${PYTHON_VERSION} numpy pyyaml setuptools
-export CONDA_PYTHON_EXE=/opt/conda/bin/python
-export CONDA_EXE=/opt/conda/bin/conda
-export PATH=/opt/conda/bin:$PATH
 python --version
 conda --version
 

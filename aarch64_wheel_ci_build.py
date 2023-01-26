@@ -215,7 +215,11 @@ def start_build(branch="master",
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     os.system(f"conda install -y ninja scons")
 
+    print("Build and Install OpenBLAS")
     build_OpenBLAS(git_clone_flags)
+
+    print('Checking out PyTorch repo')
+    os.system(f"cd /; git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
     # Breakpad build fails on aarch64
