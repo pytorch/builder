@@ -12,21 +12,21 @@ def list_dir(path: str) -> List[str]:
 
 def build_OpenBLAS(git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
-    os.system(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
+    os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
-    os.system(f"pushd OpenBLAS; make {make_flags} -j8; make {make_flags} install; popd; rm -rf OpenBLAS")
+    os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
 
 
 def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
-    os.system("mkdir /acl")
+    os.system("cd / && mkdir /acl")
     os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.05 {git_clone_flags}")
-    os.system(f"pushd ComputeLibrary; export acl_install_dir=/acl; " \
-                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
-                f"cp -r arm_compute $acl_install_dir; " \
-                f"cp -r include $acl_install_dir; " \
-                f"cp -r utils $acl_install_dir; " \
-                f"cp -r support $acl_install_dir; popd")
+    os.system(f"cd ComputeLibrary; export acl_install_dir=/acl && " \
+                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build && " \
+                f"cp -r arm_compute $acl_install_dir && " \
+                f"cp -r include $acl_install_dir && " \
+                f"cp -r utils $acl_install_dir && " \
+                f"cp -r support $acl_install_dir && cd /")
 
 
 def embed_libgomp(use_conda, wheel_name) -> None:
