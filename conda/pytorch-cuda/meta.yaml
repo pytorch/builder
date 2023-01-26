@@ -39,31 +39,19 @@ build:
   noarch: generic
 requirements:
   run:
-    - cuda={{ version }}
-  run_constrained:
-    - cuda-cccl {{ cuda_constraints }}
-    - cuda-command-line-tools {{ cuda_constraints }}
-    - cuda-compiler {{ cuda_constraints }}
-    - cuda-cudart {{ cuda_constraints }}
-    - cuda-cudart-dev {{ cuda_constraints }}
-    - cuda-cuobjdump {{ cuda_constraints }}
-    - cuda-cupti {{ cuda_constraints }}
-    - cuda-cuxxfilt {{ cuda_constraints }}
     - cuda-libraries {{ cuda_constraints }}
-    - cuda-nvcc {{ cuda_constraints }}
-    - cuda-nvprune {{ cuda_constraints }}
-    - cuda-nvrtc {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
+  run_constrained:
+    - cuda-cudart {{ cuda_constraints }}
+    - cuda-cupti {{ cuda_constraints }}
+    - cuda-nvrtc {{ cuda_constraints }}
     - cuda-runtime {{ cuda_constraints }}
-    - cuda-toolkit {{ cuda_constraints }}
-    - cuda-tools {{ cuda_constraints }}
     - libcufft {{ libcufft_constraints }}
     - libcublas {{ libcublas_constraints }}
     - libcusolver {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
     - libnvjpeg {{ libnvjpeg_constraints }}
-  # None, pytorch should depend on pytorch-cuda
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."
