@@ -26,7 +26,8 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
                 f"cp -r arm_compute $acl_install_dir; " \
                 f"cp -r include $acl_install_dir; " \
                 f"cp -r utils $acl_install_dir; " \
-                f"cp -r support $acl_install_dir; cd /")
+                f"cp -r support $acl_install_dir; " \
+                f"cp -r src $acl_install_dir; cd /")
 
 
 def embed_libgomp(use_conda, wheel_name) -> None:
