@@ -14,36 +14,20 @@ function check_var {
     fi
 }
 
-function lex_pyver {
-    # Echoes Python version string padded with zeros
-    # Thus:
-    # 3.2.1 -> 003002001
-    # 3     -> 003000000
-    echo $1 | awk -F "." '{printf "%03d%03d%03d", $1, $2, $3}'
-}
-
 function do_cpython_build {
     local py_ver=$1
     check_var $py_ver
-    local ucs_setting=$2
-    check_var $ucs_setting
     tar -xzf Python-$py_ver.tgz
     pushd Python-$py_ver
-    if [ "$ucs_setting" = "none" ]; then
-        unicode_flags=""
-        dir_suffix=""
-    else
-        local unicode_flags="--enable-unicode=$ucs_setting"
-        local dir_suffix="-$ucs_setting"
-    fi
-    local prefix="/opt/_internal/cpython-${py_ver}${dir_suffix}"
+
+    local prefix="/opt/_internal/cpython-${py_ver}"
     mkdir -p ${prefix}/lib
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
     if [[ -z  "${WITH_OPENSSL+x}" ]]; then
-        CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
+        CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared > /dev/null
     else
-        CFLAGS="-Wformat" ./configure --prefix=${prefix} --with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto --disable-shared $unicode_flags > /dev/null
+        CFLAGS="-Wformat" ./configure --prefix=${prefix} --with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto --disable-shared > /dev/null
     fi
 
     make -j40 > /dev/null
@@ -71,12 +55,7 @@ function build_cpython {
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
     wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
-    if [ $(lex_pyver $py_ver) -lt $(lex_pyver 3.3) ]; then
-        do_cpython_build $py_ver ucs2
-        do_cpython_build $py_ver ucs4
-    else
-        do_cpython_build $py_ver none
-    fi
+    do_cpython_build $py_ver none
     rm -f Python-$py_ver.tgz
 }
 
