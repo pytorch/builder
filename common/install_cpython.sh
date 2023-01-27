@@ -22,13 +22,14 @@ function do_cpython_build {
 
     local prefix="/opt/_internal/cpython-${py_ver}"
     mkdir -p ${prefix}/lib
+    if [[ -z  "${WITH_OPENSSL+x}" ]]; then
+       local openssl_flags=""
+    else
+        local openssl_flags="--with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto"
+    fi
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
-    if [[ -z  "${WITH_OPENSSL+x}" ]]; then
-        CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared > /dev/null
-    else
-        CFLAGS="-Wformat" ./configure --prefix=${prefix} --with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto --disable-shared > /dev/null
-    fi
+    CFLAGS="-Wformat" ./configure --prefix=${prefix} ${openssl_flags} --disable-shared > /dev/null
 
     make -j40 > /dev/null
     make install > /dev/null
