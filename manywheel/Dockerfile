@@ -36,7 +36,14 @@ FROM base as openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
 
-FROM base as python
+# EPEL for cmake
+FROM base as patchelf
+# Install patchelf
+ADD ./common/install_patchelf.sh install_patchelf.sh
+RUN bash ./install_patchelf.sh && rm install_patchelf.sh
+RUN cp $(which patchelf) /patchelf
+
+FROM patchelf as python
 # build python
 COPY manywheel/build_scripts /build_scripts
 ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
@@ -58,13 +65,6 @@ FROM base as intel
 # MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
-
-# EPEL for cmake
-FROM base as patchelf
-# Install patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-RUN cp $(which patchelf) /patchelf
 
 FROM base as magma
 ARG BASE_CUDA_VERSION=10.2
