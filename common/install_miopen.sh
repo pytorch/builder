@@ -99,7 +99,6 @@ fi
 cmake -P install_deps.cmake --minimum
 
 # clean up since CI runner was running out of disk space
-rm -rf /usr/local/cget
 rm -rf /tmp/*
 yum clean all
 rm -rf /var/cache/yum
@@ -114,7 +113,12 @@ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CXX=${ROCM_INSTALL_PATH}/llvm/bin/clang
     ${MIOPEN_CMAKE_DB_FLAGS} \
     -DCMAKE_PREFIX_PATH="${ROCM_INSTALL_PATH}/hip;${ROCM_INSTALL_PATH}"
 make MIOpen -j $(nproc)
+
+# Build MIOpen package
 make -j $(nproc) package
+
+# clean up since CI runner was running out of disk space
+rm -rf /usr/local/cget
 
 yum install -y miopen-*.rpm
 popd
