@@ -303,7 +303,7 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
                 patchedname=${patched[i]}
                 if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
                     set +e
-                    origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname*") 
+                    origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*") 
                     ERRCODE=$?
                     set -e
                     if [ "$ERRCODE" -eq "0" ]; then

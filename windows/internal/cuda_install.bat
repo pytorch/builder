@@ -17,7 +17,7 @@ set CUDNN_FOLDER="cuda"
 set CUDNN_LIB_FOLDER="lib\x64"
 
 :: Skip all of this if we already have cuda installed
-if exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" goto set_cuda_env_vars
+if exist "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" goto set_cuda_env_vars
 
 if %CUDA_VER% EQU 116 goto cuda116
 if %CUDA_VER% EQU 117 goto cuda117
@@ -132,7 +132,7 @@ goto cuda_common
 :: With GHA runners these should be pre-installed as part of our AMI process
 :: If you cannot find the CUDA version you want to build for here then please
 :: add it @ https://github.com/pytorch/test-infra/tree/main/aws/ami/windows
-if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
+if not exist "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%\bin\nvcc.exe" (
     if not exist "%SRC_DIR%\temp_build\NvToolsExt.7z" (
         curl -k -L https://ossci-windows.s3.us-east-1.amazonaws.com/builder/NvToolsExt.7z --output "%SRC_DIR%\temp_build\NvToolsExt.7z"
         if errorlevel 1 exit /b 1
@@ -157,11 +157,11 @@ if not exist "C:\\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION
     popd
 
     echo Installing VS integration...
-    if "%VC_YEAR%" == "2017" (
-        xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\Common7\IDE\VC\VCTargets\BuildCustomizations"
-    )
     if "%VC_YEAR%" == "2019" (
         xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Microsoft\VC\v160\BuildCustomizations"
+    )
+    if "%VC_YEAR%" == "2022" (
+        xcopy /Y "%SRC_DIR%\temp_build\cuda\CUDAVisualStudioIntegration\extras\visual_studio_integration\MSBuildExtensions\*.*" "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Microsoft\VC\v170\BuildCustomizations"
     )
 
     echo Installing NvToolsExt...
