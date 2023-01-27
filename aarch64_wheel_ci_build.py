@@ -31,8 +31,6 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
 
 
 def embed_libgomp(use_conda, wheel_name) -> None:
-    os.system("pip3 install auditwheel")
-    os.system("conda install -y patchelf")
     from tempfile import NamedTemporaryFile
     with NamedTemporaryFile() as tmp:
         tmp.write(embed_library_script.encode('utf-8'))
@@ -223,6 +221,7 @@ def start_build(branch="master",
     # Breakpad build fails on aarch64
     build_vars = "USE_BREAKPAD=0 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 ADD_LDFLAGS=-lgfortran"
     os.system(f"cd /pytorch; pip install -r requirements.txt")
+    os.system(f"pip install auditwheel")
     if branch == 'nightly':
         build_date = os.system("git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = os.system("cat /pytorch/version.txt").strip()[:-2]

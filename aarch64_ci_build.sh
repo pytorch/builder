@@ -8,19 +8,19 @@ PATH=/opt/conda/bin:$PATH
 ###############################################################################
 # Install OS dependencies
 ###############################################################################
-echo "Install builder OS dependencies"
-apt-get update
-apt-get install -y ninja-build g++ git cmake gfortran unzip curl build-essential
+# echo "Install builder OS dependencies"
+# apt-get update
+# apt-get install -y ninja-build g++ git cmake gfortran unzip curl build-essential
 
 ###############################################################################
 # Install conda
 ###############################################################################
 echo 'Installing conda-forge'
-curl -L -o ~/mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
-chmod +x ~/mambaforge.sh
-~/mambaforge.sh -b -p /opt/conda
-rm ~/mambaforge.sh
-/opt/conda/bin/conda install -y -c conda-forge python=${PYTHON_VERSION} numpy pyyaml setuptools
+curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
+chmod +x /mambaforge.sh
+/mambaforge.sh -b -p /opt/conda
+rm /mambaforge.sh
+/opt/conda/bin/conda install -y -c conda-forge python=${PYTHON_VERSION} numpy pyyaml setuptools patchelf
 python --version
 conda --version
 
