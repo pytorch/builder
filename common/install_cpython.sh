@@ -29,7 +29,7 @@ function do_cpython_build {
     fi
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
-    CFLAGS="-Wformat" ./configure --prefix=${prefix} ${openssl_flags} --disable-shared > /dev/null
+    CFLAGS="-Wformat" ./configure --prefix=${prefix} ${openssl_flags} --enable-shared > /dev/null
 
     make -j40 > /dev/null
     make install > /dev/null
