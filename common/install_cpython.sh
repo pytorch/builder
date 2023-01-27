@@ -22,17 +22,26 @@ function do_cpython_build {
 
     local prefix="/opt/_internal/cpython-${py_ver}"
     mkdir -p ${prefix}/lib
+    if [[ -n $(which patchelf) ]]; then
+        local shared_flags="--enable-shared"
+    else
+        local shared_flags="--disable-shared"
+    fi
     if [[ -z  "${WITH_OPENSSL+x}" ]]; then
-       local openssl_flags=""
+        local openssl_flags=""
     else
         local openssl_flags="--with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto"
     fi
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
-    CFLAGS="-Wformat" ./configure --prefix=${prefix} ${openssl_flags} --disable-shared > /dev/null
+    CFLAGS="-Wformat" ./configure --prefix=${prefix} ${openssl_flags} ${shared_flags} > /dev/null
 
     make -j40 > /dev/null
     make install > /dev/null
+
+    if [[ "${shared_flags}" == "--enable-shared" ]]; then
+        patchelf --set-rpath '$ORIGIN/../lib' ${prefix}/bin/python3
+    fi
 
     popd
     rm -rf Python-$py_ver
