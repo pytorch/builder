@@ -55,7 +55,7 @@ function install_117 {
 }
 
 function install_118 {
-    echo "Installing CUDA 11.8 and cuDNN 8.5 and NCCL 2.15"
+    echo "Installing CUDA 11.8 and cuDNN 8.7 and NCCL 2.15"
     rm -rf /usr/local/cuda-11.8 /usr/local/cuda
     # install CUDA 11.8.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
@@ -66,10 +66,10 @@ function install_118 {
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
-    wget -q https://ossci-linux.s3.amazonaws.com/cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz -O cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz
-    tar xf cudnn-linux-x86_64-8.5.0.96_cuda11-archive.tar.xz
-    cp -a cudnn-linux-x86_64-8.5.0.96_cuda11-archive/include/* /usr/local/cuda/include/
-    cp -a cudnn-linux-x86_64-8.5.0.96_cuda11-archive/lib/* /usr/local/cuda/lib64/
+    wget -q https://developer.download.nvidia.com/compute/redist/cudnn/v8.7.0/local_installers/11.8/cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz -O cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz
+    tar xf cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz
+    cp -a cudnn-linux-x86_64-8.7.0.84_cuda11-archive/include/* /usr/local/cuda/include/
+    cp -a cudnn-linux-x86_64-8.7.0.84_cuda11-archive/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_cudnn
     ldconfig
