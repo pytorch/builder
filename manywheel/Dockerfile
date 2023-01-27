@@ -49,12 +49,6 @@ COPY manywheel/build_scripts /build_scripts
 ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 RUN bash build_scripts/build.sh && rm -r build_scripts
 
-# remove unncessary python versions
-RUN rm -rf /opt/python/cp26-cp26m /opt/_internal/cpython-2.6.9-ucs2
-RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
-RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
-RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
-
 FROM base as cuda
 ARG BASE_CUDA_VERSION=10.2
 # Install CUDA
