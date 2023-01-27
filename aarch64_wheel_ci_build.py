@@ -219,7 +219,7 @@ def start_build(branch="master",
 
     print('Building PyTorch wheel')
     # Breakpad build fails on aarch64
-    build_vars = "USE_BREAKPAD=0 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 ADD_LDFLAGS=-lgfortran"
+    build_vars = "USE_BREAKPAD=0 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 " # removed: ADD_LDFLAGS=-lgfortran
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     os.system(f"pip install auditwheel")
     if branch == 'nightly':
