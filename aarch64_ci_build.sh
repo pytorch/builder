@@ -8,6 +8,10 @@ CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
 
+###############################################################################
+# Install OS dependent packages
+###############################################################################
+yum -y install less
 
 ###############################################################################
 # Install conda
