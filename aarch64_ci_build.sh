@@ -1,16 +1,13 @@
 #!/bin/bash
 set -eux -o pipefail
 
+# This script is used to prepare the Docker container for aarch64_ci_wheel_build.py python script
+# as we need to install conda and setup the python version for the build.
+
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
 
-###############################################################################
-# Install OS dependencies
-###############################################################################
-# echo "Install builder OS dependencies"
-# apt-get update
-# apt-get install -y ninja-build g++ git cmake gfortran unzip curl build-essential
 
 ###############################################################################
 # Install conda

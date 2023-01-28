@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import subprocess
 from typing import Dict, List, Optional, Tuple, Union
 
 
@@ -13,7 +12,7 @@ def list_dir(path: str) -> List[str]:
 def build_OpenBLAS(git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.21 {git_clone_flags}")
-    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8ß"
+    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8 CMAKE_CXX_FLAGS=-fPIC "
     os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
 
 
@@ -222,11 +221,11 @@ def start_build(branch="master",
     build_vars = "USE_BREAKPAD=0 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 " # removed: ADD_LDFLAGS=-lgfortran
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     os.system(f"pip install auditwheel")
-    if branch == 'nightly':
-        build_date = os.system("git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
-        version = os.system("cat /pytorch/version.txt").strip()[:-2]
+    if branch == 'nightly' or branch == 'master':
+        build_date = str(os.system("git log --pretty=format:%cs -1")).replace("-", "")
+        version = str(os.system("cat /pytorch/version.txt")).strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
-    if branch.startswith("v1."):
+    if branch.startswith("v1.") or branch.startswith("v2."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
     if enable_mkldnn:
         build_ArmComputeLibrary(git_clone_flags)
