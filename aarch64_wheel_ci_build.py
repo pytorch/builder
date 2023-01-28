@@ -223,8 +223,8 @@ def start_build(branch="master",
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     os.system(f"pip install auditwheel")
     if branch == 'nightly' or branch == 'master':
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1']).decode().replace('-','')
-        version = subprocess.check_output(['cat','/pytorch/version.txt']).decode().strip()[:-2]
+        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/pytorch').decode().replace('-','')
+        version = subprocess.check_output(['cat','version.txt'], cwd='/pytorch').decode().strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
     if branch.startswith("v1.") or branch.startswith("v2."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
