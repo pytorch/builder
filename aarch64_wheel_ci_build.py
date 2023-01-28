@@ -13,7 +13,7 @@ def list_dir(path: str) -> List[str]:
 def build_OpenBLAS(git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.21 {git_clone_flags}")
-    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8 -fPIC"
+    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8ß"
     os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
 
 
