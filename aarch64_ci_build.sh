@@ -25,4 +25,7 @@ conda --version
 # Run aarch64 builder python
 ###############################################################################
 cd /
+# adding safe directory for git as the permissions will be
+# on the mounted pytorch repo
+git config --global --add safe.directory /pytorch
 python /builder/aarch64_wheel_ci_build.py --python-version ${PYTHON_VERSION} --enable-mkldnn
