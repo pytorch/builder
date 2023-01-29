@@ -249,12 +249,15 @@ def start_build(branch="master",
     embed_libgomp(f"/pytorch/dist/{pytorch_wheel_name}")
     print('Move PyTorch wheel to artfacts')
     os.system(f"mv /pytorch/dist/{pytorch_wheel_name} /artifacts/")
-
+    print("Installing Pytorch wheel")
+    os.system(f"pip install /artifacts/{pytorch_wheel_name}")
+    
     vision_wheel_name = build_torchvision(branch=branch, git_clone_flags=git_clone_flags)
     audio_wheel_name = build_torchaudio(branch=branch, git_clone_flags=git_clone_flags)
     text_wheel_name = build_torchtext(branch=branch, git_clone_flags=git_clone_flags)
     data_wheel_name = build_torchdata(branch=branch, git_clone_flags=git_clone_flags)
     return [pytorch_wheel_name, vision_wheel_name, audio_wheel_name, text_wheel_name, data_wheel_name]
+
 
 def parse_arguments():
     from argparse import ArgumentParser
