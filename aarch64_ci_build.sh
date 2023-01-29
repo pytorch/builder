@@ -12,7 +12,7 @@ PATH=/opt/conda/bin:$PATH
 # Install OS dependent packages
 ###############################################################################
 yum -y install epel-release
-yum -y install less wget zstd
+yum -y install less zstd
 
 ###############################################################################
 # Install conda
@@ -25,7 +25,6 @@ rm /mambaforge.sh
 /opt/conda/bin/conda install -y -c conda-forge python=${PYTHON_VERSION} numpy pyyaml setuptools patchelf
 python --version
 conda --version
-
 
 ###############################################################################
 # Exec libglfortran.a hack

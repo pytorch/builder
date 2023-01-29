@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 
 def list_dir(path: str) -> List[str]:
-     return os.system(["ls", "-1", path]).split("\n")
+     return subprocess.check_output(["ls", "-1", path]).decode().split("\n")
 
 
 def build_OpenBLAS(git_clone_flags: str = "") -> None:
@@ -219,7 +219,7 @@ def start_build(branch="master",
 
     print('Building PyTorch wheel')
     # Breakpad build fails on aarch64
-    build_vars = "USE_BREAKPAD=0 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 " # removed: ADD_LDFLAGS=-lgfortran
+    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     os.system(f"pip install auditwheel")
     if branch == 'nightly' or branch == 'master':
