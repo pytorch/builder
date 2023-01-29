@@ -31,11 +31,12 @@ on:
 
 jobs:
   generate-macos-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@install_instructions
     with:
       package-type: all
       os: macos
       channel: ${{ inputs.channel }}
+      test-infra-ref: install_instructions
   macos:
     needs: generate-macos-matrix
     strategy:

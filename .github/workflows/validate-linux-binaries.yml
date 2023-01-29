@@ -31,12 +31,13 @@ on:
 
 jobs:
   generate-linux-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@install_instructions
     with:
       package-type: all
       os: linux
       channel: ${{ inputs.channel }}
       with-py311: enable
+      test-infra-ref: install_instructions
 
   linux:
     needs: generate-linux-matrix
