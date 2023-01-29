@@ -222,6 +222,7 @@ def start_build(branch="master",
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     os.system(f"pip install auditwheel")
+    os.system(f"python setup.py clean")
     if branch == 'nightly' or branch == 'master':
         build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/pytorch').decode().replace('-','')
         version = subprocess.check_output(['cat','version.txt'], cwd='/pytorch').decode().strip()[:-2]
