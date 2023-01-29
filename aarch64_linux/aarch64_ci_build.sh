@@ -46,4 +46,4 @@ cd /
 # adding safe directory for git as the permissions will be
 # on the mounted pytorch repo
 git config --global --add safe.directory /pytorch
-python /builder/aarch64_wheel_ci_build.py --python-version ${PYTHON_VERSION} --enable-mkldnn
+python /builder/aarch64_linux/aarch64_wheel_ci_build.py --python-version ${PYTHON_VERSION} --enable-mkldnn

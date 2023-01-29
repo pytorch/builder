@@ -30,15 +30,9 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
                 f"cp -r src $acl_install_dir; cd /")
 
 
-def embed_libgomp(use_conda, wheel_name) -> None:
-    from tempfile import NamedTemporaryFile
-    with NamedTemporaryFile() as tmp:
-        tmp.write(embed_library_script.encode('utf-8'))
-        tmp.flush()
-        os.system(f"mv {tmp.name} ./embed_library.py")
-
+def embed_libgomp(wheel_name) -> None:
     print('Embedding libgomp into wheel')
-    os.system(f"python3 embed_library.py {wheel_name} --update-tag")
+    os.system(f"python3 /builder/aarch64_linux/embed_library.py {wheel_name} --update-tag")
 
 
 def checkout_repo(branch: str = "master",
@@ -256,7 +250,7 @@ def start_build(branch="master",
     print("Deleting build folder")
     os.system("cd /pytorch; rm -rf build")
     pytorch_wheel_name = list_dir("/pytorch/dist")[0]
-    embed_libgomp(use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
+    embed_libgomp(f"/pytorch/dist/{pytorch_wheel_name}")
     print('Move PyTorch wheel to artfacts')
     os.system(f"mv /pytorch/dist/{pytorch_wheel_name} /artifacts/")
 
@@ -265,82 +259,6 @@ def start_build(branch="master",
     text_wheel_name = build_torchtext(branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
     data_wheel_name = build_torchdata(branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
     return [pytorch_wheel_name, vision_wheel_name, audio_wheel_name, text_wheel_name, data_wheel_name]
-
-
-embed_library_script = """
-#!/usr/bin/env python3
-
-from auditwheel.patcher import Patchelf
-from auditwheel.wheeltools import InWheelCtx
-from auditwheel.elfutils import elf_file_filter
-from auditwheel.repair import copylib
-from auditwheel.lddtree import lddtree
-from subprocess import check_call
-import os
-import shutil
-import sys
-from tempfile import TemporaryDirectory
-
-
-def replace_tag(filename):
-   with open(filename, 'r') as f:
-     lines = f.read().split("\\n")
-   for i,line in enumerate(lines):
-       if not line.startswith("Tag: "):
-           continue
-       lines[i] = line.replace("-linux_", "-manylinux2014_")
-       print(f'Updated tag from {line} to {lines[i]}')
-
-   with open(filename, 'w') as f:
-       f.write("\\n".join(lines))
-
-
-class AlignedPatchelf(Patchelf):
-    def set_soname(self, file_name: str, new_soname: str) -> None:
-        check_call(['patchelf', '--page-size', '65536', '--set-soname', new_soname, file_name])
-
-    def replace_needed(self, file_name: str, soname: str, new_soname: str) -> None:
-        check_call(['patchelf', '--page-size', '65536', '--replace-needed', soname, new_soname, file_name])
-
-
-def embed_library(whl_path, lib_soname, update_tag=False):
-    patcher = AlignedPatchelf()
-    out_dir = TemporaryDirectory()
-    whl_name = os.path.basename(whl_path)
-    tmp_whl_name = os.path.join(out_dir.name, whl_name)
-    with InWheelCtx(whl_path) as ctx:
-        torchlib_path = os.path.join(ctx._tmpdir.name, 'torch', 'lib')
-        ctx.out_wheel=tmp_whl_name
-        new_lib_path, new_lib_soname = None, None
-        for filename, elf in elf_file_filter(ctx.iter_files()):
-            if not filename.startswith('torch/lib'):
-                continue
-            libtree = lddtree(filename)
-            if lib_soname not in libtree['needed']:
-                continue
-            lib_path = libtree['libs'][lib_soname]['path']
-            if lib_path is None:
-                print(f"Can't embed {lib_soname} as it could not be found")
-                break
-            if lib_path.startswith(torchlib_path):
-                continue
-
-            if new_lib_path is None:
-                new_lib_soname, new_lib_path = copylib(lib_path, torchlib_path, patcher)
-            patcher.replace_needed(filename, lib_soname, new_lib_soname)
-            print(f'Replacing {lib_soname} with {new_lib_soname} for {filename}')
-        if update_tag:
-            # Add manylinux2014 tag
-            for filename in ctx.iter_files():
-                if os.path.basename(filename) != 'WHEEL':
-                    continue
-                replace_tag(filename)
-    shutil.move(tmp_whl_name, whl_path)
-
-
-if __name__ == '__main__':
-    embed_library(sys.argv[1], 'libgomp.so.1', len(sys.argv) > 2 and sys.argv[2] == '--update-tag')
-"""
 
 def parse_arguments():
     from argparse import ArgumentParser
