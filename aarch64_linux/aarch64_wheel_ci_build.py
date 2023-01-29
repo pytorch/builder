@@ -2,7 +2,7 @@
 
 import os
 import subprocess
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 
 
 
@@ -51,7 +51,6 @@ def checkout_repo(branch: str = "master",
 
 
 def build_torchvision(branch: str = "main",
-                      use_conda: bool = True,
                       git_clone_flags: str = "") -> str:
     print('Checking out TorchVision repo')
     build_version = checkout_repo(branch=branch,
@@ -86,8 +85,8 @@ def build_torchvision(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd /vision; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = os.system("ls /vision/dist")[0]
-    embed_libgomp(use_conda, os.path.join('vision', 'dist', wheel_name))
+    wheel_name = list_dir("ls /vision/dist")[0]
+    embed_libgomp(f"/vision/dist/{wheel_name}")
 
     print('Move TorchVision wheel to artfacts')
     os.system(f"mv /vision/dist/{wheel_name} /artifacts/")
@@ -95,7 +94,6 @@ def build_torchvision(branch: str = "main",
 
 
 def build_torchtext(branch: str = "main",
-                    use_conda: bool = True,
                     git_clone_flags: str = "") -> str:
     print('Checking out TorchText repo')
     os.system(f"cd /")
@@ -126,8 +124,8 @@ def build_torchtext(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd text; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = os.system("ls /text/dist")[0]
-    embed_libgomp(use_conda, os.path.join('text', 'dist', wheel_name))
+    wheel_name = list_dir("ls /text/dist")[0]
+    embed_libgomp(f"/text/dist/{wheel_name}")
 
     print('Move TorchText wheel to artfacts')
     os.system(f"mv /text/dist/{wheel_name} /artifacts/")
@@ -135,7 +133,6 @@ def build_torchtext(branch: str = "main",
 
 
 def build_torchaudio(branch: str = "main",
-                     use_conda: bool = True,
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchAudio repo')
     git_clone_flags += " --recurse-submodules"
@@ -165,8 +162,8 @@ def build_torchaudio(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd /audio; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = os.system("ls /audio/dist")[0]
-    embed_libgomp(use_conda, os.path.join('audio', 'dist', wheel_name))
+    wheel_name = list_dir("ls /audio/dist")[0]
+    embed_libgomp(f"/audio/dist/{wheel_name}")
 
     print('Move TorchAudio wheel to artfacts')
     os.system(f"mv /audio/dist/{wheel_name} /artifacts/")
@@ -174,7 +171,6 @@ def build_torchaudio(branch: str = "main",
 
 
 def build_torchdata(branch: str = "main",
-                     use_conda: bool = True,
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchData repo')
     git_clone_flags += " --recurse-submodules"
@@ -199,8 +195,8 @@ def build_torchdata(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd /data; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = os.system("ls /data/dist")[0]
-    embed_libgomp(use_conda, os.path.join('data', 'dist', wheel_name))
+    wheel_name = list_dir("ls /data/dist")[0]
+    embed_libgomp(f"/data/dist/{wheel_name}")
 
     print('Move TorchAudio wheel to artfacts')
     os.system(f"mv /data/dist/{wheel_name} /artifacts/")
@@ -254,10 +250,10 @@ def start_build(branch="master",
     print('Move PyTorch wheel to artfacts')
     os.system(f"mv /pytorch/dist/{pytorch_wheel_name} /artifacts/")
 
-    vision_wheel_name = build_torchvision(branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    audio_wheel_name = build_torchaudio(branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    text_wheel_name = build_torchtext(branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    data_wheel_name = build_torchdata(branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    vision_wheel_name = build_torchvision(branch=branch, git_clone_flags=git_clone_flags)
+    audio_wheel_name = build_torchaudio(branch=branch, git_clone_flags=git_clone_flags)
+    text_wheel_name = build_torchtext(branch=branch, git_clone_flags=git_clone_flags)
+    data_wheel_name = build_torchdata(branch=branch, git_clone_flags=git_clone_flags)
     return [pytorch_wheel_name, vision_wheel_name, audio_wheel_name, text_wheel_name, data_wheel_name]
 
 def parse_arguments():
