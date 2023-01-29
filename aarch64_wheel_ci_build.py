@@ -80,11 +80,13 @@ def build_torchvision(branch: str = "main",
     print('Building TorchVision wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     if branch == 'nightly':
-        version = os.system(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
+        version = ''
+        if os.path.exists('/vision/version.txt'):
+            version = subprocess.check_output(['cat', '/vision/version.txt']).decode().strip()
         if len(version) == 0:
             # In older revisions, version was embedded in setup.py
-            version = os.system(["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
-        build_date = os.system("cd /pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+            version = subprocess.check_output(['grep', 'version', 'setup.py']).decode().strip().split('\'')[1][:-2]
+        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/vision').decode().replace('-','')
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
         build_vars += f"BUILD_VERSION={build_version}"
@@ -121,8 +123,10 @@ def build_torchtext(branch: str = "main",
     print('Building TorchText wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     if branch == 'nightly':
-        version = os.system(["if [ -f text/version.txt ]; then cat text/version.txt; fi"]).strip()
-        build_date = os.system("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        version = ''
+        if os.path.exists('/text/version.txt'):
+            version = subprocess.check_output(['cat', '/text/version.txt']).decode().strip()
+        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/text').decode().replace('-','')
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
         build_vars += f"BUILD_VERSION={build_version}"
@@ -158,8 +162,10 @@ def build_torchaudio(branch: str = "main",
     print('Building TorchAudio wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     if branch == 'nightly':
-        version = os.system(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
-        build_date = os.system("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        version = ''
+        if os.path.exists('/audio/version.txt'):
+            version = subprocess.check_output(['cat', '/audio/version.txt']).decode().strip()
+        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/audio').decode().replace('-','')
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
         build_vars += f"BUILD_VERSION={build_version}"
@@ -190,8 +196,10 @@ def build_torchdata(branch: str = "main",
     print('Building TorchData wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     if branch == 'nightly':
-        version = os.system(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
-        build_date = os.system("cd /pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        version = ''
+        if os.path.exists('/data/version.txt'):
+            version = subprocess.check_output(['cat', '/data/version.txt']).decode().strip()
+        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/data').decode().replace('-','')
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
         build_vars += f"BUILD_VERSION={build_version}"
@@ -247,7 +255,7 @@ def start_build(branch="master",
 
     print("Deleting build folder")
     os.system("cd /pytorch; rm -rf build")
-    pytorch_wheel_name = os.system("ls /pytorch/dist")[0]
+    pytorch_wheel_name = list_dir("/pytorch/dist")[0]
     embed_libgomp(use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Move PyTorch wheel to artfacts')
     os.system(f"mv /pytorch/dist/{pytorch_wheel_name} /artifacts/")
