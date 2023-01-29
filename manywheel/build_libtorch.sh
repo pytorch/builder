@@ -65,13 +65,11 @@ fi
 # ever pass one python version, so we assume that DESIRED_PYTHON is not a list
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
-    if [[ "$DESIRED_PYTHON" == '2.7mu' ]]; then
-      DESIRED_PYTHON='cp27-cp27mu'
-    elif [[ "$DESIRED_PYTHON" == '3.8m' ]]; then
-      DESIRED_PYTHON='cp38-cp38'
+    if [[ "$DESIRED_PYTHON" == '3.7' ]]; then
+      DESIRED_PYTHON='cp37-cp37m'
     else
       python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
+      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
     fi
 fi
 pydir="/opt/python/$DESIRED_PYTHON"
