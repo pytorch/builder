@@ -85,7 +85,7 @@ def build_torchvision(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd /vision; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("ls /vision/dist")[0]
+    wheel_name = list_dir("/vision/dist")[0]
     embed_libgomp(f"/vision/dist/{wheel_name}")
 
     print('Move TorchVision wheel to artfacts')
@@ -124,7 +124,7 @@ def build_torchtext(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd text; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("ls /text/dist")[0]
+    wheel_name = list_dir("/text/dist")[0]
     embed_libgomp(f"/text/dist/{wheel_name}")
 
     print('Move TorchText wheel to artfacts')
@@ -162,7 +162,7 @@ def build_torchaudio(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd /audio; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("ls /audio/dist")[0]
+    wheel_name = list_dir("/audio/dist")[0]
     embed_libgomp(f"/audio/dist/{wheel_name}")
 
     print('Move TorchAudio wheel to artfacts')
@@ -195,7 +195,7 @@ def build_torchdata(branch: str = "main",
         build_vars += f"BUILD_VERSION={build_version}"
 
     os.system(f"cd /data; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("ls /data/dist")[0]
+    wheel_name = list_dir("/data/dist")[0]
     embed_libgomp(f"/data/dist/{wheel_name}")
 
     print('Move TorchAudio wheel to artfacts')
