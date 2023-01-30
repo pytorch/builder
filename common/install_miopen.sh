@@ -33,8 +33,9 @@ if [[ $ROCM_INT -lt 40001 ]]; then
     exit 0
 fi
 
+# CHANGED: Do not uninstall. To avoid out of disk space issues, we will copy lib over existing.
 # Uninstall existing package, to avoid errors during later yum install indicating packages did not change.
-yum remove -y miopen-hip
+#yum remove -y miopen-hip
 
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
@@ -114,12 +115,18 @@ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CXX=${ROCM_INSTALL_PATH}/llvm/bin/clang
     -DCMAKE_PREFIX_PATH="${ROCM_INSTALL_PATH}/hip;${ROCM_INSTALL_PATH}"
 make MIOpen -j $(nproc)
 
+# CHANGED: Do not build package.
 # Build MIOpen package
-make -j $(nproc) package
+#make -j $(nproc) package
 
 # clean up since CI runner was running out of disk space
 rm -rf /usr/local/cget
 
-yum install -y miopen-*.rpm
+# CHANGED: Do not install package, just copy lib over existing.
+#yum install -y miopen-*.rpm
+dest=$(ls ${ROCM_INSTALL_PATH}/lib/libMIOpen.so.1.0.*)
+rm -f ${dest}
+cp lib/libMIOpen.so.1.0 ${dest}
+
 popd
 rm -rf MIOpen
