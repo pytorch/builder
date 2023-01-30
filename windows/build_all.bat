@@ -30,8 +30,8 @@ set "ORIG_PATH=%PATH%"
 conda remove -n py36 --all -y || rmdir %CONDA_HOME%\envs\py36 /s
 conda remove -n py37 --all -y || rmdir %CONDA_HOME%\envs\py37 /s
 
-conda create -n py36 -y -q numpy=1.11 mkl=2018 cffi pyyaml boto3 cmake ninja typing_extensions python=3.6
-conda create -n py37 -y -q numpy=1.11 mkl=2018 cffi pyyaml boto3 cmake ninja typing_extensions python=3.7
+conda create -n py36 -y -q numpy=1.11 mkl=2018 pyyaml boto3 cmake ninja typing_extensions python=3.6
+conda create -n py37 -y -q numpy=1.11 mkl=2018 pyyaml boto3 cmake ninja typing_extensions python=3.7
 
 REM Install MKL
 rmdir /s /q mkl
