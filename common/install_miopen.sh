@@ -33,8 +33,9 @@ if [[ $ROCM_INT -lt 40001 ]]; then
     exit 0
 fi
 
+# CHANGED: Do not uninstall. To avoid out of disk space issues, we will copy lib over existing.
 # Uninstall existing package, to avoid errors during later yum install indicating packages did not change.
-yum remove -y miopen-hip
+#yum remove -y miopen-hip
 
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
@@ -88,7 +89,9 @@ fi
 
 git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
-# Don't build MLIR to save docker build time 
+# remove .git to save disk space ince CI runner was running out
+rm -rf .git
+# Don't build MLIR to save docker build time
 # since we are disabling MLIR backend for MIOpen anyway
 if [[ $ROCM_INT -ge 50400 ]] && [[ $ROCM_INT -lt 50500 ]]; then
     sed -i '/rocMLIR/d' requirements.txt
@@ -97,6 +100,14 @@ elif [[ $ROCM_INT -ge 50200 ]] && [[ $ROCM_INT -lt 50400 ]]; then
 fi
 ## MIOpen minimum requirements
 cmake -P install_deps.cmake --minimum
+
+# clean up since CI runner was running out of disk space
+rm -rf /tmp/*
+yum clean all
+rm -rf /var/cache/yum
+rm -rf /var/lib/yum/yumdb
+rm -rf /var/lib/yum/history
+
 ## Build MIOpen
 mkdir -p build
 cd build
@@ -105,16 +116,19 @@ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CXX=${ROCM_INSTALL_PATH}/llvm/bin/clang
     ${MIOPEN_CMAKE_DB_FLAGS} \
     -DCMAKE_PREFIX_PATH="${ROCM_INSTALL_PATH}/hip;${ROCM_INSTALL_PATH}"
 make MIOpen -j $(nproc)
-make -j $(nproc) package
+
+# CHANGED: Do not build package.
+# Build MIOpen package
+#make -j $(nproc) package
 
 # clean up since CI runner was running out of disk space
 rm -rf /usr/local/cget
-rm -rf /tmp/*
-yum clean all
-rm -rf /var/cache/yum
-rm -rf /var/lib/yum/yumdb
-rm -rf /var/lib/yum/history
 
-yum install -y miopen-*.rpm
+# CHANGED: Do not install package, just copy lib over existing.
+#yum install -y miopen-*.rpm
+dest=$(ls ${ROCM_INSTALL_PATH}/lib/libMIOpen.so.1.0.*)
+rm -f ${dest}
+cp lib/libMIOpen.so.1.0 ${dest}
+
 popd
 rm -rf MIOpen

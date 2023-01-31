@@ -37,5 +37,8 @@ make -f make.gen.hipMAGMA -j $(nproc)
 LANG=C.UTF-8 make lib/libmagma.so -j $(nproc) MKLROOT="${MKLROOT}"
 make testing/testing_dgemm -j $(nproc) MKLROOT="${MKLROOT}"
 popd
-mv magma /opt/rocm
+mkdir -p /opt/rocm/magma
+mv magma/include /opt/rocm/magma
+mv magma/lib /opt/rocm/magma
+rm -rf magma
 
