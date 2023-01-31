@@ -33,7 +33,7 @@ jobs:
         cuda_version: ["118", "117", "116"]
     steps:
       - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Build Magma Cuda
         working-directory: magma
         run: |
