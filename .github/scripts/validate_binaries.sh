@@ -22,8 +22,9 @@ else
         if [[ ${TARGET_OS} == 'linux' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
             conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy
             INSTALLATION_PYPI=${MATRIX_INSTALLATION/"cu117"/"cu117_pypi_cudnn"}
+            INSTALLATION_PYPI=${INSTALLATION_PYPI/"torchvision torchaudio"/""}
             conda run -p ${ENV_NAME}_pypi ${INSTALLATION_PYPI}
-            python ./test/smoke_test/smoke_test.py --package
+            python ./test/smoke_test/smoke_test.py --package torchonly
             conda activate base
             conda env remove -p ${ENV_NAME}_pypi
         fi
