@@ -299,6 +299,8 @@ elif [[ "$DESIRED_PYTHON" == "3.11" ]]; then
     # TODO: Remove me when numpy is available in default channel
     # or copy numpy to pytorch channel
     export CONDA_BUILD_EXTRA_ARGS="-c malfet"
+    # TODO: Remove me after first nightly or when `torch.compile` starts to work with 3.11
+    export CONDA_TRITON_CONSTRAINT=""
 else
     export CONDA_BUILD_EXTRA_ARGS=""
 fi
