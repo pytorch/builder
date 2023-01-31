@@ -89,6 +89,8 @@ fi
 
 git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
+# remove .git to save disk space ince CI runner was running out
+rm -rf .git
 # Don't build MLIR to save docker build time
 # since we are disabling MLIR backend for MIOpen anyway
 if [[ $ROCM_INT -ge 50400 ]] && [[ $ROCM_INT -lt 50500 ]]; then
