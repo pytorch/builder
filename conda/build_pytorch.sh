@@ -295,6 +295,12 @@ if [[ "$OSTYPE" == "msys" && "$USE_SCCACHE" == "1" ]]; then
     mkdir -p /c/cb/pytorch_1000000000000
     export CONDA_BLD_PATH="C:\\cb"
     export CONDA_BUILD_EXTRA_ARGS="--dirty"
+elif [[ "$DESIRED_PYTHON" == "3.11" ]]; then
+    # TODO: Remove me when numpy is available in default channel
+    # or copy numpy to pytorch channel
+    export CONDA_BUILD_EXTRA_ARGS="-c malfet"
+    # TODO: Remove me after first nightly or when `torch.compile` starts to work with 3.11
+    export CONDA_TRITON_CONSTRAINT=""
 else
     export CONDA_BUILD_EXTRA_ARGS=""
 fi
