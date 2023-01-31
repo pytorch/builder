@@ -23,6 +23,7 @@ else
             conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy
             INSTALLATION_PYPI=${MATRIX_INSTALLATION/"cu117"/"cu117_pypi_cudnn"}
             INSTALLATION_PYPI=${INSTALLATION_PYPI/"torchvision torchaudio"/""}
+             INSTALLATION_PYPI=${INSTALLATION_PYPI/"index-url"/"extra-index-url"}
             conda run -p ${ENV_NAME}_pypi ${INSTALLATION_PYPI}
             python ./test/smoke_test/smoke_test.py --package torchonly
             conda activate base
