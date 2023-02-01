@@ -17,7 +17,6 @@ else
         eval ${PYTHON_PATH}/python ./test/smoke_test/smoke_test.py --package torchonly
     else
 
-        echo "Test case for ${TARGET_OS} ${MATRIX_CHANNEL} ${MATRIX_GPU_ARCH_VERSION} ${MATRIX_PACKAGE_TYPE}"
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
         if [[ ${TARGET_OS} == 'linux' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
             conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy
