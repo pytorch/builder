@@ -31,7 +31,7 @@ jobs:
       CUDA_VERSION: ${{ matrix.cuda_version }}
     steps:
       - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
