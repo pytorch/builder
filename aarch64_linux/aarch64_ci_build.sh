@@ -19,7 +19,7 @@ yum -y install less zstd
 # Install conda
 ###############################################################################
 echo 'Installing conda-forge'
-
+mkdir -p /etc/pki/tls/certs && cp /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt /etc/pki/tls/certs/ca-bundle.crt
 curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
 chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
