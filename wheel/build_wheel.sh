@@ -144,6 +144,11 @@ SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
 EXTRA_CONDA_INSTALL_FLAGS=""
 case ${desired_python} in
+    3.11)
+        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+        PYYAML_PINNED_VERSION=">=5.3"
+        NUMPY_PINNED_VERSION="==1.23.5"
+        ;;
     3.10)
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
@@ -167,8 +172,12 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions ninja requests
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
+if [[ "$desired_python" == "3.11" ]]; then
+  retry pip install -q "numpy${NUMPY_PINNED_VERSION}" "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+else
+  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+fi
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.

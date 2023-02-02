@@ -86,6 +86,7 @@ build:
     - USE_PYTORCH_METAL_EXPORT # [osx]
     - USE_COREML_DELEGATE # [osx]
     - _GLIBCXX_USE_CXX11_ABI # [unix]
+    - OVERRIDE_TORCH_CUDA_ARCH_LIST
 
 test:
  imports:
