@@ -7,7 +7,7 @@ set -eux -o pipefail
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
-REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+REQUESTS_CA_BUNDLE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
 
 ###############################################################################
 # Install OS dependent packages
