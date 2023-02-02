@@ -5,37 +5,17 @@ import subprocess
 from typing import Dict, List, Optional, Tuple
 
 
-
+''''
+Helper for getting paths for Python
+'''
 def list_dir(path: str) -> List[str]:
      return subprocess.check_output(["ls", "-1", path]).decode().split("\n")
 
 
-def build_OpenBLAS(git_clone_flags: str = "") -> None:
-    print('Building OpenBLAS')
-    os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.21 {git_clone_flags}")
-    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8 "
-    os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
-
-
-def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
-    print('Building Arm Compute Library')
-    os.system("cd / && mkdir /acl")
-    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
-    os.system(f"cd ComputeLibrary; export acl_install_dir=/acl; " \
-                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
-                f"cp -r arm_compute $acl_install_dir; " \
-                f"cp -r include $acl_install_dir; " \
-                f"cp -r utils $acl_install_dir; " \
-                f"cp -r support $acl_install_dir; " \
-                f"cp -r src $acl_install_dir; cd /")
-
-
-def embed_libgomp(wheel_name) -> None:
-    print('Embedding libgomp into wheel')
-    os.system(f"python3 /builder/aarch64_linux/embed_library.py {wheel_name} --update-tag")
-
-
-def checkout_repo(branch: str = "master",
+'''
+Helper to get repo branches for specific versions
+'''
+def checkout_repo(branch: str = "main",
                   url: str = "",
                   git_clone_flags: str = "",
                   mapping: Dict[str, Tuple[str, str]] = []) -> Optional[str]:
@@ -50,6 +30,43 @@ def checkout_repo(branch: str = "master",
     return None
 
 
+'''
+Using OpenBLAS with PyTorch
+'''
+def build_OpenBLAS(git_clone_flags: str = "") -> None:
+    print('Building OpenBLAS')
+    os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.21 {git_clone_flags}")
+    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8 "
+    os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
+
+
+'''
+Using ArmComputeLibrary for aarch64 PyTorch
+'''
+def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
+    print('Building Arm Compute Library')
+    os.system("cd / && mkdir /acl")
+    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
+    os.system(f"cd ComputeLibrary; export acl_install_dir=/acl; " \
+                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
+                f"cp -r arm_compute $acl_install_dir; " \
+                f"cp -r include $acl_install_dir; " \
+                f"cp -r utils $acl_install_dir; " \
+                f"cp -r support $acl_install_dir; " \
+                f"cp -r src $acl_install_dir; cd /")
+
+
+'''
+Script to embed libgomp to the wheels
+'''
+def embed_libgomp(wheel_name) -> None:
+    print('Embedding libgomp into wheel')
+    os.system(f"python3 /builder/aarch64_linux/embed_library.py {wheel_name} --update-tag")
+
+
+'''
+Build TorchVision wheel
+'''
 def build_torchvision(branch: str = "main",
                       git_clone_flags: str = "") -> str:
     print('Checking out TorchVision repo')
@@ -93,6 +110,50 @@ def build_torchvision(branch: str = "main",
     return wheel_name
 
 
+'''
+Build TorchAudio wheel
+'''
+def build_torchaudio(branch: str = "main",
+                     git_clone_flags: str = "") -> str:
+    print('Checking out TorchAudio repo')
+    git_clone_flags += " --recurse-submodules"
+    build_version = checkout_repo(branch=branch,
+                                  url="https://github.com/pytorch/audio",
+                                  git_clone_flags=git_clone_flags,
+                                  mapping={
+                                      "v1.9.0": ("0.9.0", "rc2"),
+                                      "v1.10.0": ("0.10.0", "rc5"),
+                                      "v1.10.1": ("0.10.1", "rc1"),
+                                      "v1.10.2": ("0.10.2", "rc1"),
+                                      "v1.11.0": ("0.11.0", "rc1"),
+                                      "v1.12.0": ("0.12.0", "rc3"),
+                                      "v1.12.1": ("0.12.1", "rc5"),
+                                      "v1.13.0": ("0.13.0", "rc4"),
+                                      "v1.13.1": ("0.13.1", "rc2"),
+                                  })
+    print('Building TorchAudio wheel')
+    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
+    if branch == 'nightly':
+        version = ''
+        if os.path.exists('/audio/version.txt'):
+            version = subprocess.check_output(['cat', '/audio/version.txt']).decode().strip()
+        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/audio').decode().replace('-','')
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    elif build_version is not None:
+        build_vars += f"BUILD_VERSION={build_version}"
+
+    os.system(f"cd /audio; {build_vars} python3 setup.py bdist_wheel")
+    wheel_name = list_dir("/audio/dist")[0]
+    embed_libgomp(f"/audio/dist/{wheel_name}")
+
+    print('Move TorchAudio wheel to artfacts')
+    os.system(f"mv /audio/dist/{wheel_name} /artifacts/")
+    return wheel_name
+
+
+'''
+Build TorchText wheel
+'''
 def build_torchtext(branch: str = "main",
                     git_clone_flags: str = "") -> str:
     print('Checking out TorchText repo')
@@ -132,44 +193,9 @@ def build_torchtext(branch: str = "main",
     return wheel_name
 
 
-def build_torchaudio(branch: str = "main",
-                     git_clone_flags: str = "") -> str:
-    print('Checking out TorchAudio repo')
-    git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(branch=branch,
-                                  url="https://github.com/pytorch/audio",
-                                  git_clone_flags=git_clone_flags,
-                                  mapping={
-                                      "v1.9.0": ("0.9.0", "rc2"),
-                                      "v1.10.0": ("0.10.0", "rc5"),
-                                      "v1.10.1": ("0.10.1", "rc1"),
-                                      "v1.10.2": ("0.10.2", "rc1"),
-                                      "v1.11.0": ("0.11.0", "rc1"),
-                                      "v1.12.0": ("0.12.0", "rc3"),
-                                      "v1.12.1": ("0.12.1", "rc5"),
-                                      "v1.13.0": ("0.13.0", "rc4"),
-                                      "v1.13.1": ("0.13.1", "rc2"),
-                                  })
-    print('Building TorchAudio wheel')
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    if branch == 'nightly':
-        version = ''
-        if os.path.exists('/audio/version.txt'):
-            version = subprocess.check_output(['cat', '/audio/version.txt']).decode().strip()
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/audio').decode().replace('-','')
-        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
-
-    os.system(f"cd /audio; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("/audio/dist")[0]
-    embed_libgomp(f"/audio/dist/{wheel_name}")
-
-    print('Move TorchAudio wheel to artfacts')
-    os.system(f"mv /audio/dist/{wheel_name} /artifacts/")
-    return wheel_name
-
-
+'''
+Build TorchData wheel
+'''
 def build_torchdata(branch: str = "main",
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchData repo')
@@ -203,24 +229,40 @@ def build_torchdata(branch: str = "main",
     return wheel_name
 
 
-def start_build(branch="master",
-                compiler="gcc-8",
-                use_conda=True,
-                python_version="3.8",
-                shallow_clone=True,
-                enable_mkldnn=False) -> Tuple[str, str]:
-    git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
+def parse_arguments():
+    from argparse import ArgumentParser
+    parser = ArgumentParser("AARCH64 wheels python CD")
+    parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--build-only", action="store_true")
+    parser.add_argument("--test-only", type=str)
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10'], default=None)
+    parser.add_argument("--branch", type=str, default="master")
+    parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
+    parser.add_argument("--enable-mkldnn", action="store_true")
+    return parser.parse_args()
+
+
+'''
+Entry Point
+'''
+if __name__ == '__main__':
+
+    args = parse_arguments()
+    branch = args.branch
+    enable_mkldnn = args.enable_mkldnn
+
+    git_clone_flags = " --depth 1 --shallow-submodules"
     os.system(f"conda install -y ninja scons")
 
     print("Build and Install OpenBLAS")
     build_OpenBLAS(git_clone_flags)
 
     print('Building PyTorch wheel')
-    # Breakpad build fails on aarch64
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system(f"cd /pytorch; pip install -r requirements.txt")
     os.system(f"pip install auditwheel")
     os.system(f"python setup.py clean")
+
     if branch == 'nightly' or branch == 'master':
         build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/pytorch').decode().replace('-','')
         version = subprocess.check_output(['cat','version.txt'], cwd='/pytorch').decode().strip()[:-2]
@@ -256,25 +298,10 @@ def start_build(branch="master",
     audio_wheel_name = build_torchaudio(branch=branch, git_clone_flags=git_clone_flags)
     text_wheel_name = build_torchtext(branch=branch, git_clone_flags=git_clone_flags)
     data_wheel_name = build_torchdata(branch=branch, git_clone_flags=git_clone_flags)
-    return [pytorch_wheel_name, vision_wheel_name, audio_wheel_name, text_wheel_name, data_wheel_name]
 
-
-def parse_arguments():
-    from argparse import ArgumentParser
-    parser = ArgumentParser("AARCH64 wheels python CD")
-    parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--build-only", action="store_true")
-    parser.add_argument("--test-only", type=str)
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10'], default=None)
-    parser.add_argument("--branch", type=str, default="master")
-    parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
-    parser.add_argument("--enable-mkldnn", action="store_true")
-    return parser.parse_args()
-
-if __name__ == '__main__':
-    args = parse_arguments()
-
-    start_build(branch=args.branch,
-                compiler=args.compiler,
-                python_version=args.python_version,
-                enable_mkldnn=args.enable_mkldnn)
+    print(f"Wheels Created:\n" \
+            f"{pytorch_wheel_name}\n" \
+            f"{vision_wheel_name}\n" \
+            f"{audio_wheel_name}\n" \
+            f"{text_wheel_name}\n" \
+            f"{data_wheel_name}\n")

@@ -22,16 +22,16 @@ curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/late
 chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
-/opt/conda/bin/conda install -y -c conda-forge python=${PYTHON_VERSION} numpy pyyaml setuptools patchelf
+/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf
 python --version
 conda --version
 
 ###############################################################################
 # Exec libglfortran.a hack
 #
-# libgfortran.a from quay.io/pypa/manylinux2014_aarch64 was not compiled with -fPIC.
+# libgfortran.a from quay.io/pypa/manylinux2014_aarch64 is not compiled with -fPIC.
 # This causes __stack_chk_guard@@GLIBC_2.17 on pytorch build. To solve, get
-# ubuntu's libgfortran.a which was compiled with -fPIC
+# ubuntu's libgfortran.a which is compiled with -fPIC
 ###############################################################################
 cd ~/
 curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.4.0-6ubuntu1_arm64.deb
@@ -46,4 +46,4 @@ cd /
 # adding safe directory for git as the permissions will be
 # on the mounted pytorch repo
 git config --global --add safe.directory /pytorch
-python /builder/aarch64_linux/aarch64_wheel_ci_build.py --python-version ${PYTHON_VERSION} --enable-mkldnn
+python /builder/aarch64_linux/aarch64_wheel_ci_build.py --python-version ${DESIRED_PYTHON} --enable-mkldnn
