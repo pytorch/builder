@@ -7,6 +7,7 @@ set -eux -o pipefail
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
+REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 ###############################################################################
 # Install OS dependent packages
@@ -18,6 +19,7 @@ yum -y install less zstd
 # Install conda
 ###############################################################################
 echo 'Installing conda-forge'
+
 curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
 chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
