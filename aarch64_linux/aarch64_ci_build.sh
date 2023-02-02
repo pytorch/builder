@@ -7,7 +7,6 @@ set -eux -o pipefail
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
-REQUESTS_CA_BUNDLE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
 
 ###############################################################################
 # Install OS dependent packages
@@ -17,13 +16,15 @@ yum -y install less zstd
 
 ###############################################################################
 # Install conda
+# disable SSL_verify due to getting "Could not find a suitable TLS CA certificate bundle, invalid path"
+# when using Python version, less than the conda latest
 ###############################################################################
 echo 'Installing conda-forge'
-mkdir -p /etc/pki/tls/certs && cp /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt /etc/pki/tls/certs/ca-bundle.crt
 curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
 chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
+/opt/conda/bin/conda config --set ssl_verify False
 /opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf
 python --version
 conda --version
