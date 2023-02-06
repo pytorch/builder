@@ -38,6 +38,11 @@ else
             export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
             ${PWD}/check_binary.sh
         fi
+
+
+        if [[ ${TARGET_OS} == 'windows' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' ]]
+            conda install -y libnvjpeg-dev -c nvidia
+        fi
         python  ./test/smoke_test/smoke_test.py
     fi
 fi
