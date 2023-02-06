@@ -40,7 +40,7 @@ else
         fi
 
 
-        if [[ ${TARGET_OS} == 'windows' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' ]]
+        if [[ ${TARGET_OS} == 'windows' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' ]]; then
             conda install -y libnvjpeg-dev -c nvidia
         fi
         python  ./test/smoke_test/smoke_test.py
