@@ -16,7 +16,6 @@ else
         eval ${PIP_INSTALLATION}
         eval ${PYTHON_PATH}/python ./test/smoke_test/smoke_test.py --package torchonly
     else
-
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
         if [[ ${TARGET_OS} == 'linux' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
             conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy
@@ -39,7 +38,6 @@ else
             export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
             ${PWD}/check_binary.sh
         fi
-
         python  ./test/smoke_test/smoke_test.py
     fi
 fi
