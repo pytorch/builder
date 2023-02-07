@@ -52,6 +52,7 @@ requirements:
     - libcusparse {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
     - libnvjpeg {{ libnvjpeg_constraints }}
+    - libnvjpeg-dev {{ libnvjpeg_constraints }} # libnvjpeg-dev required see: https://github.com/pytorch/vision/issues/7185
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."
