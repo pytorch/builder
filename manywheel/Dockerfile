@@ -160,14 +160,15 @@ ADD ./common/install_rocm.sh install_rocm.sh
 RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
-RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
-# cmake is already installed inside the rocm base image, but both 2 and 3 exist
-# cmake3 is needed for the later MIOpen custom build, so that step is last.
-RUN rpm -e cmake && \
-    pip3 install cmake==3.18.4 && \
-    ln -sf /usr/local/bin/cmake /usr/bin/cmake && \
-    ln -sf /usr/local/bin/cmake /usr/bin/cmake3
-
-ADD ./common/install_miopen.sh install_miopen.sh
-RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
+### The following is now performed beforehand in a new GPU_IMAGE with magma and miopen preinstalled
+#ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
+#RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+## cmake is already installed inside the rocm base image, but both 2 and 3 exist
+## cmake3 is needed for the later MIOpen custom build, so that step is last.
+#RUN rpm -e cmake && \
+#    pip3 install cmake==3.18.4 && \
+#    ln -sf /usr/local/bin/cmake /usr/bin/cmake && \
+#    ln -sf /usr/local/bin/cmake /usr/bin/cmake3
+#
+#ADD ./common/install_miopen.sh install_miopen.sh
+#RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
