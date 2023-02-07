@@ -41,6 +41,9 @@ requirements:
   run:
     - cuda-libraries {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
+    - libnvjpeg {{ libnvjpeg_constraints }}
+    # libnvjpeg-dev required see: https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
+    - libnvjpeg-dev {{ libnvjpeg_constraints }}
   run_constrained:
     - cuda-cudart {{ cuda_constraints }}
     - cuda-cupti {{ cuda_constraints }}
@@ -51,7 +54,6 @@ requirements:
     - libcusolver {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
-    - libnvjpeg {{ libnvjpeg_constraints }}
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."
