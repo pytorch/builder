@@ -36,7 +36,6 @@ package:
   version: {{ version }}
 build:
   number: {{ build }}
-  noarch: generic
 requirements:
   run:
     - cuda-libraries {{ cuda_constraints }}
@@ -51,18 +50,15 @@ requirements:
     - libcusolver {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
-    - cuda-libraries-dev {{ cuda_constraints }} # [win]
-    - cuda-nvtx-dev {{ cuda_constraints }} # [win]
-    - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win]
-    - cuda-cudart-dev {{ cuda_constraints }} # [win]
-    - cuda-cupti-dev {{ cuda_constraints }} # [win]
-    - cuda-nvrtc-dev {{ cuda_constraints }} # [win]
-    - cuda-runtime-dev {{ cuda_constraints }} # [win]
-    - libcufft-dev {{ libcufft_constraints }} # [win]
-    - libcublas-dev {{ libcublas_constraints }} # [win]
-    - libcusolver-dev {{ libcusolver_constraints }} # [win]
-    - libcusparse-dev {{ libcusparse_constraints }} # [win]
-    - libnpp-dev {{ libnpp_constraints }} # [win]
+    - cuda-libraries-dev {{ cuda_constraints }} # [win64]
+    - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win64]
+    - cuda-cudart-dev {{ cuda_constraints }} # [win64]
+    - cuda-nvrtc-dev {{ cuda_constraints }} # [win64]
+    - libcufft-dev {{ libcufft_constraints }} # [win64]
+    - libcublas-dev {{ libcublas_constraints }} # [win64]
+    - libcusolver-dev {{ libcusolver_constraints }} # [win64]
+    - libcusparse-dev {{ libcusparse_constraints }} # [win64]
+    - libnpp-dev {{ libnpp_constraints }} # [win64]
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."
