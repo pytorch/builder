@@ -5,7 +5,7 @@
 # deployment:
 # https://conda.anaconda.org/pytorch/noarch/
 # https://conda.anaconda.org/pytorch/noarch/repodata.json
-{% set build = 3 %}
+{% set build = 2 %}
 {% set cuda_constraints=">=11.6,<11.7" %}
 {% set libcufft_constraints=">=10.7.0.55,<10.7.2.50" %}
 {% set libcublas_constraints=">=11.8.1.74,<11.10.1.25" %}
@@ -42,9 +42,6 @@ requirements:
     - cuda-libraries {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
     - libnvjpeg {{ libnvjpeg_constraints }}
-    # libnvjpeg-dev required see: https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
-    - libnvjpeg-dev {{ libnvjpeg_constraints }}
-  run_constrained:
     - cuda-cudart {{ cuda_constraints }}
     - cuda-cupti {{ cuda_constraints }}
     - cuda-nvrtc {{ cuda_constraints }}
@@ -54,6 +51,18 @@ requirements:
     - libcusolver {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
+    - cuda-libraries-dev {{ cuda_constraints }} # [win]
+    - cuda-nvtx-dev {{ cuda_constraints }} # [win]
+    - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win]
+    - cuda-cudart-dev {{ cuda_constraints }} # [win]
+    - cuda-cupti-dev {{ cuda_constraints }} # [win]
+    - cuda-nvrtc-dev {{ cuda_constraints }} # [win]
+    - cuda-runtime-dev {{ cuda_constraints }} # [win]
+    - libcufft-dev {{ libcufft_constraints }} # [win]
+    - libcublas-dev {{ libcublas_constraints }} # [win]
+    - libcusolver-dev {{ libcusolver_constraints }} # [win]
+    - libcusparse-dev {{ libcusparse_constraints }} # [win]
+    - libnpp-dev {{ libnpp_constraints }} # [win]
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."
