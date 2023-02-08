@@ -1,4 +1,10 @@
-# Package to manage cuda version in PyTorch
+# Package to manage cuda version in PyTorch.
+#
+# Windows anaconda packages are packaged differently,
+# All dlls are kept within *-dev packages hence we need
+# include the dev packages for Windows see:
+# https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
+#
 # Please note: Build number should be advanced with
 # every deployment. After the deployment to production
 # use following links to validate the correctness of
@@ -36,15 +42,11 @@ package:
   version: {{ version }}
 build:
   number: {{ build }}
-  noarch: generic
 requirements:
   run:
     - cuda-libraries {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
     - libnvjpeg {{ libnvjpeg_constraints }}
-    # libnvjpeg-dev required see: https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
-    - libnvjpeg-dev {{ libnvjpeg_constraints }}
-  run_constrained:
     - cuda-cudart {{ cuda_constraints }}
     - cuda-cupti {{ cuda_constraints }}
     - cuda-nvrtc {{ cuda_constraints }}
@@ -54,6 +56,15 @@ requirements:
     - libcusolver {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
     - libnpp {{ libnpp_constraints }}
+    - cuda-libraries-dev {{ cuda_constraints }} # [win64]
+    - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win64]
+    - cuda-cudart-dev {{ cuda_constraints }} # [win64]
+    - cuda-nvrtc-dev {{ cuda_constraints }} # [win64]
+    - libcufft-dev {{ libcufft_constraints }} # [win64]
+    - libcublas-dev {{ libcublas_constraints }} # [win64]
+    - libcusolver-dev {{ libcusolver_constraints }} # [win64]
+    - libcusparse-dev {{ libcusparse_constraints }} # [win64]
+    - libnpp-dev {{ libnpp_constraints }} # [win64]
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."
