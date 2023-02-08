@@ -35,6 +35,14 @@
 {% set libcusparse_constraints=">=11.7.5.86,<12.0.0.76" %}
 {% set libnpp_constraints=">=11.8.0.86,<12.0.0.30" %}
 {% set libnvjpeg_constraints=">=11.9.0.86,<12.0.0.28" %}
+{% elif version == '12.0' %}
+{% set cuda_constraints=">=12.0,<12.1" %}
+{% set libcufft_constraints=">=11.0.1.95,<11.0.1.95" %}
+{% set libcublas_constraints=">=12.0.2.224,<12.0.2.224" %}
+{% set libcusolver_constraints=">=11.4.3.1,<11.4.3.1" %}
+{% set libcusparse_constraints=">=12.0.1.140,<12.0.1.140" %}
+{% set libnpp_constraints=">=12.0.1.104,<12.0.1.104" %}
+{% set libnvjpeg_constraints=">=12.0.1.102,<12.0.1.102" %}
 {% endif %}
 
 package:

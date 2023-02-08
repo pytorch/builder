@@ -22,6 +22,7 @@ if exist "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%
 if %CUDA_VER% EQU 116 goto cuda116
 if %CUDA_VER% EQU 117 goto cuda117
 if %CUDA_VER% EQU 118 goto cuda118
+if %CUDA_VER% EQU 120 goto cuda120
 
 echo CUDA %CUDA_VERSION_STR% is not supported
 exit /b 1
@@ -91,6 +92,31 @@ if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
 )
 
 set CUDNN_FOLDER=cudnn-windows-x86_64-8.7.0.84_cuda11-archive
+set CUDNN_LIB_FOLDER="lib"
+set "CUDNN_INSTALL_ZIP=%CUDNN_FOLDER%.zip"
+if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
+    curl -k -L "http://s3.amazonaws.com/ossci-windows/%CUDNN_INSTALL_ZIP%" --output "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%"
+    if errorlevel 1 exit /b 1
+    set "CUDNN_SETUP_FILE=%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%"
+)
+
+@REM Cuda 8.3+ required zlib to be installed on the path
+echo Installing ZLIB dlls
+curl -k -L "http://s3.amazonaws.com/ossci-windows/zlib123dllx64.zip" --output "%SRC_DIR%\temp_build\zlib123dllx64.zip"
+7z x "%SRC_DIR%\temp_build\zlib123dllx64.zip" -o"%SRC_DIR%\temp_build\zlib"
+xcopy /Y "%SRC_DIR%\temp_build\zlib\dll_x64\*.dll" "C:\Windows\System32"
+
+:cuda120
+
+set CUDA_INSTALL_EXE=cuda_12.0.1_528.33_windows.exe
+if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
+    curl -k -L "https://ossci-windows.s3.amazonaws.com/%CUDA_INSTALL_EXE%" --output "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%"
+    if errorlevel 1 exit /b 1
+    set "CUDA_SETUP_FILE=%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%"
+    set "ARGS=cuda_profiler_api_12.0 thrust_12.0 nvcc_12.0 cuobjdump_12.0 nvprune_12.0 nvprof_12.0 cupti_12.0 cublas_12.0 cublas_dev_12.0 cudart_12.0 cufft_12.0 cufft_dev_12.0 curand_12.0 curand_dev_12.0 cusolver_12.0 cusolver_dev_12.0 cusparse_12.0 cusparse_dev_12.0 npp_12.0 npp_dev_12.0 nvrtc_12.0 nvrtc_dev_12.0 nvml_dev_12.0"
+)
+
+set CUDNN_FOLDER=cudnn-windows-x86_64-8.8.0.121_cuda12-archive
 set CUDNN_LIB_FOLDER="lib"
 set "CUDNN_INSTALL_ZIP=%CUDNN_FOLDER%.zip"
 if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
