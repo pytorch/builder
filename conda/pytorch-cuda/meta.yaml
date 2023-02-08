@@ -1,4 +1,4 @@
-# Package to manage cuda version in.
+# Package to manage cuda version in PyTorch.
 #
 # Windows anaconda packages are packaged differently,
 # All dlls are kept within *-dev packages hence we need
