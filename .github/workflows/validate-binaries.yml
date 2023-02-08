@@ -22,6 +22,10 @@ on:
         default: ""
         required: false
         type: string
+      limit-win-builds:
+        description: "Limit windows builds to single python/cuda config"
+        default: "disable"
+        type: string
   workflow_dispatch:
     inputs:
       os:
@@ -49,6 +53,11 @@ on:
         default: ""
         required: false
         type: string
+      limit-win-builds:
+        description: "Limit windows builds to single python/cuda config"
+        default: "disable"
+        required: false
+        type: string
 
 jobs:
   win:
@@ -57,6 +66,7 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+      limit-win-builds: ${{ inputs.limit-win-builds }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'

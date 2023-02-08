@@ -32,3 +32,4 @@ jobs:
     with:
       channel: release
       os: all
+      limit-win-builds: enable
