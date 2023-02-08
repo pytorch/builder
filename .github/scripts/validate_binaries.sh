@@ -41,7 +41,6 @@ else
         fi
 
         python  ./test/smoke_test/smoke_test.py
-
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
