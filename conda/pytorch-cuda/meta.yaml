@@ -1,4 +1,10 @@
-# Package to manage cuda version in PyTorch
+# Package to manage cuda version in.
+#
+# Windows anaconda packages are packaged differently,
+# All dlls are kept within *-dev packages hence we need
+# include the dev packages for Windows see:
+# https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
+#
 # Please note: Build number should be advanced with
 # every deployment. After the deployment to production
 # use following links to validate the correctness of
