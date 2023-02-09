@@ -36,7 +36,6 @@ jobs:
       package-type: all
       os: linux
       channel: ${{ inputs.channel }}
-      with-py311: enable
 
   linux:
     needs: generate-linux-matrix
