@@ -3,7 +3,7 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     unzip libtorch.zip
 else
     #special case for Python 3.11
-    if [ $MATRIX_PYTHON_VERSION == '3.11' ]; then
+    if [ $MATRIX_PYTHON_VERSION == '3.11' && ${TARGET_OS} != 'windows']; then
         export CPYTHON_VERSIONS=3.11.0
         sudo yum -y install openssl-devel libssl-dev bzip2-devel libffi-devel
         sudo yum -y groupinstall "Development Tools"
@@ -14,6 +14,12 @@ else
         ./common/install_cpython.sh
         eval ${PYTHON_PATH}/python --version
         eval ${PIP_INSTALLATION}
+        eval ${PYTHON_PATH}/python ./test/smoke_test/smoke_test.py --package torchonly
+    #special case for Python 3.11
+    elif [ $MATRIX_PYTHON_VERSION == '3.11' && ${TARGET_OS} == 'windows']; then
+        conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
+        conda activate ${ENV_NAME}
+        eval $MATRIX_INSTALLATION
         eval ${PYTHON_PATH}/python ./test/smoke_test/smoke_test.py --package torchonly
     else
 
