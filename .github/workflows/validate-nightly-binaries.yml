@@ -32,3 +32,4 @@ jobs:
     with:
       channel: nightly
       os: all
+      limit-win-builds: enable

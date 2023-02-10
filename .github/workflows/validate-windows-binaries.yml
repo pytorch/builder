@@ -12,6 +12,10 @@ on:
         default: ""
         required: false
         type: string
+      limit-win-builds:
+        description: "Limit windows builds to single python/cuda config"
+        default: "disable"
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -28,6 +32,11 @@ on:
         default: ""
         required: false
         type: string
+      limit-win-builds:
+        description: "Limit windows builds to single python/cuda config"
+        default: "disable"
+        required: false
+        type: string
 
 jobs:
   generate-windows-matrix:
@@ -36,6 +45,7 @@ jobs:
       package-type: all
       os: windows
       channel: ${{ inputs.channel }}
+      limit-win-builds: ${{ inputs.limit-win-builds }}
 
   win:
     needs: generate-windows-matrix

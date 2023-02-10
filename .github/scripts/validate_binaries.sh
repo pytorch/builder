@@ -25,7 +25,7 @@ else
             INSTALLATION_PYPI=${INSTALLATION_PYPI/"index-url"/"extra-index-url"}
             conda run -p ${ENV_NAME}_pypi ${INSTALLATION_PYPI}
             conda run -p ${ENV_NAME}_pypi python ./test/smoke_test/smoke_test.py --package torchonly
-            conda activate base
+            conda deactivate
             conda env remove -p ${ENV_NAME}_pypi
         fi
 
@@ -41,5 +41,7 @@ else
         fi
 
         python  ./test/smoke_test/smoke_test.py
+        conda deactivate
+        conda env remove -n ${ENV_NAME}
     fi
 fi
