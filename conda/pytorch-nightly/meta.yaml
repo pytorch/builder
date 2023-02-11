@@ -21,7 +21,8 @@ requirements:
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
     - mkl-include # [x86_64]
-    - mkl=2022.1 # [x86_64]
+    - mkl=2020.2 # [x86_64 and not win]
+    - mkl=2021.4 # [x86_64 and win]
     {% endif %}
     - typing_extensions
     - ninja
