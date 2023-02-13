@@ -102,6 +102,7 @@ set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install -yq "%%i" --offline
 if ERRORLEVEL 1 exit /b 1
 
+:smoke_test
 python -c "import torch"
 if ERRORLEVEL 1 exit /b 1
 
