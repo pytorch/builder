@@ -7,7 +7,7 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
         conda activate ${ENV_NAME}
         eval $MATRIX_INSTALLATION
-        eval ${PYTHON_PATH}/python ./test/smoke_test/smoke_test.py --package torchonly
+        python ./test/smoke_test/smoke_test.py --package torchonly
         conda deactivate
         conda env remove -n ${ENV_NAME}
     else
