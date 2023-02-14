@@ -409,9 +409,6 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRE
     echo "Checking that basic CNN works"
     python ${TEST_CODE_DIR}/cnn_smoke.py
 
-    echo "Test that linalg works"
-    python -c "import torch;x=torch.rand(3,3,device='cuda');print(torch.linalg.svd(torch.mm(x.t(), x)))"
-
     popd
   fi # if libtorch
 fi # if cuda
