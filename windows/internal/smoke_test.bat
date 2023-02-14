@@ -64,7 +64,7 @@ echo "install conda package"
 set "CONDA_HOME=%CD%\conda"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
-set "CONDA_EXTRA_ARGS="
+set "CONDA_EXTRA_ARGS=cpuonly -c pytorch-nightly"
 if "%CUDA_VERSION%" == "116" (
     set "CONDA_EXTRA_ARGS=pytorch-cuda=11.6 -c nvidia -c pytorch-nightly"
 )
@@ -100,14 +100,6 @@ set CUDA_VERSION_STR=%CUDA_VER_MAJOR%.%CUDA_VER_MINOR%
 
 :: Install package we just build
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.tar.bz2') do call conda install -yq "%%i" --offline
-if ERRORLEVEL 1 exit /b 1
-
-if "%CUDA_VERSION%" == "cpu" goto install_cpu_torch
-
-goto smoke_test
-
-:install_cpu_torch
-call conda install %CONDA_EXTRA_ARGS% -y cpuonly -c pytorch-nightly
 if ERRORLEVEL 1 exit /b 1
 
 :smoke_test

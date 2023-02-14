@@ -1,0 +1,26 @@
+name: Validate Nightly PyPI Wheel Binary Size
+on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-nightly-pypi-wheel-binary-size.yml
+  workflow_dispatch:
+  schedule:
+    # At 2:30 pm UTC (7:30 am PDT)
+    - cron: "30 14 * * *"
+
+jobs:
+  nightly-pypi-binary-size-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository: pytorch/test-infra
+      - name: Install requirements
+        run: |
+          pip3 install -r tools/binary_size_validation/requirements.txt
+      - name: Run validation
+        run: |
+          python tools/binary_size_validation/binary_size_validation.py \
+              --url https://download.pytorch.org/whl/nightly/torch/ \
+              --include "pypi" --only-latest-version --threshold 750
