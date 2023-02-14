@@ -410,7 +410,7 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRE
     python ${TEST_CODE_DIR}/cnn_smoke.py
 
     echo "Test that linalg works"
-    python -c "import torch;x=torch.rand(3,3,device='cuda');print(torch.linalg.svd(torch.mm(x.t(), x)))"
+    python -c "import torch;x=torch.rand(3,3,device='cuda');torch.backends.cuda.preferred_linalg_library('default');print(torch.linalg.svd(torch.mm(x.t(), x)))"
 
     popd
   fi # if libtorch
