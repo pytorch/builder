@@ -84,10 +84,6 @@ ROCM_SO_FILES=(
     "libmagma.so"
     "librccl.so"
     "librocblas.so"
-    "librocfft-device-0.so"
-    "librocfft-device-1.so"
-    "librocfft-device-2.so"
-    "librocfft-device-3.so" 
     "librocfft.so"
     "librocm_smi64.so"   
     "librocrand.so"
@@ -96,6 +92,13 @@ ROCM_SO_FILES=(
     "libroctracer64.so"
     "libroctx64.so"
 )
+
+if [[ $ROCM_INT -lt 50500 ]]; then
+    ROCM_SO_FILES+=("librocfft-device-0.so")
+    ROCM_SO_FILES+=("librocfft-device-1.so")
+    ROCM_SO_FILES+=("librocfft-device-2.so")
+    ROCM_SO_FILES+=("librocfft-device-3.so")
+fi
 
 if [[ $ROCM_INT -ge 50400 ]]; then
     ROCM_SO_FILES+=("libhiprtc.so")
@@ -163,6 +166,10 @@ do
     fi
     if [[ -z $file_path ]]; then 
         file_path=($(find $ROCM_HOME/ -name "$lib")) # Then search in ROCM_HOME
+    fi
+    if [[ -z $file_path ]]; then
+	echo "Warning: Library file $lib is not found."
+	file_path="NOT_FOUND"
     fi
     ROCM_SO_PATHS[${#ROCM_SO_PATHS[@]}]="$file_path" # Append lib to array
 done
