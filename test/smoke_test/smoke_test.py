@@ -55,6 +55,19 @@ def check_nightly_binaries_date(package: str) -> None:
                     f"Expected {module['name']} to be less then {NIGHTLY_ALLOWED_DELTA} days. But its {date_m_delta}"
                 )
 
+def cuda_runtime_error():
+    try:
+        torch._assert_async(torch.tensor(0, device='cuda'))
+        torch._assert_async(torch.tensor(0 + 0j, device='cuda'))
+        raise RuntimeError( f"Expected CUDA RuntimeError but have not received anything")
+    except RuntimeError as e:
+        if re.search("CUDA", f'{e}'):
+            print(f"Caught CUDA exception with success: {e}")
+        else:
+            raise(e)
+    except Exception as e:
+        raise(e)
+
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
@@ -67,6 +80,7 @@ def smoke_test_cuda(package: str) -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
+        cuda_runtime_error()
 
     if(package == 'all' and is_cuda_system):
         for module in MODULES:
@@ -99,7 +113,6 @@ def smoke_test_conv2d() -> None:
         x = torch.randn(1, 3, 24, 24).cuda()
         with torch.cuda.amp.autocast():
             out = conv(x)
-
 
 def smoke_test_modules():
     for module in MODULES:
