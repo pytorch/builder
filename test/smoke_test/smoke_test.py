@@ -56,17 +56,18 @@ def check_nightly_binaries_date(package: str) -> None:
                 )
 
 def cuda_runtime_error():
+    cuda_exception_missed=True
     try:
-        torch._assert_async(torch.tensor(0, device='cuda'))
-        torch._assert_async(torch.tensor(0 + 0j, device='cuda'))
-        raise RuntimeError( f"Expected CUDA RuntimeError but have not received anything")
+        torch._assert_async(torch.tensor(0, device="cuda"))
+        torch._assert_async(torch.tensor(0 + 0j, device="cuda"))
     except RuntimeError as e:
-        if re.search("CUDA", f'{e}'):
+        if re.search("CUDA", f"{e}"):
             print(f"Caught CUDA exception with success: {e}")
+            cuda_exception_missed = False
         else:
             raise(e)
-    except Exception as e:
-        raise(e)
+    if(cuda_exception_missed):
+        raise RuntimeError( f"Expected CUDA RuntimeError but have not received!")
 
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
