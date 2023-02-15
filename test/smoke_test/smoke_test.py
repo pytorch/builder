@@ -72,7 +72,7 @@ def cuda_runtime_error():
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
-
+    if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
             raise RuntimeError(
                 f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}"
