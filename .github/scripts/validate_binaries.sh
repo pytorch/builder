@@ -11,7 +11,6 @@ else
         conda deactivate
         conda env remove -n ${ENV_NAME}
     else
-
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
         if [[ ${TARGET_OS} == 'linux' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
             conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy
@@ -35,6 +34,10 @@ else
             ${PWD}/check_binary.sh
         fi
 
+
+        if [[ ${TARGET_OS} == 'windows' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' ]]; then
+            conda install -y libnvjpeg-dev -c nvidia
+        fi
         python  ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
