@@ -41,6 +41,7 @@ PACKAGE_ALLOW_LIST = {
     "cmake",
     "filelock",
     "idna",
+    "lit",
     "mpmath",
     "nestedtensor",
     "networkx",
