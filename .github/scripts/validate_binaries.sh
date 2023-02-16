@@ -10,6 +10,7 @@ else
         # remove vision and audio
         INSTALLATION=${MATRIX_INSTALLATION/"torchvision torchaudio"/""}
         INSTALLATION=${INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
+        INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
         eval $INSTALLATION
         python ./test/smoke_test/smoke_test.py --package torchonly
         conda deactivate
