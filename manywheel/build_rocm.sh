@@ -168,8 +168,8 @@ do
         file_path=($(find $ROCM_HOME/ -name "$lib")) # Then search in ROCM_HOME
     fi
     if [[ -z $file_path ]]; then
-	echo "Warning: Library file $lib is not found."
-	file_path="NOT_FOUND"
+	echo "Error: Library file $lib is not found." >&2
+	exit 1
     fi
     ROCM_SO_PATHS[${#ROCM_SO_PATHS[@]}]="$file_path" # Append lib to array
 done
