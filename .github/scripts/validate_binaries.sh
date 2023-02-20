@@ -8,7 +8,9 @@ else
         conda activate ${ENV_NAME}
 
         INSTALLATION=${MATRIX_INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
+        INSTALLATION=${INSTALLATION/"pytorch-cuda"/"pytorch-${MATRIX_CHANNEL}::pytorch-cuda"}
         INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
+
         eval $INSTALLATION
         python ./test/smoke_test/smoke_test.py
         conda deactivate
