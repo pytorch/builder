@@ -7,12 +7,10 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
         conda activate ${ENV_NAME}
 
-        # remove vision and audio
-        INSTALLATION=${MATRIX_INSTALLATION/"torchvision torchaudio"/""}
-        INSTALLATION=${INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
+        INSTALLATION=${MATRIX_INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
         INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
         eval $INSTALLATION
-        python ./test/smoke_test/smoke_test.py --package torchonly
+        python ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
     else
@@ -31,10 +29,7 @@ else
 
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy pillow
         conda activate ${ENV_NAME}
-
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
-        # remove vision and audio
-        INSTALLATION=${INSTALLATION/"torchvision torchaudio"/""}
         eval $INSTALLATION
 
         if [[ ${TARGET_OS} == 'linux' ]]; then
@@ -43,7 +38,7 @@ else
             ${PWD}/check_binary.sh
         fi
 
-        python  ./test/smoke_test/smoke_test.py --package torchonly
+        python  ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
