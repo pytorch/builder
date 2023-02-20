@@ -55,7 +55,7 @@ jobs:
     uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
     name: ${{ matrix.build_name }}
     with:
-      runner: ${{ matrix.validation_runner }}
+      runner: ${{ matrix.package_type == 'libtorch' && 'windows.4xlarge' || matrix.validation_runner }}
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
