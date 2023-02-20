@@ -6,8 +6,13 @@ else
     if [[ ${MATRIX_PYTHON_VERSION} == '3.11' ]]; then
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
         conda activate ${ENV_NAME}
-        eval $MATRIX_INSTALLATION
-        python ./test/smoke_test/smoke_test.py --package torchonly
+
+        INSTALLATION=${MATRIX_INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
+        INSTALLATION=${INSTALLATION/"pytorch-cuda"/"pytorch-${MATRIX_CHANNEL}::pytorch-cuda"}
+        INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
+
+        eval $INSTALLATION
+        python ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
     else
