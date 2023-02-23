@@ -60,6 +60,7 @@ PACKAGE_ALLOW_LIST = {
     "torchrec",
     "torchtext",
     "torchvision",
+    "tqdm",
     "typing_extensions",
     "urllib3",
 }
