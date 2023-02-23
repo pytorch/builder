@@ -48,6 +48,7 @@ PACKAGE_ALLOW_LIST = {
     "numpy",
     "packaging",
     "pytorch_triton",
+    "pytorch_triton_rocm",
     "requests",
     "sympy",
     "torch",
