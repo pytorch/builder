@@ -10,7 +10,8 @@ function install_116 {
     chmod +x cuda_11.6.2_510.47.03_linux.run
     ./cuda_11.6.2_510.47.03_linux.run --toolkit --silent
     rm -f cuda_11.6.2_510.47.03_linux.run
-    rm -f /usr/local/cuda && ln -s /usr/local/cuda-11.6 /usr/local/cuda
+    rm -f /usr/local/cuda
+    ln -s /usr/local/cuda-11.6 /usr/local/cuda
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
@@ -33,7 +34,6 @@ function install_117 {
     rm -f cuda_11.7.0_515.43.04_linux.run
     rm -f /usr/local/cuda
     ln -s /usr/local/cuda-11.7 /usr/local/cuda
-    cat /usr/local/cuda/version.json
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
@@ -64,7 +64,8 @@ function install_118 {
     chmod +x cuda_11.8.0_520.61.05_linux.run
     ./cuda_11.8.0_520.61.05_linux.run --toolkit --silent
     rm -f cuda_11.8.0_520.61.05_linux.run
-    rm -f /usr/local/cuda && ln -s /usr/local/cuda-11.8 /usr/local/cuda
+    rm -f /usr/local/cuda
+    ln -s /usr/local/cuda-11.8 /usr/local/cuda
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
