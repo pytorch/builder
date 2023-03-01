@@ -86,6 +86,7 @@ def build_torchvision(branch: str = "main",
                                       "v1.12.1": ("0.13.1", "rc6"),
                                       "v1.13.0": ("0.14.0", "rc4"),
                                       "v1.13.1": ("0.14.1", "rc2"),
+                                      "v2.0.0": ("0.15.0", "rc2"),
                                   })
     print('Building TorchVision wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
@@ -130,6 +131,7 @@ def build_torchaudio(branch: str = "main",
                                       "v1.12.1": ("0.12.1", "rc5"),
                                       "v1.13.0": ("0.13.0", "rc4"),
                                       "v1.13.1": ("0.13.1", "rc2"),
+                                      "v2.0.0": ("2.0.0", "rc2"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
@@ -172,6 +174,7 @@ def build_torchtext(branch: str = "main",
                                       "v1.12.1": ("0.13.1", "rc5"),
                                       "v1.13.0": ("0.14.0", "rc3"),
                                       "v1.13.1": ("0.14.1", "rc1"),
+                                      "v2.0.0": ("0.15.0", "rc2"),
                                   })
     print('Building TorchText wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
@@ -208,6 +211,7 @@ def build_torchdata(branch: str = "main",
                                       "v1.12.0": ("0.4.0", "rc3"),
                                       "v1.12.1": ("0.4.1", "rc5"),
                                       "v1.13.1": ("0.5.1", "rc2"),
+                                      "v2.0.0": ("0.6.0", "rc2"),
                                   })
     print('Building TorchData wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
@@ -235,9 +239,6 @@ def parse_arguments():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10'], default=None)
-    parser.add_argument("--branch", type=str, default="master")
-    parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     parser.add_argument("--enable-mkldnn", action="store_true")
     return parser.parse_args()
 
@@ -248,8 +249,9 @@ Entry Point
 if __name__ == '__main__':
 
     args = parse_arguments()
-    branch = args.branch
     enable_mkldnn = args.enable_mkldnn
+    os.system("cd /pytorch")
+    branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD")
 
     git_clone_flags = " --depth 1 --shallow-submodules"
     os.system(f"conda install -y ninja scons")
