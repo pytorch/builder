@@ -22,7 +22,7 @@ if exist "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%CUDA_VERSION_STR%
 if %CUDA_VER% EQU 116 goto cuda116
 if %CUDA_VER% EQU 117 goto cuda117
 if %CUDA_VER% EQU 118 goto cuda118
-if %CUDA_VER% EQU 120 goto cuda120
+if %CUDA_VER% EQU 121 goto cuda121
 
 echo CUDA %CUDA_VERSION_STR% is not supported
 exit /b 1
@@ -106,14 +106,14 @@ curl -k -L "http://s3.amazonaws.com/ossci-windows/zlib123dllx64.zip" --output "%
 7z x "%SRC_DIR%\temp_build\zlib123dllx64.zip" -o"%SRC_DIR%\temp_build\zlib"
 xcopy /Y "%SRC_DIR%\temp_build\zlib\dll_x64\*.dll" "C:\Windows\System32"
 
-:cuda120
+:cuda121
 
-set CUDA_INSTALL_EXE=cuda_12.0.1_528.33_windows.exe
+set CUDA_INSTALL_EXE=cuda_12.1.0_531.14_windows.exe
 if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
     curl -k -L "https://ossci-windows.s3.amazonaws.com/%CUDA_INSTALL_EXE%" --output "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%"
     if errorlevel 1 exit /b 1
     set "CUDA_SETUP_FILE=%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%"
-    set "ARGS=cuda_profiler_api_12.0 thrust_12.0 nvcc_12.0 cuobjdump_12.0 nvprune_12.0 nvprof_12.0 cupti_12.0 cublas_12.0 cublas_dev_12.0 cudart_12.0 cufft_12.0 cufft_dev_12.0 curand_12.0 curand_dev_12.0 cusolver_12.0 cusolver_dev_12.0 cusparse_12.0 cusparse_dev_12.0 npp_12.0 npp_dev_12.0 nvrtc_12.0 nvrtc_dev_12.0 nvml_dev_12.0"
+    set "ARGS=cuda_profiler_api_12.1 thrust_12.1 nvcc_12.1 cuobjdump_12.1 nvprune_12.1 nvprof_12.1 cupti_12.1 cublas_12.1 cublas_dev_12.1 cudart_12.1 cufft_12.1 cufft_dev_12.1 curand_12.1 curand_dev_12.1 cusolver_12.1 cusolver_dev_12.1 cusparse_12.1 cusparse_dev_12.1 npp_12.1 npp_dev_12.1 nvrtc_12.1 nvrtc_dev_12.1 nvml_dev_12.1"
 )
 
 set CUDNN_FOLDER=cudnn-windows-x86_64-8.8.0.121_cuda12-archive

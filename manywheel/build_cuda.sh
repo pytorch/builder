@@ -58,7 +58,7 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    12.0)
+    12.1)
         TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6;9.0"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
@@ -146,7 +146,7 @@ DEPS_SONAME=(
     "libcublasLt.so.11"
     "libgomp.so.1"
 )
-elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" $CUDA_VERSION == "12.0"]]; then
+elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" $CUDA_VERSION == "12.1"]]; then
     export USE_STATIC_CUDNN=0
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
@@ -203,12 +203,12 @@ elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" $CUDA_VERSION == "12.
                 "libnvrtc-builtins.so.11.8"
             )
         fi
-        if [[ $CUDA_VERSION == "12.0" ]]; then
+        if [[ $CUDA_VERSION == "12.1" ]]; then
             DEPS_LIST+=(
-                "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.0"
+                "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.1"
             )
             DEPS_SONAME+=(
-                "libnvrtc-builtins.so.12.0"
+                "libnvrtc-builtins.so.12.1"
             )
         fi
     else

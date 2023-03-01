@@ -23,11 +23,11 @@ clean:
 	$(RM) -r magma-*
 	$(RM) -r output
 
-.PHONY: magma-cuda120
-magma-cuda120: DESIRED_CUDA := 12.0
-magma-cuda120: PACKAGE_NAME := magma-cuda120
-magma-cuda120: CUDA_ARCH_LIST += -gencode arch=compute_90,code=sm_90
-magma-cuda120:
+.PHONY: magma-cuda121
+magma-cuda121: DESIRED_CUDA := 12.1
+magma-cuda121: PACKAGE_NAME := magma-cuda121
+magma-cuda121: CUDA_ARCH_LIST += -gencode arch=compute_90,code=sm_90
+magma-cuda121:
 	$(DOCKER_RUN)
 
 .PHONY: magma-cuda118

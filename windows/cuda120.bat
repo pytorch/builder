@@ -27,11 +27,11 @@ IF "%NVTOOLSEXT_PATH%"=="" (
     )
 )
 
-IF "%CUDA_PATH_V120%"=="" (
-    IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin\nvcc.exe" (
-        set "CUDA_PATH_V120=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0"
+IF "%CUDA_PATH_V121%"=="" (
+    IF EXIST "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1\bin\nvcc.exe" (
+        set "CUDA_PATH_V121=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1"
     ) ELSE (
-        echo CUDA 12.0 not found, failing
+        echo CUDA 12.1 not found, failing
         exit /b 1
     )
 )
@@ -43,8 +43,8 @@ IF "%BUILD_VISION%" == "" (
     set NVCC_FLAGS=-D__CUDA_NO_HALF_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_35,code=sm_35 -gencode=arch=compute_50,code=sm_50 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_70,code=sm_70 -gencode=arch=compute_75,code=sm_75 -gencode=arch=compute_80,code=compute_80 -gencode=arch=compute_86,code=compute_86 -gencode=arch=compute_90,code=compute_90
 )
 
-set "CUDA_PATH=%CUDA_PATH_V120%"
-set "PATH=%CUDA_PATH_V120%\bin;%PATH%"
+set "CUDA_PATH=%CUDA_PATH_V121%"
+set "PATH=%CUDA_PATH_V121%\bin;%PATH%"
 
 :optcheck
 

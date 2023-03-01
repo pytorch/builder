@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        cuda_version: ["12.0", "11.8", "11.7", "11.6"]
+        cuda_version: ["12.1", "11.8", "11.7", "11.6"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}

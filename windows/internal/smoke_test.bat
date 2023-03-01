@@ -74,8 +74,8 @@ if "%CUDA_VERSION%" == "117" (
 if "%CUDA_VERSION%" == "118" (
     set "CONDA_EXTRA_ARGS=pytorch-cuda=11.8 -c nvidia -c pytorch-nightly"
 )
-if "%CUDA_VERSION%" == "120" (
-    set "CONDA_EXTRA_ARGS=pytorch-cuda=12.0 -c nvidia -c pytorch-nightly"
+if "%CUDA_VERSION%" == "121" (
+    set "CONDA_EXTRA_ARGS=pytorch-cuda=12.1 -c nvidia -c pytorch-nightly"
 )
 
 rmdir /s /q conda

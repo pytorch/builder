@@ -85,15 +85,15 @@ function install_118 {
     ldconfig
 }
 
-function install_120 {
-    echo "Installing CUDA 12.0 and cuDNN 8.8 and NCCL 2.16"
-    rm -rf /usr/local/cuda-12.0 /usr/local/cuda
-    # install CUDA 12.0.0 in the same container
-    wget -q https://developer.download.nvidia.com/compute/cuda/12.0.1/local_installers/cuda_12.0.1_525.85.12_linux.run
-    chmod +x cuda_12.0.1_525.85.12_linux.run
-    ./cuda_12.0.1_525.85.12_linux.run --toolkit --silent
-    rm -f cuda_12.0.1_525.85.12_linux.run
-    rm -f /usr/local/cuda && ln -s /usr/local/cuda-12.0 /usr/local/cuda
+function install_121 {
+    echo "Installing CUDA 12.1 and cuDNN 8.8 and NCCL 2.16"
+    rm -rf /usr/local/cuda-12.1 /usr/local/cuda
+    # install CUDA 12.1.0 in the same container
+    wget -q https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
+    chmod +x cuda_12.1.0_530.30.02_linux.run
+    ./cuda_12.1.0_530.30.02_linux.run --toolkit --silent
+    rm -f cuda_12.1.0_530.30.02_linux.run
+    rm -f /usr/local/cuda && ln -s /usr/local/cuda-12.1 /usr/local/cuda
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
@@ -107,10 +107,10 @@ function install_120 {
 
     # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
     mkdir tmp_nccl && cd tmp_nccl
-    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.16.2/nccl_2.16.2-1+cuda12.0_x86_64.txz
-    tar xf nccl_2.16.2-1+cuda12.0_x86_64
-    cp -a nccl_2.16.2-1+cuda12.0_x86_64/include/* /usr/local/cuda/include/
-    cp -a nccl_2.16.2-1+cuda12.0_x86_64/lib/* /usr/local/cuda/lib64/
+    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.17.1/nccl_2.17.1-1+cuda12.1_x86_64.txz
+    tar xf nccl_2.17.1-1+cuda12.1_x86_64.txz
+    cp -a nccl_2.17.1-1+cuda12.1_x86_64/include/* /usr/local/cuda/include/
+    cp -a nccl_2.17.1-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_nccl
     ldconfig
@@ -210,13 +210,13 @@ function prune_118 {
 }
 
 
-function prune_120 {
-    echo "Pruning CUDA 12.0 and cuDNN"
+function prune_121 {
+    echo "Pruning CUDA 12.1 and cuDNN"
     #####################################################################################
-    # CUDA 12.0 prune static libs
+    # CUDA 12.1 prune static libs
     #####################################################################################
-    export NVPRUNE="/usr/local/cuda-12.0/bin/nvprune"
-    export CUDA_LIB_DIR="/usr/local/cuda-12.0/lib64"
+    export NVPRUNE="/usr/local/cuda-12.1/bin/nvprune"
+    export CUDA_LIB_DIR="/usr/local/cuda-12.1/lib64"
 
     export GENCODE="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90"
     export GENCODE_CUDNN="-gencode arch=compute_35,code=sm_35 -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90"
@@ -235,9 +235,9 @@ function prune_120 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
 
     #####################################################################################
-    # CUDA 12.0 prune visual tools
+    # CUDA 12.1 prune visual tools
     #####################################################################################
-    export CUDA_BASE="/usr/local/cuda-12.0/"
+    export CUDA_BASE="/usr/local/cuda-12.1/"
     rm -rf $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/nsight-compute-2022.4.1.6 $CUDA_BASE/nsight-systems-2022.4.2.50/
 }
 
@@ -251,7 +251,7 @@ do
 	        ;;
     11.8) install_118; prune_118
 	        ;;
-	  12.0) install_120; prune_120
+	  12.1) install_121; prune_121
 	        ;;
 	*) echo "bad argument $1"; exit 1
 	   ;;
