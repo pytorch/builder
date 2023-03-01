@@ -17,7 +17,7 @@ S3 = boto3.resource('s3')
 CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
-ACCEPTED_FILE_EXTENSIONS = ("whl", "zip")
+ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
 ACCEPTED_SUBDIR_PATTERNS = [
     r"cu[0-9]+",           # for cuda
     r"rocm[0-9]+\.[0-9]+", # for rocm
@@ -48,6 +48,7 @@ PACKAGE_ALLOW_LIST = {
     "numpy",
     "packaging",
     "pytorch_triton",
+    "pytorch_triton_rocm",
     "requests",
     "sympy",
     "torch",
@@ -59,6 +60,7 @@ PACKAGE_ALLOW_LIST = {
     "torchrec",
     "torchtext",
     "torchvision",
+    "tqdm",
     "typing_extensions",
     "urllib3",
 }
