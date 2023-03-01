@@ -44,6 +44,8 @@ requirements:
     - intel-openmp # [win]
     - typing_extensions
     - sympy
+    - filelock
+    - networkx
     {% if cross_compile_arm64 == 0 %}
     - blas * mkl
     {% endif %}
