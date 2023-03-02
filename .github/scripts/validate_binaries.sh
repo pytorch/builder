@@ -7,7 +7,8 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
         conda activate ${ENV_NAME}
 
-        INSTALLATION=${MATRIX_INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
+        INSTALLATION=${MATRIX_INSTALLATION/"extra-index-url"/"index-url"}
+        INSTALLATION=${INSTALLATION/"-c pytorch"/"-c malfet -c pytorch"}
         INSTALLATION=${INSTALLATION/"pytorch-cuda"/"pytorch-${MATRIX_CHANNEL}::pytorch-cuda"}
         INSTALLATION=${INSTALLATION/"conda install"/"conda install -y"}
 
@@ -32,6 +33,8 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy pillow
         conda activate ${ENV_NAME}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
+        INSTALLATION=${INSTALLATION/"extra-index-url"/"index-url"}
+
         eval $INSTALLATION
 
         if [[ ${TARGET_OS} == 'linux' ]]; then

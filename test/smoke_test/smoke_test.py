@@ -55,6 +55,9 @@ def check_nightly_binaries_date(package: str) -> None:
                     f"Expected {module['name']} to be less then {NIGHTLY_ALLOWED_DELTA} days. But its {date_m_delta}"
                 )
 
+            if(module["name"] == "torchvision" and is_cuda_system):
+                smoke_test_compile_run()
+
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
@@ -100,6 +103,19 @@ def smoke_test_conv2d() -> None:
         with torch.cuda.amp.autocast():
             out = conv(x)
 
+
+def smoke_test_compile_run():
+    import torchvision.models as models
+
+    model = models.resnet18().cuda()
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+    compiled_model = torch.compile(model)
+
+    x = torch.randn(16, 3, 224, 224).cuda()
+    optimizer.zero_grad()
+    out = compiled_model(x)
+    out.sum().backward()
+    optimizer.step()
 
 def smoke_test_modules():
     for module in MODULES:
