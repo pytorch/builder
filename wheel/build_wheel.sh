@@ -97,16 +97,7 @@ fi
 whl_tmp_dir="${MAC_PACKAGE_WORK_DIR}/dist"
 mkdir -p "$whl_tmp_dir"
 
-# Python 3.5 build against macOS 10.6, others build against 10.9
-# NB: Sometimes Anaconda revs the version, in which case you'll have to
-# update this!
-# An example of this happened on Aug 13, 2019, when osx-64/python-2.7.16-h97142e2_2.tar.bz2
-# was uploaded to https://anaconda.org/anaconda/python/files
-if [[ "$desired_python" == 3.5 ]]; then
-    mac_version='macosx_10_6_x86_64'
-elif [[ "$desired_python" == 2.7 ]]; then
-    mac_version='macosx_10_7_x86_64'
-elif [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+if [[ -n "$CROSS_COMPILE_ARM64" || $(uname -m) == "arm64" ]]; then
     mac_version='macosx_11_0_arm64'
 else
     mac_version='macosx_10_9_x86_64'
@@ -128,7 +119,7 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
     popd
 fi
 pushd "$pytorch_rootdir"
-git submodule update --init --recursive --jobs 0
+git submodule update --init --recursive
 popd
 
 ##########################
@@ -144,6 +135,11 @@ SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
 EXTRA_CONDA_INSTALL_FLAGS=""
 case ${desired_python} in
+    3.11)
+        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+        PYYAML_PINNED_VERSION=">=5.3"
+        NUMPY_PINNED_VERSION="==1.23.5"
+        ;;
     3.10)
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
@@ -167,8 +163,12 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" cffi typing_extensions ninja requests
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq mkl-include==2020.1 mkl-static==2020.1 -c intel
+if [[ "$desired_python" == "3.11" ]]; then
+  retry pip install -q "numpy${NUMPY_PINNED_VERSION}" "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+else
+  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+fi
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.

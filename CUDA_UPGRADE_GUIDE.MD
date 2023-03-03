@@ -9,9 +9,8 @@ Here is the supported matrix for CUDA and CUDNN
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 10.2 | 7.6.5.32 | Needed for publishing CUDA enabled binaries to PyPi since CUDA 11.x binaries don’t meet the space requirements (<750MB) |
-| 11.3 | 8.3.2.44 | Stable CUDA Release |
-| 11.6 | 8.3.2.44 | Latest CUDA Release |
+| 11.6 | 8.3.2.44 | Stable CUDA Release |
+| 11.7 | 8.5.0.96 | Latest CUDA Release |
 
 
 ### B. Check the package availability
@@ -72,12 +71,13 @@ Add setup for our Docker `libtorch` and `manywheel`:
 
 1. Follow this [PR 999](https://github.com/pytorch/builder/pull/999) for all steps in this section
 2. To get the CUDA install link, just like with Linux, go [here](https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local) and upload that `.exe` file to our S3 bucket [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects).
-3. To get the cuDNN install link, you could ask NVIDIA, but you could also just sign up for an NVIDIA account and access the needed `.zip` file at this [link](https://developer.nvidia.com/rdp/cudnn-download). First click on `cuDNN Library for Windows (x86)` and then upload that zip file to our S3 bucket.
-4. NOTE: When you upload files to S3, make sure to make these objects publicly readable so that our CI can access them!
-5. Most times, you have to upgrade the driver install for newer versions, which would look like [updating the `windows/internal/driver_update.bat` file](https://github.com/pytorch/builder/commit/9b997037e16eb3bc635e28d101c3297d7e4ead29)
+3. Review "Table 3. Possible Subpackage Names" of CUDA installation guide for windows [link](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) to make sure the Subpackage Names have not changed. These are specified in [cuda_install.bat file](https://github.com/pytorch/builder/pull/999/files#diff-92a9c40963159c9d8f88fa2987057a65a2370737bd4ecc233498ebdfa02021e6)
+4. To get the cuDNN install link, you could ask NVIDIA, but you could also just sign up for an NVIDIA account and access the needed `.zip` file at this [link](https://developer.nvidia.com/rdp/cudnn-download). First click on `cuDNN Library for Windows (x86)` and then upload that zip file to our S3 bucket.
+5. NOTE: When you upload files to S3, make sure to make these objects publicly readable so that our CI can access them!
+6. Most times, you have to upgrade the driver install for newer versions, which would look like [updating the `windows/internal/driver_update.bat` file](https://github.com/pytorch/builder/commit/9b997037e16eb3bc635e28d101c3297d7e4ead29)
     1. Please check the CUDA Toolkit and Minimum Required Driver Version for CUDA minor version compatibility table  in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
-6. Compile MAGMA with the new CUDA version. Update `.github/workflows/build-magma-windows.yml` to include new version.
-7. Validate Magma builds by going to S3 [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects). And querying for ```magma_```
+7. Compile MAGMA with the new CUDA version. Update `.github/workflows/build-magma-windows.yml` to include new version.
+8. Validate Magma builds by going to S3 [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects). And querying for ```magma_```
 
 ## 6. Generate new Windows AMI, test and deploy to canary and prod.
 

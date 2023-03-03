@@ -1,2 +1,2 @@
-boto3
-packaging
+boto3==1.12.7
+packaging==21.3

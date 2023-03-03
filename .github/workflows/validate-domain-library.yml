@@ -1,0 +1,153 @@
+name: Validate domain libary
+
+# A reusable workflow that triggers a set of jobs that perform a smoke test / validation of pytorch binaries.
+# Optionally restricts validation to the specified OS and channel.
+# For the details about parameter values, see:
+#   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system to generate for (linux, windows, macos, macos-arm64)"
+        required: false
+        type: string
+        default: "all"
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      package_type:
+        description: "Package type (conda, wheel, all)"
+        required: false
+        type: string
+        default: "all"
+      repository:
+        description: "Path to repository to checkout"
+        required: true
+        type: string
+      smoke_test:
+        description: "Path to a smoke test script"
+        required: true
+        type: string
+      with_cuda:
+        description: "With cuda enable/disable"
+        required: false
+        type: string
+        default: disable
+
+jobs:
+  generate-linux-matrix:
+    if:  (inputs.os == 'linux' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: linux
+      channel: ${{ inputs.channel }}
+      with-cuda: ${{ inputs.with_cuda }}
+  generate-windows-matrix:
+    if:  (inputs.os == 'windows' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: windows
+      channel: ${{ inputs.channel }}
+      with-cuda: ${{ inputs.with_cuda }}
+  generate-macos-matrix:
+    if:  (inputs.os == 'macos' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: macos
+      channel: ${{ inputs.channel }}
+      with-cuda: ${{ inputs.with_cuda }}
+  generate-macos-arm64-matrix:
+    if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: ${{ inputs.package_type }}
+      os: macos-arm64
+      channel: ${{ inputs.channel }}
+      with-cuda: ${{ inputs.with_cuda }}
+  validate-linux:
+    if:  (inputs.os == 'linux' || inputs.os == 'all')
+    needs: generate-linux-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "linux-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export SMOKE_TEST="${{ inputs.smoke_test }}"
+        eval $SMOKE_TEST
+  validate-windows:
+    if:  (inputs.os == 'windows' || inputs.os == 'all')
+    needs: generate-windows-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
+    name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "windows-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export SMOKE_TEST="${{ inputs.smoke_test }}"
+        export TARGET_OS="windows"
+        eval $SMOKE_TEST
+  validate-macos:
+    if:  (inputs.os == 'macos' || inputs.os == 'all')
+    needs: generate-macos-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+    with:
+      runner:  ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export TARGET_OS="macos"
+        export SMOKE_TEST="${{ inputs.smoke_test }}"
+        eval $SMOKE_TEST
+  validate-macos-arm64:
+    if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
+    needs: generate-macos-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-macos-arm64-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/macos_job.yml@main
+    name: "macos-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+    with:
+      runner:  ${{ matrix.validation_runner }}
+      repository: ${{ inputs.repository }}
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: "macos-arm64-${{ matrix.package_type }}-${{ matrix.python_version }}-${{ matrix.desired_cuda }}"
+      binary-matrix: ${{ toJSON(matrix) }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export TARGET_OS="macos-arm64"
+        eval $SMOKE_TEST

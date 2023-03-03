@@ -3,7 +3,7 @@ if "%ARCH%"=="64" (
    set VC_PATH=x64
 )
 
-set MSC_VER=2017
+set MSC_VER=2022
 
 rem :: This should always be present for VC installed with VS.  Not sure about VC installed with Visual C++ Build Tools 2015
 rem FOR /F "usebackq tokens=3*" %%A IN (`REG QUERY "HKEY_LOCAL_MACHINE\Software\Microsoft\DevDiv\VC\Servicing\14.0\IDE.x64" /v UpdateVersion`) DO (
@@ -23,10 +23,10 @@ robocopy "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\%VC_PATH%"  "%
 robocopy "C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs\%VC_PATH%"  "%PREFIX%" *.dll /E
 if %ERRORLEVEL% GEQ 8 exit 1
 
-REM ========== This one comes from visual studio 2017
-set "VC_VER=141"
+REM ========== This one comes from visual studio 2022
+set "VC_VER=143"
 
-for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [15^,16^) -property installationPath`) do (
+for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [17^,18^) -property installationPath`) do (
     if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
         set "VS15VCVARSALL=%%i\VC\Auxiliary\Build\vcvarsall.bat"
         goto :eof

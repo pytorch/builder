@@ -212,7 +212,7 @@ def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
         install_condaforge(host, suffix="download/4.10.3-10/Miniforge3-4.10.3-10-Linux-aarch64.sh")
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
     else:
-        install_condaforge(host)
+        install_condaforge(host, suffix="download/4.11.0-4/Miniforge3-4.11.0-4-Linux-aarch64.sh")
         # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.5.0")
 
@@ -222,6 +222,13 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
     host.run_cmd(f"pushd OpenBLAS; make {make_flags} -j8; sudo make {make_flags} install; popd; rm -rf OpenBLAS")
+
+
+def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
+    print('Building Arm Compute Library')
+    host.run_cmd("mkdir $HOME/acl")
+    host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
+    host.run_cmd(f"pushd ComputeLibrary; export acl_install_dir=$HOME/acl; scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; cp -r arm_compute $acl_install_dir; cp -r include $acl_install_dir; cp -r utils $acl_install_dir; cp -r support $acl_install_dir; popd")
 
 
 def build_FFTW(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -284,6 +291,9 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.10.2": ("0.11.3", "rc1"),
                                       "v1.11.0": ("0.12.0", "rc1"),
                                       "v1.12.0": ("0.13.0", "rc4"),
+                                      "v1.12.1": ("0.13.1", "rc6"),
+                                      "v1.13.0": ("0.14.0", "rc4"),
+                                      "v1.13.1": ("0.14.1", "rc2"),
                                   })
     print('Building TorchVision wheel')
     build_vars = ""
@@ -311,6 +321,40 @@ def build_torchvision(host: RemoteHost, *,
     return vision_wheel_name
 
 
+def build_torchdata(host: RemoteHost, *,
+                     branch: str = "master",
+                     use_conda: bool = True,
+                     git_clone_flags: str = "") -> str:
+    print('Checking out TorchData repo')
+    git_clone_flags += " --recurse-submodules"
+    build_version = checkout_repo(host,
+                                  branch=branch,
+                                  url="https://github.com/pytorch/data",
+                                  git_clone_flags=git_clone_flags,
+                                  mapping={
+                                       "v1.13.1": ("0.5.1", ""),
+                                  })
+    print('Building TorchData wheel')
+    build_vars = ""
+    if branch == 'nightly':
+        version = host.check_output(["if [ -f data/version.txt ]; then cat data/version.txt; fi"]).strip()
+        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    elif build_version is not None:
+        build_vars += f"BUILD_VERSION={build_version}"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
+
+    host.run_cmd(f"cd data; {build_vars} python3 setup.py bdist_wheel")
+    wheel_name = host.list_dir("data/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('data', 'dist', wheel_name))
+
+    print('Copying TorchData wheel')
+    host.download_wheel(os.path.join('data', 'dist', wheel_name))
+
+    return wheel_name
+
+
 def build_torchtext(host: RemoteHost, *,
                     branch: str = "master",
                     use_conda: bool = True,
@@ -328,6 +372,9 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.10.2": ("0.11.2", "rc1"),
                                       "v1.11.0": ("0.12.0", "rc1"),
                                       "v1.12.0": ("0.13.0", "rc2"),
+                                      "v1.12.1": ("0.13.1", "rc5"),
+                                      "v1.13.0": ("0.14.0", "rc3"),
+                                      "v1.13.1": ("0.14.1", "rc1"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -367,6 +414,9 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.10.2": ("0.10.2", "rc1"),
                                       "v1.11.0": ("0.11.0", "rc1"),
                                       "v1.12.0": ("0.12.0", "rc3"),
+                                      "v1.12.1": ("0.12.1", "rc5"),
+                                      "v1.13.0": ("0.13.0", "rc4"),
+                                      "v1.13.1": ("0.13.1", "rc2"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
@@ -392,7 +442,8 @@ def build_torchaudio(host: RemoteHost, *,
 def configure_system(host: RemoteHost, *,
                      compiler="gcc-8",
                      use_conda=True,
-                     python_version="3.8") -> None:
+                     python_version="3.8",
+                     enable_mkldnn=False) -> None:
     if use_conda:
         install_condaforge_python(host, python_version)
 
@@ -402,7 +453,7 @@ def configure_system(host: RemoteHost, *,
         host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     else:
         host.run_cmd("yum install -y sudo")
-        host.run_cmd("conda install -y ninja")
+        host.run_cmd("conda install -y ninja scons")
 
     if not use_conda:
         host.run_cmd("sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
@@ -424,16 +475,22 @@ def start_build(host: RemoteHost, *,
                 compiler="gcc-8",
                 use_conda=True,
                 python_version="3.8",
-                shallow_clone=True) -> Tuple[str, str]:
+                pytorch_only:bool=False,
+                shallow_clone=True,
+                enable_mkldnn=False) -> Tuple[str, str]:
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     if host.using_docker() and not use_conda:
         print("Auto-selecting conda option for docker images")
         use_conda = True
+    if not host.using_docker():
+       print("Diable mkldnn for host builds")
+       enable_mkldnn = False
 
     configure_system(host,
                      compiler=compiler,
                      use_conda=use_conda,
-                     python_version=python_version)
+                     python_version=python_version,
+                     enable_mkldnn=enable_mkldnn)
     build_OpenBLAS(host, git_clone_flags)
     # build_FFTW(host, git_clone_flags)
 
@@ -462,7 +519,21 @@ def start_build(host: RemoteHost, *,
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
-    host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+    if enable_mkldnn:
+        build_ArmComputeLibrary(host, git_clone_flags)
+        print("build pytorch with mkldnn+acl backend")
+        build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
+        host.run_cmd(f"cd pytorch ; export ACL_ROOT_DIR=$HOME/ComputeLibrary:$HOME/acl; {build_vars} python3 setup.py bdist_wheel")
+        print('Repair the wheel')
+        pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
+        host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib; auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")
+        print('replace the original wheel with the repaired one')
+        pytorch_repaired_wheel_name = host.list_dir("wheelhouse")[0]
+        host.run_cmd(f"cp $HOME/wheelhouse/{pytorch_repaired_wheel_name} $HOME/pytorch/dist/{pytorch_wheel_name}")
+    else:
+        print("build pytorch without mkldnn backend")
+        host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+
     print("Deleting build folder")
     host.run_cmd("cd pytorch; rm -rf build")
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
@@ -473,9 +544,12 @@ def start_build(host: RemoteHost, *,
     print('Installing PyTorch wheel')
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
 
+    if pytorch_only:
+        return pytorch_wheel_name, None
     vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
     build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
     build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    build_torchdata(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
 
     return pytorch_wheel_name, vision_wheel_name
 
@@ -603,9 +677,10 @@ def parse_arguments():
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10'], default=None)
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10', '3.11'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
+    parser.add_argument("--pytorch-only", action="store_true")
     parser.add_argument("--keep-running", action="store_true")
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
@@ -613,6 +688,7 @@ def parse_arguments():
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     parser.add_argument("--use-torch-from-pypi", action="store_true")
+    parser.add_argument("--enable-mkldnn", action="store_true")
     return parser.parse_args()
 
 
@@ -670,7 +746,8 @@ if __name__ == '__main__':
     if args.use_torch_from_pypi:
         configure_system(host,
                          compiler=args.compiler,
-                         python_version=python_version)
+                         python_version=python_version,
+                         enable_mkldnn=False)
         print("Installing PyTorch wheel")
         host.run_cmd("pip3 install torch")
         build_torchvision(host,
@@ -680,7 +757,9 @@ if __name__ == '__main__':
         start_build(host,
                     branch=args.branch,
                     compiler=args.compiler,
-                    python_version=python_version)
+                    python_version=python_version,
+                    pytorch_only=args.pytorch_only,
+                    enable_mkldnn=args.enable_mkldnn)
     if not args.keep_running:
         print(f'Waiting for instance {inst.id} to terminate')
         inst.terminate()

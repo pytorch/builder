@@ -44,7 +44,7 @@ case ${GPU_ARCH_TYPE} in
         TARGET=rocm_final
         DOCKER_TAG=rocm${GPU_ARCH_VERSION}
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-rocm:${GPU_ARCH_VERSION}
-        GPU_IMAGE=rocm/dev-centos-7:${GPU_ARCH_VERSION}
+        GPU_IMAGE=rocm/dev-centos-7:${GPU_ARCH_VERSION}-magma-miopen-staging
         PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908"
         ROCM_REGEX="([0-9]+)\.([0-9]+)[\.]?([0-9]*)"
         if [[ $GPU_ARCH_VERSION =~ $ROCM_REGEX ]]; then
@@ -56,7 +56,7 @@ case ${GPU_ARCH_TYPE} in
         if [[ $ROCM_VERSION_INT -ge 40300 ]]; then
             PYTORCH_ROCM_ARCH="${PYTORCH_ROCM_ARCH};gfx90a;gfx1030"
         fi
-        DOCKER_GPU_BUILD_ARG="--build-arg ROCM_VERSION=${GPU_ARCH_VERSION} --build-arg PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH}"
+        DOCKER_GPU_BUILD_ARG="--build-arg ROCM_VERSION=${GPU_ARCH_VERSION} --build-arg PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH} --build-arg DEVTOOLSET_VERSION=9"
         ;;
     *)
         echo "ERROR: Unrecognized GPU_ARCH_TYPE: ${GPU_ARCH_TYPE}"

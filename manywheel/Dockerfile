@@ -21,9 +21,10 @@ RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &
     rpm -ivh epel-release-latest-7.noarch.rpm && \
     rm -f epel-release-latest-7.noarch.rpm
 
-# cmake
-RUN yum install -y cmake3 && \
-    ln -s /usr/bin/cmake3 /usr/bin/cmake
+# cmake-3.18.4 from pip
+RUN yum install -y python3-pip && \
+    python3 -mpip install cmake==3.18.4 && \
+    ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 RUN yum install -y autoconf aclocal automake make
 
@@ -35,17 +36,18 @@ FROM base as openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
 
-FROM base as python
+# EPEL for cmake
+FROM base as patchelf
+# Install patchelf
+ADD ./common/install_patchelf.sh install_patchelf.sh
+RUN bash ./install_patchelf.sh && rm install_patchelf.sh
+RUN cp $(which patchelf) /patchelf
+
+FROM patchelf as python
 # build python
 COPY manywheel/build_scripts /build_scripts
 ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 RUN bash build_scripts/build.sh && rm -r build_scripts
-
-# remove unncessary python versions
-RUN rm -rf /opt/python/cp26-cp26m /opt/_internal/cpython-2.6.9-ucs2
-RUN rm -rf /opt/python/cp26-cp26mu /opt/_internal/cpython-2.6.9-ucs4
-RUN rm -rf /opt/python/cp33-cp33m /opt/_internal/cpython-3.3.6
-RUN rm -rf /opt/python/cp34-cp34m /opt/_internal/cpython-3.4.6
 
 FROM base as cuda
 ARG BASE_CUDA_VERSION=10.2
@@ -57,13 +59,6 @@ FROM base as intel
 # MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
-
-# EPEL for cmake
-FROM base as patchelf
-# Install patchelf
-ADD ./common/install_patchelf.sh install_patchelf.sh
-RUN bash ./install_patchelf.sh && rm install_patchelf.sh
-RUN cp $(which patchelf) /patchelf
 
 FROM base as magma
 ARG BASE_CUDA_VERSION=10.2
@@ -142,9 +137,12 @@ RUN yum install -y devtoolset-${DEVTOOLSET_VERSION}-gcc devtoolset-${DEVTOOLSET_
 ENV PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib:$LD_LIBRARY_PATH
 
-# cmake
-RUN yum install -y cmake3 && \
-    ln -s /usr/bin/cmake3 /usr/bin/cmake
+# cmake is already installed inside the rocm base image, so remove if present
+RUN rpm -e cmake || true
+# cmake-3.18.4 from pip
+RUN yum install -y python3-pip && \
+    python3 -mpip install cmake==3.18.4 && \
+    ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 # ninja
 RUN yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
@@ -155,7 +153,7 @@ RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 
-FROM common as rocm_final
+FROM cpu_final as rocm_final
 ARG ROCM_VERSION=3.7
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
@@ -166,3 +164,5 @@ ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+# cmake3 is needed for the MIOpen build
+RUN ln -sf /usr/local/bin/cmake /usr/bin/cmake3

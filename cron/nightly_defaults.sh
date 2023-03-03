@@ -120,7 +120,7 @@ if [[ ! -d "$NIGHTLIES_PYTORCH_ROOT" ]]; then
         export PYTORCH_BRANCH="$last_commit"
     fi
     git checkout "$PYTORCH_BRANCH"
-    git submodule update --jobs 0
+    git submodule update
     popd
 fi
 
@@ -229,7 +229,7 @@ if [[ "$DAYS_TO_KEEP" < '1' ]]; then
 fi
 
 # PYTORCH_NIGHTLIES_TIMEOUT
-#   Timeout in seconds. 
+#   Timeout in seconds.
 #   When full testing is enabled, condas builds often take up to 2 hours 20
 #   minutes, so the default is set to (2 * 60 + 20 + 40 [buffer]) * 60 == 10800
 #   seconds.

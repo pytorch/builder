@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
-import tempfile
 import time
 
 from os import path, makedirs
+from datetime import datetime
 from collections import defaultdict
 from typing import Iterator, List, Type, Dict, Set, TypeVar, Optional
-from re import sub, match
+from re import sub, match, search
 from packaging.version import parse
 
-import botocore
 import boto3
 
 
@@ -18,7 +17,7 @@ S3 = boto3.resource('s3')
 CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
-ACCEPTED_FILE_EXTENSIONS = ("whl", "zip")
+ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
 ACCEPTED_SUBDIR_PATTERNS = [
     r"cu[0-9]+",           # for cuda
     r"rocm[0-9]+\.[0-9]+", # for rocm
@@ -31,10 +30,65 @@ PREFIXES_WITH_HTML = {
     "whl/test": "torch_test.html",
 }
 
+# NOTE: This refers to the name on the wheels themselves and not the name of
+# package as specified by setuptools, for packages with "-" (hyphens) in their
+# names you need to convert them to "_" (underscores) in order for them to be
+# allowed here since the name of the wheels is compared here
+PACKAGE_ALLOW_LIST = {
+    "Pillow",
+    "certifi",
+    "charset_normalizer",
+    "cmake",
+    "filelock",
+    "idna",
+    "lit",
+    "mpmath",
+    "nestedtensor",
+    "networkx",
+    "numpy",
+    "packaging",
+    "pytorch_triton",
+    "pytorch_triton_rocm",
+    "requests",
+    "sympy",
+    "torch",
+    "torcharrow",
+    "torchaudio",
+    "torchcsprng",
+    "torchdata",
+    "torchdistx",
+    "torchrec",
+    "torchtext",
+    "torchvision",
+    "tqdm",
+    "typing_extensions",
+    "urllib3",
+}
+
+# Should match torch-2.0.0.dev20221221+cu118-cp310-cp310-linux_x86_64.whl as:
+# Group 1: torch-2.0.0.dev
+# Group 2: 20221221
+PACKAGE_DATE_REGEX = r"([a-zA-z]*-[0-9.]*.dev)([0-9]*)"
+
 # How many packages should we keep of a specific package?
 KEEP_THRESHOLD = 60
 
 S3IndexType = TypeVar('S3IndexType', bound='S3Index')
+
+def extract_package_build_time(full_package_name: str) -> datetime:
+    result = search(PACKAGE_DATE_REGEX, full_package_name)
+    if result is not None:
+        try:
+            return datetime.strptime(result.group(2), "%Y%m%d")
+        except ValueError:
+            # Ignore any value errors since they probably shouldn't be hidden anyways
+            pass
+    return datetime.now()
+
+def between_bad_dates(package_build_time: datetime):
+    start_bad = datetime(year=2022, month=8, day=17)
+    end_bad = datetime(year=2022, month=12, day=30)
+    return start_bad <= package_build_time <= end_bad
 
 
 class S3Index:
@@ -70,8 +124,16 @@ class S3Index:
         packages: Dict[str, int] = defaultdict(int)
         to_hide: Set[str] = set()
         for obj in all_sorted_packages:
-            package_name = path.basename(obj).split('-')[0]
+            full_package_name = path.basename(obj)
+            package_name = full_package_name.split('-')[0]
+            package_build_time = extract_package_build_time(full_package_name)
+            # Hard pass on packages that are included in our allow list
+            if package_name not in PACKAGE_ALLOW_LIST:
+                to_hide.add(obj)
+                continue
             if packages[package_name] >= KEEP_THRESHOLD:
+                to_hide.add(obj)
+            elif between_bad_dates(package_build_time):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
@@ -162,7 +224,7 @@ class S3Index:
         out.append('<!DOCTYPE html>')
         out.append('<html>')
         out.append('  <body>')
-        out.append('    <h1>Links for {}</h1>'.format(package_name))
+        out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
         # Adding html footer
@@ -183,7 +245,7 @@ class S3Index:
         out.append('<html>')
         out.append('  <body>')
         for pkg_name in sorted(self.get_package_names(subdir)):
-            out.append(f'    <a href="{pkg_name}/">{pkg_name}</a><br/>')
+            out.append(f'    <a href="{pkg_name.replace("_","-")}/">{pkg_name.replace("_","-")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
@@ -214,9 +276,10 @@ class S3Index:
                 Body=self.to_simple_packages_html(subdir=subdir)
             )
             for pkg_name in self.get_package_names(subdir=subdir):
-                print(f"INFO Uploading {subdir}/{pkg_name}/index.html")
+                compat_pkg_name = pkg_name.lower().replace("_", "-")
+                print(f"INFO Uploading {subdir}/{compat_pkg_name}/index.html")
                 BUCKET.Object(
-                    key=f"{subdir}/{pkg_name}/index.html"
+                    key=f"{subdir}/{compat_pkg_name}/index.html"
                 ).put(
                     ACL='public-read',
                     CacheControl='no-cache,no-store,must-revalidate',
