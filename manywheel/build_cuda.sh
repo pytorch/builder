@@ -231,10 +231,9 @@ else
     exit 1
 fi
 
-# TODO: Remove me when Triton has a proper release channel
+# NS: PyTorch-2.0 depends on triton=2.0 from PyPI
 if [[ $(uname) == "Linux" && -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-    TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
-    export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton==2.0.0+${TRITON_SHORTHASH}"
+    export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="triton==2.0.0; platform_system == 'Linux' and platform_machine == 'x86_64'"
 fi
 
 # builder/test.sh requires DESIRED_CUDA to know what tests to exclude
