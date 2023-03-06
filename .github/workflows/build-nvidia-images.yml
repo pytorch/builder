@@ -30,7 +30,7 @@ env:
 
 jobs:
   build-nvidia-docker:
-    runs-on: linux.2xlarge
+    runs-on: ubuntu-18.04
     steps:
       - name: Build Nvidia Docker Image
         run: |
