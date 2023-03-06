@@ -10,8 +10,9 @@ import subprocess
 
 gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
-# use installation env variable to tell if it is nightly channel
-installation_str = os.getenv("MATRIX_INSTALLATION")
+channel = os.getenv("MATRIX_CHANNEL")
+stable_version = os.getenv("MATRIX_STABLE_VERSION")
+
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
 NIGHTLY_ALLOWED_DELTA = 3
@@ -30,6 +31,16 @@ MODULES = [
         "extension": "_extension",
     },
 ]
+
+def check_version(package: str) -> None:
+    # only makes sense to check nightly package where dates are known
+    if channel == "nightly":
+        check_nightly_binaries_date(options.package)
+    else
+        if torch.__version__ != stable_version:
+            raise RuntimeError(
+                f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
+            )
 
 def check_nightly_binaries_date(package: str) -> None:
     from datetime import datetime, timedelta
@@ -190,16 +201,12 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
+    check_version(options.package)
     smoke_test_conv2d()
     smoke_test_linalg()
 
-
     if options.package == "all":
         smoke_test_modules()
-
-    # only makes sense to check nightly package where dates are known
-    if installation_str.find("nightly") != -1:
-        check_nightly_binaries_date(options.package)
 
     smoke_test_cuda(options.package)
 
