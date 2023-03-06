@@ -69,12 +69,14 @@ def check_nightly_binaries_date(package: str) -> None:
 def test_cuda_runtime_errors_captured() -> None:
     cuda_exception_missed=True
     try:
+        print("Testing test_cuda_runtime_errors_captured")
         torch._assert_async(torch.tensor(0, device="cuda"))
         torch._assert_async(torch.tensor(0 + 0j, device="cuda"))
     except RuntimeError as e:
         if re.search("CUDA", f"{e}"):
             print(f"Caught CUDA exception with success: {e}")
-            cuda_exception_missed = False
+            # we want to terminate at this point, since we can't guaranee further execution
+            exit(0)
         else:
             raise e
     if(cuda_exception_missed):
