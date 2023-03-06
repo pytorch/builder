@@ -38,7 +38,7 @@ jobs:
   push-windows-magma:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment: magma
-    runs-on: ubuntu-18.04
+    runs-on: linux.2xlarge
     needs: build-windows-magma
     steps:
       - name: Download all artifacts
