@@ -162,7 +162,7 @@ ADD ./common/install_rocm.sh install_rocm.sh
 RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-#ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
-#RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 # cmake3 is needed for the MIOpen build
 RUN ln -sf /usr/local/bin/cmake /usr/bin/cmake3
