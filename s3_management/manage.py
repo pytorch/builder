@@ -41,6 +41,7 @@ PACKAGE_ALLOW_LIST = {
     "cmake",
     "filelock",
     "idna",
+    "Jinja2",
     "lit",
     "mpmath",
     "nestedtensor",
