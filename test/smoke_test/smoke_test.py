@@ -106,7 +106,8 @@ def smoke_test_cuda(package: str) -> None:
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
-        if sys.platform == "linux" or sys.platform == "linux2":
+        # torch.compile is available only on Linux and python 3.8-3.10
+        if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0)::
             smoke_test_compile()
 
         # This check has to be run last, since its messing up CUDA runtime
