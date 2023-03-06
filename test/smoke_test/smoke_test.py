@@ -95,6 +95,9 @@ def smoke_test_cuda(package: str) -> None:
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
+        if sys.platform == "linux" or sys.platform == "linux2":
+            smoke_test_compile()
+
         # This check has to be run last, since its messing up CUDA runtime
         test_cuda_runtime_errors_captured()
 
@@ -102,21 +105,62 @@ def smoke_test_cuda(package: str) -> None:
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
 
-    print("Calling smoke_test_conv2d")
+    print("Testing smoke_test_conv2d")
     # With square kernels and equal stride
     m = nn.Conv2d(16, 33, 3, stride=2)
     # non-square kernels and unequal stride and with padding
     m = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2))
     # non-square kernels and unequal stride and with padding and dilation
-    m = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2), dilation=(3, 1))
+    basic_conv = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2), dilation=(3, 1))
     input = torch.randn(20, 16, 50, 100)
-    output = m(input)
+    output = basic_conv(input)
+
     if is_cuda_system:
         print("Testing smoke_test_conv2d with cuda")
         conv = nn.Conv2d(3, 3, 3).cuda()
         x = torch.randn(1, 3, 24, 24).cuda()
         with torch.cuda.amp.autocast():
             out = conv(x)
+
+        supported_dtypes = [torch.float16, torch.float32, torch.float64]
+        for dtype in supported_dtypes:
+            print(f"Testing smoke_test_conv2d with cuda for {dtype}")
+            conv = basic_conv.to(dtype).cuda()
+            input = torch.randn(20, 16, 50, 100, device="cuda").type(dtype)
+            output = conv(input)
+
+def smoke_test_linalg() -> None:
+    print("Testing smoke_test_linalg")
+    A = torch.randn(5, 3)
+    U, S, Vh = torch.linalg.svd(A, full_matrices=False)
+    U.shape, S.shape, Vh.shape
+    torch.dist(A, U @ torch.diag(S) @ Vh)
+
+    U, S, Vh = torch.linalg.svd(A)
+    U.shape, S.shape, Vh.shape
+    torch.dist(A, U[:, :3] @ torch.diag(S) @ Vh)
+
+    A = torch.randn(7, 5, 3)
+    U, S, Vh = torch.linalg.svd(A, full_matrices=False)
+    torch.dist(A, U @ torch.diag_embed(S) @ Vh)
+
+    if is_cuda_system:
+        supported_dtypes = [torch.float32, torch.float64]
+        for dtype in supported_dtypes:
+            print(f"Testing smoke_test_linalg with cuda for {dtype}")
+            A = torch.randn(20, 16, 50, 100, device="cuda").type(dtype)
+            torch.linalg.svd(A)
+
+def smoke_test_compile() -> None:
+    supported_dtypes = [torch.float16, torch.float32, torch.float64]
+    def foo(x: torch.Tensor) -> torch.Tensor:
+        return torch.sin(x) + torch.cos(x)
+    for dtype in supported_dtypes:
+        print(f"Testing smoke_test_compile for {dtype}")
+        x = torch.rand(3, 3, device="cuda").type(dtype)
+        x_eager = foo(x)
+        x_pt2 = torch.compile(foo)(x)
+        print(torch.allclose(x_eager, x_pt2))
 
 
 def smoke_test_modules():
@@ -147,6 +191,8 @@ def main() -> None:
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
     smoke_test_conv2d()
+    smoke_test_linalg()
+
 
     if options.package == "all":
         smoke_test_modules()
