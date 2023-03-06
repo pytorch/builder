@@ -36,8 +36,8 @@ def check_version(package: str) -> None:
     # only makes sense to check nightly package where dates are known
     if channel == "nightly":
         check_nightly_binaries_date(options.package)
-    else
-        if torch.__version__ != stable_version:
+    else:
+        if not torch.__version__.startswith(stable_version):
             raise RuntimeError(
                 f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
             )
