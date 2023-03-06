@@ -55,7 +55,7 @@ def check_nightly_binaries_date(package: str) -> None:
                     f"Expected {module['name']} to be less then {NIGHTLY_ALLOWED_DELTA} days. But its {date_m_delta}"
                 )
 
-def cuda_runtime_error():
+def test_cuda_runtime_errors_captured():
     cuda_exception_missed=True
     try:
         torch._assert_async(torch.tensor(0, device="cuda"))
@@ -65,22 +65,13 @@ def cuda_runtime_error():
             print(f"Caught CUDA exception with success: {e}")
             cuda_exception_missed = False
         else:
-            raise(e)
+            raise e
     if(cuda_exception_missed):
         raise RuntimeError( f"Expected CUDA RuntimeError but have not received!")
 
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
-    if torch.cuda.is_available():
-        if torch.version.cuda != gpu_arch_ver:
-            raise RuntimeError(
-                f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}"
-            )
-        print(f"torch cuda: {torch.version.cuda}")
-        # todo add cudnn version validation
-        print(f"torch cudnn: {torch.backends.cudnn.version()}")
-        print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
     if(package == 'all' and is_cuda_system):
         for module in MODULES:
@@ -93,6 +84,19 @@ def smoke_test_cuda(package: str) -> None:
             else:
                 version = imported_module._extension._check_cuda_version()
             print(f"{module['name']} CUDA: {version}")
+
+    if torch.cuda.is_available():
+        if torch.version.cuda != gpu_arch_ver:
+            raise RuntimeError(
+                f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}"
+            )
+        print(f"torch cuda: {torch.version.cuda}")
+        # todo add cudnn version validation
+        print(f"torch cudnn: {torch.backends.cudnn.version()}")
+        print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
+
+        # This check has to be run last, since its messing up CUDA runtime
+        test_cuda_runtime_errors_captured()
 
 
 def smoke_test_conv2d() -> None:
@@ -113,6 +117,7 @@ def smoke_test_conv2d() -> None:
         x = torch.randn(1, 3, 24, 24).cuda()
         with torch.cuda.amp.autocast():
             out = conv(x)
+
 
 def smoke_test_modules():
     for module in MODULES:
@@ -141,7 +146,6 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
-    smoke_test_cuda(options.package)
     smoke_test_conv2d()
 
     if options.package == "all":
@@ -151,9 +155,7 @@ def main() -> None:
     if installation_str.find("nightly") != -1:
         check_nightly_binaries_date(options.package)
 
-    # This check has to be run last, since its messing up CUDA runtime
-    if torch.cuda.is_available():
-        cuda_runtime_error()
+    smoke_test_cuda(options.package)
 
 
 if __name__ == "__main__":
