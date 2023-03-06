@@ -55,7 +55,7 @@ def check_nightly_binaries_date(package: str) -> None:
                     f"Expected {module['name']} to be less then {NIGHTLY_ALLOWED_DELTA} days. But its {date_m_delta}"
                 )
 
-def test_cuda_runtime_errors_captured():
+def test_cuda_runtime_errors_captured() -> None:
     cuda_exception_missed=True
     try:
         torch._assert_async(torch.tensor(0, device="cuda"))
