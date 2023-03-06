@@ -21,9 +21,10 @@ RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &
     rpm -ivh epel-release-latest-7.noarch.rpm && \
     rm -f epel-release-latest-7.noarch.rpm
 
-# cmake-3.18.4 from pip
+# cmake-3.22.1 from pip, same as the one used by PyTorch CI. cmake-3.18.4 is
+# too old to build triton now
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install cmake==3.22.1 && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 RUN yum install -y autoconf aclocal automake make
