@@ -27,7 +27,7 @@ env:
 
 jobs:
   build-docker-cuda:
-    runs-on: linux.c5.4xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         cuda_version: ["11.8", "11.7", "11.6"]
@@ -46,7 +46,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-rocm:
-    runs-on: linux.c5.4xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         rocm_version: ["5.3", "5.4.2"]
@@ -65,7 +65,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu:
-    runs-on: linux.c5.4xlarge.ephemeral
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v3
@@ -78,7 +78,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu-cxx11-abi:
-    runs-on: linux.c5.4xlarge.ephemeral
+    runs-on: ubuntu-latest
     env:
       GPU_ARCH_TYPE: cpu-cxx11-abi
     steps:
