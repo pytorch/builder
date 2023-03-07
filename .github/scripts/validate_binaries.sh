@@ -40,7 +40,7 @@ else
         #    ${PWD}/check_binary.sh
         # fi
 
-        python  ./test/smoke_test/smoke_test.py
+        python  ./test/smoke_test/smoke_test.py --package torchonly
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
