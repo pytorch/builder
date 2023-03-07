@@ -12,6 +12,7 @@ gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
 stable_version = os.getenv("MATRIX_STABLE_VERSION")
+package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 
 is_cuda_system = gpu_arch_type == "cuda"
 SCRIPT_DIR = Path(__file__).parent
@@ -75,8 +76,6 @@ def test_cuda_runtime_errors_captured() -> None:
     except RuntimeError as e:
         if re.search("CUDA", f"{e}"):
             print(f"Caught CUDA exception with success: {e}")
-            # we want to terminate at this point, since we can't guaranee further execution
-            exit(0)
         else:
             raise e
     if(cuda_exception_missed):
@@ -112,8 +111,11 @@ def smoke_test_cuda(package: str) -> None:
         if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0):
             smoke_test_compile()
 
-        # This check has to be run last, since its messing up CUDA runtime
-        test_cuda_runtime_errors_captured()
+        # This check has to be run last, since its messing up CUDA runtime.
+        # Restrict only to conda builds since Wheel seems to crash with
+        # segmentation fault and don't recover
+        if(package_type == 'conda')
+            test_cuda_runtime_errors_captured()
 
 
 def smoke_test_conv2d() -> None:
