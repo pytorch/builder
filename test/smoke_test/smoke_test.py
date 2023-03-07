@@ -76,6 +76,7 @@ def test_cuda_runtime_errors_captured() -> None:
     except RuntimeError as e:
         if re.search("CUDA", f"{e}"):
             print(f"Caught CUDA exception with success: {e}")
+            cuda_exception_missed = False
         else:
             raise e
     if(cuda_exception_missed):
