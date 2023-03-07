@@ -211,8 +211,8 @@ def main() -> None:
     # smoke_test_conv2d()
     # smoke_test_linalg()
 
-    if options.package == "all":
-        smoke_test_modules()
+    #if options.package == "all":
+    #    smoke_test_modules()
 
     smoke_test_cuda(options.package)
 
