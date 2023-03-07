@@ -43,6 +43,7 @@ PACKAGE_ALLOW_LIST = {
     "idna",
     "Jinja2",
     "lit",
+    "MarkupSafe",
     "mpmath",
     "nestedtensor",
     "networkx",
