@@ -30,6 +30,6 @@ jobs:
   nightly:
     uses: ./.github/workflows/validate-binaries.yml
     with:
-      channel: test
+      channel: nightly
       os: all
-      limit-win-builds: disable
+      limit-win-builds: enable

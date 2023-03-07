@@ -112,11 +112,7 @@ def smoke_test_cuda(package: str) -> None:
         if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0):
             smoke_test_compile()
 
-        # This check has to be run last, since its messing up CUDA runtime.
-        # Restrict only to conda builds since Wheel seems to crash with
-        # segmentation fault and don't recover
-        if(package_type == 'conda'):
-            test_cuda_runtime_errors_captured()
+        test_cuda_runtime_errors_captured()
 
 
 def smoke_test_conv2d() -> None:
@@ -169,7 +165,7 @@ def smoke_test_linalg() -> None:
             torch.linalg.svd(A)
 
 def smoke_test_compile() -> None:
-    supported_dtypes = [torch.float32]
+    supported_dtypes = [torch.float16, torch.float32, torch.float64]
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
     for dtype in supported_dtypes:
