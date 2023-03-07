@@ -17,9 +17,11 @@ else
         conda env remove -n ${ENV_NAME}
     else
 
+
+
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
-        if [[ ${TARGET_OS} == 'linux' && ${MATRIX_CHANNEL} == 'nightly' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
-            conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy
+        if [[ ${TARGET_OS} == 'linux'  && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
+            conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
             INSTALLATION_PYPI=${MATRIX_INSTALLATION/"cu117"/"cu117_pypi_cudnn"}
             INSTALLATION_PYPI=${INSTALLATION_PYPI/"torchvision torchaudio"/""}
             INSTALLATION_PYPI=${INSTALLATION_PYPI/"index-url"/"extra-index-url"}
@@ -29,9 +31,11 @@ else
             conda env remove -p ${ENV_NAME}_pypi
         fi
 
-        conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy pillow
+        # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
+        conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
         conda activate ${ENV_NAME}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
+        INSTALLATION=${INSTALLATION/"extra-index-url"/"index-url"}
         eval $INSTALLATION
 
         if [[ ${TARGET_OS} == 'linux' ]]; then
