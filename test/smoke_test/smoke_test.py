@@ -114,7 +114,7 @@ def smoke_test_cuda(package: str) -> None:
         # This check has to be run last, since its messing up CUDA runtime.
         # Restrict only to conda builds since Wheel seems to crash with
         # segmentation fault and don't recover
-        if(package_type == 'conda')
+        if(package_type == 'conda'):
             test_cuda_runtime_errors_captured()
 
 
