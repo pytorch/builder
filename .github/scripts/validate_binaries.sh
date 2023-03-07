@@ -29,7 +29,7 @@ else
             conda env remove -p ${ENV_NAME}_pypi
         fi
 
-        conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy pillow
+        conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
         conda activate ${ENV_NAME}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
         INSTALLATION=${INSTALLATION/"extra-index-url"/"index-url"}
