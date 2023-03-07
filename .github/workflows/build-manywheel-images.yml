@@ -46,7 +46,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-rocm:
-    runs-on: linux.2xlarge
+    runs-on: linux.c5.4xlarge.ephemeral
     strategy:
       matrix:
         rocm_version: ["5.3", "5.4.2"]
@@ -65,7 +65,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu:
-    runs-on: linux.2xlarge
+    runs-on: linux.c5.4xlarge.ephemeral
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v3
@@ -78,7 +78,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu-cxx11-abi:
-    runs-on: linux.2xlarge
+    runs-on: linux.c5.4xlarge.ephemeral
     env:
       GPU_ARCH_TYPE: cpu-cxx11-abi
     steps:
