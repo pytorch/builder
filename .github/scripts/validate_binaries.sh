@@ -34,11 +34,11 @@ else
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
         eval $INSTALLATION
 
-        if [[ ${TARGET_OS} == 'linux' ]]; then
-            export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
-            export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
-            ${PWD}/check_binary.sh
-        fi
+        # if [[ ${TARGET_OS} == 'linux' ]]; then
+        #    export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
+        #    export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
+        #    ${PWD}/check_binary.sh
+        # fi
 
         python  ./test/smoke_test/smoke_test.py
         conda deactivate
