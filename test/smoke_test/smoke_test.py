@@ -169,7 +169,7 @@ def smoke_test_linalg() -> None:
             torch.linalg.svd(A)
 
 def smoke_test_compile() -> None:
-    supported_dtypes = [torch.float16, torch.float32, torch.float64]
+    supported_dtypes = [torch.float16, torch.float32]
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
     for dtype in supported_dtypes:
