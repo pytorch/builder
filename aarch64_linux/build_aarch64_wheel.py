@@ -294,6 +294,7 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.12.1": ("0.13.1", "rc6"),
                                       "v1.13.0": ("0.14.0", "rc4"),
                                       "v1.13.1": ("0.14.1", "rc2"),
+									  "v2.0.0": ("0.15.0", "rc6"),
                                   })
     print('Building TorchVision wheel')
     build_vars = ""
@@ -333,6 +334,7 @@ def build_torchdata(host: RemoteHost, *,
                                   git_clone_flags=git_clone_flags,
                                   mapping={
                                        "v1.13.1": ("0.5.1", ""),
+									   "v2.0.0": ("0.6.0", "rc4"),
                                   })
     print('Building TorchData wheel')
     build_vars = ""
@@ -375,6 +377,7 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.12.1": ("0.13.1", "rc5"),
                                       "v1.13.0": ("0.14.0", "rc3"),
                                       "v1.13.1": ("0.14.1", "rc1"),
+									  "v2.0.0": ("0.15.0", "rc4"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -417,6 +420,7 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.12.1": ("0.12.1", "rc5"),
                                       "v1.13.0": ("0.13.0", "rc4"),
                                       "v1.13.1": ("0.13.1", "rc2"),
+									  "v2.0.0": ("2.0.0", "rc5"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
@@ -515,7 +519,7 @@ def start_build(host: RemoteHost, *,
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = host.check_output("cat pytorch/version.txt").strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
-    if branch.startswith("v1."):
+    if branch.startswith("v"):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
@@ -677,7 +681,7 @@ def parse_arguments():
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10', '3.11'], default=None)
+    parser.add_argument("--python-version", type=str, choices=['3.8', '3.9', '3.10', '3.11'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
     parser.add_argument("--pytorch-only", action="store_true")
