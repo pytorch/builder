@@ -20,7 +20,7 @@ else
 
 
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
-        if [[ ${TARGET_OS} == 'linux'  && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
+        if [[ ${TARGET_OS} == 'linux' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' && ${MATRIX_CHANNEL} != 'nightly' ]]; then
             conda create -yp ${ENV_NAME}_pypi python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
             INSTALLATION_PYPI=${MATRIX_INSTALLATION/"cu117"/"cu117_pypi_cudnn"}
             INSTALLATION_PYPI=${INSTALLATION_PYPI/"torchvision torchaudio"/""}
@@ -35,7 +35,6 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
         conda activate ${ENV_NAME}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
-        INSTALLATION=${INSTALLATION/"extra-index-url"/"index-url"}
         eval $INSTALLATION
 
         if [[ ${TARGET_OS} == 'linux' ]]; then
