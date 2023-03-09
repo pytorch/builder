@@ -36,7 +36,7 @@ MODULES = [
 def check_version(package: str) -> None:
     # only makes sense to check nightly package where dates are known
     if channel == "nightly":
-        check_nightly_binaries_date(options.package)
+        check_nightly_binaries_date(package)
     else:
         if not torch.__version__.startswith(stable_version):
             raise RuntimeError(
