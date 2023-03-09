@@ -46,6 +46,7 @@ requirements:
     - sympy
     - filelock
     - networkx
+    - jinja2
     {% if cross_compile_arm64 == 0 %}
     - blas * mkl
     {% endif %}
