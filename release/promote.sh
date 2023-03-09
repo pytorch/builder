@@ -82,20 +82,16 @@ promote_s3 "tqdm" whl "4.64.1"
 promote_s3 "Pillow" whl "9.3.0"
 # for python 3.8-3.11
 promote_s3 "numpy" whl "1.24.1"
-# for python 3.7 - should we remove this dependency ?
+# for python 3.7 older pytorch versions
 promote_s3 "numpy" whl "1.21.6"
 promote_s3 "urllib3" whl "1.26.13"
 promote_s3 "lit" whl "15.0.7"
-# why sympy has 2 depencencies ? todo: comment here
 promote_s3 "sympy" whl "1.11.1"
-promote_s3 "sympy" whl "1.10.1"
 promote_s3 "typing_extensions" whl "4.4.0"
 promote_s3 "filelock" whl "3.9.0"
 promote_s3 "mpmath" whl "1.2.1"
 promote_s3 "idna" whl "3.4"
-# why networkx 2 depencencies ? todo: comment here
-promote_s3 "networkx" whl "3.0rc1"
-promote_s3 "networkx" whl "2.6.3"
+promote_s3 "networkx" whl "3.0.0"
 promote_s3 "packaging" whl "22.0"
 promote_s3 "requests" whl "2.28.1"
 
