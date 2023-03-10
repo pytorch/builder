@@ -2,6 +2,8 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     curl ${MATRIX_INSTALLATION} -o libtorch.zip
     unzip libtorch.zip
 else
+    conda config --set channel_priority false
+
     #special case for Python 3.11
     if [[ ${MATRIX_PYTHON_VERSION} == '3.11' ]]; then
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
@@ -16,7 +18,6 @@ else
         conda deactivate
         conda env remove -n ${ENV_NAME}
     else
-
 
 
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
@@ -44,6 +45,10 @@ else
         fi
 
         python  ./test/smoke_test/smoke_test.py
+
+        if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda' ]]; then
+            python .test/smoke_test/max_autotune.py
+        fi
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
