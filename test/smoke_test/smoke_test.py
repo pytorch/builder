@@ -7,6 +7,9 @@ import torch
 import platform
 import importlib
 import subprocess
+import torch._dynamo
+import torch.nn as nn
+import torch.nn.functional as F
 
 gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
@@ -32,6 +35,21 @@ MODULES = [
         "extension": "_extension",
     },
 ]
+
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(1, 32, 3, 1)
+        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.fc1 = nn.Linear(9216, 1)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = F.max_pool2d(x, 2)
+        x = torch.flatten(x, 1)
+        output = self.fc1(x)
+        return output
 
 def check_version(package: str) -> None:
     # only makes sense to check nightly package where dates are known
@@ -175,6 +193,14 @@ def smoke_test_compile() -> None:
         x_pt2 = torch.compile(foo)(x)
         print(torch.allclose(x_eager, x_pt2))
 
+    # Reset torch dynamo since we are changing mode
+    torch._dynamo.reset()
+    dtype = torch.float32
+    torch.set_float32_matmul_precision('high')
+    print(f"Testing smoke_test_compile with mode 'max-autotune' for {dtype}")
+    x = torch.rand(64, 1, 28, 28, device="cuda").type(torch.float32)
+    model = Net().to(device="cuda")
+    x_pt2 = torch.compile(model, mode="max-autotune")(x)
 
 def smoke_test_modules():
     for module in MODULES:
