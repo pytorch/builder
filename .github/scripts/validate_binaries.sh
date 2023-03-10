@@ -45,7 +45,7 @@ else
         fi
 
         if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda' ]]; then
-            python .test/smoke_test/max_autotune.py
+            python ./test/smoke_test/max_autotune.py
         fi
 
         python  ./test/smoke_test/smoke_test.py
