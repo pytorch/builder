@@ -44,11 +44,11 @@ else
             ${PWD}/check_binary.sh
         fi
 
-        python  ./test/smoke_test/smoke_test.py
-
         if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda' ]]; then
             python .test/smoke_test/max_autotune.py
         fi
+
+        python  ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
