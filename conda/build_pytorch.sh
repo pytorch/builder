@@ -281,7 +281,7 @@ else
     if [[ "$OSTYPE" != "msys" ]]; then
         # TODO: Remove me when Triton has a proper release channel
         TRITON_SHORTHASH=$(cut -c1-10 $pytorch_rootdir/.github/ci_commit_pins/triton.txt)
-        export CONDA_TRITON_CONSTRAINT="    - torchtriton==2.0.0+${TRITON_SHORTHASH}"
+        export CONDA_TRITON_CONSTRAINT="    - torchtriton==2.1.0+${TRITON_SHORTHASH}"
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
