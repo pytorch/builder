@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Downloads domain pytorch andlibrary packages from channel
+# Downloads domain pytorch and library packages from channel
 # And backs them up to S3
 # Do not use unless you know what you are doing
 # Usage:  python backup_conda.py --version 1.6.0
