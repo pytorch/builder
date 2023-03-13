@@ -104,6 +104,10 @@ promote_s3 "requests" whl "2.28.1"
 # promote_s3 torchdata whl "${TORCHDATA_VERSION}"
 # promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
 
+promote_conda torchtriton conda "2.0.0"
+promote_conda pytorch-cuda conda "11.7"
+promote_conda pytorch-cuda conda "11.8"
+
 # promote_conda pytorch conda "${PYTORCH_VERSION}"
 # promote_conda torchvision conda "${TORCHVISION_VERSION}"
 # promote_conda torchaudio conda "${TORCHAUDIO_VERSION}"
