@@ -60,6 +60,14 @@ def check_version(package: str) -> None:
             raise RuntimeError(
                 f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
             )
+        if not torchvision.__version__.startswith('0.15.0'):
+            raise RuntimeError(
+                f"Vision version mismatch, expected 0.15.0 for channel {channel}. But its {torchvision.__version__}"
+            )
+        if not torchaudio.__version__.startswith('2.0.0'):
+            raise RuntimeError(
+                f"Audio version mismatch, expected 2.0.0 for channel {channel}. But its {torchaudio.__version__}"
+            )
 
 def check_nightly_binaries_date(package: str) -> None:
     from datetime import datetime, timedelta
