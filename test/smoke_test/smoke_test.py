@@ -237,13 +237,14 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
-    check_version(options.package)
+
     smoke_test_conv2d()
     smoke_test_linalg()
 
     if options.package == "all":
         smoke_test_modules()
 
+    check_version(options.package)
     smoke_test_cuda(options.package)
 
 
