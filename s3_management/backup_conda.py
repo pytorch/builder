@@ -68,4 +68,4 @@ if __name__ == "__main__":
     for libname in ["torchvision", "torchaudio", "torchtext"]:
         print(f"processing {libname}")
         rc = download_conda_package(libname, channel = "pytorch", depends = f"pytorch {options.version}")
-        upload_to_s3f(f"v{options.version}/conda", rc)
+        upload_to_s3(f"v{options.version}/conda", rc)
