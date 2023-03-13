@@ -23,11 +23,9 @@ def compute_md5(path:str) -> str:
 
 
 def download_conda_package(package:str, version:Optional[str] = None, depends:Optional[str] = None, channel:Optional[str] = None) -> List[str]:
-
     packages = conda.api.SubdirData.query_all(package, channels = [channel] if channel is not None else None, subdirs = _known_subdirs)
     rc = []
 
-    # print(f"Packages found {packages}")
     for pkg in packages:
         if version is not None and pkg.version != version:
             continue
@@ -52,6 +50,7 @@ def upload_to_s3(prefix: str, fnames: List[str]) -> None:
     for fname in fnames:
         BUCKET.upload_file(fname, f"{prefix}/{fname}")
         print(fname)
+
 
 
 if __name__ == "__main__":
