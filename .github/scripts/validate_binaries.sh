@@ -2,10 +2,10 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     curl ${MATRIX_INSTALLATION} -o libtorch.zip
     unzip libtorch.zip
 else
-    if [[ ${MATRIX_INSTALLATION}=='pip3 install torch torchvision torchaudio' && ${MATRIX_GPU_ARCH_TYPE} == 'cpu']]; then
+    if [[ ${MATRIX_INSTALLATION}=='pip3 install torch torchvision torchaudio' && ${MATRIX_GPU_ARCH_TYPE} == 'cpu' ]]; then
         MATRIX_INSTALLATION='pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu'
     fi
-    if [[ ${MATRIX_INSTALLATION}=='pip3 install torch torchvision torchaudio' && ${MATRIX_GPU_ARCH_VERSION} == '11.7']]; then
+    if [[ ${MATRIX_INSTALLATION}=='pip3 install torch torchvision torchaudio' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' ]]; then
         MATRIX_INSTALLATION='pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117'
     fi
 
