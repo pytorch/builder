@@ -40,6 +40,7 @@ else
             export filedownload=$(echo "$installation_log" | grep Downloading.*torchaudio.* | grep -Eio '\bhttps://.*whl\b')
             echo $filedownload
             curl -O ${filedownload}
+            sleep 30
             unzip -o torchaudio-2.0.*
             export textdist=$(ls | grep -Ei "torchaudio.*dist-info")
             while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
@@ -50,6 +51,7 @@ else
             export filedownload=$(echo "$installation_log" | grep Downloading.*torchvision.* | grep -Eio '\bhttps://.*whl\b')
             echo $filedownload
             curl -O ${filedownload}
+            sleep 30
             unzip -o torchvision-2.0.*
             export textdist=$(ls | grep -Ei "torchvision.*dist-info")
             while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
