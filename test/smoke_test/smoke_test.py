@@ -7,7 +7,6 @@ import torch
 import platform
 import importlib
 import subprocess
-import torch._dynamo
 import torch.nn as nn
 import torch.nn.functional as F
 
