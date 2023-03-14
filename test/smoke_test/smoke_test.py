@@ -27,12 +27,14 @@ MODULES = [
         "repo": "https://github.com/pytorch/vision.git",
         "smoke_test": "python ./vision/test/smoke_test.py",
         "extension": "extension",
+        "version": "0.15.0"
     },
     {
         "name": "torchaudio",
         "repo": "https://github.com/pytorch/audio.git",
         "smoke_test": "python ./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
         "extension": "_extension",
+        "version": "2.0.0"
     },
 ]
 
@@ -115,6 +117,11 @@ def smoke_test_cuda(package: str) -> None:
             else:
                 version = imported_module._extension._check_cuda_version()
             print(f"{module['name']} CUDA: {version}")
+
+            if not imported_module.__version__.startswith(module['version']):
+                raise RuntimeError(
+                    f"Version {module['name']}  mismatch, expected {module['version']} for channel {channel}. But its {imported_module.__version__}"
+                )
 
     if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
