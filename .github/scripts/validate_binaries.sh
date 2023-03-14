@@ -22,8 +22,6 @@ else
         python ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
-    elif [[ ${MATRIX_PYTHON_VERSION} == '3.11' && ${MATRIX_PACKAGE_TYPE} != 'manywheel' ]]; then
-        # do nothing
     else
 
         # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
