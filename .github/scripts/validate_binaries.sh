@@ -43,7 +43,7 @@ else
             unzip -o torchaudio-2.0.*
             export textdist=$(ls | grep -Ei "torchaudio.*dist-info")
             while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
-            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0)")
+            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
             echo $match
             [[ -z "$match" ]] && { echo "Torch is not Pinned in Audio!!!" ; exit 1; }
 
@@ -53,7 +53,7 @@ else
             unzip -o torchvision-0.15.*
             export textdist=$(ls | grep -Ei "torchvision.*dist-info")
             while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
-            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0)")
+            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
             echo $match
             [[ -z "$match" ]] && { echo "Torch is not Pinned in torchvision!!!" ; exit 1; }
 
