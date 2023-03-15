@@ -18,7 +18,26 @@ else
         #INSTALLATION=${INSTALLATION/"pytorch-cuda"/"pytorch::pytorch-cuda"}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
 
-        eval $INSTALLATION
+        export installation_log=$(eval $INSTALLATION)
+        export filedownload=$(echo "$installation_log" | grep Downloading.*torchaudio.* | grep -Eio '\bhttps://.*whl\b')
+        echo $filedownload
+        curl -O ${filedownload}
+        unzip -o torchaudio-2.0.*
+        export textdist=$(ls | grep -Ei "torchaudio.*dist-info")
+        while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
+        export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
+        echo $match
+        [[ -z "$match" ]] && { echo "Torch is not Pinned in Audio!!!" ; exit 1; }
+
+        export filedownload=$(echo "$installation_log" | grep Downloading.*torchvision.* | grep -Eio '\bhttps://.*whl\b')
+        echo $filedownload
+        curl -O ${filedownload}
+        unzip -o torchvision-0.15.*
+        export textdist=$(ls | grep -Ei "torchvision.*dist-info")
+        while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
+        export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
+        echo $match
+        [[ -z "$match" ]] && { echo "Torch is not Pinned in torchvision!!!" ; exit 1; }
         python ./test/smoke_test/smoke_test.py
         conda deactivate
         conda env remove -n ${ENV_NAME}
@@ -28,7 +47,32 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} ffmpeg
         conda activate ${ENV_NAME}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
-        eval $INSTALLATION
+
+        if [[ ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
+            export installation_log=$(eval $INSTALLATION)
+            export filedownload=$(echo "$installation_log" | grep Downloading.*torchaudio.* | grep -Eio '\bhttps://.*whl\b')
+            echo $filedownload
+            curl -O ${filedownload}
+            unzip -o torchaudio-2.0.*
+            export textdist=$(ls | grep -Ei "torchaudio.*dist-info")
+            while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
+            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
+            echo $match
+            [[ -z "$match" ]] && { echo "Torch is not Pinned in Audio!!!" ; exit 1; }
+
+            export filedownload=$(echo "$installation_log" | grep Downloading.*torchvision.* | grep -Eio '\bhttps://.*whl\b')
+            echo $filedownload
+            curl -O ${filedownload}
+            unzip -o torchvision-0.15.*
+            export textdist=$(ls | grep -Ei "torchvision.*dist-info")
+            while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
+            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
+            echo $match
+            [[ -z "$match" ]] && { echo "Torch is not Pinned in torchvision!!!" ; exit 1; }
+
+        else
+            eval $INSTALLATION
+        fi
 
         if [[ ${TARGET_OS} == 'linux' ]]; then
             export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
