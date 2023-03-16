@@ -106,23 +106,26 @@ def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
 
-    if(package == 'all' and is_cuda_system):
+    if(package == 'all'):
         for module in MODULES:
             imported_module = importlib.import_module(module["name"])
             # TBD for vision move extension module to private so it will
             # be _extention.
-            version = "N/A"
-            if module["extension"] == "extension":
-                version = imported_module.extension._check_cuda_version()
-            else:
-                version = imported_module._extension._check_cuda_version()
-            print(f"{module['name']} CUDA: {version}")
+
+            if(is_cuda_system):
+                version = "N/A"
+                if module["extension"] == "extension":
+                    version = imported_module.extension._check_cuda_version()
+                else:
+                    version = imported_module._extension._check_cuda_version()
+                print(f"{module['name']} CUDA: {version}")
 
             print(f"{module['name']} VERSION: {imported_module.__version__} expected version is {module['version']}")
             if not imported_module.__version__.startswith(module['version']):
                 raise RuntimeError(
                     f"Version {module['name']}  mismatch, expected {module['version']} for channel {channel}. But its {imported_module.__version__}"
                 )
+
 
     if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
