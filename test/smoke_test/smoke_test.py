@@ -118,6 +118,7 @@ def smoke_test_cuda(package: str) -> None:
                 version = imported_module._extension._check_cuda_version()
             print(f"{module['name']} CUDA: {version}")
 
+            print(f"{module['name']} VERSION: {imported_module.__version__} expected version is {module['version']}")
             if not imported_module.__version__.startswith(module['version']):
                 raise RuntimeError(
                     f"Version {module['name']}  mismatch, expected {module['version']} for channel {channel}. But its {imported_module.__version__}"
