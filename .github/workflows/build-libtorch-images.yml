@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-docker-cuda:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         cuda_version: ["11.8", "11.7", "11.6"]
@@ -44,7 +44,7 @@ jobs:
         run: |
           libtorch/build_docker.sh
   build-docker-rocm:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         rocm_version: ["5.3", "5.4.2"]
@@ -63,7 +63,7 @@ jobs:
         run: |
           libtorch/build_docker.sh
   build-docker-cpu:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v3
