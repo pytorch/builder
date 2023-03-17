@@ -18,8 +18,9 @@ from typing import Dict, List, Optional, Tuple, Union
 
 # AMI images for us-east-1, change the following based on your ~/.aws/config
 os_amis = {
-    'ubuntu18_04': "ami-0f2b111fdc1647918",  # login_name: ubuntu
-    'ubuntu20_04': "ami-0ea142bd244023692",  # login_name: ubuntu
+    'ubuntu18_04': "ami-078eece1d8119409f",  # login_name: ubuntu
+    'ubuntu20_04': "ami-052eac90edaa9d08f",  # login_name: ubuntu
+    'ubuntu22_04': "ami-0c6c29c5125214c77",  # login_name: ubuntu
     'redhat8': "ami-0698b90665a2ddcf1",  # login_name: ec2-user
 }
 ubuntu18_04_ami = os_amis['ubuntu18_04']
