@@ -495,6 +495,7 @@ def start_build(host: RemoteHost, *,
                 use_conda: bool = True,
                 python_version: str = "3.8",
                 pytorch_only: bool = False,
+                pytorch_build_number: Optional[str] = None,
                 shallow_clone: bool = True,
                 enable_mkldnn: bool = False) -> Tuple[str, str, str, str, str]:
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
@@ -528,6 +529,9 @@ def start_build(host: RemoteHost, *,
     host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
+    build_opts = ""
+    if pytorch_build_number is not None:
+        build_opts += f" --build-number {pytorch_build_number}"
     # Breakpad build fails on aarch64
     build_vars = "USE_BREAKPAD=0 "
     if branch == 'nightly':
@@ -542,7 +546,7 @@ def start_build(host: RemoteHost, *,
         build_ArmComputeLibrary(host, git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
-        host.run_cmd(f"cd pytorch ; export ACL_ROOT_DIR=$HOME/ComputeLibrary:$HOME/acl; {build_vars} python3 setup.py bdist_wheel")
+        host.run_cmd(f"cd pytorch ; export ACL_ROOT_DIR=$HOME/ComputeLibrary:$HOME/acl; {build_vars} python3 setup.py bdist_wheel{build_opts}")
         print('Repair the wheel')
         pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
         host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib; auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")
@@ -551,7 +555,7 @@ def start_build(host: RemoteHost, *,
         host.run_cmd(f"cp $HOME/wheelhouse/{pytorch_repaired_wheel_name} $HOME/pytorch/dist/{pytorch_wheel_name}")
     else:
         print("build pytorch without mkldnn backend")
-        host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+        host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel{build_opts}")
 
     print("Deleting build folder")
     host.run_cmd("cd pytorch; rm -rf build")
@@ -704,6 +708,7 @@ def parse_arguments():
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     parser.add_argument("--use-torch-from-pypi", action="store_true")
+    parser.add_argument("--pytorch-build-number", type=str, default=None)
     parser.add_argument("--disable-mkldnn", action="store_true")
     return parser.parse_args()
 
@@ -775,6 +780,7 @@ if __name__ == '__main__':
                     compiler=args.compiler,
                     python_version=python_version,
                     pytorch_only=args.pytorch_only,
+                    pytorch_build_number=args.pytorch_build_number,
                     enable_mkldnn=not args.disable_mkldnn)
     if not args.keep_running:
         print(f'Waiting for instance {inst.id} to terminate')
