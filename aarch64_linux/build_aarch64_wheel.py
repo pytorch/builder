@@ -4,7 +4,7 @@
 # To generate binaries for the release follow these steps:
 # 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
 # 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
-# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.7 --branch <RCtag>
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --os ubuntu20_04 --enable-mkldnn --branch <RCtag>
 
 
 import boto3
