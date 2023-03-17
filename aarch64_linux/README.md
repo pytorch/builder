@@ -16,4 +16,4 @@ __NOTE:__ CI build is currently __EXPERMINTAL__
 This app allows a person to build using AWS EC3 resources and requires AWS-CLI and Boto3 with AWS credentials to support building EC2 instances for the wheel builds. Can be used in a codebuild CD or from a local system.
 
 ### Usage
-```build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --os ubuntu20_04 --enable-mkldnn  --branch <RCtag>```
+```build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --branch <RCtag>```

@@ -4,7 +4,7 @@
 # To generate binaries for the release follow these steps:
 # 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
 # 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
-# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --os ubuntu20_04 --enable-mkldnn --branch <RCtag>
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --branch <RCtag>
 
 
 import boto3
@@ -684,7 +684,7 @@ def parse_arguments():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
+    parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu20_04')
     parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10', '3.11'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
@@ -696,7 +696,7 @@ def parse_arguments():
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     parser.add_argument("--use-torch-from-pypi", action="store_true")
-    parser.add_argument("--enable-mkldnn", action="store_true")
+    parser.add_argument("--disable-mkldnn", action="store_true")
     return parser.parse_args()
 
 
@@ -767,7 +767,7 @@ if __name__ == '__main__':
                     compiler=args.compiler,
                     python_version=python_version,
                     pytorch_only=args.pytorch_only,
-                    enable_mkldnn=args.enable_mkldnn)
+                    enable_mkldnn=not args.disable_mkldnn)
     if not args.keep_running:
         print(f'Waiting for instance {inst.id} to terminate')
         inst.terminate()
