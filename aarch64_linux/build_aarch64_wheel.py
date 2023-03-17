@@ -448,10 +448,10 @@ def build_torchaudio(host: RemoteHost, *,
 
 
 def configure_system(host: RemoteHost, *,
-                     compiler="gcc-8",
-                     use_conda=True,
-                     python_version="3.8",
-                     enable_mkldnn=False) -> None:
+                     compiler: str = "gcc-8",
+                     use_conda: bool = True,
+                     python_version: str = "3.8",
+                     enable_mkldnn: bool = False) -> None:
     if use_conda:
         install_condaforge_python(host, python_version)
 
@@ -478,14 +478,25 @@ def configure_system(host: RemoteHost, *,
         host.run_cmd("sudo pip3 install numpy")
 
 
+def build_domains(host: RemoteHost, *,
+                  branch: str = "master",
+                  use_conda: bool = True,
+                  git_clone_flags: str = "") -> Tuple[str, str, str, str]:
+    vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    audio_wheel_name = build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    data_wheel_name = build_torchdata(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    text_wheel_name = build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    return (vision_wheel_name, audio_wheel_name, data_wheel_name, text_wheel_name)
+
+
 def start_build(host: RemoteHost, *,
-                branch="master",
-                compiler="gcc-8",
-                use_conda=True,
-                python_version="3.8",
+                branch: str = "master",
+                compiler: str = "gcc-8",
+                use_conda: bool = True,
+                python_version: str = "3.8",
                 pytorch_only: bool = False,
-                shallow_clone=True,
-                enable_mkldnn=False) -> Tuple[str, str]:
+                shallow_clone: bool = True,
+                enable_mkldnn: bool = False) -> Tuple[str, str, str, str, str]:
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     if host.using_docker() and not use_conda:
         print("Auto-selecting conda option for docker images")
@@ -553,13 +564,10 @@ def start_build(host: RemoteHost, *,
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
 
     if pytorch_only:
-        return pytorch_wheel_name, None
-    vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    build_torchdata(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+        return (pytorch_wheel_name, None, None, None, None)
+    domain_wheels = build_domains(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
 
-    return pytorch_wheel_name, vision_wheel_name
+    return (pytorch_wheel_name, *domain_wheels)
 
 
 embed_library_script = """
@@ -758,9 +766,9 @@ if __name__ == '__main__':
                          enable_mkldnn=False)
         print("Installing PyTorch wheel")
         host.run_cmd("pip3 install torch")
-        build_torchvision(host,
-                          branch=args.branch,
-                          git_clone_flags=" --depth 1 --shallow-submodules")
+        build_domains(host,
+                      branch=args.branch,
+                      git_clone_flags=" --depth 1 --shallow-submodules")
     else:
         start_build(host,
                     branch=args.branch,
