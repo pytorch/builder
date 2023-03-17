@@ -311,7 +311,7 @@ def build_torchvision(host: RemoteHost, *,
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -348,7 +348,7 @@ def build_torchdata(host: RemoteHost, *,
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -391,7 +391,7 @@ def build_torchtext(host: RemoteHost, *,
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
@@ -434,7 +434,7 @@ def build_torchaudio(host: RemoteHost, *,
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
