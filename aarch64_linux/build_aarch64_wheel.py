@@ -15,7 +15,6 @@ import time
 from typing import Dict, List, Optional, Tuple, Union
 
 
-
 # AMI images for us-east-1, change the following based on your ~/.aws/config
 os_amis = {
     'ubuntu18_04': "ami-078eece1d8119409f",  # login_name: ubuntu
@@ -233,7 +232,7 @@ def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None
     print('Building Arm Compute Library')
     host.run_cmd("mkdir $HOME/acl")
     host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
-    host.run_cmd(f"pushd ComputeLibrary; export acl_install_dir=$HOME/acl; scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; cp -r arm_compute $acl_install_dir; cp -r include $acl_install_dir; cp -r utils $acl_install_dir; cp -r support $acl_install_dir; popd")
+    host.run_cmd("pushd ComputeLibrary; export acl_install_dir=$HOME/acl; scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; cp -r arm_compute $acl_install_dir; cp -r include $acl_install_dir; cp -r utils $acl_install_dir; cp -r support $acl_install_dir; popd")
 
 
 def build_FFTW(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -328,9 +327,9 @@ def build_torchvision(host: RemoteHost, *,
 
 
 def build_torchdata(host: RemoteHost, *,
-                     branch: str = "master",
-                     use_conda: bool = True,
-                     git_clone_flags: str = "") -> str:
+                    branch: str = "master",
+                    use_conda: bool = True,
+                    git_clone_flags: str = "") -> str:
     print('Checking out TorchData repo')
     git_clone_flags += " --recurse-submodules"
     build_version = checkout_repo(host,
@@ -338,8 +337,8 @@ def build_torchdata(host: RemoteHost, *,
                                   url="https://github.com/pytorch/data",
                                   git_clone_flags=git_clone_flags,
                                   mapping={
-                                       "v1.13.1": ("0.5.1", ""),
-                                       "v2.0.0": ("0.6.0", "rc5"),
+                                      "v1.13.1": ("0.5.1", ""),
+                                      "v2.0.0": ("0.6.0", "rc5"),
                                   })
     print('Building TorchData wheel')
     build_vars = ""
@@ -484,7 +483,7 @@ def start_build(host: RemoteHost, *,
                 compiler="gcc-8",
                 use_conda=True,
                 python_version="3.8",
-                pytorch_only:bool=False,
+                pytorch_only: bool = False,
                 shallow_clone=True,
                 enable_mkldnn=False) -> Tuple[str, str]:
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
@@ -492,8 +491,8 @@ def start_build(host: RemoteHost, *,
         print("Auto-selecting conda option for docker images")
         use_conda = True
     if not host.using_docker():
-       print("Disable mkldnn for host builds")
-       enable_mkldnn = False
+        print("Disable mkldnn for host builds")
+        enable_mkldnn = False
 
     configure_system(host,
                      compiler=compiler,
