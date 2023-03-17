@@ -491,7 +491,7 @@ def start_build(host: RemoteHost, *,
         print("Auto-selecting conda option for docker images")
         use_conda = True
     if not host.using_docker():
-       print("Diable mkldnn for host builds")
+       print("Disable mkldnn for host builds")
        enable_mkldnn = False
 
     configure_system(host,
