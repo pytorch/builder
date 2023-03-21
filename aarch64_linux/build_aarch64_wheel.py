@@ -302,7 +302,7 @@ def build_torchvision(host: RemoteHost, *,
                                   })
     print('Building TorchVision wheel')
 
-    # Please note libnpg and jpeg is required to build image.so extension
+    # Please note libnpg and jpeg are required to build image.so extension
     if(use_conda):
         host.run_cmd("conda install -y libpng jpeg")
 
