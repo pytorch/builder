@@ -279,7 +279,8 @@ def checkout_repo(host: RemoteHost, *,
 def build_torchvision(host: RemoteHost, *,
                       branch: str = "master",
                       use_conda: bool = True,
-                      git_clone_flags: str) -> str:
+                      git_clone_flags: str,
+                      run_smoke_tests: bool = False) -> str:
     print('Checking out TorchVision repo')
     build_version = checkout_repo(host,
                                   branch=branch,
@@ -300,14 +301,16 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.13.1": ("0.14.1", "rc2"),
                                       "v2.0.0": ("0.15.1", "rc2"),
                                   })
-    print('Building TorchVision wheel')
+    print("Building TorchVision wheel")
 
     # Please note libnpg and jpeg are required to build image.so extension
-    if(use_conda):
+    if use_conda:
         host.run_cmd("conda install -y libpng jpeg")
+        # Remove .so files to force static linking
+        host.run_cmd("rm miniforge3/lib/libpng.so miniforge3/lib/libpng16.so miniforge3/lib/libjpeg.so")
 
     build_vars = ""
-    if branch == 'nightly':
+    if branch == "nightly":
         version = host.check_output(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
         if len(version) == 0:
             # In older revisions, version was embedded in setup.py
@@ -325,6 +328,9 @@ def build_torchvision(host: RemoteHost, *,
 
     print('Copying TorchVision wheel')
     host.download_wheel(os.path.join('vision', 'dist', vision_wheel_name))
+    if run_smoke_tests:
+        host.run_cmd(f"pip3 install {os.path.join('vision', 'dist', vision_wheel_name)}")
+        host.run_cmd("python3 vision/test/smoke_test.py")
     print("Delete vision checkout")
     host.run_cmd("rm -rf vision")
 
