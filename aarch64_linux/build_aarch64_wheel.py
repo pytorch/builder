@@ -773,7 +773,7 @@ if __name__ == '__main__':
         configure_system(host,
                          compiler=args.compiler,
                          python_version=python_version,
-                         enable_mkldnn=False)
+                         enable_mkldnn=not args.disable_mkldnn)
         print("Installing PyTorch wheel")
         host.run_cmd("pip3 install torch")
         build_domains(host,
