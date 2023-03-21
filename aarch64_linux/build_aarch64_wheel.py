@@ -301,6 +301,11 @@ def build_torchvision(host: RemoteHost, *,
                                       "v2.0.0": ("0.15.1", "rc2"),
                                   })
     print('Building TorchVision wheel')
+
+    # Please note libnpg and jpeg are required to build image.so extension
+    if(use_conda):
+        host.run_cmd("conda install -y libpng jpeg")
+
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
@@ -768,7 +773,7 @@ if __name__ == '__main__':
         configure_system(host,
                          compiler=args.compiler,
                          python_version=python_version,
-                         enable_mkldnn=False)
+                         enable_mkldnn=not args.disable_mkldnn)
         print("Installing PyTorch wheel")
         host.run_cmd("pip3 install torch")
         build_domains(host,
