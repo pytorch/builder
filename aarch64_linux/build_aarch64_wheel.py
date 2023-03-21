@@ -455,8 +455,7 @@ def build_torchaudio(host: RemoteHost, *,
 def configure_system(host: RemoteHost, *,
                      compiler: str = "gcc-8",
                      use_conda: bool = True,
-                     python_version: str = "3.8",
-                     enable_mkldnn: bool = False) -> None:
+                     python_version: str = "3.8") -> None:
     if use_conda:
         install_condaforge_python(host, python_version)
 
@@ -514,8 +513,7 @@ def start_build(host: RemoteHost, *,
     configure_system(host,
                      compiler=compiler,
                      use_conda=use_conda,
-                     python_version=python_version,
-                     enable_mkldnn=enable_mkldnn)
+                     python_version=python_version)
     build_OpenBLAS(host, git_clone_flags)
     # build_FFTW(host, git_clone_flags)
 
@@ -772,8 +770,7 @@ if __name__ == '__main__':
     if args.use_torch_from_pypi:
         configure_system(host,
                          compiler=args.compiler,
-                         python_version=python_version,
-                         enable_mkldnn=not args.disable_mkldnn)
+                         python_version=python_version)
         print("Installing PyTorch wheel")
         host.run_cmd("pip3 install torch")
         build_domains(host,
