@@ -50,6 +50,7 @@ PACKAGE_ALLOW_LIST = {
     "networkx",
     "numpy",
     "packaging",
+    "portalocker",
     "pytorch_triton",
     "pytorch_triton_rocm",
     "requests",
