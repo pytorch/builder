@@ -354,13 +354,13 @@ def build_torchdata(host: RemoteHost, *,
                                       "v2.0.0": ("0.6.0", "rc5"),
                                   })
     print('Building TorchData wheel')
-    build_vars = "BUILD_S3=1"
+    build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["if [ -f data/version.txt ]; then cat data/version.txt; fi"]).strip()
         build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
-        build_vars += f" BUILD_VERSION={version}.dev{build_date}"
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f" BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
