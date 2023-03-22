@@ -280,7 +280,7 @@ def build_torchvision(host: RemoteHost, *,
                       branch: str = "master",
                       use_conda: bool = True,
                       git_clone_flags: str,
-                      run_smoke_tests: bool = False) -> str:
+                      run_smoke_tests: bool = True) -> str:
     print('Checking out TorchVision repo')
     build_version = checkout_repo(host,
                                   branch=branch,
@@ -308,6 +308,8 @@ def build_torchvision(host: RemoteHost, *,
         host.run_cmd("conda install -y libpng jpeg")
         # Remove .so files to force static linking
         host.run_cmd("rm miniforge3/lib/libpng.so miniforge3/lib/libpng16.so miniforge3/lib/libjpeg.so")
+        # And patch setup.py to include libz dependency for libpng
+        host.run_cmd(['sed -i -e \'s/image_link_flags\.append("png")/image_link_flags += ["png", "z"]/\' vision/setup.py'])
 
     build_vars = ""
     if branch == "nightly":
