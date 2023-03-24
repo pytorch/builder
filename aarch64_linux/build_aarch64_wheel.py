@@ -743,7 +743,7 @@ if __name__ == '__main__':
             check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
 
     # Starting the instance
-    inst = start_instance(key_name, ami=ami)
+    inst = start_instance(key_name, ami=ami, instance_type=args.instance_type)
     instance_name = f'{args.key_name}-{args.os}'
     if args.python_version is not None:
         instance_name += f'-py{args.python_version}'
