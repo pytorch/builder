@@ -108,6 +108,8 @@ IF "%USE_SCCACHE%" == "1" (
 
 if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cudnn*64_*.dll*" %SP_DIR%\torch\lib
+    copy "%CUDA_PATH%\include\cudnn*.*" %SP_DIR%\torch\include
+
     copy "%NVTOOLSEXT_PATH%\bin\x64\nvToolsExt64_*.dll*" %SP_DIR%\torch\lib
     :: cupti library file name changes aggressively, bundle it to avoid
     :: potential file name mismatch.

@@ -36,14 +36,15 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     exit 0
 fi
 
-DEPS_LIST=()
+EXTRA_SHARED_LIBS=()
+EXTRA_HEADERS=()
 # not needed if using conda's cudatoolkit package. Uncomment to statically link a new CUDA version that's not available in conda yet
 # if [[ -n "$build_with_cuda" ]]; then
 #     cuda_majmin="$(echo $CUDA_VERSION | cut -f1,2 -d'.')"
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
-#     DEPS_LIST+=("/usr/local/cuda/lib64/libnvrtc-builtins.so")
+#     EXTRA_SHARED_LIBS+=("/usr/local/cuda/lib64/libcudart.so.$cuda_majmin")
+#     EXTRA_SHARED_LIBS+=("/usr/local/cuda/lib64/libnvToolsExt.so.1")
+#     EXTRA_SHARED_LIBS+=("/usr/local/cuda/lib64/libnvrtc.so.$cuda_majmin")
+#     EXTRA_SHARED_LIBS+=("/usr/local/cuda/lib64/libnvrtc-builtins.so")
 # fi
 
 
@@ -61,21 +62,30 @@ if [[ -n "$build_with_cuda" ]]; then
         #which does not have single static libcudnn_static.a deliverable to link with
         export USE_STATIC_CUDNN=0
         #for cuda 11.5 include all dynamic loading libraries
-        DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.6/extras/CUPTI/lib64/libcupti.so.11.6)
+        EXTRA_SHARED_LIBS=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.6/extras/CUPTI/lib64/libcupti.so.11.6)
+        #copy cudnn headers as well, to ensure that cmake can find them inside
+        #the conda package
+        EXTRA_HEADERS=(/usr/local/cuda/include/cudnn*.h)
     elif [[ $CUDA_VERSION == 11.7* ]]; then
         TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
         #for cuda 11.7 we use cudnn 8.5
         #which does not have single static libcudnn_static.a deliverable to link with
         export USE_STATIC_CUDNN=0
         #for cuda 11.7 include all dynamic loading libraries
-        DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.7/extras/CUPTI/lib64/libcupti.so.11.7)
+        EXTRA_SHARED_LIBS=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.7/extras/CUPTI/lib64/libcupti.so.11.7)
+        #copy cudnn headers as well, to ensure that cmake can find them inside
+        #the conda package
+        EXTRA_HEADERS=(/usr/local/cuda/include/cudnn*.h)
     elif [[ $CUDA_VERSION == 11.8* ]]; then
-	TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6;9.0"
-	#for cuda 11.8 we use cudnn 8.7
-	#which does not have single static libcudnn_static.a deliverable to link with
-	export USE_STATIC_CUDNN=0
-	#for cuda 11.8 include all dynamic loading libraries
-	DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.8/extras/CUPTI/lib64/libcupti.so.11.8)
+        TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6;9.0"
+        #for cuda 11.8 we use cudnn 8.7
+        #which does not have single static libcudnn_static.a deliverable to link with
+        export USE_STATIC_CUDNN=0
+        #for cuda 11.8 include all dynamic loading libraries
+        EXTRA_SHARED_LIBS=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.8/extras/CUPTI/lib64/libcupti.so.11.8)
+        #copy cudnn headers as well, to ensure that cmake can find them inside
+        #the conda package
+        EXTRA_HEADERS=(/usr/local/cuda/include/cudnn*.h)
     fi
     if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
         TORCH_CUDA_ARCH_LIST="$OVERRIDE_TORCH_CUDA_ARCH_LIST"
@@ -109,7 +119,7 @@ python setup.py install
 
 # copy over needed dependent .so files over and tag them with their hash
 patched=()
-for filepath in "${DEPS_LIST[@]}"; do
+for filepath in "${EXTRA_SHARED_LIBS[@]}"; do
     filename=$(basename $filepath)
     destpath=$SP_DIR/torch/lib/$filename
     cp $filepath $destpath
@@ -124,10 +134,19 @@ for filepath in "${DEPS_LIST[@]}"; do
     echo "Copied $filepath to $patchedpath"
 done
 
+# copy headers corresponding to dependent .so files
+for filepath in "${EXTRA_HEADERS[@]}"; do
+    filename=$(basename $filepath)
+    destpath=$SP_DIR/torch/include/$filename
+    cp $filepath $destpath
+
+    echo "Copied $filepath to $patchedpath"
+done
+
 # run patchelf to fix the so names to the hashed names
-for ((i=0;i<${#DEPS_LIST[@]};++i)); do
+for ((i=0;i<${#EXTRA_SHARED_LIBS[@]};++i)); do
     find $SP_DIR/torch -name '*.so*' | while read sofile; do
-        origname="$(basename ${DEPS_LIST[i]})"
+        origname="$(basename ${EXTRA_SHARED_LIBS[i]})"
         patchedname=${patched[i]}
         set +e
         patchelf --print-needed $sofile | grep $origname 2>&1 >/dev/null
