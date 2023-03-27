@@ -97,10 +97,10 @@ function install_121 {
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
-    wget -q https://developer.download.nvidia.com/compute/redist/cudnn/v8.8.0/local_installers/12.0/cudnn-linux-x86_64-8.8.0.121_cuda12-archive.tar.xz -O cudnn-linux-x86_64-8.8.0.121_cuda12-archive.tar.xz
-    tar xf cudnn-linux-x86_64-8.8.0.121_cuda12-archive.tar.xz
-    cp -a cudnn-linux-x86_64-8.8.0.121_cuda12-archive/include/* /usr/local/cuda/include/
-    cp -a cudnn-linux-x86_64-8.8.0.121_cuda12-archive/lib/* /usr/local/cuda/lib64/
+    wget -q https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-8.8.1.3_cuda12-archive.tar.xz -O cudnn-linux-x86_64-8.8.1.3_cuda12-archive.tar.xz
+    tar xf cudnn-linux-x86_64-8.8.1.3_cuda12-archive.tar.xz
+    cp -a cudnn-linux-x86_64-8.8.1.3_cuda12-archive/include/* /usr/local/cuda/include/
+    cp -a cudnn-linux-x86_64-8.8.1.3_cuda12-archive/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_cudnn
     ldconfig
