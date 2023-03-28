@@ -1,7 +1,7 @@
 SHELL=/usr/bin/env bash
 
-DESIRED_CUDA ?= 11.6
-PACKAGE_NAME ?= magma-cuda116
+DESIRED_CUDA ?= 11.7
+PACKAGE_NAME ?= magma-cuda117
 CUDA_ARCH_LIST ?= -gencode arch=compute_37,code=sm_37 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86
 
 DOCKER_RUN = set -eou pipefail; docker run --rm -i \
@@ -14,14 +14,21 @@ DOCKER_RUN = set -eou pipefail; docker run --rm -i \
 	magma/build_magma.sh
 
 .PHONY: all
+all: magma-cuda121
 all: magma-cuda118
 all: magma-cuda117
-all: magma-cuda116
 
 .PHONY:
 clean:
 	$(RM) -r magma-*
 	$(RM) -r output
+
+.PHONY: magma-cuda121
+magma-cuda121: DESIRED_CUDA := 12.1
+magma-cuda121: PACKAGE_NAME := magma-cuda121
+magma-cuda121: CUDA_ARCH_LIST += -gencode arch=compute_90,code=sm_90
+magma-cuda121:
+	$(DOCKER_RUN)
 
 .PHONY: magma-cuda118
 magma-cuda118: DESIRED_CUDA := 11.8
@@ -36,8 +43,3 @@ magma-cuda117: PACKAGE_NAME := magma-cuda117
 magma-cuda117:
 	$(DOCKER_RUN)
 
-.PHONY: magma-cuda116
-magma-cuda116: DESIRED_CUDA := 11.6
-magma-cuda116: PACKAGE_NAME := magma-cuda116
-magma-cuda116:
-	$(DOCKER_RUN)

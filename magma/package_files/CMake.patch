@@ -1,0 +1,41 @@
+--- CMake.src	2023-03-28 00:54:32.407886936 -0700
++++ CMake.src	2023-03-28 00:50:44.109755496 -0700
+@@ -279,10 +279,10 @@
+ magmablas/zcaxpycp.cu
+ magmablas/zgeadd.cu
+ magmablas/zgeadd2.cu
+-magmablas/zgemm_fermi.cu
++#magmablas/zgemm_fermi.cu
+ magmablas/zgemm_reduce.cu
+ magmablas/zgemv_conj.cu
+-magmablas/zgemv_fermi.cu
++#magmablas/zgemv_fermi.cu
+ magmablas/zgerbt.cu
+ magmablas/zgerbt_kernels.cu
+ magmablas/zgetmatrix_transpose.cpp
+@@ -988,18 +988,18 @@
+ magmablas/sgeadd2.cu
+ magmablas/dgeadd2.cu
+ magmablas/cgeadd2.cu
+-magmablas/sgemm_fermi.cu
+-magmablas/dgemm_fermi.cu
+-magmablas/cgemm_fermi.cu
++#magmablas/sgemm_fermi.cu
++#magmablas/dgemm_fermi.cu
++#magmablas/cgemm_fermi.cu
+ magmablas/sgemm_reduce.cu
+ magmablas/dgemm_reduce.cu
+ magmablas/cgemm_reduce.cu
+ magmablas/sgemv_conj.cu
+ magmablas/dgemv_conj.cu
+ magmablas/cgemv_conj.cu
+-magmablas/sgemv_fermi.cu
+-magmablas/dgemv_fermi.cu
+-magmablas/cgemv_fermi.cu
++#magmablas/sgemv_fermi.cu
++#magmablas/dgemv_fermi.cu
++#magmablas/cgemv_fermi.cu
+ magmablas/sgerbt.cu
+ magmablas/dgerbt.cu
+ magmablas/cgerbt.cu
+
