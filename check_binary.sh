@@ -318,10 +318,6 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_example_cpp_with_incorrect_abi simple-torch-test
   fi
 else
-  # NS: TODO remove me once changes to pytorch circleci test script are landed
-  if [[ "$PACKAGE_TYPE" == 'conda' && "$(uname)" == 'Linux' ]]; then
-    pip install sympy
-  fi
   pushd /tmp
   python -c 'import torch'
   popd
