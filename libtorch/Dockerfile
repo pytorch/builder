@@ -44,10 +44,6 @@ ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
 RUN /opt/conda/bin/conda install -y cmake=3.18
 
-FROM cuda as cuda11.6
-RUN bash ./install_cuda.sh 11.6
-RUN bash ./install_magma.sh 11.6
-
 FROM cuda as cuda11.7
 RUN bash ./install_cuda.sh 11.7
 RUN bash ./install_magma.sh 11.7

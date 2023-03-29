@@ -21,12 +21,6 @@ set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%desired_cuda%
 set CUDA_BIN_PATH=%CUDA_PATH%\bin
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
 set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0;6.0;6.1;7.0;7.5;8.0;8.6
-if "%desired_cuda%" == "11.5" (
-    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
-)
-if "%desired_cuda%" == "11.6" (
-    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
-)
 if "%desired_cuda%" == "11.7" (
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
