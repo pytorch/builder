@@ -9,6 +9,7 @@ source:
      - thread_queue.patch
      - getrf_shfl.patch  # incorrect results for <7.0 arch
      - getrf_nbparam.patch  # fixes "too many resources requested for launch" error
+     - CMake.patch # removes fermi for CUDA12+
 
 build:
   number: 1
