@@ -65,9 +65,6 @@ set "CONDA_HOME=%CD%\conda"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
 set "CONDA_EXTRA_ARGS=cpuonly -c pytorch-nightly"
-if "%CUDA_VERSION%" == "116" (
-    set "CONDA_EXTRA_ARGS=pytorch-cuda=11.6 -c nvidia -c pytorch-nightly"
-)
 if "%CUDA_VERSION%" == "117" (
     set "CONDA_EXTRA_ARGS=pytorch-cuda=11.7 -c nvidia -c pytorch-nightly"
 )

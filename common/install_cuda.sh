@@ -120,7 +120,7 @@ function prune_117 {
     $NVPRUNE $GENCODE_CUDNN $CUDA_LIB_DIR/libcublasLt_static.a -o $CUDA_LIB_DIR/libcublasLt_static.a
 
     #####################################################################################
-    # CUDA 11.6 prune visual tools
+    # CUDA 11.7 prune visual tools
     #####################################################################################
     export CUDA_BASE="/usr/local/cuda-11.7/"
     rm -rf $CUDA_BASE/libnvvp $CUDA_BASE/nsightee_plugins $CUDA_BASE/nsight-compute-2022.2.0 $CUDA_BASE/nsight-systems-2022.1.3

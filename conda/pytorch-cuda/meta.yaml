@@ -12,14 +12,6 @@
 # https://conda.anaconda.org/pytorch/noarch/
 # https://conda.anaconda.org/pytorch/noarch/repodata.json
 {% set build = 3 %}
-{% set cuda_constraints=">=11.6,<11.7" %}
-{% set libcufft_constraints=">=10.7.0.55,<10.7.2.50" %}
-{% set libcublas_constraints=">=11.8.1.74,<11.10.1.25" %}
-{% set libcusolver_constraints=">=11.3.2.55,<11.3.5.50" %}
-{% set libcusparse_constraints=">=11.7.1.55,<11.7.3.50" %}
-{% set libnpp_constraints=">=11.6.0.55,<11.7.3.21" %}
-{% set libnvjpeg_constraints=">=11.6.0.55,<11.7.2.34" %}
-{% if version == '11.7' %}
 {% set cuda_constraints=">=11.7,<11.8" %}
 {% set libcufft_constraints=">=10.7.2.50,<10.9.0.58" %}
 {% set libcublas_constraints=">=11.10.1.25,<11.11.3.6" %}

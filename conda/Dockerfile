@@ -48,10 +48,6 @@ ENV CUDA_HOME=/usr/local/cuda-${CUDA_VERSION}
 # Make things in our path by default
 ENV PATH=/usr/local/cuda-${CUDA_VERSION}/bin:$PATH
 
-FROM cuda as cuda11.6
-RUN bash ./install_cuda.sh 11.6
-ENV DESIRED_CUDA=11.6
-
 FROM cuda as cuda11.7
 RUN bash ./install_cuda.sh 11.7
 ENV DESIRED_CUDA=11.7
@@ -70,7 +66,6 @@ ADD ./common/install_mnist.sh install_mnist.sh
 RUN bash ./install_mnist.sh
 
 FROM base as all_cuda
-COPY --from=cuda11.6  /usr/local/cuda-11.6 /usr/local/cuda-11.6
 COPY --from=cuda11.7  /usr/local/cuda-11.7 /usr/local/cuda-11.7
 COPY --from=cuda11.8  /usr/local/cuda-11.8 /usr/local/cuda-11.8
 COPY --from=cuda12.1  /usr/local/cuda-12.1 /usr/local/cuda-12.1
