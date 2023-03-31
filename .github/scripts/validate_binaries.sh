@@ -2,6 +2,7 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     curl ${MATRIX_INSTALLATION} -o libtorch.zip
     unzip libtorch.zip
 else
+
     #special case for Python 3.11
     if [[ ${MATRIX_PYTHON_VERSION} == '3.11' ]]; then
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION}
@@ -16,8 +17,6 @@ else
         conda deactivate
         conda env remove -n ${ENV_NAME}
     else
-
-
 
         # Special case Pypi installation package, only applicable to linux nightly CUDA 11.7 builds, wheel package
         if [[ ${TARGET_OS} == 'linux' && ${MATRIX_GPU_ARCH_VERSION} == '11.7' && ${MATRIX_PACKAGE_TYPE} == 'manywheel' && ${MATRIX_CHANNEL} != 'nightly' ]]; then
@@ -35,7 +34,32 @@ else
         conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
         conda activate ${ENV_NAME}
         INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
-        eval $INSTALLATION
+
+        if [[ ${MATRIX_PACKAGE_TYPE} == 'manywheel' ]]; then
+            export installation_log=$(eval $INSTALLATION)
+            export filedownload=$(echo "$installation_log" | grep Downloading.*torchaudio.* | grep -Eio '\bhttps://.*whl\b')
+            echo $filedownload
+            curl -O ${filedownload}
+            unzip -o torchaudio-2.0.*
+            export textdist=$(ls | grep -Ei "torchaudio.*dist-info")
+            while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
+            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
+            echo $match
+            [[ -z "$match" ]] && { echo "Torch is not Pinned in Audio!!!" ; exit 1; }
+
+            export filedownload=$(echo "$installation_log" | grep Downloading.*torchvision.* | grep -Eio '\bhttps://.*whl\b')
+            echo $filedownload
+            curl -O ${filedownload}
+            unzip -o torchvision-0.15.*
+            export textdist=$(ls | grep -Ei "torchvision.*dist-info")
+            while [ ! -f ./${textdist}/METADATA ]; do sleep 1; done
+            export match=$(cat ./${textdist}/METADATA | grep "torch (==2.0.0")
+            echo $match
+            [[ -z "$match" ]] && { echo "Torch is not Pinned in torchvision!!!" ; exit 1; }
+
+        else
+            eval $INSTALLATION
+        fi
 
         if [[ ${TARGET_OS} == 'linux' ]]; then
             export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
