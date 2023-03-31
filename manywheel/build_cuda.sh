@@ -56,14 +56,18 @@ fi
 
 cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
-TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
+TORCH_CUDA_ARCH_LIST="5.0;6.0;7.0;7.5;8.0;8.6"
 case ${CUDA_VERSION} in
+    12.2)
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};9.0"
+        EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
+        ;;
     11.8)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6;9.0"
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};3.7;9.0"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     11.[67])
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};3.7"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     *)
@@ -108,7 +112,77 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 fi
 
-if [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
+if [[ $CUDA_VERSION == "12.1" ]]; then
+    export USE_STATIC_CUDNN=0
+    # Try parallelizing nvcc as well
+    export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
+    DEPS_LIST=(
+        "$LIBGOMP_PATH"
+    )
+    DEPS_SONAME=(
+        "libgomp.so.1"
+    )
+
+    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+        echo "Bundling with cudnn and cublas."
+        DEPS_LIST+=(
+            "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn.so.8"
+            "/usr/local/cuda/lib64/libcublas.so.12"
+            "/usr/local/cuda/lib64/libcublasLt.so.12"
+            "/usr/local/cuda/lib64/libcudart.so.12"
+            "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+            "/usr/local/cuda/lib64/libnvrtc.so.12"
+            "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.1"
+        )
+        DEPS_SONAME+=(
+            "libcudnn_adv_infer.so.8"
+            "libcudnn_adv_train.so.8"
+            "libcudnn_cnn_infer.so.8"
+            "libcudnn_cnn_train.so.8"
+            "libcudnn_ops_infer.so.8"
+            "libcudnn_ops_train.so.8"
+            "libcudnn.so.8"
+            "libcublas.so.12"
+            "libcublasLt.so.12"
+            "libcudart.so.12"
+            "libnvToolsExt.so.1"
+            "libnvrtc.so.12"
+            "libnvrtc-builtins.so.12.1"
+        )
+    else
+        echo "Using nvidia libs from pypi."
+        CUDA_RPATHS=(
+            '$ORIGIN/../../nvidia/cublas/lib'
+            '$ORIGIN/../../nvidia/cuda_cupti/lib'
+            '$ORIGIN/../../nvidia/cuda_nvrtc/lib'
+            '$ORIGIN/../../nvidia/cuda_runtime/lib'
+            '$ORIGIN/../../nvidia/cudnn/lib'
+            '$ORIGIN/../../nvidia/cufft/lib'
+            '$ORIGIN/../../nvidia/curand/lib'
+            '$ORIGIN/../../nvidia/cusolver/lib'
+            '$ORIGIN/../../nvidia/cusparse/lib'
+            '$ORIGIN/../../nvidia/nccl/lib'
+            '$ORIGIN/../../nvidia/nvtx/lib'
+        )
+        CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
+        export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
+        export LIB_SO_RPATH=$CUDA_RPATHS':$ORIGIN'
+        export FORCE_RPATH="--force-rpath"
+        export USE_STATIC_NCCL=0
+        export USE_SYSTEM_NCCL=1
+        export ATEN_STATIC_CUDA=0
+        export USE_CUDA_STATIC_LINK=0
+        export USE_CUPTI_SO=1
+        export NCCL_INCLUDE_DIR="/usr/local/cuda/include/"
+        export NCCL_LIB_DIR="/usr/local/cuda/lib64/"
+    fi
+elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
     export USE_STATIC_CUDNN=0
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
