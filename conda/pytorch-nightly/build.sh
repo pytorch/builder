@@ -74,7 +74,7 @@ if [[ -n "$build_with_cuda" ]]; then
 	TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;9.0"
 	# for cuda 12.1 we use cudnn 8.8 and include all dynamic loading libraries
 	export USE_STATIC_CUDNN=0
-	DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-12.1/extras/CUPTI/lib64/libcupti.so.12
+	DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-12.1/extras/CUPTI/lib64/libcupti.so.12)
     fi
     if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
         TORCH_CUDA_ARCH_LIST="$OVERRIDE_TORCH_CUDA_ARCH_LIST"
