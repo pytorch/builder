@@ -299,12 +299,6 @@ else
     export CONDA_BUILD_EXTRA_ARGS=""
 fi
 
-if [[ "$DESIRED_PYTHON" == "3.11" ]]; then
-    # TODO: Remove me when numpy is available in default channel
-    # or copy numpy to pytorch channel
-    export CONDA_BUILD_EXTRA_ARGS="-c malfet ${CONDA_BUILD_EXTRA_ARGS}"
-fi
-
 # Build PyTorch with Gloo's TCP_TLS transport
 if [[ "$(uname)" == 'Linux' ]]; then
     export USE_GLOO_WITH_OPENSSL=1
