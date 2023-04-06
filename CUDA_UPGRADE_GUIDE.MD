@@ -91,7 +91,7 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 1. If the new CUDA version requires a new driver (see #1 sub-bullet), the CI and binaries would also need the new driver. Find the driver download [here](https://www.nvidia.com/en-us/drivers/unix/) and update the link like [so](https://github.com/pytorch/pytorch/commit/fcf8b712348f21634044a5d76a69a59727756357).
     1. Please check the Driver Version table in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
 2. Follow this [PR 81095](https://github.com/pytorch/pytorch/pull/81095) for steps 2-4 in this section.
-3. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/binaries_conda, ciflow/binaries_wheel, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
+3. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
 4. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
     - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict
@@ -110,9 +110,10 @@ the test has been run and is green.
 ## 9. Add the new version to torchvision and torchaudio CI.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
 propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
-1. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248)
-2. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067)
-3. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
+1. Add a change to a binary build matrix in test-infra repo [here](https://github.com/pytorch/test-infra/blob/main/tools/scripts/generate_binary_build_matrix.py#L29)
+2. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248)
+3. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067)
+4. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
 Congrats! PyTorch now has support for a new CUDA version and you made it happen!
