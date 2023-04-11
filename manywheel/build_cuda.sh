@@ -58,12 +58,12 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 
 TORCH_CUDA_ARCH_LIST="3.7;5.0;6.0;7.0"
 case ${CUDA_VERSION} in
-    11.[3567])
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
+    11.8)
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6;9.0"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
-    10.*)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
+    11.[67])
+        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};7.5;8.0;8.6"
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     *)
@@ -108,96 +108,7 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 fi
 
-if [[ $CUDA_VERSION == "10.2" ]]; then
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.10.2"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.10.2"
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so"
-    "/usr/local/cuda/lib64/libcublas.so.10"
-    "/usr/local/cuda/lib64/libcublasLt.so.10"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.10.2"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.10.2"
-    "libnvrtc-builtins.so"
-    "libcublas.so.10"
-    "libcublasLt.so.10"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "11.3" ]]; then
-export USE_STATIC_CUDNN=0
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.3, it links to 11.3.58
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.3"
-    "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn.so.8"
-    "/usr/local/cuda/lib64/libcublas.so.11"
-    "/usr/local/cuda/lib64/libcublasLt.so.11"
-    "$LIBGOMP_PATH"
-)
-
-DEPS_SONAME=(
-    "libcudart.so.11.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.11.2"
-    "libnvrtc-builtins.so.11.3"
-    "libcudnn_adv_infer.so.8"
-    "libcudnn_adv_train.so.8"
-    "libcudnn_cnn_infer.so.8"
-    "libcudnn_cnn_train.so.8"
-    "libcudnn_ops_infer.so.8"
-    "libcudnn_ops_train.so.8"
-    "libcudnn.so.8"
-    "libcublas.so.11"
-    "libcublasLt.so.11"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "11.5" ]]; then
-export USE_STATIC_CUDNN=0
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.5, it links to 11.5.50
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.5"
-    "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn.so.8"
-    "/usr/local/cuda/lib64/libcublas.so.11"
-    "/usr/local/cuda/lib64/libcublasLt.so.11"
-    "$LIBGOMP_PATH"
-)
-DEPS_SONAME=(
-    "libcudart.so.11.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.11.2"
-    "libnvrtc-builtins.so.11.5"
-    "libcudnn_adv_infer.so.8"
-    "libcudnn_adv_train.so.8"
-    "libcudnn_cnn_infer.so.8"
-    "libcudnn_cnn_train.so.8"
-    "libcudnn_ops_infer.so.8"
-    "libcudnn_ops_train.so.8"
-    "libcudnn.so.8"
-    "libcublas.so.11"
-    "libcublasLt.so.11"
-    "libgomp.so.1"
-)
-elif [[ $CUDA_VERSION == "11.6" ]]; then
+if [[ $CUDA_VERSION == "11.6" ]]; then
 export USE_STATIC_CUDNN=0
 DEPS_LIST=(
     "/usr/local/cuda/lib64/libcudart.so.11.0"
@@ -231,46 +142,99 @@ DEPS_SONAME=(
     "libcublasLt.so.11"
     "libgomp.so.1"
 )
-elif [[ $CUDA_VERSION == "11.7" ]]; then
-export USE_STATIC_CUDNN=0
-DEPS_LIST=(
-    "/usr/local/cuda/lib64/libcudart.so.11.0"
-    "/usr/local/cuda/lib64/libnvToolsExt.so.1"
-    "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake for 11.7, it links to 11.7.50
-    "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
-    "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
-    "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
-    "/usr/local/cuda/lib64/libcudnn.so.8"
-    "/usr/local/cuda/lib64/libcublas.so.11"
-    "/usr/local/cuda/lib64/libcublasLt.so.11"
-    "$LIBGOMP_PATH"
-)
-DEPS_SONAME=(
-    "libcudart.so.11.0"
-    "libnvToolsExt.so.1"
-    "libnvrtc.so.11.2"
-    "libnvrtc-builtins.so.11.7"
-    "libcudnn_adv_infer.so.8"
-    "libcudnn_adv_train.so.8"
-    "libcudnn_cnn_infer.so.8"
-    "libcudnn_cnn_train.so.8"
-    "libcudnn_ops_infer.so.8"
-    "libcudnn_ops_train.so.8"
-    "libcudnn.so.8"
-    "libcublas.so.11"
-    "libcublasLt.so.11"
-    "libgomp.so.1"
-)
+elif [[ $CUDA_VERSION == "11.7" || $CUDA_VERSION == "11.8" ]]; then
+    export USE_STATIC_CUDNN=0
+    # Try parallelizing nvcc as well
+    export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
+    DEPS_LIST=(
+        "$LIBGOMP_PATH"
+    )
+    DEPS_SONAME=(
+        "libgomp.so.1"
+    )
 
-# Try parallelizing nvcc as well
-export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
+    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+        echo "Bundling with cudnn and cublas."
+        DEPS_LIST+=(
+            "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
+            "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
+            "/usr/local/cuda/lib64/libcudnn.so.8"
+            "/usr/local/cuda/lib64/libcublas.so.11"
+            "/usr/local/cuda/lib64/libcublasLt.so.11"
+            "/usr/local/cuda/lib64/libcudart.so.11.0"
+            "/usr/local/cuda/lib64/libnvToolsExt.so.1"
+            "/usr/local/cuda/lib64/libnvrtc.so.11.2"    # this is not a mistake, it links to more specific cuda version
+        )
+        DEPS_SONAME+=(
+            "libcudnn_adv_infer.so.8"
+            "libcudnn_adv_train.so.8"
+            "libcudnn_cnn_infer.so.8"
+            "libcudnn_cnn_train.so.8"
+            "libcudnn_ops_infer.so.8"
+            "libcudnn_ops_train.so.8"
+            "libcudnn.so.8"
+            "libcublas.so.11"
+            "libcublasLt.so.11"
+            "libcudart.so.11.0"
+            "libnvToolsExt.so.1"
+            "libnvrtc.so.11.2"
+        )
+        if [[ $CUDA_VERSION == "11.7" ]]; then
+            DEPS_LIST+=(
+                "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.7"
+            )
+            DEPS_SONAME+=(
+                "libnvrtc-builtins.so.11.7"
+            )
+        fi
+        if [[ $CUDA_VERSION == "11.8" ]]; then
+            DEPS_LIST+=(
+                "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.8"
+            )
+            DEPS_SONAME+=(
+                "libnvrtc-builtins.so.11.8"
+            )
+        fi
+    else
+        echo "Using nvidia libs from pypi."
+        CUDA_RPATHS=(
+            '$ORIGIN/../../nvidia/cublas/lib'
+            '$ORIGIN/../../nvidia/cuda_cupti/lib'
+            '$ORIGIN/../../nvidia/cuda_nvrtc/lib'
+            '$ORIGIN/../../nvidia/cuda_runtime/lib'
+            '$ORIGIN/../../nvidia/cudnn/lib'
+            '$ORIGIN/../../nvidia/cufft/lib'
+            '$ORIGIN/../../nvidia/curand/lib'
+            '$ORIGIN/../../nvidia/cusolver/lib'
+            '$ORIGIN/../../nvidia/cusparse/lib'
+            '$ORIGIN/../../nvidia/nccl/lib'
+            '$ORIGIN/../../nvidia/nvtx/lib'
+        )
+        CUDA_RPATHS=$(IFS=: ; echo "${CUDA_RPATHS[*]}")
+        export C_SO_RPATH=$CUDA_RPATHS':$ORIGIN:$ORIGIN/lib'
+        export LIB_SO_RPATH=$CUDA_RPATHS':$ORIGIN'
+        export FORCE_RPATH="--force-rpath"
+        export USE_STATIC_NCCL=0
+        export USE_SYSTEM_NCCL=1
+        export ATEN_STATIC_CUDA=0
+        export USE_CUDA_STATIC_LINK=0
+        export USE_CUPTI_SO=1
+        export NCCL_INCLUDE_DIR="/usr/local/cuda/include/"
+        export NCCL_LIB_DIR="/usr/local/cuda/lib64/"
+    fi
 else
     echo "Unknown cuda version $CUDA_VERSION"
     exit 1
+fi
+
+# TODO: Remove me when Triton has a proper release channel
+if [[ $(uname) == "Linux" && -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+    TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
+    export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton==2.1.0+${TRITON_SHORTHASH}"
 fi
 
 # builder/test.sh requires DESIRED_CUDA to know what tests to exclude

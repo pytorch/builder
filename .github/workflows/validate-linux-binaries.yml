@@ -1,79 +1,58 @@
 name: Validate linux binaries
 
 on:
-  push:
-    branches:
-      main
-    paths:
-      - .github/workflows/validate-linux-binaries.yml
-  pull_request:
-    paths:
-      - .github/workflows/validate-linux-binaries.yml
+  workflow_call:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+
 jobs:
-  generate-conda-matrix:
+  generate-linux-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: conda
+      package-type: all
       os: linux
-      channel: nightly
-  generate-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+      channel: ${{ inputs.channel }}
+
+  linux:
+    needs: generate-linux-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    name: ${{ matrix.build_name }}
     with:
-      package-type: wheel
-      os: linux
-      channel: nightly
-  generate-libtorch-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: libtorch
-      os: linux
-      channel: nightly
-  validate-linux-binaries-conda:
-    needs: generate-conda-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary conda
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-  validate-linux-binaries-wheels:
-    needs: generate-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Validate binary wheel
-        uses: pytorch/builder/.github/actions/validate-binary@main
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-  validate-linux-libtorch-binaries:
-    needs: generate-libtorch-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: "ubuntu-20.04"
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
-    steps:
-      - name: Install pytorch and smoke test
-        env:
-          INSTALLATION: ${{ matrix.installation }}
-          ENV_NAME: conda-env-${{ github.run_id }}
-        run: |
-          sudo apt-get install unzip -y
-          set -ex
-          curl ${INSTALLATION} -o libtorch.zip
-          unzip libtorch.zip
+      runner: ${{ matrix.validation_runner }}
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: ${{ matrix.build_name }}
+      binary-matrix: ${{ toJSON(matrix) }}
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export TARGET_OS="linux"
+        eval "$(conda shell.bash hook)"
+        source ./.github/scripts/validate_binaries.sh

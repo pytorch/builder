@@ -371,15 +371,15 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
-        $PATCHELF_BIN --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
+        echo "Setting rpath of $sofile to ${C_SO_RPATH:-'$ORIGIN:$ORIGIN/lib'}"
+        $PATCHELF_BIN --set-rpath ${C_SO_RPATH:-'$ORIGIN:$ORIGIN/lib'} ${FORCE_RPATH:-} $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 
     # set RPATH of lib/ files to $ORIGIN
     find $PREFIX/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN'
-        $PATCHELF_BIN --set-rpath '$ORIGIN' $sofile
+        echo "Setting rpath of $sofile to ${LIB_SO_RPATH:-'$ORIGIN'}"
+        $PATCHELF_BIN --set-rpath ${LIB_SO_RPATH:-'$ORIGIN'} ${FORCE_RPATH:-} $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 
@@ -387,10 +387,10 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
     if [[ -e $record_file ]]; then
         echo "Generating new record file $record_file"
-        rm -f $record_file
+        : > "$record_file"
         # generate records for folders in wheel
         find * -type f | while read fname; do
-            echo $(make_wheel_record $fname) >>$record_file
+            make_wheel_record "$fname" >>"$record_file"
         done
     fi
 

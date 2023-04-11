@@ -1,0 +1,27 @@
+# Scheduled validation of the release binaries
+name: cron
+
+on:
+  schedule:
+    # At 3 am and 2 pm UTC (7 am and 8 pm PDT)
+    - cron: "0 3,14 * * *"
+  # Have the ability to trigger this job manually through the API
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-release-binaries.yml
+      - .github/workflows/validate-linux-binaries.yml
+      - .github/workflows/validate-windows-binaries.yml
+      - .github/workflows/validate-macos-binaries.yml
+      - .github/workflows/validate-macos-arm64-binaries.yml
+      - test/smoke_test/*
+
+jobs:
+  release:
+    uses: ./.github/workflows/validate-binaries.yml
+    with:
+      channel: release
+      os: all
+      limit-win-builds: enable

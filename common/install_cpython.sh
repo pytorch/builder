@@ -14,36 +14,34 @@ function check_var {
     fi
 }
 
-function lex_pyver {
-    # Echoes Python version string padded with zeros
-    # Thus:
-    # 3.2.1 -> 003002001
-    # 3     -> 003000000
-    echo $1 | awk -F "." '{printf "%03d%03d%03d", $1, $2, $3}'
-}
-
 function do_cpython_build {
     local py_ver=$1
     check_var $py_ver
-    local ucs_setting=$2
-    check_var $ucs_setting
     tar -xzf Python-$py_ver.tgz
     pushd Python-$py_ver
-    if [ "$ucs_setting" = "none" ]; then
-        unicode_flags=""
-        dir_suffix=""
-    else
-        local unicode_flags="--enable-unicode=$ucs_setting"
-        local dir_suffix="-$ucs_setting"
-    fi
-    local prefix="/opt/_internal/cpython-${py_ver}${dir_suffix}"
+
+    local prefix="/opt/_internal/cpython-${py_ver}"
     mkdir -p ${prefix}/lib
+    if [[ -n $(which patchelf) ]]; then
+        local shared_flags="--enable-shared"
+    else
+        local shared_flags="--disable-shared"
+    fi
+    if [[ -z  "${WITH_OPENSSL+x}" ]]; then
+        local openssl_flags=""
+    else
+        local openssl_flags="--with-openssl=${WITH_OPENSSL} --with-openssl-rpath=auto"
+    fi
 
     # -Wformat added for https://bugs.python.org/issue17547 on Python 2.6
-    CFLAGS="-Wformat" ./configure --prefix=${prefix} --disable-shared $unicode_flags > /dev/null
+    CFLAGS="-Wformat" ./configure --prefix=${prefix} ${openssl_flags} ${shared_flags} > /dev/null
 
     make -j40 > /dev/null
     make install > /dev/null
+
+    if [[ "${shared_flags}" == "--enable-shared" ]]; then
+        patchelf --set-rpath '$ORIGIN/../lib' ${prefix}/bin/python3
+    fi
 
     popd
     rm -rf Python-$py_ver
@@ -61,26 +59,15 @@ function do_cpython_build {
     ln -s ${prefix} /opt/python/${abi_tag}
 }
 
-
 function build_cpython {
     local py_ver=$1
     check_var $py_ver
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
-    # Only beta version of 3.11 is available right now
-    if [ "$py_ver" = "3.11.0" ]; then
-        py_ver=$py_ver"b1"
-    fi
     wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
-    if [ $(lex_pyver $py_ver) -lt $(lex_pyver 3.3) ]; then
-        do_cpython_build $py_ver ucs2
-        do_cpython_build $py_ver ucs4
-    else
-        do_cpython_build $py_ver none
-    fi
+    do_cpython_build $py_ver none
     rm -f Python-$py_ver.tgz
 }
-
 
 function build_cpythons {
     check_var $GET_PIP_URL
@@ -90,7 +77,6 @@ function build_cpythons {
     done
     rm -f get-pip.py
 }
-
 
 mkdir -p /opt/python
 mkdir -p /opt/_internal

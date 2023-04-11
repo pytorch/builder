@@ -1,80 +1,69 @@
-name: Validate binary images
+name: Validate Windows binary images
 
 on:
-  push:
-    branches:
-      main
-    paths:
-      - .github/workflows/validate-windows-binaries.yml
-  pull_request:
-    paths:
-      - .github/workflows/validate-windows-binaries.yml
+  workflow_call:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      limit-win-builds:
+        description: "Limit windows builds to single python/cuda config"
+        default: "disable"
+        type: string
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      limit-win-builds:
+        description: "Limit windows builds to single python/cuda config"
+        default: "disable"
+        required: false
+        type: string
+
 jobs:
-  generate-conda-matrix:
+  generate-windows-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: conda
+      package-type: all
       os: windows
-      channel: nightly
-  generate-wheel-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+      channel: ${{ inputs.channel }}
+      limit-win-builds: ${{ inputs.limit-win-builds }}
+
+  win:
+    needs: generate-windows-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-windows-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/windows_job.yml@main
+    name: ${{ matrix.build_name }}
     with:
-      package-type: wheel
-      os: windows
-      channel: nightly
-  generate-libtorch-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: libtorch
-      os: windows
-      channel: nightly
-  validate-windows-binaries-conda:
-    needs: generate-conda-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-conda-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Validate binary conda
-        uses: ./.github/actions/validate-windows-binary
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-  validate-windows-binaries-wheel:
-    needs: generate-wheel-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-wheel-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: ${{ matrix.validation_runner }}
-    steps:
-      - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
-      - name: Validate binary wheel
-        uses: ./.github/actions/validate-windows-binary
-        with:
-          gpu_arch_type: ${{ matrix.gpu_arch_type }}
-          gpu_arch_ver: ${{ matrix.gpu_arch_version }}
-          installation: ${{ matrix.installation }}
-          python_version: ${{ matrix.python_version }}
-  validate-linux-libtorch-binaries:
-    needs: generate-libtorch-matrix
-    strategy:
-      matrix:
-        ${{ fromJson(needs.generate-libtorch-matrix.outputs.matrix) }}
-      fail-fast: false
-    runs-on: "windows-2019"
-    env:
-      PYTHON_VERSION: ${{ matrix.python_version }}
-    steps:
-      - name: Install pytorch and smoke test
-        shell: powershell
-        run: |
-          $install = '${{ matrix.installation }}'
-          Invoke-WebRequest -Uri $install -OutFile 'libtorch.zip'
-          Expand-Archive -Force libtorch.zip .
+      runner: ${{ matrix.package_type == 'libtorch' && 'windows.4xlarge' || matrix.validation_runner }}
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: ${{ matrix.build_name }}
+      binary-matrix: ${{ toJSON(matrix) }}
+      timeout: 60
+      script: |
+        set -ex
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export TARGET_OS="windows"
+        source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
+        source ./.github/scripts/validate_binaries.sh

@@ -22,6 +22,19 @@ set -eux -o pipefail
 # libtorch package.
 
 
+if [[ -z ${DESIRED_PYTHON:-} ]]; then
+  export DESIRED_PYTHON=${MATRIX_PYTHON_VERSION:-}
+fi
+if [[ -z ${DESIRED_CUDA:-} ]]; then
+  export DESIRED_CUDA=${MATRIX_DESIRED_CUDA:-}
+fi
+if [[ -z ${DESIRED_DEVTOOLSET:-} ]]; then
+  export DESIRED_DEVTOOLSET=${MATRIX_DESIRED_DEVTOOLSET:-}
+fi
+if [[ -z ${PACKAGE_TYPE:-} ]]; then
+  export PACKAGE_TYPE=${MATRIX_PACKAGE_TYPE:-}
+fi
+
 # The install root depends on both the package type and the os
 # All MacOS packages use conda, even for the wheel packages.
 if [[ "$PACKAGE_TYPE" == libtorch ]]; then
@@ -38,7 +51,7 @@ else
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
 fi
 
-if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
+if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRED_CUDA" != *"rocm"* ]]; then
   # cu90, cu92, cu100, cu101
   if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
     CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
@@ -328,7 +341,7 @@ fi
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
   build_and_run_example_cpp check-torch-mkl
-else
+elif [[ "$(uname -m)" != "arm64" ]]; then
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
     echo "Checking that MKL is available"
     pushd /tmp
@@ -366,7 +379,7 @@ if [[ "$OSTYPE" == "msys" ]]; then
 fi
 
 # Test that CUDA builds are setup correctly
-if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
+if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRED_CUDA" != *"rocm"* ]]; then
   if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_and_run_example_cpp check-torch-cuda
   else
@@ -391,6 +404,9 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
 
     echo "Checking that basic CNN works"
     python ${TEST_CODE_DIR}/cnn_smoke.py
+
+    echo "Test that linalg works"
+    python -c "import torch;x=torch.rand(3,3,device='cuda');print(torch.linalg.svd(torch.mm(x.t(), x)))"
 
     popd
   fi # if libtorch
@@ -418,8 +434,8 @@ fi
 ###############################################################################
 # Check for C++ ABI compatibility between gcc7 and gcc9 compiled binaries
 ###############################################################################
-if [[ "$(uname)" == 'Linux' && ("$PACKAGE_TYPE" == 'conda' || "$PACKAGE_TYPE" == 'manywheel') ]]; then
+if [[ "$(uname)" == 'Linux' && ("$PACKAGE_TYPE" == 'conda' || "$PACKAGE_TYPE" == 'manywheel')]]; then
   pushd /tmp
-  python -c "import torch; exit(0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1011' else 1)"
+  python -c "import torch; exit(0 if torch.compiled_with_cxx11_abi() else (0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1011' else 1))"
   popd
 fi

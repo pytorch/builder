@@ -8,6 +8,7 @@ export PYTORCH_BUILD_VERSION=$PKG_VERSION
 export PYTORCH_BUILD_NUMBER=$PKG_BUILDNUM
 export USE_LLVM="/opt/llvm_no_cxx11_abi"
 export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
+export PACKAGE_TYPE="conda"
 
 # set OPENSSL_ROOT_DIR=/opt/openssl if it exists
 if [[ -e /opt/openssl ]]; then
@@ -51,41 +52,35 @@ if [[ -z "$USE_CUDA" || "$USE_CUDA" == 1 ]]; then
 fi
 if [[ -n "$build_with_cuda" ]]; then
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all"
-    export TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
+    TORCH_CUDA_ARCH_LIST="3.7+PTX;5.0"
     export USE_STATIC_CUDNN=1 # links cudnn statically (driven by tools/setup_helpers/cudnn.py)
 
-    if [[ $CUDA_VERSION == 10* ]]; then
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5"
-        DEPS_LIST=(/usr/local/cuda-10.2/extras/CUPTI/lib64/libcupti.so.10.2)
-    elif [[ $CUDA_VERSION == 11.3* ]]; then
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
-	      #for cuda 11.3 we use cudnn 8.3.2.44 https://docs.nvidia.com/deeplearning/cudnn/release-notes/rel_8.html
-        #which does not have single static libcudnn_static.a deliverable to link with
-        export USE_STATIC_CUDNN=0
-        #for cuda 11.3 include all dynamic loading libraries
-        DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.3/extras/CUPTI/lib64/libcupti.so.11.3)
-    elif [[ $CUDA_VERSION == 11.5* ]]; then
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
-        #for cuda 11.5 we use cudnn 8.3.2.44 https://docs.nvidia.com/deeplearning/cudnn/release-notes/rel_8.html
-        #which does not have single static libcudnn_static.a deliverable to link with
-        export USE_STATIC_CUDNN=0
-        #for cuda 11.5 include all dynamic loading libraries
-        DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.5/extras/CUPTI/lib64/libcupti.so.11.5)
-    elif [[ $CUDA_VERSION == 11.6* ]]; then
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
+    if [[ $CUDA_VERSION == 11.6* ]]; then
+        TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
         #for cuda 11.5 we use cudnn 8.3.2.44 https://docs.nvidia.com/deeplearning/cudnn/release-notes/rel_8.html
         #which does not have single static libcudnn_static.a deliverable to link with
         export USE_STATIC_CUDNN=0
         #for cuda 11.5 include all dynamic loading libraries
         DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.6/extras/CUPTI/lib64/libcupti.so.11.6)
     elif [[ $CUDA_VERSION == 11.7* ]]; then
-        export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
+        TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6"
         #for cuda 11.7 we use cudnn 8.5
         #which does not have single static libcudnn_static.a deliverable to link with
         export USE_STATIC_CUDNN=0
         #for cuda 11.7 include all dynamic loading libraries
         DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.7/extras/CUPTI/lib64/libcupti.so.11.7)
+    elif [[ $CUDA_VERSION == 11.8* ]]; then
+	TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;6.0;6.1;7.0;7.5;8.0;8.6;9.0"
+	#for cuda 11.8 we use cudnn 8.7
+	#which does not have single static libcudnn_static.a deliverable to link with
+	export USE_STATIC_CUDNN=0
+	#for cuda 11.8 include all dynamic loading libraries
+	DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.8 /usr/local/cuda-11.8/extras/CUPTI/lib64/libcupti.so.11.8)
     fi
+    if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
+        TORCH_CUDA_ARCH_LIST="$OVERRIDE_TORCH_CUDA_ARCH_LIST"
+    fi
+    export TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST"
     export NCCL_ROOT_DIR=/usr/local/cuda
     export USE_STATIC_NCCL=1  # links nccl statically (driven by tools/setup_helpers/nccl.py, some of the NCCL cmake files such as FindNCCL.cmake and gloo/FindNCCL.cmake)
 

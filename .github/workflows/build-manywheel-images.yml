@@ -7,12 +7,14 @@ on:
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/Dockerfile_cxx11-abi
       - manywheel/build_docker.sh
       - 'common/*'
   pull_request:
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/Dockerfile_cxx11-abi
       - 'common/*'
       - manywheel/build_docker.sh
 
@@ -21,20 +23,20 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_ID: ${{ secrets.DOCKER_ID }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' }}
+  WITH_PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
 jobs:
   build-docker-cuda:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        cuda_version: ["11.7", "11.6", "11.5", "11.3", "10.2"]
+        cuda_version: ["11.8", "11.7", "11.6"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
     steps:
       - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
@@ -44,16 +46,16 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-rocm:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        rocm_version: ["5.1.1", "5.2"]
+        rocm_version: ["5.3", "5.4.2"]
     env:
       GPU_ARCH_TYPE: rocm
       GPU_ARCH_VERSION: ${{ matrix.rocm_version }}
     steps:
       - name: Checkout PyTorch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
@@ -63,10 +65,25 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout PyTorch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
+      - name: Build Docker Image
+        run: |
+          manywheel/build_docker.sh
+  build-docker-cpu-cxx11-abi:
+    runs-on: ubuntu-22.04
+    env:
+      GPU_ARCH_TYPE: cpu-cxx11-abi
+    steps:
+      - name: Checkout PyTorch
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then

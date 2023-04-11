@@ -19,19 +19,19 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_ID: ${{ secrets.DOCKER_ID }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' }}
+  WITH_PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
 jobs:
   build-docker:
-    runs-on: linux.2xlarge
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        cuda_version: ["10.2", "11.3", "11.5", "11.6", "11.7", "cpu"]
+        cuda_version: ["11.6", "11.7", "11.8", "cpu"]
     env:
       CUDA_VERSION: ${{ matrix.cuda_version }}
     steps:
       - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then

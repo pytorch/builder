@@ -42,19 +42,7 @@ ENV CUDA_HOME /usr/local/cuda
 FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
-RUN /opt/conda/bin/conda install -y cmake=3.14
-
-FROM cuda as cuda10.2
-RUN bash ./install_cuda.sh 10.2
-RUN bash ./install_magma.sh 10.2
-
-FROM cuda as cuda11.3
-RUN bash ./install_cuda.sh 11.3
-RUN bash ./install_magma.sh 11.3
-
-FROM cuda as cuda11.5
-RUN bash ./install_cuda.sh 11.5
-RUN bash ./install_magma.sh 11.5
+RUN /opt/conda/bin/conda install -y cmake=3.18
 
 FROM cuda as cuda11.6
 RUN bash ./install_cuda.sh 11.6
@@ -63,6 +51,10 @@ RUN bash ./install_magma.sh 11.6
 FROM cuda as cuda11.7
 RUN bash ./install_cuda.sh 11.7
 RUN bash ./install_magma.sh 11.7
+
+FROM cuda as cuda11.8
+RUN bash ./install_cuda.sh 11.8
+RUN bash ./install_magma.sh 11.8
 
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
@@ -77,23 +69,13 @@ RUN apt-get update -y && \
     apt-get install python -y && \
     apt-get clean
 
-FROM rocm as rocm5.2
-RUN ROCM_VERSION=5.2 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.4.2
+RUN ROCM_VERSION=5.4.2 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
-FROM rocm as rocm5.1.3
-RUN ROCM_VERSION=5.1.3 bash ./install_rocm.sh && rm install_rocm.sh
-RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
-
-FROM rocm as rocm5.1.1
-RUN ROCM_VERSION=5.1.1 bash ./install_rocm.sh && rm install_rocm.sh
-RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
-
-FROM rocm as rocm5.1
-RUN ROCM_VERSION=5.1 bash ./install_rocm.sh && rm install_rocm.sh
+FROM rocm as rocm5.3
+RUN ROCM_VERSION=5.3 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 

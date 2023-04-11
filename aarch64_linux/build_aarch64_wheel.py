@@ -4,7 +4,7 @@
 # To generate binaries for the release follow these steps:
 # 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
 # 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
-# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.7 --branch <RCtag>
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --branch <RCtag>
 
 
 import boto3
@@ -15,11 +15,11 @@ import time
 from typing import Dict, List, Optional, Tuple, Union
 
 
-
 # AMI images for us-east-1, change the following based on your ~/.aws/config
 os_amis = {
-    'ubuntu18_04': "ami-0f2b111fdc1647918",  # login_name: ubuntu
-    'ubuntu20_04': "ami-0ea142bd244023692",  # login_name: ubuntu
+    'ubuntu18_04': "ami-078eece1d8119409f",  # login_name: ubuntu
+    'ubuntu20_04': "ami-052eac90edaa9d08f",  # login_name: ubuntu
+    'ubuntu22_04': "ami-0c6c29c5125214c77",  # login_name: ubuntu
     'redhat8': "ami-0698b90665a2ddcf1",  # login_name: ec2-user
 }
 ubuntu18_04_ami = os_amis['ubuntu18_04']
@@ -128,7 +128,7 @@ class RemoteHost:
         assert self.container_id is not None
         docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
         p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE)
-        p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
+        p.communicate(input=" ".join(["source .bashrc && "] + self._split_cmd(args)).encode("utf-8"))
         rc = p.wait()
         if rc != 0:
             raise subprocess.CalledProcessError(rc, docker_cmd)
@@ -139,7 +139,7 @@ class RemoteHost:
         assert self.container_id is not None
         docker_cmd = self._gen_ssh_prefix() + ['docker', 'exec', '-i', self.container_id, 'bash']
         p = subprocess.Popen(docker_cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-        (out, err) = p.communicate(input=" ".join(["source .bashrc;"] + self._split_cmd(args)).encode("utf-8"))
+        (out, err) = p.communicate(input=" ".join(["source .bashrc && "] + self._split_cmd(args)).encode("utf-8"))
         rc = p.wait()
         if rc != 0:
             raise subprocess.CalledProcessError(rc, docker_cmd, output=out, stderr=err)
@@ -211,8 +211,12 @@ def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
         # Python-3.6 EOLed and not compatible with conda-4.11
         install_condaforge(host, suffix="download/4.10.3-10/Miniforge3-4.10.3-10-Linux-aarch64.sh")
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
+    elif python_version == "3.11":
+        install_condaforge(host, suffix="download/4.11.0-4/Miniforge3-4.11.0-4-Linux-aarch64.sh")
+        # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.8.0 -c malfet")
     else:
-        install_condaforge(host)
+        install_condaforge(host, suffix="download/4.11.0-4/Miniforge3-4.11.0-4-Linux-aarch64.sh")
         # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.5.0")
 
@@ -221,16 +225,16 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
-    host.run_cmd(f"pushd OpenBLAS; make {make_flags} -j8; sudo make {make_flags} install; popd; rm -rf OpenBLAS")
+    host.run_cmd(f"pushd OpenBLAS && make {make_flags} -j8 && sudo make {make_flags} install && popd && rm -rf OpenBLAS")
 
 
-def build_FFTW(host: RemoteHost, git_clone_flags: str = "") -> None:
-    print("Building FFTW3")
-    host.run_cmd("sudo apt-get install -y ocaml ocamlbuild autoconf automake indent libtool fig2dev texinfo")
-    # TODO: fix a version to build
-    # TODO: consider adding flags --host=arm-linux-gnueabi --enable-single --enable-neon CC=arm-linux-gnueabi-gcc -march=armv7-a -mfloat-abi=softfp
-    host.run_cmd(f"git clone https://github.com/FFTW/fftw3 {git_clone_flags}")
-    host.run_cmd("pushd fftw3; sh bootstrap.sh; make -j8; sudo make install; popd")
+def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
+    print('Building Arm Compute Library')
+    acl_install_dir="${HOME}/acl"
+    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native"
+    host.run_cmd(f"mkdir {acl_install_dir}")
+    host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
+    host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags} build_dir={acl_install_dir}/build")
 
 
 def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
@@ -250,7 +254,7 @@ def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
 
 
 def checkout_repo(host: RemoteHost, *,
-                  branch: str = "master",
+                  branch: str = "main",
                   url: str,
                   git_clone_flags: str,
                   mapping: Dict[str, Tuple[str, str]]) -> Optional[str]:
@@ -261,14 +265,19 @@ def checkout_repo(host: RemoteHost, *,
         host.run_cmd(f"git clone {url} -b {tag} {git_clone_flags}")
         return mapping[prefix][0]
 
-    host.run_cmd(f"git clone {url} {git_clone_flags}")
+    # Map master to main
+    if branch == "master" and url.rsplit("/")[-1] in ['vision', 'text', 'audio', 'data']:
+        branch = "main"
+
+    host.run_cmd(f"git clone {url} -b {branch} {git_clone_flags}")
     return None
 
 
 def build_torchvision(host: RemoteHost, *,
-                      branch: str = "master",
+                      branch: str = "main",
                       use_conda: bool = True,
-                      git_clone_flags: str) -> str:
+                      git_clone_flags: str,
+                      run_smoke_tests: bool = True) -> str:
     print('Checking out TorchVision repo')
     build_version = checkout_repo(host,
                                   branch=branch,
@@ -284,31 +293,82 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.10.2": ("0.11.3", "rc1"),
                                       "v1.11.0": ("0.12.0", "rc1"),
                                       "v1.12.0": ("0.13.0", "rc4"),
+                                      "v1.12.1": ("0.13.1", "rc6"),
+                                      "v1.13.0": ("0.14.0", "rc4"),
+                                      "v1.13.1": ("0.14.1", "rc2"),
+                                      "v2.0.0": ("0.15.1", "rc2"),
                                   })
-    print('Building TorchVision wheel')
+    print("Building TorchVision wheel")
+
+    # Please note libnpg and jpeg are required to build image.so extension
+    if use_conda:
+        host.run_cmd("conda install -y libpng jpeg")
+        # Remove .so files to force static linking
+        host.run_cmd("rm miniforge3/lib/libpng.so miniforge3/lib/libpng16.so miniforge3/lib/libjpeg.so")
+        # And patch setup.py to include libz dependency for libpng
+        host.run_cmd(['sed -i -e \'s/image_link_flags\.append("png")/image_link_flags += ["png", "z"]/\' vision/setup.py'])
+
     build_vars = ""
-    if branch == 'nightly':
+    if branch == "nightly":
         version = host.check_output(["if [ -f vision/version.txt ]; then cat vision/version.txt; fi"]).strip()
         if len(version) == 0:
             # In older revisions, version was embedded in setup.py
             version = host.check_output(["grep", "\"version = '\"", "vision/setup.py"]).strip().split("'")[1][:-2]
-        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_date = host.check_output("cd vision && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
-    host.run_cmd(f"cd vision; {build_vars} python3 setup.py bdist_wheel")
+    host.run_cmd(f"cd vision && {build_vars} python3 setup.py bdist_wheel")
     vision_wheel_name = host.list_dir("vision/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('vision', 'dist', vision_wheel_name))
 
     print('Copying TorchVision wheel')
     host.download_wheel(os.path.join('vision', 'dist', vision_wheel_name))
+    if run_smoke_tests:
+        host.run_cmd(f"pip3 install {os.path.join('vision', 'dist', vision_wheel_name)}")
+        host.run_cmd("python3 vision/test/smoke_test.py")
     print("Delete vision checkout")
     host.run_cmd("rm -rf vision")
 
     return vision_wheel_name
+
+
+def build_torchdata(host: RemoteHost, *,
+                    branch: str = "master",
+                    use_conda: bool = True,
+                    git_clone_flags: str = "") -> str:
+    print('Checking out TorchData repo')
+    git_clone_flags += " --recurse-submodules"
+    build_version = checkout_repo(host,
+                                  branch=branch,
+                                  url="https://github.com/pytorch/data",
+                                  git_clone_flags=git_clone_flags,
+                                  mapping={
+                                      "v1.13.1": ("0.5.1", ""),
+                                      "v2.0.0": ("0.6.0", "rc5"),
+                                  })
+    print('Building TorchData wheel')
+    build_vars = ""
+    if branch == 'nightly':
+        version = host.check_output(["if [ -f data/version.txt ]; then cat data/version.txt; fi"]).strip()
+        build_date = host.check_output("cd data && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
+    elif build_version is not None:
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
+    if host.using_docker():
+        build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
+
+    host.run_cmd(f"cd data && {build_vars} python3 setup.py bdist_wheel")
+    wheel_name = host.list_dir("data/dist")[0]
+    embed_libgomp(host, use_conda, os.path.join('data', 'dist', wheel_name))
+
+    print('Copying TorchData wheel')
+    host.download_wheel(os.path.join('data', 'dist', wheel_name))
+
+    return wheel_name
 
 
 def build_torchtext(host: RemoteHost, *,
@@ -328,19 +388,23 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.10.2": ("0.11.2", "rc1"),
                                       "v1.11.0": ("0.12.0", "rc1"),
                                       "v1.12.0": ("0.13.0", "rc2"),
+                                      "v1.12.1": ("0.13.1", "rc5"),
+                                      "v1.13.0": ("0.14.0", "rc3"),
+                                      "v1.13.1": ("0.14.1", "rc1"),
+                                      "v2.0.0": ("0.15.1", "rc2"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["if [ -f text/version.txt ]; then cat text/version.txt; fi"]).strip()
-        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_date = host.check_output("cd text && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
-    host.run_cmd(f"cd text; {build_vars} python3 setup.py bdist_wheel")
+    host.run_cmd(f"cd text && {build_vars} python3 setup.py bdist_wheel")
     wheel_name = host.list_dir("text/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('text', 'dist', wheel_name))
 
@@ -367,19 +431,23 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.10.2": ("0.10.2", "rc1"),
                                       "v1.11.0": ("0.11.0", "rc1"),
                                       "v1.12.0": ("0.12.0", "rc3"),
+                                      "v1.12.1": ("0.12.1", "rc5"),
+                                      "v1.13.0": ("0.13.0", "rc4"),
+                                      "v1.13.1": ("0.13.1", "rc2"),
+                                      "v2.0.0": ("2.0.1", "rc3"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
     if branch == 'nightly':
         version = host.check_output(["grep", "\"version = '\"", "audio/setup.py"]).strip().split("'")[1][:-2]
-        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_date = host.check_output("cd audio && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         build_vars += f"BUILD_VERSION={version}.dev{build_date}"
     elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        build_vars += f"BUILD_VERSION={build_version} PYTORCH_VERSION={branch[1:].split('-')[0]}"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
-    host.run_cmd(f"cd audio; {build_vars} python3 setup.py bdist_wheel")
+    host.run_cmd(f"cd audio && {build_vars} python3 setup.py bdist_wheel")
     wheel_name = host.list_dir("audio/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('audio', 'dist', wheel_name))
 
@@ -390,9 +458,9 @@ def build_torchaudio(host: RemoteHost, *,
 
 
 def configure_system(host: RemoteHost, *,
-                     compiler="gcc-8",
-                     use_conda=True,
-                     python_version="3.8") -> None:
+                     compiler: str = "gcc-8",
+                     use_conda: bool = True,
+                     python_version: str = "3.8") -> None:
     if use_conda:
         install_condaforge_python(host, python_version)
 
@@ -402,7 +470,7 @@ def configure_system(host: RemoteHost, *,
         host.run_cmd("sudo apt-get install -y ninja-build g++ git cmake gfortran unzip")
     else:
         host.run_cmd("yum install -y sudo")
-        host.run_cmd("conda install -y ninja")
+        host.run_cmd("conda install -y ninja scons")
 
     if not use_conda:
         host.run_cmd("sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
@@ -419,23 +487,39 @@ def configure_system(host: RemoteHost, *,
         host.run_cmd("sudo pip3 install numpy")
 
 
+def build_domains(host: RemoteHost, *,
+                  branch: str = "master",
+                  use_conda: bool = True,
+                  git_clone_flags: str = "") -> Tuple[str, str, str, str]:
+    vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    audio_wheel_name = build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    data_wheel_name = build_torchdata(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    text_wheel_name = build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    return (vision_wheel_name, audio_wheel_name, data_wheel_name, text_wheel_name)
+
+
 def start_build(host: RemoteHost, *,
-                branch="master",
-                compiler="gcc-8",
-                use_conda=True,
-                python_version="3.8",
-                shallow_clone=True) -> Tuple[str, str]:
+                branch: str = "master",
+                compiler: str = "gcc-8",
+                use_conda: bool = True,
+                python_version: str = "3.8",
+                pytorch_only: bool = False,
+                pytorch_build_number: Optional[str] = None,
+                shallow_clone: bool = True,
+                enable_mkldnn: bool = False) -> Tuple[str, str, str, str, str]:
     git_clone_flags = " --depth 1 --shallow-submodules" if shallow_clone else ""
     if host.using_docker() and not use_conda:
         print("Auto-selecting conda option for docker images")
         use_conda = True
+    if not host.using_docker():
+        print("Disable mkldnn for host builds")
+        enable_mkldnn = False
 
     configure_system(host,
                      compiler=compiler,
                      use_conda=use_conda,
                      python_version=python_version)
     build_OpenBLAS(host, git_clone_flags)
-    # build_FFTW(host, git_clone_flags)
 
     if host.using_docker():
         print("Move libgfortant.a into a standard location")
@@ -452,19 +536,36 @@ def start_build(host: RemoteHost, *,
     host.run_cmd(f"git clone --recurse-submodules -b {branch} https://github.com/pytorch/pytorch {git_clone_flags}")
 
     print('Building PyTorch wheel')
+    build_opts = ""
+    if pytorch_build_number is not None:
+        build_opts += f" --build-number {pytorch_build_number}"
     # Breakpad build fails on aarch64
     build_vars = "USE_BREAKPAD=0 "
     if branch == 'nightly':
-        build_date = host.check_output("cd pytorch ; git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_date = host.check_output("cd pytorch && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
         version = host.check_output("cat pytorch/version.txt").strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
-    if branch.startswith("v1."):
+    if branch.startswith("v1.") or branch.startswith("v2."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
-    host.run_cmd(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+    if enable_mkldnn:
+        build_ArmComputeLibrary(host, git_clone_flags)
+        print("build pytorch with mkldnn+acl backend")
+        build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
+        host.run_cmd(f"cd pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary:$HOME/acl && {build_vars} python3 setup.py bdist_wheel{build_opts}")
+        print('Repair the wheel')
+        pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
+        host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib && auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")
+        print('replace the original wheel with the repaired one')
+        pytorch_repaired_wheel_name = host.list_dir("wheelhouse")[0]
+        host.run_cmd(f"cp $HOME/wheelhouse/{pytorch_repaired_wheel_name} $HOME/pytorch/dist/{pytorch_wheel_name}")
+    else:
+        print("build pytorch without mkldnn backend")
+        host.run_cmd(f"cd pytorch && {build_vars} python3 setup.py bdist_wheel{build_opts}")
+
     print("Deleting build folder")
-    host.run_cmd("cd pytorch; rm -rf build")
+    host.run_cmd("cd pytorch && rm -rf build")
     pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('pytorch', 'dist', pytorch_wheel_name))
     print('Copying the wheel')
@@ -473,11 +574,11 @@ def start_build(host: RemoteHost, *,
     print('Installing PyTorch wheel')
     host.run_cmd(f"pip3 install pytorch/dist/{pytorch_wheel_name}")
 
-    vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    build_torchaudio(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
-    build_torchtext(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
+    if pytorch_only:
+        return (pytorch_wheel_name, None, None, None, None)
+    domain_wheels = build_domains(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
 
-    return pytorch_wheel_name, vision_wheel_name
+    return (pytorch_wheel_name, *domain_wheels)
 
 
 embed_library_script = """
@@ -602,10 +703,11 @@ def parse_arguments():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
-    parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu18_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10'], default=None)
+    parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu20_04')
+    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10', '3.11'], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
+    parser.add_argument("--pytorch-only", action="store_true")
     parser.add_argument("--keep-running", action="store_true")
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
@@ -613,6 +715,8 @@ def parse_arguments():
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     parser.add_argument("--use-torch-from-pypi", action="store_true")
+    parser.add_argument("--pytorch-build-number", type=str, default=None)
+    parser.add_argument("--disable-mkldnn", action="store_true")
     return parser.parse_args()
 
 
@@ -639,7 +743,7 @@ if __name__ == '__main__':
             check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
 
     # Starting the instance
-    inst = start_instance(key_name, ami=ami)
+    inst = start_instance(key_name, ami=ami, instance_type=args.instance_type)
     instance_name = f'{args.key_name}-{args.os}'
     if args.python_version is not None:
         instance_name += f'-py{args.python_version}'
@@ -673,14 +777,17 @@ if __name__ == '__main__':
                          python_version=python_version)
         print("Installing PyTorch wheel")
         host.run_cmd("pip3 install torch")
-        build_torchvision(host,
-                          branch=args.branch,
-                          git_clone_flags=" --depth 1 --shallow-submodules")
+        build_domains(host,
+                      branch=args.branch,
+                      git_clone_flags=" --depth 1 --shallow-submodules")
     else:
         start_build(host,
                     branch=args.branch,
                     compiler=args.compiler,
-                    python_version=python_version)
+                    python_version=python_version,
+                    pytorch_only=args.pytorch_only,
+                    pytorch_build_number=args.pytorch_build_number,
+                    enable_mkldnn=not args.disable_mkldnn)
     if not args.keep_running:
         print(f'Waiting for instance {inst.id} to terminate')
         inst.terminate()

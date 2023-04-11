@@ -16,18 +16,16 @@ IF "%BUILD_VISION%" == "" (
     )
 )
 
-IF NOT EXIST "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
-    echo Visual Studio 2017 C++ BuildTools is required to compile PyTorch on Windows
+if not exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
+    echo Visual Studio %VC_YEAR% C++ BuildTools is required to compile PyTorch on Windows
     exit /b 1
 )
 
-IF "%VC_YEAR%" == "" set VC_YEAR=2019
-
-set VC_VERSION_LOWER=16
-set VC_VERSION_UPPER=17
-IF "%VC_YEAR%" == "2017" (
-    set VC_VERSION_LOWER=15
-    set VC_VERSION_UPPER=16
+set VC_VERSION_LOWER=17
+set VC_VERSION_UPPER=18
+if "%VC_YEAR%" == "2019" (
+    set VC_VERSION_LOWER=16
+    set VC_VERSION_UPPER=17
 )
 
 if NOT "%VS15INSTALLDIR%" == "" if exist "%VS15INSTALLDIR%\VC\Auxiliary\Build\vcvarsall.bat" (

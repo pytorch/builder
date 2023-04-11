@@ -1,7 +1,40 @@
-{% set build = 0 %}
+# Package to manage cuda version in PyTorch.
+#
+# Windows anaconda packages are packaged differently,
+# All dlls are kept within *-dev packages hence we need
+# include the dev packages for Windows see:
+# https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
+#
+# Please note: Build number should be advanced with
+# every deployment. After the deployment to production
+# use following links to validate the correctness of
+# deployment:
+# https://conda.anaconda.org/pytorch/noarch/
+# https://conda.anaconda.org/pytorch/noarch/repodata.json
+{% set build = 3 %}
 {% set cuda_constraints=">=11.6,<11.7" %}
+{% set libcufft_constraints=">=10.7.0.55,<10.7.2.50" %}
+{% set libcublas_constraints=">=11.8.1.74,<11.10.1.25" %}
+{% set libcusolver_constraints=">=11.3.2.55,<11.3.5.50" %}
+{% set libcusparse_constraints=">=11.7.1.55,<11.7.3.50" %}
+{% set libnpp_constraints=">=11.6.0.55,<11.7.3.21" %}
+{% set libnvjpeg_constraints=">=11.6.0.55,<11.7.2.34" %}
 {% if version == '11.7' %}
 {% set cuda_constraints=">=11.7,<11.8" %}
+{% set libcufft_constraints=">=10.7.2.50,<10.9.0.58" %}
+{% set libcublas_constraints=">=11.10.1.25,<11.11.3.6" %}
+{% set libcusolver_constraints=">=11.3.5.50,<11.4.1.48" %}
+{% set libcusparse_constraints=">=11.7.3.50,<11.7.5.86" %}
+{% set libnpp_constraints=">=11.7.3.21,<11.8.0.86" %}
+{% set libnvjpeg_constraints=">=11.7.2.34,<11.9.0.86" %}
+{% elif version == '11.8' %}
+{% set cuda_constraints=">=11.8,<12.0" %}
+{% set libcufft_constraints=">=10.9.0.58,<11.0.0.21" %}
+{% set libcublas_constraints=">=11.11.3.6,<12.0.1.189" %}
+{% set libcusolver_constraints=">=11.4.1.48,<11.4.2.57" %}
+{% set libcusparse_constraints=">=11.7.5.86,<12.0.0.76" %}
+{% set libnpp_constraints=">=11.8.0.86,<12.0.0.30" %}
+{% set libnvjpeg_constraints=">=11.9.0.86,<12.0.0.28" %}
 {% endif %}
 
 package:
@@ -9,33 +42,29 @@ package:
   version: {{ version }}
 build:
   number: {{ build }}
-  noarch: generic
 requirements:
   run:
-    - cuda={{ version }}
-  run_constrained:
-    - cuda-cccl {{ cuda_constraints }}
-    - cuda-command-line-tools {{ cuda_constraints }}
-    - cuda-compiler {{ cuda_constraints }}
-    - cuda-cudart {{ cuda_constraints }}
-    - cuda-cudart-dev {{ cuda_constraints }}
-    - cuda-cuobjdump {{ cuda_constraints }}
-    - cuda-cupti {{ cuda_constraints }}
-    - cuda-cuxxfilt {{ cuda_constraints }}
-    - cuda-driver-dev {{ cuda_constraints }}
     - cuda-libraries {{ cuda_constraints }}
-    - cuda-libraries-dev {{ cuda_constraints }}
-    - cuda-cudaart-dev {{ cuda_constraints }}
-    - cuda-nvcc {{ cuda_constraints }}
-    - cuda-nvml-dev {{ cuda_constraints }}
-    - cuda-nvprune {{ cuda_constraints }}
-    - cuda-nvrtc {{ cuda_constraints }}
-    - cuda-nvrtc-dev {{ cuda_constraints }}
     - cuda-nvtx {{ cuda_constraints }}
+    - libnvjpeg {{ libnvjpeg_constraints }}
+    - cuda-cudart {{ cuda_constraints }}
+    - cuda-cupti {{ cuda_constraints }}
+    - cuda-nvrtc {{ cuda_constraints }}
     - cuda-runtime {{ cuda_constraints }}
-    - cuda-toolkit {{ cuda_constraints }}
-    - cuda-tools {{ cuda_constraints }}
-  # None, pytorch should depend on pytorch-cuda
+    - libcufft {{ libcufft_constraints }}
+    - libcublas {{ libcublas_constraints }}
+    - libcusolver {{ libcusolver_constraints }}
+    - libcusparse {{ libcusparse_constraints }}
+    - libnpp {{ libnpp_constraints }}
+    - cuda-libraries-dev {{ cuda_constraints }} # [win64]
+    - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win64]
+    - cuda-cudart-dev {{ cuda_constraints }} # [win64]
+    - cuda-nvrtc-dev {{ cuda_constraints }} # [win64]
+    - libcufft-dev {{ libcufft_constraints }} # [win64]
+    - libcublas-dev {{ libcublas_constraints }} # [win64]
+    - libcusolver-dev {{ libcusolver_constraints }} # [win64]
+    - libcusparse-dev {{ libcusparse_constraints }} # [win64]
+    - libnpp-dev {{ libnpp_constraints }} # [win64]
 test:
   commands:
     - echo "pytorch-cuda metapackage is created."

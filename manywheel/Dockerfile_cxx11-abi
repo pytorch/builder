@@ -13,7 +13,6 @@ RUN yum -y update
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which zlib-devel
 RUN yum install -y autoconf automake make cmake gdb gcc gcc-c++
 
-
 FROM base as openssl
 ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
