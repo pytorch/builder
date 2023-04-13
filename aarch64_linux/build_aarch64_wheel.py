@@ -226,11 +226,12 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
 
 def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
-    acl_install_dir="${HOME}/acl"
-    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native"
-    host.run_cmd(f"mkdir {acl_install_dir}")
+    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 build=native"
     host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
-    host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags} build_dir={acl_install_dir}/build")
+    host.run_cmd(['sed -i -e \'s/"armv8.2-a"/"armv8-a"/g\' ComputeLibrary/SConscript'])
+    host.run_cmd(['sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct'])
+    host.run_cmd(['sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json'])
+    host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags}")
 
 
 def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
@@ -549,7 +550,7 @@ def start_build(host: RemoteHost, *,
         build_ArmComputeLibrary(host, git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
-        host.run_cmd(f"cd pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary:$HOME/acl && {build_vars} python3 setup.py bdist_wheel{build_opts}")
+        host.run_cmd(f"cd pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary && {build_vars} python3 setup.py bdist_wheel{build_opts}")
         print('Repair the wheel')
         pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
         host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib && auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")
