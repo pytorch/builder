@@ -42,6 +42,9 @@ requirements:
     {% endif %}
     - libuv # [win]
     - intel-openmp # [win]
+    # llvm-openmp 16 leads to wrong processor affinity for fork child, see #99625.
+    # Before a decent fix, force llvm-openmp version <16.
+    - llvm-openmp <16 # [linux]
     - typing_extensions
     - sympy
     - filelock
