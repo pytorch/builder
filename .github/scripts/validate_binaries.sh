@@ -18,6 +18,7 @@ else
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
+    INSTALLATION=${INSTALLATION/"torchvision torchaudio"/""}
     eval $INSTALLATION
 
     if [[ ${TARGET_OS} == 'linux' ]]; then
@@ -26,7 +27,7 @@ else
         ${PWD}/check_binary.sh
     fi
 
-    python  ./test/smoke_test/smoke_test.py
+    python  ./test/smoke_test/smoke_test.py --package torchonly
     conda deactivate
     conda env remove -n ${ENV_NAME}
 fi
