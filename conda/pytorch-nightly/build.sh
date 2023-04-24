@@ -29,7 +29,7 @@ export INSTALL_TEST=0 # dont install test binaries into site-packages
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export USE_LLVM=$CMAKE_PREFIX_PATH
     export LLVM_DIR=$USE_LLVM/lib/cmake/llvm
-    MACOSX_DEPLOYMENT_TARGET=10.9 \
+    MACOSX_DEPLOYMENT_TARGET=11.0 \
         CXX=clang++ \
         CC=clang \
         python setup.py install
