@@ -11,7 +11,7 @@
 # deployment:
 # https://conda.anaconda.org/pytorch/noarch/
 # https://conda.anaconda.org/pytorch/noarch/repodata.json
-{% set build = 4 %}
+{% set build = 5 %}
 {% set cuda_constraints=">=11.7,<11.8" %}
 {% set libcufft_constraints=">=10.7.2.50,<10.9.0.58" %}
 {% set libcublas_constraints=">=11.10.1.25,<11.11.3.6" %}
@@ -35,6 +35,7 @@
 {% set libcusparse_constraints=">=12.0.2.55,<12.1.0.106" %}
 {% set libnpp_constraints=">=12.0.2.50,<12.1.0.40" %}
 {% set libnvjpeg_constraints=">=12.1.0.39,<12.2.0.2" %}
+{% set libnvjitlink_constraints=">=12.1.105,<12.2.0" %}
 {% endif %}
 
 package:
@@ -55,6 +56,9 @@ requirements:
     - libcublas {{ libcublas_constraints }}
     - libcusolver {{ libcusolver_constraints }}
     - libcusparse {{ libcusparse_constraints }}
+{% if version >= '12.1' %}
+    - libnvjitlink {{ libnvjitlink_constraints }}
+{% endif %}
     - libnpp {{ libnpp_constraints }}
     - cuda-libraries-dev {{ cuda_constraints }} # [win64]
     - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win64]
