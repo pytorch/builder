@@ -294,6 +294,7 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.13.0": ("0.14.0", "rc4"),
                                       "v1.13.1": ("0.14.1", "rc2"),
                                       "v2.0.0": ("0.15.1", "rc2"),
+                                      "v2.0.1": ("0.15.2", "rc2"),
                                   })
     print("Building TorchVision wheel")
 
@@ -346,6 +347,7 @@ def build_torchdata(host: RemoteHost, *,
                                   mapping={
                                       "v1.13.1": ("0.5.1", ""),
                                       "v2.0.0": ("0.6.0", "rc5"),
+                                      "v2.0.1": ("0.6.1", "rc1"),
                                   })
     print('Building TorchData wheel')
     build_vars = ""
@@ -389,6 +391,7 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.13.0": ("0.14.0", "rc3"),
                                       "v1.13.1": ("0.14.1", "rc1"),
                                       "v2.0.0": ("0.15.1", "rc2"),
+                                      "v2.0.1": ("0.15.2", "rc2"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -432,6 +435,7 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.13.0": ("0.13.0", "rc4"),
                                       "v1.13.1": ("0.13.1", "rc2"),
                                       "v2.0.0": ("2.0.1", "rc3"),
+                                      "v2.0.1": ("2.0.2", "rc2"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
@@ -444,7 +448,10 @@ def build_torchaudio(host: RemoteHost, *,
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
-    host.run_cmd(f"cd audio && {build_vars} python3 setup.py bdist_wheel")
+    host.run_cmd(f"cd audio && export FFMPEG_ROOT=$(pwd)/third_party/ffmpeg && export USE_FFMPEG=1 \
+        && ./packaging/ffmpeg/build.sh \
+        && {build_vars} python3 setup.py bdist_wheel")
+
     wheel_name = host.list_dir("audio/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('audio', 'dist', wheel_name))
 
