@@ -41,6 +41,7 @@ PACKAGE_ALLOW_LIST = {
     "cmake",
     "colorama",
     "filelock",
+    "fsspec",
     "idna",
     "Jinja2",
     "lit",
