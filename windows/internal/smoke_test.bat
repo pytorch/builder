@@ -2,9 +2,6 @@ set SRC_DIR=%~dp0
 
 pushd %SRC_DIR%\..
 
-if not "%CUDA_VERSION%" == "cpu" call internal\driver_update.bat
-if errorlevel 1 exit /b 1
-
 set "ORIG_PATH=%PATH%"
 
 setlocal EnableDelayedExpansion
