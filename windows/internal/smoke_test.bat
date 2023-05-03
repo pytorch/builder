@@ -140,10 +140,10 @@ goto end
 :libtorch
 echo "install and test libtorch"
 
-if "%VC_YEAR%" == "2019" powershell internal\vs2019_install.ps1
-if "%VC_YEAR%" == "2022" powershell internal\vs2022_install.ps1
+REM if "%VC_YEAR%" == "2019" powershell internal\vs2019_install.ps1
+REM if "%VC_YEAR%" == "2022" powershell internal\vs2022_install.ps1
 
-if ERRORLEVEL 1 exit /b 1
+REM if ERRORLEVEL 1 exit /b 1
 
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *-latest.zip') do 7z x "%%i" -otmp
 if ERRORLEVEL 1 exit /b 1
