@@ -152,10 +152,10 @@ pushd tmp\libtorch
 
 set VC_VERSION_LOWER=17
 set VC_VERSION_UPPER=18
-IF "%VC_YEAR%" == "2019" (
-    set VC_VERSION_LOWER=16
-    set VC_VERSION_UPPER=17
-)
+REM IF "%VC_YEAR%" == "2019" (
+REM     set VC_VERSION_LOWER=16
+REM     set VC_VERSION_UPPER=17
+REM )
 
 for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [%VC_VERSION_LOWER%^,%VC_VERSION_UPPER%^) -property installationPath`) do (
     if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
