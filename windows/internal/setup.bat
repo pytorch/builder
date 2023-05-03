@@ -75,10 +75,6 @@ IF "%DEBUG%" == "" (
     set LIBTORCH_PREFIX=libtorch-win-%VARIANT%-debug
 )
 
-:: remove files to save space.
-rmdir /s /q "C:/Program Files/NVIDIA GPU Computing Toolkit/"
-rmdir /s /q "C:/Program Files (x86)/Microsoft Visual Studio/"
-
 7z a -tzip "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" libtorch\*
 :: Cleanup raw data to save space
 rmdir /s /q libtorch

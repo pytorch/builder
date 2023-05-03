@@ -51,6 +51,6 @@ if (($exitCode -ne 0) -and ($exitCode -ne 3010)) {
     }
     Start-Process "${PWD}\Collect.exe" -NoNewWindow -Wait -PassThru
     New-Item -Path "C:\w\build-results" -ItemType "directory" -Force
-    Copy-Item -Path "C:\Users\circleci\AppData\Local\Temp\vslogs.zip" -Destination "C:\w\build-results\"
+    Copy-Item -Path "C:\Users\${env:USERNAME}\AppData\Local\Temp\vslogs.zip" -Destination "C:\w\build-results\"
     exit 1
 }
