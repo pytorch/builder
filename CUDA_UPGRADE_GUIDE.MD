@@ -111,8 +111,8 @@ the test has been run and is green.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
 propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
 1. Add a change to a binary build matrix in test-infra repo [here](https://github.com/pytorch/test-infra/blob/main/tools/scripts/generate_binary_build_matrix.py#L29)
-2. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248)
-3. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067)
+2. A code sample for torchvision: [PR 7533](https://github.com/pytorch/vision/pull/7533)
+3. A code sample for torchaudio: [PR 3284](https://github.com/pytorch/audio/pull/3284)
 4. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
