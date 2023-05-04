@@ -1,7 +1,11 @@
 @echo off
 
-:: The conda and wheels jobs are seperated on Windows, so we don't need to clone again.
+:: The conda and wheels jobs are separated on Windows, so we don't need to clone again.
 if exist "%NIGHTLIES_PYTORCH_ROOT%" (
+    :: Attempt to fix infinite copy of ittapi recursive symlinks on non-ephemeral runners
+    if exist pytorch (
+      rmdir /s /q pytorch
+    )
     robocopy "%NIGHTLIES_PYTORCH_ROOT%" pytorch\ /e /np /nfl
     cd pytorch
 )
