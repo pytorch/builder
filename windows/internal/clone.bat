@@ -6,7 +6,8 @@ if exist "%NIGHTLIES_PYTORCH_ROOT%" (
     if exist pytorch (
       rmdir /s /q pytorch
     )
-    robocopy "%NIGHTLIES_PYTORCH_ROOT%" pytorch\ /e /np /nfl
+    :: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
+    robocopy "%NIGHTLIES_PYTORCH_ROOT%" pytorch\ /e /np /nfl /sl
     cd pytorch
 )
 if exist "%NIGHTLIES_PYTORCH_ROOT%" goto submodule
