@@ -20,7 +20,7 @@ miopen_rpm=$(ls *.rpm)
 rpm2cpio ${miopen_rpm} | cpio -idmv 
 
 # Copy libMIOpen.so.1 over existing
-source_file=$(ls opt/rocm-*/lib/libMIOpen.so.1.0*)
+source_file=$(ls opt/rocm*/lib/libMIOpen.so.1.0*)
 dest_file=$(ls /opt/rocm-${ROCM_VERSION}*/lib/libMIOpen.so.1.0*)
 if [ -e ${source_file} ] && [ -e ${dest_file} ]; then
   echo "Source .so: ${source_file}"
