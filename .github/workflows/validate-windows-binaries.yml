@@ -66,4 +66,8 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="windows"
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
+        if [[ ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
+          ./windows/internal/driver_update.bat
+        fi
+
         source ./.github/scripts/validate_binaries.sh
