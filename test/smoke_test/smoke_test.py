@@ -27,12 +27,14 @@ MODULES = [
         "repo": "https://github.com/pytorch/vision.git",
         "smoke_test": "python ./vision/test/smoke_test.py",
         "extension": "extension",
+        "version": "0.15.0"
     },
     {
         "name": "torchaudio",
         "repo": "https://github.com/pytorch/audio.git",
         "smoke_test": "python ./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
         "extension": "_extension",
+        "version": "2.0.0"
     },
 ]
 
@@ -60,6 +62,7 @@ def check_version(package: str) -> None:
             raise RuntimeError(
                 f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
             )
+
 
 def check_nightly_binaries_date(package: str) -> None:
     from datetime import datetime, timedelta
@@ -114,6 +117,13 @@ def smoke_test_cuda(package: str) -> None:
                 version = imported_module.extension._check_cuda_version()
             else:
                 version = imported_module._extension._check_cuda_version()
+
+            if not imported_module.__version__.startswith(module['version']):
+                raise RuntimeError(
+                    f"Version {module['name']}  mismatch, expected {module['version']} for channel {channel}. But its {imported_module.__version__}"
+                )
+
+
             print(f"{module['name']} CUDA: {version}")
 
     if torch.cuda.is_available():
@@ -229,13 +239,14 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
-    check_version(options.package)
+
     smoke_test_conv2d()
     smoke_test_linalg()
 
     if options.package == "all":
         smoke_test_modules()
 
+    check_version(options.package)
     smoke_test_cuda(options.package)
 
 
