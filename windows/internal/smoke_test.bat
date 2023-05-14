@@ -44,7 +44,11 @@ del python-amd64.exe
 curl --retry 3 -kL "%PYTHON_INSTALLER_URL%" --output python-amd64.exe
 if errorlevel 1 exit /b 1
 
-start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 TargetDir=%CD%\Python
+:: According to https://docs.python.org/3/using/windows.html, setting PrependPath to 1 will prepend
+:: the installed Python to PATH system-wide. Even calling set PATH=%ORIG_PATH% later on won't make
+:: a change. As the builder directory will be removed after the smoke test, all subsequent non-binary
+:: jobs will fail to find any Python executable there
+start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=0 Include_test=0 TargetDir=%CD%\Python
 if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
