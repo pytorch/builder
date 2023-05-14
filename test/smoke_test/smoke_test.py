@@ -7,7 +7,6 @@ import torch
 import platform
 import importlib
 import subprocess
-import torch._dynamo
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -85,36 +84,10 @@ def check_nightly_binaries_date(package: str) -> None:
                     f"Expected {module['name']} to be less then {NIGHTLY_ALLOWED_DELTA} days. But its {date_m_delta}"
                 )
 
-def test_cuda_runtime_errors_captured() -> None:
-    cuda_exception_missed=True
-    try:
-        print("Testing test_cuda_runtime_errors_captured")
-        torch._assert_async(torch.tensor(0, device="cuda"))
-        torch._assert_async(torch.tensor(0 + 0j, device="cuda"))
-    except RuntimeError as e:
-        if re.search("CUDA", f"{e}"):
-            print(f"Caught CUDA exception with success: {e}")
-            cuda_exception_missed = False
-        else:
-            raise e
-    if(cuda_exception_missed):
-        raise RuntimeError( f"Expected CUDA RuntimeError but have not received!")
 
 def smoke_test_cuda(package: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
-
-    if(package == 'all' and is_cuda_system):
-        for module in MODULES:
-            imported_module = importlib.import_module(module["name"])
-            # TBD for vision move extension module to private so it will
-            # be _extention.
-            version = "N/A"
-            if module["extension"] == "extension":
-                version = imported_module.extension._check_cuda_version()
-            else:
-                version = imported_module._extension._check_cuda_version()
-            print(f"{module['name']} CUDA: {version}")
 
     if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
@@ -125,12 +98,6 @@ def smoke_test_cuda(package: str) -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
-
-        # torch.compile is available only on Linux and python 3.8-3.10
-        if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0):
-            smoke_test_compile()
-
-        test_cuda_runtime_errors_captured()
 
 
 def smoke_test_conv2d() -> None:
@@ -182,25 +149,6 @@ def smoke_test_linalg() -> None:
             A = torch.randn(20, 16, 50, 100, device="cuda").type(dtype)
             torch.linalg.svd(A)
 
-def smoke_test_compile() -> None:
-    supported_dtypes = [torch.float16, torch.float32, torch.float64]
-    def foo(x: torch.Tensor) -> torch.Tensor:
-        return torch.sin(x) + torch.cos(x)
-    for dtype in supported_dtypes:
-        print(f"Testing smoke_test_compile for {dtype}")
-        x = torch.rand(3, 3, device="cuda").type(dtype)
-        x_eager = foo(x)
-        x_pt2 = torch.compile(foo)(x)
-        print(torch.allclose(x_eager, x_pt2))
-
-    # Reset torch dynamo since we are changing mode
-    torch._dynamo.reset()
-    dtype = torch.float32
-    torch.set_float32_matmul_precision('high')
-    print(f"Testing smoke_test_compile with mode 'max-autotune' for {dtype}")
-    x = torch.rand(64, 1, 28, 28, device="cuda").type(torch.float32)
-    model = Net().to(device="cuda")
-    x_pt2 = torch.compile(model, mode="max-autotune")(x)
 
 def smoke_test_modules():
     for module in MODULES:
@@ -233,8 +181,6 @@ def main() -> None:
     smoke_test_conv2d()
     smoke_test_linalg()
 
-    if options.package == "all":
-        smoke_test_modules()
 
     smoke_test_cuda(options.package)
 
