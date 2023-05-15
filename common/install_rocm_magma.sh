@@ -12,8 +12,11 @@ MKLROOT=${MKLROOT:-/opt/intel}
 # "install" hipMAGMA into /opt/rocm/magma by copying after build
 git clone https://bitbucket.org/icl/magma.git
 pushd magma
-# fix for magma_queue memory leak issue
-git checkout c62d700d880c7283b33fb1d615d62fc9c7f7ca21
+if [[ $PYTORCH_BRANCH == "release/1.10.1" ]]; then
+    git checkout magma_ctrl_launch_bounds
+else
+    git checkout 28592a7170e4b3707ed92644bf4a689ed600c27f
+fi
 cp make.inc-examples/make.inc.hip-gcc-mkl make.inc
 echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
 # TODO (1)
