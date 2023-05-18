@@ -156,6 +156,7 @@ COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BAS
 FROM cpu_final as rocm_final
 ARG ROCM_VERSION=3.7
 ARG PYTORCH_ROCM_ARCH
+ARG PYTORCH_BRANCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 # Install ROCm
 ADD ./common/install_rocm.sh install_rocm.sh
