@@ -101,7 +101,7 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 
 ## 8. Add the new CUDA version to OSS CI.
 Testing the new version in CI is crucial for finding regressions and should be done ASAP along with the next step (I am simply putting this one first as it is usually easier).
-1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.5**: [PR 68745](https://github.com/pytorch/pytorch/pull/68745) for Linux and [PR 69377](https://github.com/pytorch/pytorch/pull/69377) for Windows, and **code reference for 11.3** where we just replaced verbatim yaml and updated magma for conda for Linux: [PR 57223 for Windows](https://github.com/pytorch/pytorch/pull/57223) and [PR 57222 for Linux](https://github.com/pytorch/pytorch/pull/57222)
+1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.7**: [PR 93406](https://github.com/pytorch/pytorch/pull/93406).
 2. IMPORTANT NOTE: the CI is not always automatically triggered when you edit the workflow files! Ensure that the new CI job for the new CUDA version is showing up in the PR signal box.
 If it is not there, make sure you add the correct ciflow label (ciflow/periodic, for example) to trigger the test. Just because the CI is green on your pull request does NOT mean
 the test has been run and is green.
