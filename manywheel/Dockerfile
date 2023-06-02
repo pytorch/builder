@@ -153,19 +153,40 @@ RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 
-FROM cpu_final as rocm_final
+### Special target for ROCm for building magma and miopen from source ahead of time.
+### For this target, GPU_IMAGE is rocm/centos-7:${ROCM_VERSION}-complete
+FROM ${GPU_IMAGE} as rocm_prebuild
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
 ARG ROCM_VERSION=3.7
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
-# Install ROCm
-ADD ./common/install_rocm.sh install_rocm.sh
-RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
+# Install ROCm --- not needed, GPU_IMAGE contains full rocm install
+#ADD ./common/install_rocm.sh install_rocm.sh
+#RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
+# Install patched libdrm
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 # cmake3 is needed for the MIOpen build
 RUN ln -sf /usr/local/bin/cmake /usr/bin/cmake3
-### The following is now performed beforehand in a new GPU_IMAGE with magma and miopen preinstalled
-#ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
-#RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
-#ADD ./common/install_miopen.sh install_miopen.sh
-#RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
+# Install magma
+COPY --from=intel /opt/intel /opt/intel
+ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+RUN rm -rf /opt/intel
+# Install custom miopen
+# cmake is already installed inside the rocm base image, so remove if present
+RUN rpm -e cmake || true
+# cmake-3.18.4 from pip
+RUN yum install -y python3-pip && \
+    python3 -mpip install cmake==3.18.4 && \
+    ln -s /usr/local/bin/cmake /usr/bin/cmake
+RUN yum install -y autoconf aclocal automake make
+ADD ./common/install_miopen.sh install_miopen.sh
+RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
+
+### Final target for ROCm. Assumes ./manywheel/build_docker_rocm_prebuild.sh has already been run.
+### For this target, GPU_IMAGE is rocm/centos-7:${ROCM_VERSION}-magma-miopen-staging
+FROM cpu_final as rocm_final
+
