@@ -154,7 +154,7 @@ COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BAS
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 
 ### Special target for ROCm for building magma and miopen from source ahead of time.
-### For this target, GPU_IMAGE is rocm/centos-7:${ROCM_VERSION}-complete
+### For this target, GPU_IMAGE is rocm/dev-centos-7:${ROCM_VERSION}-complete
 FROM ${GPU_IMAGE} as rocm_prebuild
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
