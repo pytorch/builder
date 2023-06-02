@@ -142,7 +142,7 @@ RUN rpm -e cmake || true
 # cmake-3.18.4 from pip
 RUN yum install -y python3-pip && \
     python3 -mpip install cmake==3.18.4 && \
-    ln -s /usr/local/bin/cmake /usr/bin/cmake
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
 
 # ninja
 RUN yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
@@ -168,8 +168,6 @@ ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 # Install patched libdrm
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-# cmake3 is needed for the MIOpen build
-RUN ln -sf /usr/local/bin/cmake /usr/bin/cmake3
 # Install magma
 COPY --from=intel /opt/intel /opt/intel
 ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
@@ -181,7 +179,9 @@ RUN rpm -e cmake || true
 # cmake-3.18.4 from pip
 RUN yum install -y python3-pip && \
     python3 -mpip install cmake==3.18.4 && \
-    ln -s /usr/local/bin/cmake /usr/bin/cmake
+    ln -sf /usr/local/bin/cmake /usr/bin/cmake
+# cmake3 is needed for the MIOpen build
+RUN ln -sf /usr/local/bin/cmake /usr/bin/cmake3
 RUN yum install -y autoconf aclocal automake make
 ADD ./common/install_miopen.sh install_miopen.sh
 RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
