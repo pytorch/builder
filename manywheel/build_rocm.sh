@@ -78,6 +78,7 @@ ROCM_SO_FILES=(
     "libhipblas.so"
     "libhipfft.so"
     "libhiprand.so"
+    "libhipsolver.so"
     "libhipsparse.so"
     "libhsa-runtime64.so"
     "libamd_comgr.so"
