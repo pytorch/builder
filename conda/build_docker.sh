@@ -26,11 +26,21 @@ case ${CUDA_VERSION} in
     ;;
 esac
 
+case $(uname -m) in
+  aarch64)
+    BASE_IMAGE=centos:7
+    ;;
+  *)
+    BASE_IMAGE=nvidia/cuda:9.2-devel-centos7
+    ;;
+esac
+
 (
   set -x
   docker build \
     --target final \
     --build-arg "BASE_TARGET=${BASE_TARGET}" \
+    --build-arg "BASE_IMAGE=${BASE_IMAGE}" \
     --build-arg "CUDA_VERSION=${CUDA_VERSION}" \
     --build-arg "DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}" \
     -t "pytorch/conda-builder:${DOCKER_TAG}" \
