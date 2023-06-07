@@ -60,9 +60,10 @@ FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 ENV MKLROOT /opt/intel
-ADD ./common/install_rocm.sh install_rocm.sh
+# No need to install ROCm as base docker image should have full ROCm install
+#ADD ./common/install_rocm.sh install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
-#ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
+ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 # gfortran and python needed for building magma from source for ROCm
 RUN apt-get update -y && \
     apt-get install gfortran -y && \
@@ -70,14 +71,14 @@ RUN apt-get update -y && \
     apt-get clean
 
 FROM rocm as rocm5.4.2
-RUN ROCM_VERSION=5.4.2 bash ./install_rocm.sh && rm install_rocm.sh
+#RUN ROCM_VERSION=5.4.2 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-#RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM rocm as rocm5.5
-RUN ROCM_VERSION=5.5 bash ./install_rocm.sh && rm install_rocm.sh
+#RUN ROCM_VERSION=5.5 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-#RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final
 # Install LLVM
