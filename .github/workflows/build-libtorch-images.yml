@@ -44,7 +44,7 @@ jobs:
         run: |
           libtorch/build_docker.sh
   build-docker-rocm:
-    runs-on: linux.12x.large
+    runs-on: linux.12xlarge
     strategy:
       matrix:
         rocm_version: ["5.4.2", "5.5"]
