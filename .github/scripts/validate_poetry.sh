@@ -12,7 +12,8 @@ if [[ ${MATRIX_CHANNEL} != "release" ]]; then
     # Installing poetry from our custom repo. We need to configure it before use and disable authentication
     export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
     poetry source add --priority=explicit domains "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
-    poetry source add --priority=explicit pytorch "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
+    poetry source add --priority=supplemental pytorch-nightly "https://download.pytorch.org/whl/${MATRIX_CHANNEL}"
+    poetry source add --priority=supplemental pytorch "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
     poetry --quiet add --source pytorch torch
     poetry --quiet add --source domains torchvision torchaudio
 else
