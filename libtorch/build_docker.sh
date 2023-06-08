@@ -25,9 +25,9 @@ case ${GPU_ARCH_TYPE} in
         DOCKER_GPU_BUILD_ARG=""
         ;;
     rocm)
-        BASE_TARGET=rocm${GPU_ARCH_VERSION}
+        BASE_TARGET=rocm
         DOCKER_TAG=rocm${GPU_ARCH_VERSION}
-        GPU_IMAGE=rocm/dev-ubuntu-20.04:${GPU_ARCH_VERSION}-magma
+        GPU_IMAGE=rocm/dev-ubuntu-20.04:${GPU_ARCH_VERSION}-complete
         PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908;gfx90a;gfx1030;gfx1100"
         ROCM_REGEX="([0-9]+)\.([0-9]+)[\.]?([0-9]*)"
         if [[ $GPU_ARCH_VERSION =~ $ROCM_REGEX ]]; then

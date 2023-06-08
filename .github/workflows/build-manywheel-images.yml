@@ -46,7 +46,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-rocm:
-    runs-on: ubuntu-22.04
+    runs-on: linux.12xlarge
     strategy:
       matrix:
         rocm_version: ["5.4.2", "5.5"]
