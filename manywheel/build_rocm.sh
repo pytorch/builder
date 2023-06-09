@@ -78,16 +78,13 @@ ROCM_SO_FILES=(
     "libhipblas.so"
     "libhipfft.so"
     "libhiprand.so"
+    "libhipsolver.so"
     "libhipsparse.so"
     "libhsa-runtime64.so"
     "libamd_comgr.so"
     "libmagma.so"
     "librccl.so"
     "librocblas.so"
-    "librocfft-device-0.so"
-    "librocfft-device-1.so"
-    "librocfft-device-2.so"
-    "librocfft-device-3.so" 
     "librocfft.so"
     "librocm_smi64.so"   
     "librocrand.so"
@@ -96,6 +93,13 @@ ROCM_SO_FILES=(
     "libroctracer64.so"
     "libroctx64.so"
 )
+
+if [[ $ROCM_INT -lt 50500 ]]; then
+    ROCM_SO_FILES+=("librocfft-device-0.so")
+    ROCM_SO_FILES+=("librocfft-device-1.so")
+    ROCM_SO_FILES+=("librocfft-device-2.so")
+    ROCM_SO_FILES+=("librocfft-device-3.so")
+fi
 
 if [[ $ROCM_INT -ge 50400 ]]; then
     ROCM_SO_FILES+=("libhiprtc.so")
@@ -164,6 +168,10 @@ do
     if [[ -z $file_path ]]; then 
         file_path=($(find $ROCM_HOME/ -name "$lib")) # Then search in ROCM_HOME
     fi
+    if [[ -z $file_path ]]; then
+	echo "Error: Library file $lib is not found." >&2
+	exit 1
+    fi
     ROCM_SO_PATHS[${#ROCM_SO_PATHS[@]}]="$file_path" # Append lib to array
 done
 
@@ -179,15 +187,18 @@ DEPS_SONAME=(
 
 DEPS_AUX_SRCLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}"
-    "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
     "/opt/amdgpu/share/libdrm/amdgpu.ids"
 )
 
 DEPS_AUX_DSTLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}"
-    "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
     "share/libdrm/amdgpu.ids"
 )
+
+if [[ $ROCM_INT -ge 50500 ]]; then
+    DEPS_AUX_SRCLIST[${#DEPS_AUX_SRCLIST[@]}]="${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
+    DEPS_AUX_DSTLIST[${#DEPS_AUX_DSTLIST[@]}]="${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
+fi
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 
