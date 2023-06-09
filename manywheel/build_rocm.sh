@@ -196,6 +196,11 @@ DEPS_AUX_DSTLIST=(
 )
 
 if [[ $ROCM_INT -ge 50500 ]]; then
+    # MIOpen library files
+    MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
+    MIOPEN_SHARE_DST=share/miopen/db
+    MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
+
     DEPS_AUX_SRCLIST[${#DEPS_AUX_SRCLIST[@]}]="${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
     DEPS_AUX_DSTLIST[${#DEPS_AUX_DSTLIST[@]}]="${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
 fi
