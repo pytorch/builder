@@ -187,15 +187,18 @@ DEPS_SONAME=(
 
 DEPS_AUX_SRCLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}"
-    "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
     "/opt/amdgpu/share/libdrm/amdgpu.ids"
 )
 
 DEPS_AUX_DSTLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}"
-    "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
     "share/libdrm/amdgpu.ids"
 )
+
+if [[ $ROCM_INT -ge 50500 ]]; then
+    DEPS_AUX_SRCLIST[${#DEPS_AUX_SRCLIST[@]}]="${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
+    DEPS_AUX_DSTLIST[${#DEPS_AUX_DSTLIST[@]}]="${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
+fi
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 
