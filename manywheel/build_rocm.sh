@@ -198,7 +198,16 @@ if [[ $ROCM_INT -ge 50500 ]]; then
 
     DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
     DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
+elif [[ $ROCM_INT -ge 50600 ]]; then
+    # RCCL library files
+    RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
+    RCCL_SHARE_DST=lib/msccl-algorithms
+    RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+
+    DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
+    DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
 fi
+
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 
