@@ -72,7 +72,7 @@ PACKAGE_ALLOW_LIST = {
     "nvidia_cusparse_cu12",
     "nvidia_nccl_cu12",
     "nvidia_nvtx_cu12",
-    "nvidia-nvjitlink-cu12",
+    "nvidia_nvjitlink_cu12",
     "packaging",
     "portalocker",
     "pytorch_triton",
