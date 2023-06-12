@@ -154,6 +154,11 @@ MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
 MIOPEN_SHARE_DST=share/miopen/db
 MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
 
+# RCCL library files
+RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
+RCCL_SHARE_DST=lib/msccl-algorithms
+RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+
 # ROCm library files
 ROCM_SO_PATHS=()
 for lib in "${ROCM_SO_FILES[@]}"
@@ -187,12 +192,14 @@ DEPS_SONAME=(
 DEPS_AUX_SRCLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}"
     "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
+    "${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/}"
     "/opt/amdgpu/share/libdrm/amdgpu.ids"
 )
 
 DEPS_AUX_DSTLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}"
     "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
+    "${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/}"
     "share/libdrm/amdgpu.ids"
 )
 
