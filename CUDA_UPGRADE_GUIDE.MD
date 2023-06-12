@@ -1,4 +1,4 @@
-# CUDA Upgrade Guide/Runbook
+# CUDA/CUDNN Upgrade Runbook
 
 So you wanna upgrade PyTorch to support a new CUDA? Follow these steps in order! They are adapted from previous CUDA upgrade processes.
 
@@ -117,4 +117,11 @@ propagate the CI changes so that torchvision and torchaudio can be packaged for 
 4. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
-Congrats! PyTorch now has support for a new CUDA version and you made it happen!
+This completes CUDA and CUDNN upgrade. Congrats! PyTorch now has support for a new CUDA version and you made it happen!
+
+## Upgrade CUDNN version only
+
+If you require to update CUDNN version for already existing CUDA version, please perform the followin modifications.
+1. Builder PR: https://github.com/pytorch/builder/pull/1271
+2. Add new cudnn vesion to windows AMI: https://github.com/pytorch/test-infra/pull/1523. Rebuild and retest the AMI. Follow step 6  Generate new Windows AMI, test and deploy to canary and prod.
+3. Create PyTorch PR: https://github.com/pytorch/pytorch/pull/93086
