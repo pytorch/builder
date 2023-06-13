@@ -5,7 +5,7 @@ PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
 
 # Python versions to be installed in /opt/$VERSION_NO
-CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.7.5 3.8.1 3.9.0 3.10.1 3.11.0"}
+CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.7.5 3.8.1 3.9.0 3.10.1 3.11.0 3.12.0"}
 
 function check_var {
     if [ -z "$1" ]; then
@@ -64,6 +64,10 @@ function build_cpython {
     check_var $py_ver
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
+    # Only b2 version of 3.12 is available right now
+    if [ "$py_ver" = "3.12.0" ]; then
+        py_ver=$py_ver"b2"
+    fi
     wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
     do_cpython_build $py_ver none
     rm -f Python-$py_ver.tgz
