@@ -192,7 +192,7 @@ class GitRepo:
         return self._run_git_cmd("merge-base", ref1, ref2).strip()
 
     def rev_list(self, ref):
-        return self._run_git_cmd("rev-list", f"{self.remote}/master..{ref}").strip().split()
+        return self._run_git_cmd("rev-list", f"{self.remote}/main..{ref}").strip().split()
 
 
 def build_commit_dict(commits: List[GitCommit]) -> Dict[str, GitCommit]:
@@ -353,16 +353,16 @@ def print_contributor_stats(commits, delta: Optional[timedelta] = None) -> None:
 def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, milestone_idx: int) -> None:
     def get_commits_dict(x, y):
         return build_commit_dict(repo.get_commit_list(x, y))
-    master_commits = get_commits_dict(orig_branch, 'master')
+    main_commits = get_commits_dict(orig_branch, 'main')
     release_commits = get_commits_dict(orig_branch, branch)
-    print(f"len(master_commits)={len(master_commits)}")
+    print(f"len(main_commits)={len(main_commits)}")
     print(f"len(release_commits)={len(release_commits)}")
     print("URL;Title;Status")
     for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
         html_url, state = issue["html_url"], issue["state"]
         # Skip closed states if they were landed before merge date
         if state == "closed":
-            mentioned_after_cut = any(html_url in commit_message for commit_message in master_commits.values())
+            mentioned_after_cut = any(html_url in commit_message for commit_message in main_commits.values())
             # If issue is not mentioned after cut, that it must be present in release branch
             if not mentioned_after_cut:
                 continue
@@ -450,7 +450,7 @@ def main():
 
     print(f"Parsing git history with remote {remote}...", end='', flush=True)
     start_time = time.time()
-    x = repo._run_git_log(f"{remote}/master")
+    x = repo._run_git_log(f"{remote}/main")
     print(f"done in {time.time()-start_time:.1f} sec")
     if args.analyze_reverts:
         analyze_reverts(x)
