@@ -17,6 +17,7 @@ if [[ ${MATRIX_CHANNEL} != "release" ]]; then
     poetry --quiet add --source pytorch torch
     poetry --quiet add --source domains torchvision torchaudio
 else
+    export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
     poetry --quiet add torch torchaudio torchvision
 fi
 
