@@ -462,7 +462,7 @@ def build_torchaudio(host: RemoteHost, *,
 
 
 def configure_system(host: RemoteHost, *,
-                     compiler: str = "gcc-8",
+                     compiler: str = "gcc-9",
                      use_conda: bool = True,
                      python_version: str = "3.8") -> None:
     if use_conda:
@@ -479,11 +479,11 @@ def configure_system(host: RemoteHost, *,
     if not use_conda:
         host.run_cmd("sudo apt-get install -y python3-dev python3-yaml python3-setuptools python3-wheel python3-pip")
     host.run_cmd("pip3 install dataclasses typing-extensions")
-    # Install and switch to gcc-8 on Ubuntu-18.04
-    if not host.using_docker() and host.ami == ubuntu18_04_ami and compiler == 'gcc-8':
-        host.run_cmd("sudo apt-get install -y g++-8 gfortran-8")
-        host.run_cmd("sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 100")
-        host.run_cmd("sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 100")
+    # Install and switch to gcc-9 on Ubuntu-18.04
+    if not host.using_docker() and host.ami == ubuntu18_04_ami and compiler == 'gcc-9':
+        host.run_cmd("sudo apt-get install -y g++-9 gfortran-9")
+        host.run_cmd("sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100")
+        host.run_cmd("sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 100")
         host.run_cmd("sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-8 100")
     if not use_conda:
         print("Installing Cython + numpy from PyPy")
@@ -530,9 +530,9 @@ def start_build(host: RemoteHost, *,
         # HACK: pypa gforntran.a is compiled without PIC, which leads to the following error
         # libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'
         # Workaround by copying gfortran library from the host
-        host.run_ssh_cmd("sudo apt-get install -y gfortran-8")
-        host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/8")
-        host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/8/libgfortran.a",
+        host.run_ssh_cmd("sudo apt-get install -y gfortran-9")
+        host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/9")
+        host.run_ssh_cmd(["docker", "cp", "/usr/lib/gcc/aarch64-linux-gnu/9/libgfortran.a",
                          f"{host.container_id}:/opt/rh/devtoolset-10/root/usr/lib/gcc/aarch64-redhat-linux/10/"
                           ])
 
@@ -717,7 +717,7 @@ def parse_arguments():
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
     parser.add_argument("--branch", type=str, default="master")
     parser.add_argument("--use-docker", action="store_true")
-    parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
+    parser.add_argument("--compiler", type=str, choices=['gcc-9', 'clang'], default="gcc-9")
     parser.add_argument("--use-torch-from-pypi", action="store_true")
     parser.add_argument("--pytorch-build-number", type=str, default=None)
     parser.add_argument("--disable-mkldnn", action="store_true")
