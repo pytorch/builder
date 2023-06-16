@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+from pygit2 import Repository
 from typing import Dict, List, Optional, Tuple
 
 
@@ -15,18 +16,20 @@ def list_dir(path: str) -> List[str]:
 '''
 Helper to get repo branches for specific versions
 '''
-def checkout_repo(branch: str = "main",
-                  url: str = "",
-                  git_clone_flags: str = "",
-                  mapping: Dict[str, Tuple[str, str]] = []) -> Optional[str]:
+def checkout_repo(
+                package: str,
+                branch: str = "main",
+                url: str = "",
+                git_clone_flags: str = "",
+                mapping: Dict[str, Tuple[str, str]] = []) -> Optional[str]:
     for prefix in mapping:
         if not branch.startswith(prefix):
             continue
         tag = f"v{mapping[prefix][0]}-{mapping[prefix][1]}"
-        os.system(f"git clone {url} -b {tag} {git_clone_flags}")
+        os.system(f"git clone {url} /{package} -b {tag} {git_clone_flags}")
         return mapping[prefix][0]
 
-    os.system(f"git clone {url} {git_clone_flags}")
+    os.system(f"git clone {url} /{package} {git_clone_flags}")
     return None
 
 
@@ -70,7 +73,8 @@ Build TorchVision wheel
 def build_torchvision(branch: str = "main",
                       git_clone_flags: str = "") -> str:
     print('Checking out TorchVision repo')
-    build_version = checkout_repo(branch=branch,
+    build_version = checkout_repo(package="vision",
+                                  branch=branch,
                                   url="https://github.com/pytorch/vision",
                                   git_clone_flags=git_clone_flags,
                                   mapping={
@@ -118,7 +122,8 @@ def build_torchaudio(branch: str = "main",
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchAudio repo')
     git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(branch=branch,
+    build_version = checkout_repo(package="audio",
+                                  branch=branch,
                                   url="https://github.com/pytorch/audio",
                                   git_clone_flags=git_clone_flags,
                                   mapping={
@@ -161,7 +166,8 @@ def build_torchtext(branch: str = "main",
     print('Checking out TorchText repo')
     os.system(f"cd /")
     git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(branch=branch,
+    build_version = checkout_repo(package="text",
+                                  branch=branch,
                                   url="https://github.com/pytorch/text",
                                   git_clone_flags=git_clone_flags,
                                   mapping={
@@ -187,7 +193,7 @@ def build_torchtext(branch: str = "main",
     elif build_version is not None:
         build_vars += f"BUILD_VERSION={build_version}"
 
-    os.system(f"cd text; {build_vars} python3 setup.py bdist_wheel")
+    os.system(f"cd /text; {build_vars} python3 setup.py bdist_wheel")
     wheel_name = list_dir("/text/dist")[0]
     embed_libgomp(f"/text/dist/{wheel_name}")
 
@@ -203,7 +209,8 @@ def build_torchdata(branch: str = "main",
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchData repo')
     git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(branch=branch,
+    build_version = checkout_repo(package="data",
+                                  branch=branch,
                                   url="https://github.com/pytorch/data",
                                   git_clone_flags=git_clone_flags,
                                   mapping={
@@ -250,8 +257,10 @@ if __name__ == '__main__':
 
     args = parse_arguments()
     enable_mkldnn = args.enable_mkldnn
-    os.system("cd /pytorch")
-    branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD")
+    repo = Repository('/pytorch')
+    branch = repo.head.name
+    if branch == 'HEAD':
+        branch = 'master'
 
     git_clone_flags = " --depth 1 --shallow-submodules"
     os.system(f"conda install -y ninja scons")
@@ -261,31 +270,35 @@ if __name__ == '__main__':
 
     print('Building PyTorch wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    os.system(f"cd /pytorch; pip install -r requirements.txt")
-    os.system(f"pip install auditwheel")
     os.system(f"python setup.py clean")
 
     if branch == 'nightly' or branch == 'master':
         build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/pytorch').decode().replace('-','')
         version = subprocess.check_output(['cat','version.txt'], cwd='/pytorch').decode().strip()[:-2]
-        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
     if branch.startswith("v1.") or branch.startswith("v2."):
-        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
     if enable_mkldnn:
         build_ArmComputeLibrary(git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
-        os.system(f"export ACL_ROOT_DIR=/acl; export LD_LIBRARY_PATH=/acl/build; export ACL_LIBRARY=/acl/build")
-        build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
+        build_vars += "USE_MKLDNN=ON USE_MKLDNN_ACL=ON " \
+            "ACL_ROOT_DIR=/acl " \
+            "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build " \
+            "ACL_INCLUDE_DIR=/acl/build " \
+            "ACL_LIBRARY=/acl/build "
         os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
+
+        ## Using AuditWheel on the pip package.
         print('Repair the wheel')
-        pytorch_wheel_name = list_dir("pytorch/dist")[0]
-        os.system(f"export LD_LIBRARY_PATH=/pytorch/build/lib:$LD_LIBRARY_PATH; auditwheel repair /pytorch/dist/{pytorch_wheel_name}")
+        pytorch_wheel_name = list_dir("/pytorch/dist")[0]
+        os.system(f"LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build auditwheel repair /pytorch/dist/{pytorch_wheel_name}")
         print('replace the original wheel with the repaired one')
         pytorch_repaired_wheel_name = list_dir("wheelhouse")[0]
         os.system(f"cp /wheelhouse/{pytorch_repaired_wheel_name} /pytorch/dist/{pytorch_wheel_name}")
     else:
         print("build pytorch without mkldnn backend")
-        os.system(f"cd pytorch ; {build_vars} python3 setup.py bdist_wheel")
+        build_vars += "LD_LIBRARY_PATH=/pytorch/build/lib "
+        os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
 
     print("Deleting build folder")
     os.system("cd /pytorch; rm -rf build")
