@@ -274,7 +274,10 @@ class S3Index:
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             checksum = self.fetch_checksum_from_s3(obj)
-            out.append(f'    <a href="/{obj}?sha256={checksum}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+            if checksum:
+                out.append(f'    <a href="/{obj}?sha256={checksum}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+            else:
+                out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
