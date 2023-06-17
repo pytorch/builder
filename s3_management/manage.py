@@ -11,6 +11,7 @@ from re import sub, match, search
 from packaging.version import parse
 
 import boto3
+from botocore.exceptions import NoCredentialsError
 
 
 S3 = boto3.resource('s3')
@@ -212,6 +213,23 @@ class S3Index:
     def obj_to_package_name(self, obj: str) -> str:
         return path.basename(obj).split('-', 1)[0]
 
+    def fetch_checksum_from_s3(self, s3_key):
+        s3_key = s3_key.replace("%2B", "+")
+        try:
+            response = CLIENT.get_object_attributes(
+                Bucket=BUCKET,
+                Key=s3_key,
+                ObjectAttributes=['Checksum']
+            )
+            checksum = response['Checksum']['ChecksumSHA256']
+            return checksum
+        except NoCredentialsError:
+            print("No AWS credentials found")
+            return None
+        except Exception as e:
+            print(f"Unable to retrieve checksum due to {e}")
+            return None
+
     def to_legacy_html(
         self,
         subdir: Optional[str]=None
@@ -255,7 +273,8 @@ class S3Index:
         out.append('  <body>')
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
-            out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+            checksum = self.fetch_checksum_from_s3(obj)
+            out.append(f'    <a href="/{obj}?sha256={checksum}">{path.basename(obj).replace("%2B","+")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
