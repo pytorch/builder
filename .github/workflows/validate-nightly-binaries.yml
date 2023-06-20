@@ -3,8 +3,8 @@ name: cron
 
 on:
   schedule:
-    # At 2:30 pm UTC (7:30 am PDT)
-    - cron: "30 14 * * *"
+    # At 3:30 pm UTC (8:30 am PDT)
+    - cron: "30 15 * * *"
   # Have the ability to trigger this job manually through the API
   workflow_dispatch:
   push:
