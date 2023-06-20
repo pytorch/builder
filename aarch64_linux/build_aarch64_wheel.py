@@ -504,7 +504,7 @@ def build_domains(host: RemoteHost, *,
 
 def start_build(host: RemoteHost, *,
                 branch: str = "master",
-                compiler: str = "gcc-8",
+                compiler: str = "gcc-9",
                 use_conda: bool = True,
                 python_version: str = "3.8",
                 pytorch_only: bool = False,
