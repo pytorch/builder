@@ -1,4 +1,5 @@
 version:
+    - 11.7
     - 11.8
     - 12.1
 target_platform:
