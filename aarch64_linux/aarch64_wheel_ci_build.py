@@ -3,7 +3,7 @@
 import os
 import subprocess
 from pygit2 import Repository
-from typing import Dict, List, Optional, Tuple
+from typing import List
 
 
 ''''
@@ -11,26 +11,6 @@ Helper for getting paths for Python
 '''
 def list_dir(path: str) -> List[str]:
      return subprocess.check_output(["ls", "-1", path]).decode().split("\n")
-
-
-'''
-Helper to get repo branches for specific versions
-'''
-def checkout_repo(
-                package: str,
-                branch: str = "main",
-                url: str = "",
-                git_clone_flags: str = "",
-                mapping: Dict[str, Tuple[str, str]] = []) -> Optional[str]:
-    for prefix in mapping:
-        if not branch.startswith(prefix):
-            continue
-        tag = f"v{mapping[prefix][0]}-{mapping[prefix][1]}"
-        os.system(f"git clone {url} /{package} -b {tag} {git_clone_flags}")
-        return mapping[prefix][0]
-
-    os.system(f"git clone {url} /{package} {git_clone_flags}")
-    return None
 
 
 '''
@@ -60,186 +40,30 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
 
 
 '''
-Script to embed libgomp to the wheels
+Complete wheel build and put in artifact location
 '''
-def embed_libgomp(wheel_name) -> None:
-    print('Embedding libgomp into wheel')
-    os.system(f"python3 /builder/aarch64_linux/embed_library.py {wheel_name} --update-tag")
+def complete_wheel(folder: str):
+    wheel_name = list_dir(f"/{folder}/dist")[0]
 
+    if "pytorch" in folder:
+        print("Repairing Wheel with AuditWheel")
+        os.system(f"cd /{folder}; auditwheel repair dist/{wheel_name}")
+        repaired_wheel_name = list_dir(f"/{folder}/wheelhouse")[0]
 
-'''
-Build TorchVision wheel
-'''
-def build_torchvision(branch: str = "main",
-                      git_clone_flags: str = "") -> str:
-    print('Checking out TorchVision repo')
-    build_version = checkout_repo(package="vision",
-                                  branch=branch,
-                                  url="https://github.com/pytorch/vision",
-                                  git_clone_flags=git_clone_flags,
-                                  mapping={
-                                      "v1.7.1": ("0.8.2", "rc2"),
-                                      "v1.8.0": ("0.9.0", "rc3"),
-                                      "v1.8.1": ("0.9.1", "rc1"),
-                                      "v1.9.0": ("0.10.0", "rc1"),
-                                      "v1.10.0": ("0.11.1", "rc1"),
-                                      "v1.10.1": ("0.11.2", "rc1"),
-                                      "v1.10.2": ("0.11.3", "rc1"),
-                                      "v1.11.0": ("0.12.0", "rc1"),
-                                      "v1.12.0": ("0.13.0", "rc4"),
-                                      "v1.12.1": ("0.13.1", "rc6"),
-                                      "v1.13.0": ("0.14.0", "rc4"),
-                                      "v1.13.1": ("0.14.1", "rc2"),
-                                      "v2.0.0": ("0.15.0", "rc2"),
-                                  })
-    print('Building TorchVision wheel')
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    if branch == 'nightly':
-        version = ''
-        if os.path.exists('/vision/version.txt'):
-            version = subprocess.check_output(['cat', '/vision/version.txt']).decode().strip()
-        if len(version) == 0:
-            # In older revisions, version was embedded in setup.py
-            version = subprocess.check_output(['grep', 'version', 'setup.py']).decode().strip().split('\'')[1][:-2]
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/vision').decode().replace('-','')
-        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
+        print(f"Moving {repaired_wheel_name} wheel to /{folder}/dist")
+        os.system(f"mv /{folder}/wheelhouse/{repaired_wheel_name} /{folder}/dist/")
+    else:
+        repaired_wheel_name = wheel_name
+    
+    print(f"Copying {repaired_wheel_name} to artfacts")
+    os.system(f"mv /{folder}/dist/{repaired_wheel_name} /artifacts/")
 
-    os.system(f"cd /vision; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("/vision/dist")[0]
-    embed_libgomp(f"/vision/dist/{wheel_name}")
-
-    print('Move TorchVision wheel to artfacts')
-    os.system(f"mv /vision/dist/{wheel_name} /artifacts/")
-    return wheel_name
+    return repaired_wheel_name
 
 
 '''
-Build TorchAudio wheel
+Parse inline arguments
 '''
-def build_torchaudio(branch: str = "main",
-                     git_clone_flags: str = "") -> str:
-    print('Checking out TorchAudio repo')
-    git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(package="audio",
-                                  branch=branch,
-                                  url="https://github.com/pytorch/audio",
-                                  git_clone_flags=git_clone_flags,
-                                  mapping={
-                                      "v1.9.0": ("0.9.0", "rc2"),
-                                      "v1.10.0": ("0.10.0", "rc5"),
-                                      "v1.10.1": ("0.10.1", "rc1"),
-                                      "v1.10.2": ("0.10.2", "rc1"),
-                                      "v1.11.0": ("0.11.0", "rc1"),
-                                      "v1.12.0": ("0.12.0", "rc3"),
-                                      "v1.12.1": ("0.12.1", "rc5"),
-                                      "v1.13.0": ("0.13.0", "rc4"),
-                                      "v1.13.1": ("0.13.1", "rc2"),
-                                      "v2.0.0": ("2.0.0", "rc2"),
-                                  })
-    print('Building TorchAudio wheel')
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    if branch == 'nightly':
-        version = ''
-        if os.path.exists('/audio/version.txt'):
-            version = subprocess.check_output(['cat', '/audio/version.txt']).decode().strip()
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/audio').decode().replace('-','')
-        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
-
-    os.system(f"cd /audio; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("/audio/dist")[0]
-    embed_libgomp(f"/audio/dist/{wheel_name}")
-
-    print('Move TorchAudio wheel to artfacts')
-    os.system(f"mv /audio/dist/{wheel_name} /artifacts/")
-    return wheel_name
-
-
-'''
-Build TorchText wheel
-'''
-def build_torchtext(branch: str = "main",
-                    git_clone_flags: str = "") -> str:
-    print('Checking out TorchText repo')
-    os.system(f"cd /")
-    git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(package="text",
-                                  branch=branch,
-                                  url="https://github.com/pytorch/text",
-                                  git_clone_flags=git_clone_flags,
-                                  mapping={
-                                      "v1.9.0": ("0.10.0", "rc1"),
-                                      "v1.10.0": ("0.11.0", "rc2"),
-                                      "v1.10.1": ("0.11.1", "rc1"),
-                                      "v1.10.2": ("0.11.2", "rc1"),
-                                      "v1.11.0": ("0.12.0", "rc1"),
-                                      "v1.12.0": ("0.13.0", "rc2"),
-                                      "v1.12.1": ("0.13.1", "rc5"),
-                                      "v1.13.0": ("0.14.0", "rc3"),
-                                      "v1.13.1": ("0.14.1", "rc1"),
-                                      "v2.0.0": ("0.15.0", "rc2"),
-                                  })
-    print('Building TorchText wheel')
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    if branch == 'nightly':
-        version = ''
-        if os.path.exists('/text/version.txt'):
-            version = subprocess.check_output(['cat', '/text/version.txt']).decode().strip()
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/text').decode().replace('-','')
-        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
-
-    os.system(f"cd /text; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("/text/dist")[0]
-    embed_libgomp(f"/text/dist/{wheel_name}")
-
-    print('Move TorchText wheel to artfacts')
-    os.system(f"mv /text/dist/{wheel_name} /artifacts/")
-    return wheel_name
-
-
-'''
-Build TorchData wheel
-'''
-def build_torchdata(branch: str = "main",
-                     git_clone_flags: str = "") -> str:
-    print('Checking out TorchData repo')
-    git_clone_flags += " --recurse-submodules"
-    build_version = checkout_repo(package="data",
-                                  branch=branch,
-                                  url="https://github.com/pytorch/data",
-                                  git_clone_flags=git_clone_flags,
-                                  mapping={
-                                      "v1.11.0": ("0.3.0", "rc1"),
-                                      "v1.12.0": ("0.4.0", "rc3"),
-                                      "v1.12.1": ("0.4.1", "rc5"),
-                                      "v1.13.1": ("0.5.1", "rc2"),
-                                      "v2.0.0": ("0.6.0", "rc2"),
-                                  })
-    print('Building TorchData wheel')
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    if branch == 'nightly':
-        version = ''
-        if os.path.exists('/data/version.txt'):
-            version = subprocess.check_output(['cat', '/data/version.txt']).decode().strip()
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/data').decode().replace('-','')
-        build_vars += f"BUILD_VERSION={version}.dev{build_date}"
-    elif build_version is not None:
-        build_vars += f"BUILD_VERSION={build_version}"
-
-    os.system(f"cd /data; {build_vars} python3 setup.py bdist_wheel")
-    wheel_name = list_dir("/data/dist")[0]
-    embed_libgomp(f"/data/dist/{wheel_name}")
-
-    print('Move TorchAudio wheel to artfacts')
-    os.system(f"mv /data/dist/{wheel_name} /artifacts/")
-    return wheel_name
-
-
 def parse_arguments():
     from argparse import ArgumentParser
     parser = ArgumentParser("AARCH64 wheels python CD")
@@ -286,37 +110,9 @@ if __name__ == '__main__':
             "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build " \
             "ACL_INCLUDE_DIR=/acl/build " \
             "ACL_LIBRARY=/acl/build "
-        os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
-
-        ## Using AuditWheel on the pip package.
-        print('Repair the wheel')
-        pytorch_wheel_name = list_dir("/pytorch/dist")[0]
-        os.system(f"LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build auditwheel repair /pytorch/dist/{pytorch_wheel_name}")
-        print('replace the original wheel with the repaired one')
-        pytorch_repaired_wheel_name = list_dir("wheelhouse")[0]
-        os.system(f"cp /wheelhouse/{pytorch_repaired_wheel_name} /pytorch/dist/{pytorch_wheel_name}")
     else:
         print("build pytorch without mkldnn backend")
-        build_vars += "LD_LIBRARY_PATH=/pytorch/build/lib "
-        os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
 
-    print("Deleting build folder")
-    os.system("cd /pytorch; rm -rf build")
-    pytorch_wheel_name = list_dir("/pytorch/dist")[0]
-    embed_libgomp(f"/pytorch/dist/{pytorch_wheel_name}")
-    print('Move PyTorch wheel to artfacts')
-    os.system(f"mv /pytorch/dist/{pytorch_wheel_name} /artifacts/")
-    print("Installing Pytorch wheel")
-    os.system(f"pip install /artifacts/{pytorch_wheel_name}")
-    
-    vision_wheel_name = build_torchvision(branch=branch, git_clone_flags=git_clone_flags)
-    audio_wheel_name = build_torchaudio(branch=branch, git_clone_flags=git_clone_flags)
-    text_wheel_name = build_torchtext(branch=branch, git_clone_flags=git_clone_flags)
-    data_wheel_name = build_torchdata(branch=branch, git_clone_flags=git_clone_flags)
-
-    print(f"Wheels Created:\n" \
-            f"{pytorch_wheel_name}\n" \
-            f"{vision_wheel_name}\n" \
-            f"{audio_wheel_name}\n" \
-            f"{text_wheel_name}\n" \
-            f"{data_wheel_name}\n")
+    os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
+    pytorch_wheel_name = complete_wheel("pytorch")
+    print(f"Build Compelete. Created {pytorch_wheel_name}..")

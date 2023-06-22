@@ -12,7 +12,7 @@ PATH=/opt/conda/bin:$PATH
 # Install OS dependent packages
 ###############################################################################
 yum -y install epel-release
-yum -y install less zstd git
+yum -y install less zstd libgomp
 
 ###############################################################################
 # Install conda
@@ -38,14 +38,14 @@ conda --version
 ###############################################################################
 cd ~/
 curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.4.0-8ubuntu1_arm64.deb
-ar -x libgfortran-10-dev.deb
+ar x ~/libgfortran-10-dev.deb
 tar --use-compress-program=unzstd -xvf data.tar.zst -C ~/
 cp -f ~/usr/lib/gcc/aarch64-linux-gnu/10/libgfortran.a /opt/rh/devtoolset-10/root/usr/lib/gcc/aarch64-redhat-linux/10/
 
 ###############################################################################
 # Run aarch64 builder python
 ###############################################################################
-cd /pytorch
+cd /
 # adding safe directory for git as the permissions will be
 # on the mounted pytorch repo
 git config --global --add safe.directory /pytorch
