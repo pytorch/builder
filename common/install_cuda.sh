@@ -34,7 +34,7 @@ function install_118 {
 }
 
 function install_121 {
-    echo "Installing CUDA 12.1 and cuDNN 8.8 and NCCL 2.17.1"
+    echo "Installing CUDA 12.1 and cuDNN 8.9 and NCCL 2.17.1"
     rm -rf /usr/local/cuda-12.1 /usr/local/cuda
     # install CUDA 12.1.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
@@ -45,10 +45,10 @@ function install_121 {
 
     # cuDNN license: https://developer.nvidia.com/cudnn/license_agreement
     mkdir tmp_cudnn && cd tmp_cudnn
-    wget -q https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-8.8.1.3_cuda12-archive.tar.xz -O cudnn-linux-x86_64-8.8.1.3_cuda12-archive.tar.xz
-    tar xf cudnn-linux-x86_64-8.8.1.3_cuda12-archive.tar.xz
-    cp -a cudnn-linux-x86_64-8.8.1.3_cuda12-archive/include/* /usr/local/cuda/include/
-    cp -a cudnn-linux-x86_64-8.8.1.3_cuda12-archive/lib/* /usr/local/cuda/lib64/
+    wget -q https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/linux-x86_64/cudnn-linux-x86_64-8.9.2.26_cuda12-archive.tar.xz -O cudnn-linux-x86_64-8.9.2.26_cuda12-archive.tar.xz
+    tar xf cudnn-linux-x86_64-8.9.2.26_cuda12-archive.tar.xz
+    cp -a cudnn-linux-x86_64-8.9.2.26_cuda12-archive/include/* /usr/local/cuda/include/
+    cp -a cudnn-linux-x86_64-8.9.2.26_cuda12-archive/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_cudnn
     ldconfig
