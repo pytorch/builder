@@ -6,6 +6,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get clean && apt-get update
 RUN apt-get install -y curl locales git-all autoconf automake make cmake wget unzip
+# Just add everything as a safe.directory for git since these will be used in multiple places with git
+RUN git config --global --add safe.directory '*'
 
 RUN locale-gen en_US.UTF-8
 
