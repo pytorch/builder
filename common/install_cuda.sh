@@ -34,7 +34,7 @@ function install_118 {
 }
 
 function install_121 {
-    echo "Installing CUDA 12.1 and cuDNN 8.8 and NCCL 2.17.1"
+    echo "Installing CUDA 12.1 and cuDNN 8.8 and NCCL 2.18.1"
     rm -rf /usr/local/cuda-12.1 /usr/local/cuda
     # install CUDA 12.1.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
@@ -55,10 +55,10 @@ function install_121 {
 
     # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
     mkdir tmp_nccl && cd tmp_nccl
-    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.17.1/nccl_2.17.1-1+cuda12.1_x86_64.txz
-    tar xf nccl_2.17.1-1+cuda12.1_x86_64.txz
-    cp -a nccl_2.17.1-1+cuda12.1_x86_64/include/* /usr/local/cuda/include/
-    cp -a nccl_2.17.1-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
+    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.18.1/nccl_2.18.1-1+cuda12.1_x86_64.txz
+    tar xf nccl_2.18.1-1+cuda12.1_x86_64.txz
+    cp -a nccl_2.18.1-1+cuda12.1_x86_64/include/* /usr/local/cuda/include/
+    cp -a nccl_2.18.1-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_nccl
     ldconfig
