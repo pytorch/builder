@@ -11,6 +11,8 @@ ENV LANGUAGE en_US.UTF-8
 
 ARG DEVTOOLSET_VERSION=9
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel
+# Just add everything as a safe.directory for git since these will be used in multiple places with git
+RUN git config --global --add safe.directory '*'
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-${DEVTOOLSET_VERSION}-gcc devtoolset-${DEVTOOLSET_VERSION}-gcc-c++ devtoolset-${DEVTOOLSET_VERSION}-gcc-gfortran devtoolset-${DEVTOOLSET_VERSION}-binutils
