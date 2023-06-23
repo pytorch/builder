@@ -343,10 +343,17 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   build_and_run_example_cpp check-torch-mkl
 elif [[ "$(uname -m)" != "arm64" ]]; then
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
-    echo "Checking that MKL is available"
-    pushd /tmp
-    python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
-    popd
+    if [[ "$(uname -m)" == "aarch64" ]]; then
+      echo "Checking that MKLDNN is available on aarch64"
+      pushd /tmp
+      python -c 'import torch; exit(0 if torch.backends.mkldnn.is_available() else 1)'
+      popd
+    else
+      echo "Checking that MKL is available"
+      pushd /tmp
+      python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
+      popd
+    fi
   fi
 fi
 
