@@ -9,7 +9,7 @@ else
 
     # Make sure no cache dir is specified during wheel
     if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
-        INSTALLATION=${INSTALLATION/"install"/"install --no-cache-dir"}
+        INSTALLATION=${INSTALLATION/"install"/"install --upgrade"}
     fi
     eval $INSTALLATION
 
