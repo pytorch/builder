@@ -7,9 +7,10 @@ else
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
 
-    # Make sure no cache dir is specified during wheel
+    # Make sure we remove previous installation if it exists
     if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
-        INSTALLATION=${INSTALLATION/"install"/"install --upgrade"}
+        UNINSTALL=${INSTALLATION/"install"/"uninstall"}
+        eval $UNINSTALL
     fi
     eval $INSTALLATION
 
