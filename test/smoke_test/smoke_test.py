@@ -16,6 +16,7 @@ gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
 stable_version = os.getenv("MATRIX_STABLE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
+target_os = os.getenv("TARGET_OS")
 
 is_cuda_system = gpu_arch_type == "cuda"
 NIGHTLY_ALLOWED_DELTA = 3
@@ -24,14 +25,14 @@ MODULES = [
     {
         "name": "torchvision",
         "repo": "https://github.com/pytorch/vision.git",
-        "smoke_test": "python ./vision/test/smoke_test.py",
+        "smoke_test": "./vision/test/smoke_test.py",
         "extension": "extension",
         "repo_name": "vision",
     },
     {
         "name": "torchaudio",
         "repo": "https://github.com/pytorch/audio.git",
-        "smoke_test": "python ./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
+        "smoke_test": "./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
         "extension": "_extension",
         "repo_name": "audio",
     },
@@ -212,8 +213,11 @@ def smoke_test_modules():
                 print(f"Path does not exist: {cwd}/{module['repo_name']}")
                 subprocess.check_output(f"git clone --depth 1 {module['repo']}", stderr=subprocess.STDOUT, shell=True)
             try:
+                smoke_test_command = f"python3 {module['smoke_test']}"
+                if target_os == 'windows':
+                    smoke_test_command = f"python {module['smoke_test']}"
                 output = subprocess.check_output(
-                    module["smoke_test"], stderr=subprocess.STDOUT, shell=True,
+                    smoke_test_command, stderr=subprocess.STDOUT, shell=True,
                     universal_newlines=True)
             except subprocess.CalledProcessError as exc:
                 raise RuntimeError(

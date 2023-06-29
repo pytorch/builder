@@ -6,6 +6,11 @@ else
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
+
+    # Make sure we remove previous installation if it exists
+    if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
+        pip3 uninstall -y torch torchaudio torchvision
+    fi
     eval $INSTALLATION
 
     if [[ ${TARGET_OS} == 'linux' ]]; then
@@ -14,7 +19,12 @@ else
         ${PWD}/check_binary.sh
     fi
 
-    python  ./test/smoke_test/smoke_test.py
+    if [[ ${TARGET_OS} == 'windows' ]]; then
+        python  ./test/smoke_test/smoke_test.py
+    else
+        python3  ./test/smoke_test/smoke_test.py
+    fi
+
     conda deactivate
     conda env remove -n ${ENV_NAME}
 fi
