@@ -9,8 +9,7 @@ else
 
     # Make sure we remove previous installation if it exists
     if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
-        UNINSTALL=${INSTALLATION/"install"/"uninstall -y"}
-        eval $UNINSTALL
+        pip3 uninstall -y torch torchaudio torchvision
     fi
     eval $INSTALLATION
 
