@@ -20,7 +20,12 @@ else
         ${PWD}/check_binary.sh
     fi
 
-    python  ./test/smoke_test/smoke_test.py
+    if [[ ${TARGET_OS} == 'windows' ]]; then
+        python  ./test/smoke_test/smoke_test.py
+    else
+        python3  ./test/smoke_test/smoke_test.py
+    fi
+
     conda deactivate
     conda env remove -n ${ENV_NAME}
 fi
