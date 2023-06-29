@@ -6,6 +6,11 @@ else
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
+
+    # Make sure no cache dir is specified during wheel
+    if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
+        INSTALLATION=${INSTALLATION/"install"/"install --no-cache-dir"}
+    fi
     eval $INSTALLATION
 
     if [[ ${TARGET_OS} == 'linux' ]]; then
