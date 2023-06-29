@@ -24,14 +24,14 @@ MODULES = [
     {
         "name": "torchvision",
         "repo": "https://github.com/pytorch/vision.git",
-        "smoke_test": "python ./vision/test/smoke_test.py",
+        "smoke_test": "python3 ./vision/test/smoke_test.py",
         "extension": "extension",
         "repo_name": "vision",
     },
     {
         "name": "torchaudio",
         "repo": "https://github.com/pytorch/audio.git",
-        "smoke_test": "python ./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
+        "smoke_test": "python3 ./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
         "extension": "_extension",
         "repo_name": "audio",
     },
