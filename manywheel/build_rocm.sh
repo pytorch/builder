@@ -94,6 +94,10 @@ ROCM_SO_FILES=(
     "libroctx64.so"
 )
 
+if [[ $ROCM_INT -ge 50600 ]]; then
+    ROCM_SO_FILES+=("libhipblaslt.so")
+fi
+
 if [[ $ROCM_INT -lt 50500 ]]; then
     ROCM_SO_FILES+=("librocfft-device-0.so")
     ROCM_SO_FILES+=("librocfft-device-1.so")
