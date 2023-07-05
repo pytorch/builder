@@ -18,14 +18,18 @@ fi
 
 # Upload wheels to s3
 if [[ -d "$MAC_WHEEL_FINAL_FOLDER" ]]; then
+    pushd "$MAC_WHEEL_FINAL_FOLDER"
     s3_dir="s3://pytorch/whl/${PIP_UPLOAD_FOLDER}cpu/"
+    find . -type f -exec sh -c 'unzip -j {} -d . "*.dist-info/METADATA" && mv METADATA {}.metadata' \;
     echo "Uploading all of: $(ls $MAC_WHEEL_FINAL_FOLDER) to $s3_dir"
-    ls "$MAC_WHEEL_FINAL_FOLDER" | xargs -I {} aws s3 cp "$MAC_WHEEL_FINAL_FOLDER"/{} "$s3_dir" --acl public-read
+    ls . | xargs -I {} aws s3 cp {} "$s3_dir" --acl public-read
 fi
 
 # Upload libtorch packages to s3
 if [[ -d "$MAC_LIBTORCH_FINAL_FOLDER" ]]; then
+    pushd "$MAC_LIBTORCH_FINAL_FOLDER"
     s3_dir="s3://pytorch/libtorch/${PIP_UPLOAD_FOLDER}cpu/"
     echo "Uploading all of: $(ls $MAC_LIBTORCH_FINAL_FOLDER) to $s3_dir"
-    ls "$MAC_LIBTORCH_FINAL_FOLDER" | xargs -I {} aws s3 cp "$MAC_LIBTORCH_FINAL_FOLDER"/{} "$s3_dir" --acl public-read
+    ls . | xargs -I {} aws s3 cp {} "$s3_dir" --acl public-read
+    popd
 fi

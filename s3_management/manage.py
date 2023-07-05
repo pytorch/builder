@@ -14,7 +14,6 @@ import boto3
 
 
 S3 = boto3.resource('s3')
-CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
 ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
@@ -121,8 +120,9 @@ def between_bad_dates(package_build_time: datetime):
 
 
 class S3Index:
-    def __init__(self: S3IndexType, objects: List[str], prefix: str) -> None:
+    def __init__(self: S3IndexType, objects: List[str], whls_with_metadata: Set[str], prefix: str) -> None:
         self.objects = objects
+        self.whls_with_metadata = set(whls_with_metadata)
         self.prefix = prefix.rstrip("/")
         self.html_name = PREFIXES_WITH_HTML[self.prefix]
         # should dynamically grab subdirectories like whl/test/cu101
@@ -255,7 +255,13 @@ class S3Index:
         out.append('  <body>')
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
-            out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+            attributes = []
+            if obj in self.whls_with_metadata:
+                # Serve the PEP 658 metadata attributes.
+                # For extra juiciness, we should expose the sha256, instead of "true".
+                attributes += 'data-dist-info-metadata="true"'
+            attributes = " ".join(attributes)
+            out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")} {attributes}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
@@ -338,6 +344,7 @@ class S3Index:
     @classmethod
     def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
         objects = []
+        whls_with_metadata = {}
         prefix = prefix.rstrip("/")
         for obj in BUCKET.objects.filter(Prefix=prefix):
             is_acceptable = any([path.dirname(obj.key) == prefix] + [
@@ -346,11 +353,14 @@ class S3Index:
                     path.dirname(obj.key)
                 )
                 for pattern in ACCEPTED_SUBDIR_PATTERNS
-            ]) and obj.key.endswith(ACCEPTED_FILE_EXTENSIONS)
-            if is_acceptable:
-                sanitized_key = obj.key.replace("+", "%2B")
+            ])
+            sanitized_key = obj.key.replace("+", "%2B")
+            if obj.key.endswith(ACCEPTED_FILE_EXTENSIONS) and is_acceptable:
                 objects.append(sanitized_key)
-        return cls(objects, prefix)
+            if obj.key.endswith(".whl.metadata"):
+                whls_with_metadata.append(sanitized_key[:-9])
+
+        return cls(objects, whls_with_metadata, prefix)
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("Manage S3 HTML indices for PyTorch")
