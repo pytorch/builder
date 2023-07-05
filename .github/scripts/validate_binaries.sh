@@ -7,7 +7,13 @@ else
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
 
-    # Make sure we remove previous installation if it exists
+    export OLD_PATH=${PATH}
+    # Workaround macos-arm64 runners. Issue: https://github.com/pytorch/test-infra/issues/4342
+    if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
+        export PATH="${CONDA_PREFIX}/bin:${PATH}"
+    fi
+
+    # Make sure we remove previous installation if it exists, this issue seems to affect only
     if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
         pip3 uninstall -y torch torchaudio torchvision
     fi
@@ -23,6 +29,10 @@ else
         python  ./test/smoke_test/smoke_test.py
     else
         python3  ./test/smoke_test/smoke_test.py
+    fi
+
+    if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
+        export PATH=${OLD_PATH}
     fi
 
     conda deactivate
