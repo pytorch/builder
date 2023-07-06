@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:experimental
 ARG ROCM_VERSION=3.7
-ARG BASE_CUDA_VERSION=10.1
+ARG BASE_CUDA_VERSION=11.8
 
-ARG GPU_IMAGE=nvidia/cuda:${BASE_CUDA_VERSION}-devel-centos7
+ARG GPU_IMAGE=centos:7
 FROM centos:7 as base
 
 ENV LC_ALL en_US.UTF-8
