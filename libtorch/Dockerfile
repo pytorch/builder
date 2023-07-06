@@ -72,9 +72,6 @@ RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final
-# Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl           /opt/openssl
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
