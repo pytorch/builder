@@ -1,5 +1,5 @@
 ARG BASE_TARGET=base
-ARG GPU_IMAGE=nvidia/cuda:10.2-devel-ubuntu18.04
+ARG GPU_IMAGE=nvidia/cuda:11.4.3-devel-ubuntu18.04
 FROM ${GPU_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive

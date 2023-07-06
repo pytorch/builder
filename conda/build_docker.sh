@@ -5,11 +5,7 @@ set -eou pipefail
 export DOCKER_BUILDKIT=1
 TOPDIR=$(git rev-parse --show-toplevel)
 
-CUDA_VERSION=${CUDA_VERSION:-10.2}
-DEVTOOLSET_VERSION="9"
-if [[ ${CUDA_VERSION:0:2} == "10" ]]; then
-  DEVTOOLSET_VERSION="7"
-fi
+CUDA_VERSION=${CUDA_VERSION:-11.7}
 
 case ${CUDA_VERSION} in
   cpu)
@@ -32,7 +28,7 @@ esac
     --target final \
     --build-arg "BASE_TARGET=${BASE_TARGET}" \
     --build-arg "CUDA_VERSION=${CUDA_VERSION}" \
-    --build-arg "DEVTOOLSET_VERSION=${DEVTOOLSET_VERSION}" \
+    --build-arg "DEVTOOLSET_VERSION=9" \
     -t "pytorch/conda-builder:${DOCKER_TAG}" \
     -f "${TOPDIR}/conda/Dockerfile" \
     ${TOPDIR}

@@ -1,6 +1,6 @@
 ARG CUDA_VERSION=10.2
 ARG BASE_TARGET=cuda${CUDA_VERSION}
-FROM nvidia/cuda:9.2-devel-centos7 as base
+FROM nvidia/cuda:11.4.3-devel-centos7 as base
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
