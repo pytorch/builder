@@ -47,6 +47,8 @@ ARG CUDA_VERSION=10.2
 RUN rm -rf /usr/local/cuda-*
 ADD ./common/install_cuda.sh install_cuda.sh
 ENV CUDA_HOME=/usr/local/cuda-${CUDA_VERSION}
+# Preserve CUDA_VERSION for the builds
+ENV CUDA_VERSION=${CUDA_VERSION}
 # Make things in our path by default
 ENV PATH=/usr/local/cuda-${CUDA_VERSION}/bin:$PATH
 
