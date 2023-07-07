@@ -281,6 +281,9 @@ else
         export CONDA_TRITON_CONSTRAINT="    - torchtriton==2.1.0+${TRITON_SHORTHASH}"
     fi
 
+    # This to make sure conda-build is receiving correct CUDA_VERSION
+    export CUDA_VERSION="$desired_cuda"
+
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
 fi
 
