@@ -45,14 +45,17 @@ FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
 RUN /opt/conda/bin/conda install -y cmake=3.18
+ENV PATH /usr/local/cuda/bin:$PATH
 
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
 RUN bash ./install_magma.sh 11.8
+RUN ln -sf /usr/local/cuda-11.8 /usr/local/cuda
 
 FROM cuda as cuda12.1
 RUN bash ./install_cuda.sh 12.1
 RUN bash ./install_magma.sh 12.1
+RUN ln -sf /usr/local/cuda-12.1 /usr/local/cuda
 
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
