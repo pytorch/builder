@@ -51,6 +51,21 @@ else
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
 fi
 
+if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRED_CUDA" != *"rocm"* ]]; then
+  # cu90, cu92, cu100, cu101
+  if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
+    CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
+  elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
+    CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
+  fi
+  echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
+
+  # Switch `/usr/local/cuda` to the desired CUDA version
+  rm -rf /usr/local/cuda || true
+  ln -s "/usr/local/cuda-${CUDA_VERSION}" /usr/local/cuda
+  export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
+fi
+
 ###############################################################################
 # Check GCC ABI
 ###############################################################################
@@ -296,7 +311,6 @@ build_example_cpp_with_incorrect_abi () {
 # Check simple Python/C++ calls
 ###############################################################################
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
-  export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
   build_and_run_example_cpp simple-torch-test
   # `_GLIBCXX_USE_CXX11_ABI` is always ignored by gcc in devtoolset7, so we test
   # the expected failure case for Ubuntu 16.04 + gcc 5.4 only.
