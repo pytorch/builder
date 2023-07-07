@@ -3,7 +3,12 @@ name: Build libtorch docker images
 on:
   push:
     branches:
-      main
+      - main
+      - release/*
+    tags:
+      # NOTE: Binary build pipelines should only get triggered on release candidate or nightly builds
+      # Release candidate tags look like: v1.11.0-rc1
+      - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
     paths:
       - .github/workflows/build-libtorch-images.yml
       - libtorch/Dockerfile
@@ -21,7 +26,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_ID: ${{ secrets.DOCKER_ID }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+  WITH_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release')) }}
 
 jobs:
   build-docker-cuda:
