@@ -45,7 +45,6 @@ FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
 RUN /opt/conda/bin/conda install -y cmake=3.18
-ENV PATH /usr/local/cuda/bin:$PATH
 
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
@@ -84,4 +83,4 @@ COPY --from=conda /opt/conda /opt/conda
 # Install python
 COPY --from=python /opt/python    /opt/python
 COPY --from=python /opt/_internal /opt/_internal
-ENV PATH /opt/conda/bin:$PATH
+ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH
