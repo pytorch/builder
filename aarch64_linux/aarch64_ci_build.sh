@@ -37,7 +37,7 @@ conda --version
 # ubuntu's libgfortran.a which is compiled with -fPIC
 ###############################################################################
 cd ~/
-curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.4.0-9ubuntu1_arm64.deb
+curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.5.0-1ubuntu1_arm64.deb
 ar x ~/libgfortran-10-dev.deb
 tar --use-compress-program=unzstd -xvf data.tar.zst -C ~/
 cp -f ~/usr/lib/gcc/aarch64-linux-gnu/10/libgfortran.a /opt/rh/devtoolset-10/root/usr/lib/gcc/aarch64-redhat-linux/10/
