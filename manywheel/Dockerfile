@@ -8,6 +8,7 @@ FROM centos:7 as base
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
+ENV CUDA_VERSION=${BASE_CUDA_VERSION}
 
 ARG DEVTOOLSET_VERSION=9
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel
@@ -52,7 +53,7 @@ ADD ./common/install_cpython.sh /build_scripts/install_cpython.sh
 RUN bash build_scripts/build.sh && rm -r build_scripts
 
 FROM base as cuda
-ARG BASE_CUDA_VERSION=10.2
+ARG BASE_CUDA_VERSION=11.8
 # Install CUDA
 ADD ./common/install_cuda.sh install_cuda.sh
 RUN bash ./install_cuda.sh ${BASE_CUDA_VERSION} && rm install_cuda.sh
@@ -63,7 +64,7 @@ ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
 
 FROM base as magma
-ARG BASE_CUDA_VERSION=10.2
+ARG BASE_CUDA_VERSION=11.8
 # Install magma
 ADD ./common/install_magma.sh install_magma.sh
 RUN bash ./install_magma.sh ${BASE_CUDA_VERSION} && rm install_magma.sh
@@ -129,7 +130,7 @@ COPY --from=libpng             /usr/local/lib/libpng*                /usr/local/
 COPY --from=libpng             /usr/local/lib/pkgconfig              /usr/local/lib/pkgconfig
 
 FROM common as cpu_final
-ARG BASE_CUDA_VERSION=10.1
+ARG BASE_CUDA_VERSION=11.8
 ARG DEVTOOLSET_VERSION=9
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
