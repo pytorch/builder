@@ -58,7 +58,9 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 -DMIOPEN_BUILD_DRIVER=OFF
 "
 # Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
-if [[ $ROCM_INT -ge 50500 ]] && [[ $ROCM_INT -lt 50600 ]]; then
+if [[ $ROCM_INT -ge 50600 ]] && [[ $ROCM_INT -lt 50700 ]]; then
+    MIOPEN_BRANCH="release/rocm-rel-5.6-staging"
+elif [[ $ROCM_INT -ge 50500 ]] && [[ $ROCM_INT -lt 50600 ]]; then
     MIOPEN_BRANCH="release/rocm-rel-5.5-gfx11"
 elif [[ $ROCM_INT -ge 50400 ]] && [[ $ROCM_INT -lt 50500 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36 -DMIOPEN_USE_MLIR=Off"
