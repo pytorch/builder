@@ -257,9 +257,9 @@ class S3Index:
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             attributes = []
             if obj in self.whls_with_metadata:
-                # Serve the PEP 658 metadata attributes.
-                # For extra juiciness, we should expose the sha256, instead of "true".
-                attributes += 'data-dist-info-metadata="true"'
+                # Serve the PEP 658 and PEP 714 metadata attributes
+                attributes += 'data-dist-info-metadata=true'
+                attributes += 'data-core-metadata=true'
             attributes = " ".join(attributes)
             out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")} {attributes}</a><br/>')
         # Adding html footer
