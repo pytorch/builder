@@ -11,11 +11,9 @@ from re import sub, match, search
 from packaging.version import parse
 
 import boto3
-from botocore.exceptions import NoCredentialsError
 
 
 S3 = boto3.resource('s3')
-CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
 ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
@@ -122,8 +120,8 @@ def between_bad_dates(package_build_time: datetime):
 
 
 class S3Index:
-    def __init__(self: S3IndexType, objects: List[str], prefix: str) -> None:
-        self.objects = objects
+    def __init__(self: S3IndexType, objects: Dict[str, str], prefix: str) -> None:
+        self.objects = objects  # s3 key to checksum mapping
         self.prefix = prefix.rstrip("/")
         self.html_name = PREFIXES_WITH_HTML[self.prefix]
         # should dynamically grab subdirectories like whl/test/cu101
@@ -147,7 +145,7 @@ class S3Index:
         # also includes versions without GPU specifier (i.e. cu102) for easier
         # sorting, sorts in reverse to put the most recent versions first
         all_sorted_packages = sorted(
-            {self.normalize_package_version(obj) for obj in self.objects},
+            {self.normalize_package_version(s3_key) for s3_key in self.objects.keys()},
             key=lambda name_ver: parse(name_ver.split('-', 1)[-1]),
             reverse=True,
         )
@@ -167,10 +165,12 @@ class S3Index:
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
-        return set(self.objects).difference({
-            obj for obj in self.objects
-            if self.normalize_package_version(obj) in to_hide
-        })
+        nightly_packages = {}
+        for obj, checksum in self.objects.items():
+            normalized_package_version = self.normalize_package_version(obj)
+            if not normalized_package_version in to_hide:
+                nightly_packages[normalized_package_version] = checksum
+        return nightly_packages
 
     def is_obj_at_root(self, obj:str) -> bool:
         return path.dirname(obj) == self.prefix
@@ -191,15 +191,15 @@ class S3Index:
             else self.objects
         )
         subdir = self._resolve_subdir(subdir) + '/'
-        for obj in objects:
+        for obj, checksum in objects.items():
             if package_name is not None:
                 if self.obj_to_package_name(obj) != package_name:
                     continue
             if self.is_obj_at_root(obj) or obj.startswith(subdir):
-                yield obj
+                yield obj, checksum
 
     def get_package_names(self, subdir: Optional[str] = None) -> List[str]:
-        return sorted(set(self.obj_to_package_name(obj) for obj in self.gen_file_list(subdir)))
+        return sorted(set(self.obj_to_package_name(obj) for obj, _ in self.gen_file_list(subdir)))
 
     def normalize_package_version(self: S3IndexType, obj: str) -> str:
         # removes the GPU specifier from the package name as well as
@@ -212,23 +212,6 @@ class S3Index:
 
     def obj_to_package_name(self, obj: str) -> str:
         return path.basename(obj).split('-', 1)[0]
-
-    def fetch_checksum_from_s3(self, s3_key):
-        s3_key = s3_key.replace("%2B", "+")
-        try:
-            response = CLIENT.get_object_attributes(
-                Bucket=BUCKET,
-                Key=s3_key,
-                ObjectAttributes=['Checksum']
-            )
-            checksum = response['Checksum']['ChecksumSHA256']
-            return checksum
-        except NoCredentialsError:
-            print("No AWS credentials found")
-            return None
-        except Exception as e:
-            print(f"Unable to retrieve checksum due to {e}")
-            return None
 
     def to_legacy_html(
         self,
@@ -244,7 +227,7 @@ class S3Index:
         out: List[str] = []
         subdir = self._resolve_subdir(subdir)
         is_root = subdir == self.prefix
-        for obj in self.gen_file_list(subdir):
+        for obj, _ in self.gen_file_list(subdir):
             # Strip our prefix
             sanitized_obj = obj.replace(subdir, "", 1)
             if sanitized_obj.startswith('/'):
@@ -272,8 +255,7 @@ class S3Index:
         out.append('<html>')
         out.append('  <body>')
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
-        for obj in sorted(self.gen_file_list(subdir, package_name)):
-            checksum = self.fetch_checksum_from_s3(obj)
+        for obj, checksum in sorted(self.gen_file_list(subdir, package_name)):
             if checksum:
                 out.append(f'    <a href="/{obj}#sha256={checksum}">{path.basename(obj).replace("%2B","+")}</a><br/>')
             else:
@@ -338,7 +320,6 @@ class S3Index:
                     Body=self.to_simple_package_html(subdir=subdir, package_name=pkg_name)
                 )
 
-
     def save_legacy_html(self) -> None:
         for subdir in self.subdirs:
             print(f"INFO Saving {subdir}/{self.html_name}")
@@ -370,9 +351,12 @@ class S3Index:
                 for pattern in ACCEPTED_SUBDIR_PATTERNS
             ]) and obj.key.endswith(ACCEPTED_FILE_EXTENSIONS)
             if is_acceptable:
+                response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
+                sha256 = response.get("ChecksumSHA256")
                 sanitized_key = obj.key.replace("+", "%2B")
-                objects.append(sanitized_key)
+                objects.append((sanitized_key, sha256))
         return cls(objects, prefix)
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("Manage S3 HTML indices for PyTorch")
@@ -384,6 +368,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("--do-not-upload", action="store_true")
     parser.add_argument("--generate-pep503", action="store_true")
     return parser
+
 
 def main():
     parser = create_parser()
@@ -408,6 +393,7 @@ def main():
             idx.upload_legacy_html()
             if args.generate_pep503:
                 idx.upload_pep503_htmls()
+
 
 if __name__ == "__main__":
     main()
