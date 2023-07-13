@@ -120,7 +120,7 @@ def between_bad_dates(package_build_time: datetime):
 
 
 class S3Index:
-    def __init__(self: S3IndexType, objects: Dict[str, str], prefix: str) -> None:
+    def __init__(self: S3IndexType, objects: Dict[str, str | None], prefix: str) -> None:
         self.objects = objects  # s3 key to checksum mapping
         self.prefix = prefix.rstrip("/")
         self.html_name = PREFIXES_WITH_HTML[self.prefix]
@@ -130,7 +130,7 @@ class S3Index:
             path.dirname(obj) for obj in objects if path.dirname != prefix
         }
 
-    def nightly_packages_to_show(self: S3IndexType) -> Set[str]:
+    def nightly_packages_to_show(self: S3IndexType) -> Dict[str, str | None]:
         """Finding packages to show based on a threshold we specify
 
         Basically takes our S3 packages, normalizes the version for easier
@@ -145,7 +145,7 @@ class S3Index:
         # also includes versions without GPU specifier (i.e. cu102) for easier
         # sorting, sorts in reverse to put the most recent versions first
         all_sorted_packages = sorted(
-            {self.normalize_package_version(s3_key) for s3_key in self.objects.keys()},
+            {self.normalize_package_version(s3_key) for s3_key in self.objects},
             key=lambda name_ver: parse(name_ver.split('-', 1)[-1]),
             reverse=True,
         )
@@ -185,7 +185,7 @@ class S3Index:
         self,
         subdir: Optional[str]=None,
         package_name: Optional[str] = None
-    ) -> Iterator[str]:
+    ) -> Iterator[str, str | None]:
         objects = (
             self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
             else self.objects
@@ -351,6 +351,7 @@ class S3Index:
                 for pattern in ACCEPTED_SUBDIR_PATTERNS
             ]) and obj.key.endswith(ACCEPTED_FILE_EXTENSIONS)
             if is_acceptable:
+                # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
                 response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
                 sha256 = response.get("ChecksumSHA256")
                 sanitized_key = obj.key.replace("+", "%2B")
