@@ -165,12 +165,11 @@ class S3Index:
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
-        nightly_packages = {}
-        for obj, checksum in self.objects.items():
-            normalized_package_version = self.normalize_package_version(obj)
-            if not normalized_package_version in to_hide:
-                nightly_packages[normalized_package_version] = checksum
-        return nightly_packages
+        return {
+            s3_key: checksum
+            for s3_key, checksum in self.objects.items()
+            if self.normalize_package_version(s3_key) not in to_hide
+        }
 
     def is_obj_at_root(self, obj:str) -> bool:
         return path.dirname(obj) == self.prefix
