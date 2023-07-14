@@ -255,10 +255,10 @@ class S3Index:
         out.append('  <body>')
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj, checksum in sorted(self.gen_file_list(subdir, package_name)):
+            maybe_fragment = ""
             if checksum:
-                out.append(f'    <a href="/{obj}#sha256={checksum}">{path.basename(obj).replace("%2B","+")}</a><br/>')
-            else:
-                out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+                maybe_fragment = f"#sha256={checksum}"
+            out.append(f'    <a href="/{obj}{maybe_fragment}">{path.basename(obj).replace("%2B","+")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
