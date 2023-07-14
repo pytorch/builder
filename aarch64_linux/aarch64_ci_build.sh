@@ -12,7 +12,7 @@ PATH=/opt/conda/bin:$PATH
 # Install OS dependent packages
 ###############################################################################
 yum -y install epel-release
-yum -y install less zstd libgomp
+yum -y install less zstd libgomp liblapack
 
 ###############################################################################
 # Install conda
@@ -25,7 +25,7 @@ chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
 /opt/conda/bin/conda config --set ssl_verify False
-/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf pygit2
+/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy==1.21.2 pyyaml setuptools patchelf pygit2
 python --version
 conda --version
 
