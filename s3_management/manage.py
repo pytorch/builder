@@ -339,7 +339,7 @@ class S3Index:
 
     @classmethod
     def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
-        objects = []
+        objects = {}
         prefix = prefix.rstrip("/")
         for obj in BUCKET.objects.filter(Prefix=prefix):
             is_acceptable = any([path.dirname(obj.key) == prefix] + [
@@ -354,7 +354,7 @@ class S3Index:
                 response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
                 sha256 = response.get("ChecksumSHA256")
                 sanitized_key = obj.key.replace("+", "%2B")
-                objects.append((sanitized_key, sha256))
+                objects[sanitized_key] = sha256
         return cls(objects, prefix)
 
 
