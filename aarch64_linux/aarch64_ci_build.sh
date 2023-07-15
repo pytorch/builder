@@ -12,7 +12,7 @@ PATH=/opt/conda/bin:$PATH
 # Install OS dependent packages
 ###############################################################################
 yum -y install epel-release
-yum -y install less zstd libgomp liblapack-dev
+yum -y install less zstd libgomp lapack-devel
 
 ###############################################################################
 # Install conda
