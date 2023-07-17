@@ -81,6 +81,7 @@ if __name__ == '__main__':
 
     args = parse_arguments()
     enable_mkldnn = args.enable_mkldnn
+    enable_lapack = args.enable_lapack
     repo = Repository('/pytorch')
     branch = repo.head.name
     if branch == 'HEAD':
@@ -112,6 +113,11 @@ if __name__ == '__main__':
             "ACL_LIBRARY=/acl/build "
     else:
         print("build pytorch without mkldnn backend")
+    if enable_lapack:
+        print("build pytorch with LAPACK backend")
+        build_vars += "USE_LAPACK=1 "
+    else:
+        print("build pytorch without LAPACK backend")
 
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")

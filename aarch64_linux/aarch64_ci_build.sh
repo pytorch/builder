@@ -26,7 +26,7 @@ chmod +x /mambaforge.sh
 rm /mambaforge.sh
 /opt/conda/bin/conda config --set ssl_verify False
 # numpy version
-if [ "$DESIRED_PYTHON" == 3.11 ]; then
+if [ "$DESIRED_PYTHON" >= 3.11 ]; then
     NUMPY_VERSION=1.23.5
 else
     NUMPY_VERSION=1.21.2
