@@ -19,7 +19,7 @@ Using ArmComputeLibrary for aarch64 PyTorch
 def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
     os.system("cd / && mkdir /acl")
-    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
+    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.05.1 {git_clone_flags}")
     os.system('sed -i -e \'s/"armv8.2-a"/"armv8-a"/g\' ComputeLibrary/SConscript; '
               'sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct; '
               'sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json')
