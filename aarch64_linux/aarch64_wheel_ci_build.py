@@ -14,22 +14,15 @@ def list_dir(path: str) -> List[str]:
 
 
 '''
-Using OpenBLAS with PyTorch
-'''
-def build_OpenBLAS(git_clone_flags: str = "") -> None:
-    print('Building OpenBLAS')
-    os.system(f"cd /; git clone https://github.com/xianyi/OpenBLAS -b v0.3.21 {git_clone_flags}")
-    make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8 "
-    os.system(f"cd OpenBLAS; make {make_flags} -j8; make {make_flags} install; cd /; rm -rf OpenBLAS")
-
-
-'''
 Using ArmComputeLibrary for aarch64 PyTorch
 '''
 def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
     os.system("cd / && mkdir /acl")
     os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
+    os.system('sed -i -e \'s/"armv8.2-a"/"armv8-a"/g\' ComputeLibrary/SConscript; '
+              'sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct; '
+              'sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json')
     os.system(f"cd ComputeLibrary; export acl_install_dir=/acl; " \
                 f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
                 f"cp -r arm_compute $acl_install_dir; " \
@@ -89,9 +82,6 @@ if __name__ == '__main__':
     git_clone_flags = " --depth 1 --shallow-submodules"
     os.system(f"conda install -y ninja scons")
 
-    print("Build and Install OpenBLAS")
-    build_OpenBLAS(git_clone_flags)
-
     print('Building PyTorch wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system(f"python setup.py clean")
@@ -107,7 +97,7 @@ if __name__ == '__main__':
         print("build pytorch with mkldnn+acl backend")
         build_vars += "USE_MKLDNN=ON USE_MKLDNN_ACL=ON " \
             "ACL_ROOT_DIR=/acl " \
-            "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build " \
+            "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build:$LD_LIBRARY_PATH " \
             "ACL_INCLUDE_DIR=/acl/build " \
             "ACL_LIBRARY=/acl/build "
     else:
