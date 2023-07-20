@@ -7,6 +7,7 @@ set -eux -o pipefail
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
+LD_LIBRARY_PATH=/opt/conda/lib:$LD_LIBRARY_PATH
 
 ###############################################################################
 # Install OS dependent packages
@@ -25,7 +26,7 @@ chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
 /opt/conda/bin/conda config --set ssl_verify False
-/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf pygit2
+/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf pygit2 openblas
 python --version
 conda --version
 
