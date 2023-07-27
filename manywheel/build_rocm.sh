@@ -215,11 +215,12 @@ fi
 # Add triton install dependency
 if [[ $(uname) == "Linux" ]]; then
     TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.ci/docker/ci_commit_pins/triton-rocm.txt)
+    TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton-rocm==2.1.0+${TRITON_SHORTHASH}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton-rocm==${TRITON_VERSION}+${TRITON_SHORTHASH}"
     else
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton-rocm==2.1.0+${TRITON_SHORTHASH}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton-rocm==${TRITON_VERSION}+${TRITON_SHORTHASH}"
     fi
 fi
 
