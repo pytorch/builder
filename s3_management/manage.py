@@ -3,6 +3,7 @@
 import argparse
 import base64
 import dataclasses
+import functools
 import time
 
 from os import path, makedirs
