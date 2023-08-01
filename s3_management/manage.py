@@ -352,7 +352,7 @@ class S3Index:
             if is_acceptable:
                 # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
                 response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
-                sha256 = response.get("ChecksumSHA256")
+                sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
                 sanitized_key = obj.key.replace("+", "%2B")
                 objects[sanitized_key] = sha256
         return cls(objects, prefix)
