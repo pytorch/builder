@@ -107,6 +107,7 @@ S3IndexType = TypeVar('S3IndexType', bound='S3Index')
 
 
 @dataclasses.dataclass(frozen=True)
+@functools.total_ordering
 class S3Object:
     key: str
     checksum: str | None
@@ -114,20 +115,11 @@ class S3Object:
     def __str__(self):
         return self.key
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         return self.key == other.key
 
     def __lt__(self, other):
         return self.key < other.key
-
-    def __le__(self, other):
-        return self.key <= other.key
-
-    def __gt__(self, other):
-        return self.key > other.key
-
-    def __ge__(self, other):
-        return self.key >= other.key
 
 
 def extract_package_build_time(full_package_name: str) -> datetime:
