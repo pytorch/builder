@@ -252,7 +252,7 @@ class S3Index:
         out: List[str] = []
         subdir = self._resolve_subdir(subdir)
         is_root = subdir == self.prefix
-        for obj, _ in self.gen_file_list(subdir):
+        for obj in self.gen_file_list(subdir):
             # Strip our prefix
             sanitized_obj = obj.replace(subdir, "", 1)
             if sanitized_obj.startswith('/'):
