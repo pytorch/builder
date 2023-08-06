@@ -15,29 +15,26 @@ case ${GPU_ARCH_TYPE} in
     cpu)
         BASE_TARGET=cpu
         DOCKER_TAG=cpu
-        GPU_IMAGE=nvidia/cuda:10.2-devel-ubuntu18.04
+        GPU_IMAGE=ubuntu:18.04
         DOCKER_GPU_BUILD_ARG=""
         ;;
     cuda)
         BASE_TARGET=cuda${GPU_ARCH_VERSION}
         DOCKER_TAG=cuda${GPU_ARCH_VERSION}
-        GPU_IMAGE=nvidia/cuda:10.2-devel-ubuntu18.04
+        GPU_IMAGE=ubuntu:18.04
         DOCKER_GPU_BUILD_ARG=""
         ;;
     rocm)
-        BASE_TARGET=rocm${GPU_ARCH_VERSION}
+        BASE_TARGET=rocm
         DOCKER_TAG=rocm${GPU_ARCH_VERSION}
-        GPU_IMAGE=rocm/dev-ubuntu-20.04:${GPU_ARCH_VERSION}
-        PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908"
+        GPU_IMAGE=rocm/dev-ubuntu-20.04:${GPU_ARCH_VERSION}-complete
+        PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908;gfx90a;gfx1030;gfx1100"
         ROCM_REGEX="([0-9]+)\.([0-9]+)[\.]?([0-9]*)"
         if [[ $GPU_ARCH_VERSION =~ $ROCM_REGEX ]]; then
             ROCM_VERSION_INT=$((${BASH_REMATCH[1]}*10000 + ${BASH_REMATCH[2]}*100 + ${BASH_REMATCH[3]:-0}))
         else
             echo "ERROR: rocm regex failed"
             exit 1
-        fi
-        if [[ $ROCM_VERSION_INT -ge 40300 ]]; then
-            PYTORCH_ROCM_ARCH="${PYTORCH_ROCM_ARCH};gfx90a;gfx1030"
         fi
         DOCKER_GPU_BUILD_ARG="--build-arg PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH}"
         ;;

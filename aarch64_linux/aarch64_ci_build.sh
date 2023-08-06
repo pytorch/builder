@@ -7,12 +7,13 @@ set -eux -o pipefail
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
 PATH=/opt/conda/bin:$PATH
+LD_LIBRARY_PATH=/opt/conda/lib:$LD_LIBRARY_PATH
 
 ###############################################################################
 # Install OS dependent packages
 ###############################################################################
 yum -y install epel-release
-yum -y install less zstd
+yum -y install less zstd libgomp
 
 ###############################################################################
 # Install conda
@@ -25,7 +26,7 @@ chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
 /opt/conda/bin/conda config --set ssl_verify False
-/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf
+/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf pygit2 openblas
 python --version
 conda --version
 
@@ -37,7 +38,7 @@ conda --version
 # ubuntu's libgfortran.a which is compiled with -fPIC
 ###############################################################################
 cd ~/
-curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.4.0-6ubuntu1_arm64.deb
+curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.5.0-1ubuntu1_arm64.deb
 ar x ~/libgfortran-10-dev.deb
 tar --use-compress-program=unzstd -xvf data.tar.zst -C ~/
 cp -f ~/usr/lib/gcc/aarch64-linux-gnu/10/libgfortran.a /opt/rh/devtoolset-10/root/usr/lib/gcc/aarch64-redhat-linux/10/
@@ -49,4 +50,6 @@ cd /
 # adding safe directory for git as the permissions will be
 # on the mounted pytorch repo
 git config --global --add safe.directory /pytorch
+pip install -r /pytorch/requirements.txt
+pip install auditwheel
 python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn

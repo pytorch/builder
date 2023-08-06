@@ -1,11 +1,13 @@
 ARG BASE_TARGET=base
-ARG GPU_IMAGE=nvidia/cuda:10.2-devel-ubuntu18.04
+ARG GPU_IMAGE=ubuntu:18.04
 FROM ${GPU_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get clean && apt-get update
-RUN apt-get install -y curl locales git-all autoconf automake make cmake wget unzip
+RUN apt-get install -y curl locales g++ git-all autoconf automake make cmake wget unzip
+# Just add everything as a safe.directory for git since these will be used in multiple places with git
+RUN git config --global --add safe.directory '*'
 
 RUN locale-gen en_US.UTF-8
 
@@ -44,23 +46,22 @@ ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
 RUN /opt/conda/bin/conda install -y cmake=3.18
 
-FROM cuda as cuda11.6
-RUN bash ./install_cuda.sh 11.6
-RUN bash ./install_magma.sh 11.6
-
-FROM cuda as cuda11.7
-RUN bash ./install_cuda.sh 11.7
-RUN bash ./install_magma.sh 11.7
-
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
 RUN bash ./install_magma.sh 11.8
+RUN ln -sf /usr/local/cuda-11.8 /usr/local/cuda
+
+FROM cuda as cuda12.1
+RUN bash ./install_cuda.sh 12.1
+RUN bash ./install_magma.sh 12.1
+RUN ln -sf /usr/local/cuda-12.1 /usr/local/cuda
 
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 ENV MKLROOT /opt/intel
-ADD ./common/install_rocm.sh install_rocm.sh
+# No need to install ROCm as base docker image should have full ROCm install
+#ADD ./common/install_rocm.sh install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 # gfortran and python needed for building magma from source for ROCm
@@ -69,20 +70,10 @@ RUN apt-get update -y && \
     apt-get install python -y && \
     apt-get clean
 
-FROM rocm as rocm5.4.2
-RUN ROCM_VERSION=5.4.2 bash ./install_rocm.sh && rm install_rocm.sh
-RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
-
-FROM rocm as rocm5.3
-RUN ROCM_VERSION=5.3 bash ./install_rocm.sh && rm install_rocm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final
-# Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl           /opt/openssl
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
@@ -92,4 +83,4 @@ COPY --from=conda /opt/conda /opt/conda
 # Install python
 COPY --from=python /opt/python    /opt/python
 COPY --from=python /opt/_internal /opt/_internal
-ENV PATH /opt/conda/bin:$PATH
+ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH

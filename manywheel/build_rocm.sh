@@ -80,6 +80,7 @@ ROCM_SO_FILES=(
     "libhipblas.so"
     "libhipfft.so"
     "libhiprand.so"
+    "libhipsolver.so"
     "libhipsparse.so"
     "libhsa-runtime64.so"
     "libamd_comgr.so"
@@ -94,6 +95,10 @@ ROCM_SO_FILES=(
     "libroctracer64.so"
     "libroctx64.so"
 )
+
+if [[ $ROCM_INT -ge 50600 ]]; then
+    ROCM_SO_FILES+=("libhipblaslt.so")
+fi
 
 if [[ $ROCM_INT -lt 50500 ]]; then
     ROCM_SO_FILES+=("librocfft-device-0.so")
@@ -151,16 +156,6 @@ ARCH_SPECIFIC_FILES=$(ls $ROCBLAS_LIB_SRC | grep -E $ARCH)
 OTHER_FILES=$(ls $ROCBLAS_LIB_SRC | grep -v gfx)
 ROCBLAS_LIB_FILES=($ARCH_SPECIFIC_FILES $OTHER_FILES)
 
-# MIOpen library files
-MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
-MIOPEN_SHARE_DST=share/miopen/db
-MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
-
-# RCCL library files
-RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
-RCCL_SHARE_DST=lib/msccl-algorithms
-RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
-
 # ROCm library files
 ROCM_SO_PATHS=()
 for lib in "${ROCM_SO_FILES[@]}"
@@ -193,17 +188,32 @@ DEPS_SONAME=(
 
 DEPS_AUX_SRCLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}"
-    "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/}"
-    "${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/}"
     "/opt/amdgpu/share/libdrm/amdgpu.ids"
 )
 
 DEPS_AUX_DSTLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}"
-    "${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/}"
-    "${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/}"
     "share/libdrm/amdgpu.ids"
 )
+
+if [[ $ROCM_INT -ge 50500 ]]; then
+    # MIOpen library files
+    MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
+    MIOPEN_SHARE_DST=share/miopen/db
+    MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
+
+    DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
+    DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
+elif [[ $ROCM_INT -ge 50600 ]]; then
+    # RCCL library files
+    RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
+    RCCL_SHARE_DST=lib/msccl-algorithms
+    RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+
+    DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
+    DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
+fi
+
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 

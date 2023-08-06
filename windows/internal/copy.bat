@@ -18,3 +18,8 @@ copy "%libuv_ROOT%\bin\uv.dll" pytorch\torch\lib
 if exist "C:\Windows\System32\zlibwapi.dll" (
     copy "C:\Windows\System32\zlibwapi.dll"  pytorch\torch\lib
 )
+
+::copy nvJitLink dll is requires for cuda 12+
+if exist "%CUDA_PATH%\bin\nvJitLink_*.dll*" (
+    copy "%CUDA_PATH%\bin\nvJitLink_*.dll*"  pytorch\torch\lib
+)

@@ -16,23 +16,25 @@ gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
 stable_version = os.getenv("MATRIX_STABLE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
+target_os = os.getenv("TARGET_OS")
 
 is_cuda_system = gpu_arch_type == "cuda"
-SCRIPT_DIR = Path(__file__).parent
 NIGHTLY_ALLOWED_DELTA = 3
 
 MODULES = [
     {
         "name": "torchvision",
         "repo": "https://github.com/pytorch/vision.git",
-        "smoke_test": "python ./vision/test/smoke_test.py",
+        "smoke_test": "./vision/test/smoke_test.py",
         "extension": "extension",
+        "repo_name": "vision",
     },
     {
         "name": "torchaudio",
         "repo": "https://github.com/pytorch/audio.git",
-        "smoke_test": "python ./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
+        "smoke_test": "./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
         "extension": "_extension",
+        "repo_name": "audio",
     },
 ]
 
@@ -100,7 +102,7 @@ def test_cuda_runtime_errors_captured() -> None:
     if(cuda_exception_missed):
         raise RuntimeError( f"Expected CUDA RuntimeError but have not received!")
 
-def smoke_test_cuda(package: str) -> None:
+def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
 
@@ -130,7 +132,8 @@ def smoke_test_cuda(package: str) -> None:
         if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0):
             smoke_test_compile()
 
-        test_cuda_runtime_errors_captured()
+        if(runtime_error_check == "enabled"):
+            test_cuda_runtime_errors_captured()
 
 
 def smoke_test_conv2d() -> None:
@@ -203,12 +206,18 @@ def smoke_test_compile() -> None:
     x_pt2 = torch.compile(model, mode="max-autotune")(x)
 
 def smoke_test_modules():
+    cwd = os.getcwd()
     for module in MODULES:
         if module["repo"]:
-            subprocess.check_output(f"git clone --depth 1 {module['repo']}", stderr=subprocess.STDOUT, shell=True)
+            if not os.path.exists(f"{cwd}/{module['repo_name']}"):
+                print(f"Path does not exist: {cwd}/{module['repo_name']}")
+                subprocess.check_output(f"git clone --depth 1 {module['repo']}", stderr=subprocess.STDOUT, shell=True)
             try:
+                smoke_test_command = f"python3 {module['smoke_test']}"
+                if target_os == 'windows':
+                    smoke_test_command = f"python {module['smoke_test']}"
                 output = subprocess.check_output(
-                    module["smoke_test"], stderr=subprocess.STDOUT, shell=True,
+                    smoke_test_command, stderr=subprocess.STDOUT, shell=True,
                     universal_newlines=True)
             except subprocess.CalledProcessError as exc:
                 raise RuntimeError(
@@ -227,6 +236,13 @@ def main() -> None:
         choices=["all", "torchonly"],
         default="all",
     )
+    parser.add_argument(
+        "--runtime-error-check",
+        help="No Runtime Error check",
+        type=str,
+        choices=["enabled", "disabled"],
+        default="enabled",
+    )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
     check_version(options.package)
@@ -236,7 +252,7 @@ def main() -> None:
     if options.package == "all":
         smoke_test_modules()
 
-    smoke_test_cuda(options.package)
+    smoke_test_cuda(options.package, options.runtime_error_check)
 
 
 if __name__ == "__main__":

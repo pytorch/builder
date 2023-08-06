@@ -1,4 +1,4 @@
-# CUDA Upgrade Guide/Runbook
+# CUDA/CUDNN Upgrade Runbook
 
 So you wanna upgrade PyTorch to support a new CUDA? Follow these steps in order! They are adapted from previous CUDA upgrade processes.
 
@@ -9,8 +9,9 @@ Here is the supported matrix for CUDA and CUDNN
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 11.6 | 8.3.2.44 | Stable CUDA Release |
-| 11.7 | 8.5.0.96 | Latest CUDA Release |
+| 11.7 | 8.5.0.96 | Stable CUDA Release |
+| 11.8 | 8.7.0.84 | Latest CUDA Release |
+| 12.1 | 8.9.2.26  | Latest CUDA Nightly |
 
 
 ### B. Check the package availability
@@ -91,7 +92,7 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 1. If the new CUDA version requires a new driver (see #1 sub-bullet), the CI and binaries would also need the new driver. Find the driver download [here](https://www.nvidia.com/en-us/drivers/unix/) and update the link like [so](https://github.com/pytorch/pytorch/commit/fcf8b712348f21634044a5d76a69a59727756357).
     1. Please check the Driver Version table in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
 2. Follow this [PR 81095](https://github.com/pytorch/pytorch/pull/81095) for steps 2-4 in this section.
-3. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/binaries_conda, ciflow/binaries_wheel, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
+3. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
 4. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
     - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict
@@ -101,7 +102,7 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 
 ## 8. Add the new CUDA version to OSS CI.
 Testing the new version in CI is crucial for finding regressions and should be done ASAP along with the next step (I am simply putting this one first as it is usually easier).
-1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.5**: [PR 68745](https://github.com/pytorch/pytorch/pull/68745) for Linux and [PR 69377](https://github.com/pytorch/pytorch/pull/69377) for Windows, and **code reference for 11.3** where we just replaced verbatim yaml and updated magma for conda for Linux: [PR 57223 for Windows](https://github.com/pytorch/pytorch/pull/57223) and [PR 57222 for Linux](https://github.com/pytorch/pytorch/pull/57222)
+1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.7**: [PR 93406](https://github.com/pytorch/pytorch/pull/93406).
 2. IMPORTANT NOTE: the CI is not always automatically triggered when you edit the workflow files! Ensure that the new CI job for the new CUDA version is showing up in the PR signal box.
 If it is not there, make sure you add the correct ciflow label (ciflow/periodic, for example) to trigger the test. Just because the CI is green on your pull request does NOT mean
 the test has been run and is green.
@@ -110,9 +111,18 @@ the test has been run and is green.
 ## 9. Add the new version to torchvision and torchaudio CI.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
 propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
-1. A code sample for torchvision: [PR 4248](https://github.com/pytorch/vision/pull/4248)
-2. A code sample for torchaudio: [PR 2067](https://github.com/pytorch/audio/pull/2067)
-3. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
+1. Add a change to a binary build matrix in test-infra repo [here](https://github.com/pytorch/test-infra/blob/main/tools/scripts/generate_binary_build_matrix.py#L29)
+2. A code sample for torchvision: [PR 7533](https://github.com/pytorch/vision/pull/7533)
+3. A code sample for torchaudio: [PR 3284](https://github.com/pytorch/audio/pull/3284)
+4. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
-Congrats! PyTorch now has support for a new CUDA version and you made it happen!
+This completes CUDA and CUDNN upgrade. Congrats! PyTorch now has support for a new CUDA version and you made it happen!
+
+## Upgrade CUDNN version only
+
+If you require to update CUDNN version for already existing CUDA version, please perform the followin modifications.
+1. Builder PR: https://github.com/pytorch/builder/pull/1271
+2. Add new cudnn vesion to windows AMI: https://github.com/pytorch/test-infra/pull/1523. Rebuild and retest the AMI. Follow step 6  Generate new Windows AMI, test and deploy to canary and prod.
+3. Create PyTorch PR: https://github.com/pytorch/pytorch/pull/93086 and small wheel update PyTorch PR: https://github.com/pytorch/pytorch/pull/104757
+

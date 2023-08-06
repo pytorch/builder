@@ -33,9 +33,7 @@ if [[ $ROCM_INT -lt 40001 ]]; then
     exit 0
 fi
 
-# CHANGED: Do not uninstall. To avoid out of disk space issues, we will copy lib over existing.
-# Uninstall existing package, to avoid errors during later yum install indicating packages did not change.
-#yum remove -y miopen-hip
+yum remove -y miopen-hip
 
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
@@ -60,7 +58,11 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 -DMIOPEN_BUILD_DRIVER=OFF
 "
 # Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
-if [[ $ROCM_INT -ge 50400 ]] && [[ $ROCM_INT -lt 50500 ]]; then
+if [[ $ROCM_INT -ge 50600 ]] && [[ $ROCM_INT -lt 50700 ]]; then
+    MIOPEN_BRANCH="release/rocm-rel-5.6-staging"
+elif [[ $ROCM_INT -ge 50500 ]] && [[ $ROCM_INT -lt 50600 ]]; then
+    MIOPEN_BRANCH="release/rocm-rel-5.5-gfx11"
+elif [[ $ROCM_INT -ge 50400 ]] && [[ $ROCM_INT -lt 50500 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36 -DMIOPEN_USE_MLIR=Off"
     MIOPEN_BRANCH="release/rocm-rel-5.4-staging"
 elif [[ $ROCM_INT -ge 50300 ]] && [[ $ROCM_INT -lt 50400 ]]; then
@@ -75,16 +77,6 @@ elif [[ $ROCM_INT -ge 50100 ]] && [[ $ROCM_INT -lt 50200 ]]; then
 elif [[ $ROCM_INT -ge 50000 ]] && [[ $ROCM_INT -lt 50100 ]]; then
     MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36"
     MIOPEN_BRANCH="release/rocm-rel-5.0-staging"
-elif [[ $ROCM_INT -ge 40500 ]] && [[ $ROCM_INT -lt 50000 ]]; then
-    MIOPEN_CMAKE_COMMON_FLAGS="${MIOPEN_CMAKE_COMMON_FLAGS} -DMIOPEN_USE_HIP_KERNELS=Off -DMIOPEN_DEFAULT_FIND_MODE=Normal"
-    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx906_60;gfx90878;gfx90a6e;gfx1030_36"
-    MIOPEN_BRANCH="release/rocm-rel-4.5-staging"
-elif [[ $ROCM_INT -ge 40300 ]] && [[ $ROCM_INT -lt 40500 ]]; then
-    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878;gfx1030_36"
-    MIOPEN_BRANCH="release/rocm-rel-4.3-staging"
-elif [[ $ROCM_INT -ge 40200 ]] && [[ $ROCM_INT -lt 40300 ]]; then
-    MIOPEN_CMAKE_DB_FLAGS="-DMIOPEN_EMBED_DB=gfx803_36;gfx803_64;gfx900_56;gfx900_64;gfx906_60;gfx906_64;gfx90878"
-    MIOPEN_BRANCH="rocm-4.2.x-staging"
 else
     echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
     exit 1
@@ -92,7 +84,7 @@ fi
 
 git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
-# remove .git to save disk space ince CI runner was running out
+# remove .git to save disk space since CI runner was running out
 rm -rf .git
 # Don't build MLIR to save docker build time
 # since we are disabling MLIR backend for MIOpen anyway
@@ -120,18 +112,13 @@ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig CXX=${ROCM_INSTALL_PATH}/llvm/bin/clang
     -DCMAKE_PREFIX_PATH="${ROCM_INSTALL_PATH}/hip;${ROCM_INSTALL_PATH}"
 make MIOpen -j $(nproc)
 
-# CHANGED: Do not build package.
 # Build MIOpen package
-#make -j $(nproc) package
+make -j $(nproc) package
 
 # clean up since CI runner was running out of disk space
 rm -rf /usr/local/cget
 
-# CHANGED: Do not install package, just copy lib over existing.
-#yum install -y miopen-*.rpm
-dest=$(ls ${ROCM_INSTALL_PATH}/lib/libMIOpen.so.1.0.*)
-rm -f ${dest}
-cp lib/libMIOpen.so.1.0 ${dest}
+yum install -y miopen-*.rpm
 
 popd
 rm -rf MIOpen

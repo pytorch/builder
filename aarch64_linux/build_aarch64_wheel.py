@@ -211,14 +211,10 @@ def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
         # Python-3.6 EOLed and not compatible with conda-4.11
         install_condaforge(host, suffix="download/4.10.3-10/Miniforge3-4.10.3-10-Linux-aarch64.sh")
         host.run_cmd(f"conda install -y python={python_version} numpy pyyaml")
-    elif python_version == "3.11":
-        install_condaforge(host, suffix="download/4.11.0-4/Miniforge3-4.11.0-4-Linux-aarch64.sh")
-        # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
-        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.8.0 -c malfet")
     else:
         install_condaforge(host, suffix="download/4.11.0-4/Miniforge3-4.11.0-4-Linux-aarch64.sh")
         # Pytorch-1.10 or older are not compatible with setuptools=59.6 or newer
-        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools=59.5.0")
+        host.run_cmd(f"conda install -y python={python_version} numpy pyyaml setuptools>=59.5.0")
 
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
@@ -230,11 +226,12 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
 
 def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
-    acl_install_dir="${HOME}/acl"
-    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native"
-    host.run_cmd(f"mkdir {acl_install_dir}")
+    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 build=native"
     host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
-    host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags} build_dir={acl_install_dir}/build")
+    host.run_cmd(['sed -i -e \'s/"armv8.2-a"/"armv8-a"/g\' ComputeLibrary/SConscript'])
+    host.run_cmd(['sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct'])
+    host.run_cmd(['sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json'])
+    host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags}")
 
 
 def embed_libgomp(host: RemoteHost, use_conda, wheel_name) -> None:
@@ -297,6 +294,7 @@ def build_torchvision(host: RemoteHost, *,
                                       "v1.13.0": ("0.14.0", "rc4"),
                                       "v1.13.1": ("0.14.1", "rc2"),
                                       "v2.0.0": ("0.15.1", "rc2"),
+                                      "v2.0.1": ("0.15.2", "rc2"),
                                   })
     print("Building TorchVision wheel")
 
@@ -349,6 +347,7 @@ def build_torchdata(host: RemoteHost, *,
                                   mapping={
                                       "v1.13.1": ("0.5.1", ""),
                                       "v2.0.0": ("0.6.0", "rc5"),
+                                      "v2.0.1": ("0.6.1", "rc1"),
                                   })
     print('Building TorchData wheel')
     build_vars = ""
@@ -392,6 +391,7 @@ def build_torchtext(host: RemoteHost, *,
                                       "v1.13.0": ("0.14.0", "rc3"),
                                       "v1.13.1": ("0.14.1", "rc1"),
                                       "v2.0.0": ("0.15.1", "rc2"),
+                                      "v2.0.1": ("0.15.2", "rc2"),
                                   })
     print('Building TorchText wheel')
     build_vars = ""
@@ -435,6 +435,7 @@ def build_torchaudio(host: RemoteHost, *,
                                       "v1.13.0": ("0.13.0", "rc4"),
                                       "v1.13.1": ("0.13.1", "rc2"),
                                       "v2.0.0": ("2.0.1", "rc3"),
+                                      "v2.0.1": ("2.0.2", "rc2"),
                                   })
     print('Building TorchAudio wheel')
     build_vars = ""
@@ -447,7 +448,10 @@ def build_torchaudio(host: RemoteHost, *,
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
 
-    host.run_cmd(f"cd audio && {build_vars} python3 setup.py bdist_wheel")
+    host.run_cmd(f"cd audio && export FFMPEG_ROOT=$(pwd)/third_party/ffmpeg && export USE_FFMPEG=1 \
+        && ./packaging/ffmpeg/build.sh \
+        && {build_vars} python3 setup.py bdist_wheel")
+
     wheel_name = host.list_dir("audio/dist")[0]
     embed_libgomp(host, use_conda, os.path.join('audio', 'dist', wheel_name))
 
@@ -553,7 +557,7 @@ def start_build(host: RemoteHost, *,
         build_ArmComputeLibrary(host, git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
-        host.run_cmd(f"cd pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary:$HOME/acl && {build_vars} python3 setup.py bdist_wheel{build_opts}")
+        host.run_cmd(f"cd pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary && {build_vars} python3 setup.py bdist_wheel{build_opts}")
         print('Repair the wheel')
         pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
         host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib && auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")

@@ -201,7 +201,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_sh"
-    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-MacOSX-x86_64.sh -o "$miniconda_sh"
     chmod +x "$miniconda_sh" && \
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
@@ -212,7 +212,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_exe"
-    curl -sSk https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
+    curl -sSk https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Windows-x86_64.exe -o "$miniconda_exe"
     "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
@@ -265,15 +265,12 @@ else
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
-    if [[ "$desired_cuda" == "11.8" ]]; then
+    if [[ "$desired_cuda" == "12.1" ]]; then
+	export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=12.1,<12.2 # [not osx]"
+	export MAGMA_PACKAGE="    - magma-cuda121 # [not osx and not win]"
+    elif [[ "$desired_cuda" == "11.8" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=11.8,<11.9 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda118 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.7" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=11.7,<11.8 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda117 # [not osx and not win]"
-    elif [[ "$desired_cuda" == "11.6" ]]; then
-        export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=11.6,<11.7 # [not osx]"
-        export MAGMA_PACKAGE="    - magma-cuda116 # [not osx and not win]"
     else
         echo "unhandled desired_cuda: $desired_cuda"
         exit 1
@@ -297,12 +294,6 @@ if [[ "$OSTYPE" == "msys" && "$USE_SCCACHE" == "1" ]]; then
     export CONDA_BUILD_EXTRA_ARGS="--dirty"
 else
     export CONDA_BUILD_EXTRA_ARGS=""
-fi
-
-if [[ "$DESIRED_PYTHON" == "3.11" ]]; then
-    # TODO: Remove me when numpy is available in default channel
-    # or copy numpy to pytorch channel
-    export CONDA_BUILD_EXTRA_ARGS="-c malfet ${CONDA_BUILD_EXTRA_ARGS}"
 fi
 
 # Build PyTorch with Gloo's TCP_TLS transport

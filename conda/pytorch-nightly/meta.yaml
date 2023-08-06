@@ -30,7 +30,7 @@ requirements:
     - numpy=1.19 # [py <= 39]
     - numpy=1.21.5 # [py == 310]
     - numpy=1.23.5 # [py >= 311]
-    - openssl=1.1.1l # [py == 310 and linux]
+    - openssl=1.1.1l # [py >= 38 and py <= 310 and linux]
     - openssl=1.1.1s # [py >= 311 and linux]
 {{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
 {{ environ.get('MAGMA_PACKAGE', '') }}
@@ -47,6 +47,7 @@ requirements:
     - filelock
     - networkx
     - jinja2 # [py <= 310]
+    - pyyaml
     {% if cross_compile_arm64 == 0 %}
     - blas * mkl
     {% endif %}

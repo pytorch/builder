@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:experimental
 ARG ROCM_VERSION=3.7
-ARG BASE_CUDA_VERSION=10.1
+ARG BASE_CUDA_VERSION=11.8
 
-ARG GPU_IMAGE=nvidia/cuda:${BASE_CUDA_VERSION}-devel-centos7
+ARG GPU_IMAGE=centos:7
 FROM centos:7 as base
 
 ENV LC_ALL en_US.UTF-8
@@ -11,6 +11,8 @@ ENV LANGUAGE en_US.UTF-8
 
 ARG DEVTOOLSET_VERSION=9
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel
+# Just add everything as a safe.directory for git since these will be used in multiple places with git
+RUN git config --global --add safe.directory '*'
 RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-${DEVTOOLSET_VERSION}-gcc devtoolset-${DEVTOOLSET_VERSION}-gcc-c++ devtoolset-${DEVTOOLSET_VERSION}-gcc-gfortran devtoolset-${DEVTOOLSET_VERSION}-binutils
@@ -112,8 +114,6 @@ RUN git config --global --add safe.directory "*"
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 # Install LLVM version
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm                             /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi                /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl                          /opt/openssl
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
@@ -152,18 +152,23 @@ FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
+RUN ln -sf /usr/local/cuda-${BASE_CUDA_VERSION} /usr/local/cuda
+ENV PATH=/usr/local/cuda/bin:$PATH
 
 FROM cpu_final as rocm_final
 ARG ROCM_VERSION=3.7
 ARG PYTORCH_ROCM_ARCH
 ARG PYTORCH_BRANCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
-# Install ROCm
-ADD ./common/install_rocm.sh install_rocm.sh
-RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
+# No need to install ROCm as base docker image should have full ROCm install
+#ADD ./common/install_rocm.sh install_rocm.sh
+#RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
 RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
-ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
-RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 # cmake3 is needed for the MIOpen build
 RUN ln -sf /usr/local/bin/cmake /usr/bin/cmake3
+ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
+RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
+# Do not install miopen from source for ROCm fork until an env var is introduced to control the behavior
+#ADD ./common/install_miopen.sh install_miopen.sh
+#RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh

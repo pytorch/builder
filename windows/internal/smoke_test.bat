@@ -44,7 +44,11 @@ del python-amd64.exe
 curl --retry 3 -kL "%PYTHON_INSTALLER_URL%" --output python-amd64.exe
 if errorlevel 1 exit /b 1
 
-start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0 TargetDir=%CD%\Python
+:: According to https://docs.python.org/3/using/windows.html, setting PrependPath to 1 will prepend
+:: the installed Python to PATH system-wide. Even calling set PATH=%ORIG_PATH% later on won't make
+:: a change. As the builder directory will be removed after the smoke test, all subsequent non-binary
+:: jobs will fail to find any Python executable there
+start /wait "" python-amd64.exe /quiet InstallAllUsers=1 PrependPath=0 Include_test=0 TargetDir=%CD%\Python
 if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
@@ -65,14 +69,11 @@ set "CONDA_HOME=%CD%\conda"
 set "tmp_conda=%CONDA_HOME%"
 set "miniconda_exe=%CD%\miniconda.exe"
 set "CONDA_EXTRA_ARGS=cpuonly -c pytorch-nightly"
-if "%CUDA_VERSION%" == "116" (
-    set "CONDA_EXTRA_ARGS=pytorch-cuda=11.6 -c nvidia -c pytorch-nightly"
-)
-if "%CUDA_VERSION%" == "117" (
-    set "CONDA_EXTRA_ARGS=pytorch-cuda=11.7 -c nvidia -c pytorch-nightly"
-)
 if "%CUDA_VERSION%" == "118" (
     set "CONDA_EXTRA_ARGS=pytorch-cuda=11.8 -c nvidia -c pytorch-nightly"
+)
+if "%CUDA_VERSION%" == "121" (
+    set "CONDA_EXTRA_ARGS=pytorch-cuda=12.1 -c nvidia -c pytorch-nightly"
 )
 
 rmdir /s /q conda

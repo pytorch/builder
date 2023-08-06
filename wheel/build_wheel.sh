@@ -128,7 +128,7 @@ popd
 
 export TH_BINARY_BUILD=1
 export INSTALL_TEST=0 # dont install test binaries into site-packages
-export MACOSX_DEPLOYMENT_TARGET=10.10
+export MACOSX_DEPLOYMENT_TARGET=10.13
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
@@ -194,7 +194,7 @@ echo "Finished setup.py bdist_wheel at $(date)"
 
 if [[ $package_type != 'libtorch' ]]; then
     echo "delocating wheel dependencies"
-    retry pip install https://github.com/matthew-brett/delocate/archive/master.zip
+    retry pip install https://github.com/matthew-brett/delocate/archive/refs/tags/0.10.4.zip
     echo "found the following wheels:"
     find $whl_tmp_dir -name "*.whl"
     echo "running delocate"
