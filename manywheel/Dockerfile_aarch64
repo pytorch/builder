@@ -4,11 +4,6 @@ FROM quay.io/pypa/manylinux2014_aarch64 as base
 # Graviton needs GCC 10 for the build
 ARG DEVTOOLSET_VERSION=10
 
-# There is a bug with manylinux and CentOS docker (AML2 linux) and makes
-# the yum package system slow as the ulimit is to high. Setting the
-# ulimit to 1024 provides a large boost in installing yum packages.
-ARG ULIMIT="ulimit -n 1024"
-
 # Language variabes
 ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
@@ -16,9 +11,9 @@ ENV LANGUAGE=en_US.UTF-8
 
 # Installed needed OS packages. This is to support all
 # the binary builds (torch, vision, audio, text, data)
-RUN ${ULIMIT} && yum -y install epel-release
-RUN ${ULIMIT} && yum -y update
-RUN ${ULIMIT} && yum install -y \
+RUN yum -y install epel-release
+RUN yum -y update
+RUN yum install -y \
   autoconf \
   automake \
   bison \
