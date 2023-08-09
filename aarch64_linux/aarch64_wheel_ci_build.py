@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# encoding: UTF-8
 
 import os
 import subprocess
@@ -6,36 +7,36 @@ from pygit2 import Repository
 from typing import List
 
 
-''''
-Helper for getting paths for Python
-'''
 def list_dir(path: str) -> List[str]:
-     return subprocess.check_output(["ls", "-1", path]).decode().split("\n")
+    ''''
+    Helper for getting paths for Python
+    '''
+    return subprocess.check_output(["ls", "-1", path]).decode().split("\n")
 
 
-'''
-Using ArmComputeLibrary for aarch64 PyTorch
-'''
 def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
+    '''
+    Using ArmComputeLibrary for aarch64 PyTorch
+    '''
     print('Building Arm Compute Library')
     os.system("cd / && mkdir /acl")
     os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.05.1 {git_clone_flags}")
     os.system('sed -i -e \'s/"armv8.2-a"/"armv8-a"/g\' ComputeLibrary/SConscript; '
               'sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct; '
               'sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json')
-    os.system(f"cd ComputeLibrary; export acl_install_dir=/acl; " \
-                f"scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; " \
-                f"cp -r arm_compute $acl_install_dir; " \
-                f"cp -r include $acl_install_dir; " \
-                f"cp -r utils $acl_install_dir; " \
-                f"cp -r support $acl_install_dir; " \
-                f"cp -r src $acl_install_dir; cd /")
+    os.system("cd ComputeLibrary; export acl_install_dir=/acl; "
+              "scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; "
+              "cp -r arm_compute $acl_install_dir; "
+              "cp -r include $acl_install_dir; "
+              "cp -r utils $acl_install_dir; "
+              "cp -r support $acl_install_dir; "
+              "cp -r src $acl_install_dir; cd /")
 
 
-'''
-Complete wheel build and put in artifact location
-'''
 def complete_wheel(folder: str):
+    '''
+    Complete wheel build and put in artifact location
+    '''
     wheel_name = list_dir(f"/{folder}/dist")[0]
 
     if "pytorch" in folder:
@@ -54,10 +55,10 @@ def complete_wheel(folder: str):
     return repaired_wheel_name
 
 
-'''
-Parse inline arguments
-'''
 def parse_arguments():
+    '''
+    Parse inline arguments
+    '''
     from argparse import ArgumentParser
     parser = ArgumentParser("AARCH64 wheels python CD")
     parser.add_argument("--debug", action="store_true")
@@ -67,11 +68,10 @@ def parse_arguments():
     return parser.parse_args()
 
 
-'''
-Entry Point
-'''
 if __name__ == '__main__':
-
+    '''
+    Entry Point
+    '''
     args = parse_arguments()
     enable_mkldnn = args.enable_mkldnn
     repo = Repository('/pytorch')
@@ -80,15 +80,14 @@ if __name__ == '__main__':
         branch = 'master'
 
     git_clone_flags = " --depth 1 --shallow-submodules"
-    os.system(f"conda install -y ninja scons")
 
     print('Building PyTorch wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    os.system(f"python setup.py clean")
+    os.system("python setup.py clean")
 
     if branch == 'nightly' or branch == 'master':
-        build_date = subprocess.check_output(['git','log','--pretty=format:%cs','-1'], cwd='/pytorch').decode().replace('-','')
-        version = subprocess.check_output(['cat','version.txt'], cwd='/pytorch').decode().strip()[:-2]
+        build_date = subprocess.check_output(['git', 'log', '--pretty=format:%cs', '-1'], cwd='/pytorch').decode().replace('-', '')
+        version = subprocess.check_output(['cat', 'version.txt'], cwd='/pytorch').decode().strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
     if branch.startswith("v1.") or branch.startswith("v2."):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
@@ -96,10 +95,10 @@ if __name__ == '__main__':
         build_ArmComputeLibrary(git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
         build_vars += "USE_MKLDNN=ON USE_MKLDNN_ACL=ON " \
-            "ACL_ROOT_DIR=/acl " \
-            "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build:$LD_LIBRARY_PATH " \
-            "ACL_INCLUDE_DIR=/acl/build " \
-            "ACL_LIBRARY=/acl/build "
+                      "ACL_ROOT_DIR=/acl " \
+                      "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build:$LD_LIBRARY_PATH " \
+                      "ACL_INCLUDE_DIR=/acl/build " \
+                      "ACL_LIBRARY=/acl/build "
     else:
         print("build pytorch without mkldnn backend")
 

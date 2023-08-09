@@ -7,6 +7,8 @@ TOPDIR=$(git rev-parse --show-toplevel)
 GPU_ARCH_TYPE=cpu "${TOPDIR}/manywheel/build_docker.sh"
 MANYLINUX_VERSION=2014 GPU_ARCH_TYPE=cpu "${TOPDIR}/manywheel/build_docker.sh"
 
+GPU_ARCH_TYPE=cpu-aarch64 "${TOPDIR}/manywheel/build_docker.sh"
+
 GPU_ARCH_TYPE=cpu-cxx11-abi "${TOPDIR}/manywheel/build_docker.sh"
 
 for cuda_version in 12.1 11.8; do

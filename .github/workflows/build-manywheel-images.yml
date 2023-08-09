@@ -12,6 +12,7 @@ on:
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/Dockerfile_aarch64
       - manywheel/Dockerfile_cxx11-abi
       - manywheel/build_docker.sh
       - 'common/*'
@@ -19,6 +20,7 @@ on:
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/Dockerfile_aarch64
       - manywheel/Dockerfile_cxx11-abi
       - 'common/*'
       - manywheel/build_docker.sh
@@ -71,6 +73,21 @@ jobs:
           manywheel/build_docker.sh
   build-docker-cpu:
     runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout PyTorch
+        uses: actions/checkout@v3
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
+      - name: Build Docker Image
+        run: |
+          manywheel/build_docker.sh
+  build-docker-cpu-aarch64:
+    runs-on: linux.t4g.2xlarge
+    env:
+      GPU_ARCH_TYPE: cpu-aarch64
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v3
