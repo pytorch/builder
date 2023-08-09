@@ -20,6 +20,14 @@ case ${GPU_ARCH_TYPE} in
         GPU_IMAGE=centos:7
         DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
         ;;
+    cpu-aarch64)
+        TARGET=final
+        DOCKER_TAG=cpu-aarch64
+        LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu-aarch64
+        GPU_IMAGE=arm64v8/centos:7
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=10"
+        MANY_LINUX_VERSION="aarch64"
+        ;;
     cpu-cxx11-abi)
         TARGET=final
         DOCKER_TAG=cpu-cxx11-abi

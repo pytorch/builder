@@ -10,12 +10,6 @@ PATH=/opt/conda/bin:$PATH
 LD_LIBRARY_PATH=/opt/conda/lib:$LD_LIBRARY_PATH
 
 ###############################################################################
-# Install OS dependent packages
-###############################################################################
-yum -y install epel-release
-yum -y install less zstd libgomp
-
-###############################################################################
 # Install conda
 # disable SSL_verify due to getting "Could not find a suitable TLS CA certificate bundle, invalid path"
 # when using Python version, less than the conda latest
@@ -26,19 +20,6 @@ chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
 /opt/conda/bin/conda config --set ssl_verify False
-/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf pygit2 openblas
+/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml setuptools patchelf pygit2 openblas ninja scons
 python --version
 conda --version
-
-###############################################################################
-# Exec libglfortran.a hack
-#
-# libgfortran.a from quay.io/pypa/manylinux2014_aarch64 is not compiled with -fPIC.
-# This causes __stack_chk_guard@@GLIBC_2.17 on pytorch build. To solve, get
-# ubuntu's libgfortran.a which is compiled with -fPIC
-###############################################################################
-cd ~/
-curl -L -o ~/libgfortran-10-dev.deb http://ports.ubuntu.com/ubuntu-ports/pool/universe/g/gcc-10/libgfortran-10-dev_10.5.0-1ubuntu1_arm64.deb
-ar x ~/libgfortran-10-dev.deb
-tar --use-compress-program=unzstd -xvf data.tar.zst -C ~/
-cp -f ~/usr/lib/gcc/aarch64-linux-gnu/10/libgfortran.a /opt/rh/devtoolset-10/root/usr/lib/gcc/aarch64-redhat-linux/10/
