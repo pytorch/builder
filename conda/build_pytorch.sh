@@ -286,9 +286,7 @@ fi
 
 # Some tricks for sccache with conda builds on Windows
 if [[ "$OSTYPE" == "msys" && "$USE_SCCACHE" == "1" ]]; then
-    if [[ ! -d "/c/cb" ]]; then
-        rm -rf /c/cb
-    fi
+    rm -rf /c/cb
     mkdir -p /c/cb/pytorch_1000000000000
     export CONDA_BLD_PATH="C:\\cb"
     export CONDA_BUILD_EXTRA_ARGS="--dirty"
