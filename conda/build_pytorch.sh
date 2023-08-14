@@ -337,12 +337,14 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
-    conda install -y conda-package-handling conda==23.5.2
 
     if [[ "$OSTYPE" == "msys" ]]; then
       # Don't run tests on windows (they were ignored mostly anyways)
       NO_TEST="--no-test"
+      # Fow windows need to keep older conda version
+      conda install -y conda-package-handling conda==22.9.0
     else
+      conda install -y conda-package-handling conda==23.5.2
       # NS: To be removed after conda docker images are updated
       conda update -y conda-build
     fi
