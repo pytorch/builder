@@ -51,6 +51,7 @@ jobs:
           fi
       - name: Build Docker Image
         run: |
+          df -H
           manywheel/build_docker.sh
   build-docker-rocm:
     runs-on: linux.12xlarge
