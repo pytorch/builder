@@ -87,6 +87,11 @@ set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 conda create -qyn testenv python=%DESIRED_PYTHON%
 if errorlevel 1 exit /b 1
 
+:: Install numpy see: https://github.com/pytorch/pytorch/issues/107228
+:: todo: Remove this install once the issue above is resolved
+conda install -yq numpy
+if errorlevel 1 exit /b 1
+
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
