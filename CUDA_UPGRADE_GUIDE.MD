@@ -52,7 +52,7 @@ There are three types of Docker containers we maintain in order to build Linux b
 
 ## 3. Update Magma for Linux
 Build Magma for Linux. Our Linux CUDA jobs use conda, so we need to build magma-cuda116 and push it to anaconda:
-1. Follow this [PR 997](https://github.com/pytorch/builder/pull/997) for all steps in this section
+1. Follow this [PR 1368](https://github.com/pytorch/builder/pull/1368) for all steps in this section
 2. Currently, this is mainly copy-paste in [`magma/Makefile`](magma/Makefile) if there are no major code API changes/deprecations to the CUDA version. Previously, we've needed to add patches to MAGMA, so this may be something to check with NVIDIA about.
 3. To push the package, please update build-magma-linux workflow [PR 897](https://github.com/pytorch/builder/pull/897).
 4. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115)
