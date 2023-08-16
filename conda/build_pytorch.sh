@@ -98,13 +98,11 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
+
 if [[ -z "$DESIRED_PYTHON" ]]; then
-    if [[ "$OSTYPE" == "msys" ]]; then
-        DESIRED_PYTHON=('3.5' '3.6' '3.7')
-    else
-        DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7' '3.8')
-    fi
+    DESIRED_PYTHON=('3.8')
 fi
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
 fi
@@ -366,7 +364,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # TODO these reqs are hardcoded for pytorch-nightly
     test_env="env_$folder_tag"
     retry conda create -yn "$test_env" python="$py_ver"
-    source activate "$test_env"
+    conda activate "$test_env"
 
     # Extract the package for testing
     ls -lah "$output_folder"
@@ -410,14 +408,19 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     fi
 
     # Clean up test folder
-    source deactivate
+    conda deactivate
     conda env remove -yn "$test_env"
     rm -rf "$output_folder"
 done
 
 # Cleanup the tricks for sccache with conda builds on Windows
 if [[ "$OSTYPE" == "msys" ]]; then
+    # Please note sometimes we get Device or resource busy during
+    # this cleanup step. We don't want to fail the build because of this
+    # hence adding +e, -e around the cleanup step
+    set +e
     rm -rf /c/cb/pytorch_1000000000000
+    set -e
     unset CONDA_BLD_PATH
 fi
 unset CONDA_BUILD_EXTRA_ARGS
