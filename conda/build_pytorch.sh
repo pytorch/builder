@@ -364,7 +364,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # TODO these reqs are hardcoded for pytorch-nightly
     test_env="env_$folder_tag"
     retry conda create -yn "$test_env" python="$py_ver"
-    conda activate "$test_env"
+    source activate "$test_env"
 
     # Extract the package for testing
     ls -lah "$output_folder"
@@ -408,7 +408,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     fi
 
     # Clean up test folder
-    conda deactivate
+    source deactivate
     conda env remove -yn "$test_env"
     rm -rf "$output_folder"
 done
