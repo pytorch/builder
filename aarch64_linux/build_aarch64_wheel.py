@@ -219,7 +219,7 @@ def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
 
 def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
-    host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.19 {git_clone_flags}")
+    host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.20 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
     host.run_cmd(f"pushd OpenBLAS && make {make_flags} -j8 && sudo make {make_flags} install && popd && rm -rf OpenBLAS")
 
@@ -227,10 +227,7 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
 def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
     acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 build=native"
-    host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v22.11 {git_clone_flags}")
-    host.run_cmd(['sed -i -e \'s/"armv8.2-a"/"armv8-a"/g\' ComputeLibrary/SConscript'])
-    host.run_cmd(['sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct'])
-    host.run_cmd(['sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json'])
+    host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.05.1 {git_clone_flags}")
     host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags}")
 
 
