@@ -22,6 +22,11 @@ on:
         default: ""
         required: false
         type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       os:
@@ -50,6 +55,11 @@ on:
         default: ""
         required: false
         type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   win:
@@ -58,6 +68,7 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -65,6 +76,7 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64'
@@ -72,6 +84,7 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
 
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -79,6 +92,7 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -86,3 +100,4 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}

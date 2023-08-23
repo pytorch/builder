@@ -6,6 +6,11 @@ else
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
+    TEST_SUFFIX=""
+    if [[ ${TORCH_ONLY} == 'true' ]]; then
+        INSTALLATION=${INSTALLATION/"torchvision torchaudio"/""}
+        TEST_SUFFIX=" --package torchonly"
+    fi
 
     export OLD_PATH=${PATH}
     # Workaround macos-arm64 runners. Issue: https://github.com/pytorch/test-infra/issues/4342
@@ -26,11 +31,11 @@ else
     fi
 
     if [[ ${TARGET_OS} == 'windows' ]]; then
-        python  ./test/smoke_test/smoke_test.py
+        python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     elif [[ ${TARGET_OS} == 'linux-aarch64'  ]]; then
         python3  ./test/smoke_test/smoke_test.py  --package=torchonly
     else
-        python3  ./test/smoke_test/smoke_test.py
+        python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     fi
 
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
