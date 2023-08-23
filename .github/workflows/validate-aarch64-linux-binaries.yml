@@ -38,10 +38,10 @@ jobs:
       channel: ${{ inputs.channel }}
       with-cuda: disable
 
-  linux:
+  linux-aarch64:
     needs: generate-aarch64-linux-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-aarch64-linux-matrix.outputs.matrix) }}
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     name: ${{ matrix.build_name }}
