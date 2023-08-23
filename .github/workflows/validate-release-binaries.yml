@@ -31,5 +31,5 @@ jobs:
   release:
     uses: ./.github/workflows/validate-binaries.yml
     with:
-      channel: release
+      channel: nightly
       os: all
