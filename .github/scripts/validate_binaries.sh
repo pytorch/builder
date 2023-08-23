@@ -7,7 +7,7 @@ else
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
     TEST_SUFFIX=""
-    if [[ ${TORCHONLY} == 'true' ]]; then
+    if [[ ${TORCH_ONLY} == 'true' ]]; then
         INSTALLATION=${INSTALLATION/"torchvision torchaudio"/""}
         TEST_SUFFIX=" --package torchonly"
     fi
