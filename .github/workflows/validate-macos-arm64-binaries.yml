@@ -12,6 +12,11 @@ on:
         default: ""
         required: false
         type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -28,6 +33,11 @@ on:
         default: ""
         required: false
         type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-macos-arm64-matrix:
@@ -53,4 +63,5 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos-arm64"
+        export TORCH_ONLY=${{ inputs.torchonly }}
         source ./.github/scripts/validate_binaries.sh

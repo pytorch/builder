@@ -12,6 +12,11 @@ on:
         default: ""
         required: false
         type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -28,6 +33,11 @@ on:
         default: ""
         required: false
         type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-aarch64-linux-matrix:
@@ -55,6 +65,7 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
+        export TORCH_ONLY=${{ inputs.torchonly }}
         eval "$(conda shell.bash hook)"
 
         # Standart case: Validate binaries
