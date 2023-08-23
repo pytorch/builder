@@ -32,6 +32,7 @@ on:
         options:
           - windows
           - linux
+          - linux-aarch64
           - macos
           - all
       channel:
@@ -61,6 +62,13 @@ jobs:
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
     uses: ./.github/workflows/validate-linux-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
+
+  linux:
+    if:  inputs.os == 'linux-aarch64'
+    uses: ./.github/workflows/validate-aarch64-linux-binaries.yml
     with:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
