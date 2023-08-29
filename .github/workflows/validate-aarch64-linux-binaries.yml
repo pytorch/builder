@@ -60,6 +60,7 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
+      docker-image: ${{ matrix.container_image }}
       binary-matrix: ${{ toJSON(matrix) }}
       no-sudo: true
       script: |
