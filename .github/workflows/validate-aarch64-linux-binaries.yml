@@ -65,6 +65,9 @@ jobs:
       no-sudo: true
       script: |
         set -ex
+        source ./aarch64_linux/aarch64_ci_setup.sh
+        echo "/opt/conda/bin" >> $GITHUB_PATH
+
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
         export TORCH_ONLY=${{ inputs.torchonly }}
