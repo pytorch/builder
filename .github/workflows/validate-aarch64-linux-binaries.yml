@@ -65,6 +65,7 @@ jobs:
       no-sudo: true
       script: |
         set -ex
+        export DESIRED_PYTHON=${{ matrix.python_version }}
         source ./aarch64_linux/aarch64_ci_setup.sh
         echo "/opt/conda/bin" >> $GITHUB_PATH
 
