@@ -4,11 +4,11 @@ conda activate ${ENV_NAME}_pypi
 TEST_SUFFIX=""
 if [[ ${TORCH_ONLY} == 'true' ]]; then
     TEST_SUFFIX=" --package torchonly"
-    pip3 install --pre torch --index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
+    pip3 install --pre torch --extra-index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
 else
     if [[ ${MATRIX_CHANNEL} != "release" ]]; then
-        pip3 install --pre torch --index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
-        pip3 install --pre torchvision torchaudio --index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+        pip3 install --pre torch --extra-index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
+        pip3 install --pre torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
     else
         pip3 install torch torchvision torchaudio
     fi
