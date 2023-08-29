@@ -61,6 +61,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
       binary-matrix: ${{ toJSON(matrix) }}
+      no-sudo: true
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
