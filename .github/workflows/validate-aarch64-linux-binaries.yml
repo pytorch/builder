@@ -69,8 +69,6 @@ jobs:
         source ./aarch64_linux/aarch64_ci_setup.sh
         echo "/opt/conda/bin" >> $GITHUB_PATH
 
-        MATRIX_INSTALLATION=${MATRIX_INSTALLATION/"index-url"/"extra-index-url"}
-
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
         export TORCH_ONLY=${{ inputs.torchonly }}
