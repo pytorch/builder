@@ -11,7 +11,7 @@ cd test_poetry
 TEST_SUFFIX=""
 if [[ ${TORCH_ONLY} == 'true' ]]; then
     TEST_SUFFIX=" --package torchonly"
-else
+fi
 
 if [[ ${MATRIX_CHANNEL} != "release" ]]; then
     # Installing poetry from our custom repo. We need to configure it before use and disable authentication
