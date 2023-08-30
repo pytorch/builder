@@ -41,12 +41,13 @@ on:
 
 jobs:
   generate-aarch64-linux-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@Fix-Linux-arm64-in-Binary-Build-Matrix
     with:
       package-type: wheel
       os: linux-aarch64
       channel: ${{ inputs.channel }}
       with-cuda: disable
+      test-infra-ref: Fix-Linux-arm64-in-Binary-Build-Matrix
 
   linux-aarch64:
     needs: generate-aarch64-linux-matrix
