@@ -3,7 +3,7 @@ name: Validate Aarch64 linux binaries
 on:
   pull_request:
     paths:
-      - ./.github/workflows/validate-aarch64-linux-binaries.yml
+      - .github/workflows/validate-aarch64-linux-binaries.yml
   workflow_call:
     inputs:
       channel:
