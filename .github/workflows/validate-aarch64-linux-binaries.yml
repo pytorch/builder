@@ -74,11 +74,7 @@ jobs:
         echo "/opt/conda/bin" >> $GITHUB_PATH
 
         # todo: Remove after aarch64 filename is fixed
-        export MATRIX_INSTALLATION=${MATRIX_INSTALLATION/"pip3 install"/"pip3 install --pre"}
-        if [[ "${MATRIX_CHANNEL}"== 'test' && "${TORCH_ONLY}" == 'false' ]]; then
-           export MATRIX_INSTALLATION="pip3 install torch=2.1.0.dev20230830 torchvision=0.16.0 torchaudio=2.1.0 --extra-index-url https://download.pytorch.org/whl/test/cpu"
-        fi
-
+        export MATRIX_INSTALLATION="pip3 install torch=2.1.0.dev20230830 torchvision=0.16.0 torchaudio=2.1.0 --extra-index-url https://download.pytorch.org/whl/test/cpu"
 
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
