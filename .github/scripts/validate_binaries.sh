@@ -32,8 +32,6 @@ else
 
     if [[ ${TARGET_OS} == 'windows' ]]; then
         python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
-    elif [[ ${TARGET_OS} == 'linux-aarch64'  ]]; then
-        python3  ./test/smoke_test/smoke_test.py  --package=torchonly
     else
         python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     fi
