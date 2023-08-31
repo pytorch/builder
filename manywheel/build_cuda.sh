@@ -257,14 +257,14 @@ else
     exit 1
 fi
 
-# TODO: Remove me when Triton has a proper release channel
+# Prepare for 2.1.0 release
 if [[ $(uname) == "Linux" ]]; then
-    TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
+    TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton==2.1.0+${TRITON_SHORTHASH}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton==${TRITON_VERSION}"
     else
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton==2.1.0+${TRITON_SHORTHASH}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton==${TRITON_VERSION}"
     fi
 fi
 
