@@ -48,7 +48,7 @@ def complete_wheel(folder: str):
         os.system(f"mv /{folder}/wheelhouse/{repaired_wheel_name} /{folder}/dist/")
     else:
         repaired_wheel_name = wheel_name
-    
+
     print(f"Copying {repaired_wheel_name} to artfacts")
     os.system(f"mv /{folder}/dist/{repaired_wheel_name} /artifacts/")
 
@@ -85,12 +85,18 @@ if __name__ == '__main__':
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system("python setup.py clean")
 
-    if branch == 'nightly' or branch == 'master':
-        build_date = subprocess.check_output(['git', 'log', '--pretty=format:%cs', '-1'], cwd='/pytorch').decode().replace('-', '')
-        version = subprocess.check_output(['cat', 'version.txt'], cwd='/pytorch').decode().strip()[:-2]
-        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
-    if branch.startswith("v1.") or branch.startswith("v2."):
-        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
+    override_package_version = os.getenv("OVERRIDE_PACKAGE_VERSION")
+    if override_package_version is not None:
+        version = override_package_version
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version} PYTORCH_BUILD_NUMBER=1 "
+    else:
+        if branch == 'nightly' or branch == 'master':
+            build_date = subprocess.check_output(['git', 'log', '--pretty=format:%cs', '-1'], cwd='/pytorch').decode().replace('-', '')
+            version = subprocess.check_output(['cat', 'version.txt'], cwd='/pytorch').decode().strip()[:-2]
+            build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
+        if branch.startswith("v1.") or branch.startswith("v2."):
+            build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
+
     if enable_mkldnn:
         build_ArmComputeLibrary(git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
