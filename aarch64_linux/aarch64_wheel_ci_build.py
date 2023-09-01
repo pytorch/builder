@@ -86,7 +86,7 @@ if __name__ == '__main__':
     os.system("python setup.py clean")
 
     override_package_version = os.getenv("OVERRIDE_PACKAGE_VERSION")
-    if override_package_version is not None
+    if override_package_version is not None:
         version = override_package_version
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version} PYTORCH_BUILD_NUMBER=1 "
     else
