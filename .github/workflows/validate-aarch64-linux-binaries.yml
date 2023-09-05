@@ -69,9 +69,6 @@ jobs:
         source ./aarch64_linux/aarch64_ci_setup.sh
         echo "/opt/conda/bin" >> $GITHUB_PATH
 
-        # todo: Remove after aarch64 filename is fixed
-        export MATRIX_INSTALLATION=${MATRIX_INSTALLATION/"pip3 install"/"pip3 install --pre"}
-
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
         export TORCH_ONLY=${{ inputs.torchonly }}
