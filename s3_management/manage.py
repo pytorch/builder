@@ -85,6 +85,7 @@ PACKAGE_ALLOW_LIST = {
     "torchcsprng",
     "torchdata",
     "torchdistx",
+    "torchmetrics",
     "torchrec",
     "torchtext",
     "torchvision",
