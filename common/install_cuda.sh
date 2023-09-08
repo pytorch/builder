@@ -55,10 +55,11 @@ function install_121 {
 
     # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
     mkdir tmp_nccl && cd tmp_nccl
-    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.18.1/nccl_2.18.1-1+cuda12.1_x86_64.txz
-    tar xf nccl_2.18.1-1+cuda12.1_x86_64.txz
-    cp -a nccl_2.18.1-1+cuda12.1_x86_64/include/* /usr/local/cuda/include/
-    cp -a nccl_2.18.1-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
+    # v2.18.13 seems to be a typo, but it works
+    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.18.13/nccl_2.18.3-1+cuda12.1_x86_64.txz
+    tar xf nccl_2.18.3-1+cuda12.1_x86_64.txz
+    cp -a nccl_2.18.3-1+cuda12.1_x86_64/include/* /usr/local/cuda/include/
+    cp -a nccl_2.18.3-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_nccl
     ldconfig
