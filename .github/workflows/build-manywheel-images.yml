@@ -87,7 +87,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cpu-aarch64:
-    runs-on: linux.t4g.2xlarge
+    runs-on: linux.arm64.2xlarge
     env:
       GPU_ARCH_TYPE: cpu-aarch64
     steps:
