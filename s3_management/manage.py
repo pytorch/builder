@@ -80,6 +80,7 @@ PACKAGE_ALLOW_LIST = {
     "requests",
     "sympy",
     "torch",
+    "torch_tensorrt",
     "torcharrow",
     "torchaudio",
     "torchcsprng",
