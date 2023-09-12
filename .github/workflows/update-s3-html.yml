@@ -28,8 +28,8 @@ jobs:
         conda activate ./run_env
 
         # Set Envs
-        export AWS_ACCESS_KEY_ID = ${SECRET_AWS_ACCESS_KEY_ID}
-        export AWS_SECRET_ACCESS_KEY = ${SECRET_AWS_SECRET_ACCESS_KEY}
+        export AWS_ACCESS_KEY_ID="${SECRET_AWS_ACCESS_KEY_ID}"
+        export AWS_SECRET_ACCESS_KEY="${SECRET_AWS_SECRET_ACCESS_KEY}"
 
         # Install requirements
         pip install -r s3_management/requirements.txt
