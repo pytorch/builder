@@ -9,6 +9,10 @@ on:
 
 jobs:
   update:
+    strategy:
+      matrix:
+        prefix: ["whl", "whl/test", "whl/nightly", "whl/lts/1.8"]
+      fail-fast: False
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     secrets: inherit
     with:
@@ -29,5 +33,4 @@ jobs:
 
         # Install requirements
         pip install -r s3_management/requirements.txt
-        # python s3_management/manage.py --generate-pep503 ${{ matrix.prefix }}
-        python s3_management/manage.py --generate-pep503 whl
+        python s3_management/manage.py --generate-pep503 ${{ matrix.prefix }}
