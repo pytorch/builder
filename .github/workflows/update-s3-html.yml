@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         prefix: ["whl", "whl/test", "whl/nightly", "whl/lts/1.8"]
-      fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     with:
       repository: pytorch/builder
