@@ -1,4 +1,5 @@
 name: Update S3 HTML indices for download.pytorch.org
+
 on:
   # TODO: remove before merging
   pull_request:
