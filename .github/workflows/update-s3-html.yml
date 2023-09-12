@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-s3:
+  update:
     strategy:
       matrix:
         prefix: ["whl", "whl/test", "whl/nightly", "whl/lts/1.8"]
