@@ -40,6 +40,7 @@ PACKAGE_ALLOW_LIST = {
     "charset_normalizer",
     "cmake",
     "colorama",
+    "fbgemm_gpu",
     "filelock",
     "fsspec",
     "idna",
