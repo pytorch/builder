@@ -257,6 +257,14 @@ else
     exit 1
 fi
 
+# Prepare for 2.1.0 release
+if [[ $(uname) == "Linux" ]]; then
+    TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
+    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="triton==${TRITON_VERSION}"
+    fi
+fi
+
 # builder/test.sh requires DESIRED_CUDA to know what tests to exclude
 export DESIRED_CUDA="$cuda_version_nodot"
 
