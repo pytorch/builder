@@ -1,0 +1,35 @@
+name: Update S3 HTML indices for download.pytorch.org
+
+on:
+  schedule:
+    # Update the indices every 30 minutes
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    strategy:
+      matrix:
+        prefix: ["whl", "whl/test", "whl/nightly", "whl/lts/1.8"]
+      fail-fast: False
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    secrets: inherit
+    with:
+      repository: pytorch/builder
+      timeout: 60
+      secrets-env: AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+      script: |
+        set -ex
+
+        # Create Conda Environment
+        git config --global --add safe.directory /__w/builder/builder
+        conda create --quiet -y --prefix run_env python="3.8"
+        conda activate ./run_env
+
+        # Set Envs
+        export AWS_ACCESS_KEY_ID="${SECRET_AWS_ACCESS_KEY_ID}"
+        export AWS_SECRET_ACCESS_KEY="${SECRET_AWS_SECRET_ACCESS_KEY}"
+
+        # Install requirements
+        pip install -r s3_management/requirements.txt
+        python s3_management/manage.py --generate-pep503 ${{ matrix.prefix }}
