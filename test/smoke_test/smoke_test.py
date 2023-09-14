@@ -129,7 +129,9 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
         # torch.compile is available only on Linux and python 3.8-3.10
-        if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0):
+        if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0) and channel == "release":
+            smoke_test_compile()
+        elif (sys.platform == "linux" or sys.platform == "linux2") and channel != "release":
             smoke_test_compile()
 
         if(runtime_error_check == "enabled"):
