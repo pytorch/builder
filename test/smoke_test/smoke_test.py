@@ -191,6 +191,13 @@ def smoke_test_compile() -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
+
+    # Trivial torch.compile code
+    x = torch.rand(3, 3, device="cuda")
+    x_eager = foo(x)
+    x_pt2 = torch.compile(foo)(x)
+    print(torch.allclose(x_eager, x_pt2))
+
     for dtype in supported_dtypes:
         print(f"Testing smoke_test_compile for {dtype}")
         x = torch.rand(3, 3, device="cuda").type(dtype)
