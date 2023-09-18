@@ -35,6 +35,9 @@ fi
 
 yum remove -y miopen-hip
 
+# MIOpen for rocm 5.7 added bunzip2 as a dependency during its cmake invocation
+yum install -y bzip2
+
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
