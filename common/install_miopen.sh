@@ -59,7 +59,8 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 "
 # Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
 if [[ $ROCM_INT -ge 50700 ]] && [[ $ROCM_INT -lt 50800 ]]; then
-    MIOPEN_BRANCH="release/rocm-rel-5.7-staging"
+    echo "ROCm 5.7 MIOpen does not need any patches, do not build from source"
+    exit 0
 elif [[ $ROCM_INT -ge 50600 ]] && [[ $ROCM_INT -lt 50700 ]]; then
     MIOPEN_BRANCH="release/rocm-rel-5.6-staging"
 elif [[ $ROCM_INT -ge 50500 ]] && [[ $ROCM_INT -lt 50600 ]]; then
