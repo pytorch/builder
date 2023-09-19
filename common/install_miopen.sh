@@ -33,8 +33,6 @@ if [[ $ROCM_INT -lt 40001 ]]; then
     exit 0
 fi
 
-yum remove -y miopen-hip
-
 # Function to retry functions that sometimes timeout or have flaky failures
 retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
@@ -84,6 +82,8 @@ else
     echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
     exit 1
 fi
+
+yum remove -y miopen-hip
 
 git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
