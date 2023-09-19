@@ -118,7 +118,7 @@ def backward_pass_inverse_fft() -> None:
     print('Difference between x.grad and what it should be. This should be zero!')
     zeroDiff = (x.grad - dx).abs().max()
     print(zeroDiff)
-    if(zeroDiff > 1e-05)
+    if(zeroDiff > 1e-05):
         raise RuntimeError(
                 f"Failed on zero Difference expected {zeroDiff}"
             )
@@ -126,7 +126,7 @@ def backward_pass_inverse_fft() -> None:
     print('Difference between x.grad and x. This should be non-zero.')
     nonZeroDiff = (x.grad - x).abs().max()
     print(nonZeroDiff)
-    if(nonZeroDiff < 1e-05)
+    if(nonZeroDiff < 1e-05):
         raise RuntimeError(
                 f"Failed on non-zero Difference expected {nonZeroDiff}"
             )
