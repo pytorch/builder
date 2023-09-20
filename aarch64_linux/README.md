@@ -8,7 +8,9 @@ Scripts for building aarch64 PyTorch PIP Wheels. These scripts build the followi
 ## Aarch64_ci_build.sh
 This script is design to support CD operations within PyPi manylinux aarch64 container, and be executed in the container. It prepares the container and then executes __aarch64_wheel_ci_build.py__ to build the wheels. The script "assumes" the PyTorch repo is located at: ```/pytorch``` and will put the wheels into ```/artifacts```.
 ### Usage
-```DESIRED_PYTHON=<PythonVersion> aarch64_ci_build.sh```
+```DESIRED_PYTHON=<PythonVersion> aarch64_ci_build.sh [cuda]```
+
+where the optional argument `cuda` will call the script to build the CUDA version of the wheel.
 
 __NOTE:__ CI build is currently __EXPERMINTAL__
 
