@@ -114,7 +114,7 @@ S3IndexType = TypeVar('S3IndexType', bound='S3Index')
 @functools.total_ordering
 class S3Object:
     key: str
-    checksum: str | None
+    checksum: Optional[str]
 
     def __str__(self):
         return self.key
@@ -150,7 +150,7 @@ class S3Index:
         # should dynamically grab subdirectories like whl/test/cu101
         # so we don't need to add them manually anymore
         self.subdirs = {
-            path.dirname(obj) for obj in objects if path.dirname != prefix
+            path.dirname(obj.key) for obj in objects if path.dirname != prefix
         }
 
     def nightly_packages_to_show(self: S3IndexType) -> Set[S3Object]:
@@ -194,7 +194,7 @@ class S3Index:
         })
 
     def is_obj_at_root(self, obj: S3Object) -> bool:
-        return path.dirname(str(obj)) == self.prefix
+        return path.dirname(obj.key) == self.prefix
 
     def _resolve_subdir(self, subdir: Optional[str] = None) -> str:
         if not subdir:
@@ -216,7 +216,7 @@ class S3Index:
             if package_name is not None:
                 if self.obj_to_package_name(obj) != package_name:
                     continue
-            if self.is_obj_at_root(obj) or str(obj).startswith(subdir):
+            if self.is_obj_at_root(obj) or obj.key.startswith(subdir):
                 yield obj
 
     def get_package_names(self, subdir: Optional[str] = None) -> List[str]:
@@ -228,11 +228,11 @@ class S3Index:
         return sub(
             r"%2B.*",
             "",
-            "-".join(path.basename(str(obj)).split("-")[:2])
+            "-".join(path.basename(obj.key).split("-")[:2])
         )
 
     def obj_to_package_name(self, obj: S3Object) -> str:
-        return path.basename(str(obj)).split('-', 1)[0]
+        return path.basename(obj.key).split('-', 1)[0]
 
     def to_legacy_html(
         self,
@@ -250,7 +250,7 @@ class S3Index:
         is_root = subdir == self.prefix
         for obj in self.gen_file_list(subdir):
             # Strip our prefix
-            sanitized_obj = obj.replace(subdir, "", 1)
+            sanitized_obj = obj.key.replace(subdir, "", 1)
             if sanitized_obj.startswith('/'):
                 sanitized_obj = sanitized_obj.lstrip("/")
             # we include objects at our root prefix so that users can still
@@ -258,7 +258,7 @@ class S3Index:
             # to install a specific GPU arch of torch / torchvision
             if not is_root and self.is_obj_at_root(obj):
                 # strip root prefix
-                sanitized_obj = obj.replace(self.prefix, "", 1).lstrip("/")
+                sanitized_obj = obj.key.replace(self.prefix, "", 1).lstrip("/")
                 sanitized_obj = f"../{sanitized_obj}"
             out.append(f'<a href="{sanitized_obj}">{sanitized_obj}</a><br/>')
         return "\n".join(sorted(out))
@@ -278,7 +278,7 @@ class S3Index:
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             maybe_fragment = f"#sha256={obj.checksum}" if obj.checksum else ""
-            out.append(f'    <a href="/{obj}{maybe_fragment}">{path.basename(obj).replace("%2B","+")}</a><br/>')
+            out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj.key).replace("%2B","+")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
@@ -369,19 +369,20 @@ class S3Index:
                 )
                 for pattern in ACCEPTED_SUBDIR_PATTERNS
             ]) and obj.key.endswith(ACCEPTED_FILE_EXTENSIONS)
-            if is_acceptable:
-                # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
-                response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
-                sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
-                # For older files, rely on checksumsha256 metadata that can be added to the file later
-                if sha256 is None:
-                    sha256 = response.get("Metadata", {}).get("checksumsha256")
-                sanitized_key = obj.key.replace("+", "%2B")
-                s3_object = S3Object(
-                    key=sanitized_key,
-                    checksum=sha256,
-                )
-                objects.append(s3_object)
+            if not is_acceptable:
+                continue
+            # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
+            response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
+            sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
+            # For older files, rely on checksum-sha256 metadata that can be added to the file later
+            if sha256 is None:
+                sha256 = response.get("Metadata", {}).get("checksum-sha256")
+            sanitized_key = obj.key.replace("+", "%2B")
+            s3_object = S3Object(
+                key=sanitized_key,
+                checksum=sha256,
+            )
+            objects.append(s3_object)
         return cls(objects, prefix)
 
 
