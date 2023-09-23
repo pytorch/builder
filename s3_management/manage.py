@@ -373,6 +373,9 @@ class S3Index:
                 # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
                 response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
                 sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
+                # For older files, rely on checksumsha256 metadata that can be added to the file later
+                if sha256 is None:
+                    sha256 = response.get("Metadata", {}).get("checksumsha256")
                 sanitized_key = obj.key.replace("+", "%2B")
                 s3_object = S3Object(
                     key=sanitized_key,
