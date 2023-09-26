@@ -2,6 +2,7 @@
 
 import argparse
 import base64
+import concurrent.futures
 import dataclasses
 import functools
 import time
@@ -17,6 +18,7 @@ import boto3
 
 
 S3 = boto3.resource('s3')
+CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
 ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
@@ -359,8 +361,8 @@ class S3Index:
 
     @classmethod
     def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
-        objects = []
         prefix = prefix.rstrip("/")
+        obj_names = []
         for obj in BUCKET.objects.filter(Prefix=prefix):
             is_acceptable = any([path.dirname(obj.key) == prefix] + [
                 match(
@@ -371,18 +373,25 @@ class S3Index:
             ]) and obj.key.endswith(ACCEPTED_FILE_EXTENSIONS)
             if not is_acceptable:
                 continue
+            obj_names.append(obj.key)
+        objects = []
+        def fetch_metadata(key: str) :
+            return CLIENT.head_object(Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
             # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
-            response = obj.meta.client.head_object(Bucket=BUCKET.name, Key=obj.key, ChecksumMode="ENABLED")
-            sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
-            # For older files, rely on checksum-sha256 metadata that can be added to the file later
-            if sha256 is None:
-                sha256 = response.get("Metadata", {}).get("checksum-sha256")
-            sanitized_key = obj.key.replace("+", "%2B")
-            s3_object = S3Object(
-                key=sanitized_key,
-                checksum=sha256,
-            )
-            objects.append(s3_object)
+            for obj_key, future in {key: executor.submit(fetch_metadata, key) for key in obj_names}.items():
+                response = future.result()
+                sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
+                # For older files, rely on checksum-sha256 metadata that can be added to the file later
+                if sha256 is None:
+                    sha256 = response.get("Metadata", {}).get("checksum-sha256")
+                sanitized_key = obj_key.replace("+", "%2B")
+                s3_object = S3Object(
+                    key=sanitized_key,
+                    checksum=sha256,
+                )
+                objects.append(s3_object)
         return cls(objects, prefix)
 
 
