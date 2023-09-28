@@ -25,7 +25,7 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
               'sed -i -e \'s/-march=armv8.2-a+fp16/-march=armv8-a/g\' ComputeLibrary/SConstruct; '
               'sed -i -e \'s/"-march=armv8.2-a"/"-march=armv8-a"/g\' ComputeLibrary/filedefs.json')
     os.system("cd ComputeLibrary; export acl_install_dir=/acl; "
-              "scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8.2-a multi_isa=1 build=native build_dir=$acl_install_dir/build; "
+              "scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 build=native build_dir=$acl_install_dir/build; "
               "cp -r arm_compute $acl_install_dir; "
               "cp -r include $acl_install_dir; "
               "cp -r utils $acl_install_dir; "
