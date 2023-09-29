@@ -12,7 +12,7 @@ from typing import Dict
 try:
     from elftools.elf.elffile import ELFFile
 except ModuleNotFoundError:
-    print(f'elftools module not found, trying to install it from pip')
+    print('elftools module not found, trying to install it from pip')
     from pip._internal import main as pip_main
     try:
         pip_main(["install", "pyelftools", "--user"])
@@ -106,7 +106,8 @@ def main():
     if os.path.splitext(fname)[1] == '.a':
         with ArFileCtx(fname):
             for fname in os.listdir("."):
-                if not fname.endswith(".o"): continue
+                if not fname.endswith(".o"):
+                    continue
                 for section_name in section_names:
                     elf_sizes = compute_cubin_sizes(fname, section_name)
                     dict_add(results[section_name], elf_sizes)

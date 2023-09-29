@@ -33,7 +33,7 @@ def _get_latests_git_commit_sha_list(lookback: int):
 def _json_to_df(data: Dict[str, Any], granularity: str) -> pd.DataFrame:
     reformed_data = list()
     for fname, fdata in data['files'].items():
-        if granularity == 'file': 
+        if granularity == 'file':
             reformed_data.append({
                 "job": data['job'],
                 "sha": data['sha'],
@@ -42,7 +42,7 @@ def _json_to_df(data: Dict[str, Any], granularity: str) -> pd.DataFrame:
             })
         else:
             for sname, sdata in fdata['suites'].items():
-                if granularity == 'suite': 
+                if granularity == 'suite':
                     reformed_data.append({
                         "job": data['job'],
                         "sha": data['sha'],
@@ -140,8 +140,8 @@ def main():
         dataframe = parse_and_export_stats(f'{cache_folder}/test_time/', granularity)
         dataframe.to_pickle(output)
 
-                
+
 
 if __name__ == "__main__":
     main()
-    
+

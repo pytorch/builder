@@ -69,8 +69,7 @@ def check_nightly_binaries_date(package: str) -> None:
     from datetime import datetime, timedelta
     format_dt = '%Y%m%d'
 
-    torch_str = torch.__version__
-    date_t_str = re.findall("dev\d+", torch.__version__)
+    date_t_str = re.findall(r"dev\d+", torch.__version__)
     date_t_delta = datetime.now() - datetime.strptime(date_t_str[0][3:], format_dt)
     if date_t_delta.days >= NIGHTLY_ALLOWED_DELTA:
         raise RuntimeError(
@@ -81,7 +80,7 @@ def check_nightly_binaries_date(package: str) -> None:
         for module in MODULES:
             imported_module = importlib.import_module(module["name"])
             module_version = imported_module.__version__
-            date_m_str = re.findall("dev\d+", module_version)
+            date_m_str = re.findall(r"dev\d+", module_version)
             date_m_delta = datetime.now() - datetime.strptime(date_m_str[0][3:], format_dt)
             print(f"Nightly date check for {module['name']} version {module_version}")
             if date_m_delta.days > NIGHTLY_ALLOWED_DELTA:
@@ -102,7 +101,7 @@ def test_cuda_runtime_errors_captured() -> None:
         else:
             raise e
     if(cuda_exception_missed):
-        raise RuntimeError( f"Expected CUDA RuntimeError but have not received!")
+        raise RuntimeError( "Expected CUDA RuntimeError but have not received!")
 
 def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
@@ -145,27 +144,27 @@ def smoke_test_conv2d() -> None:
 
     print("Testing smoke_test_conv2d")
     # With square kernels and equal stride
-    m = nn.Conv2d(16, 33, 3, stride=2)
+    nn.Conv2d(16, 33, 3, stride=2)
     # non-square kernels and unequal stride and with padding
-    m = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2))
+    nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2))
     # non-square kernels and unequal stride and with padding and dilation
     basic_conv = nn.Conv2d(16, 33, (3, 5), stride=(2, 1), padding=(4, 2), dilation=(3, 1))
     input = torch.randn(20, 16, 50, 100)
-    output = basic_conv(input)
+    basic_conv(input)
 
     if is_cuda_system:
         print("Testing smoke_test_conv2d with cuda")
         conv = nn.Conv2d(3, 3, 3).cuda()
         x = torch.randn(1, 3, 24, 24).cuda()
         with torch.cuda.amp.autocast():
-            out = conv(x)
+            conv(x)
 
         supported_dtypes = [torch.float16, torch.float32, torch.float64]
         for dtype in supported_dtypes:
             print(f"Testing smoke_test_conv2d with cuda for {dtype}")
             conv = basic_conv.to(dtype).cuda()
             input = torch.randn(20, 16, 50, 100, device="cuda").type(dtype)
-            output = conv(input)
+            conv(input)
 
 def smoke_test_linalg() -> None:
     print("Testing smoke_test_linalg")

@@ -140,7 +140,7 @@ def output_results(bytes_cache: dict) -> None:
 def download_logs(log_directory: str, since: float):
     dt_now = datetime.now(timezone.utc)
     dt_end = datetime(dt_now.year, dt_now.month, dt_now.day, tzinfo=timezone.utc)
-    dt_start = dt_end - timedelta(days=1, hours=1) # Add 1 hour padding to account for potentially missed logs due to timing 
+    dt_start = dt_end - timedelta(days=1, hours=1) # Add 1 hour padding to account for potentially missed logs due to timing
     for key in tqdm(BUCKET.objects.filter(Prefix='cflogs')):
         remote_fname = key.key
         local_fname = os.path.join(log_directory, remote_fname)

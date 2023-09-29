@@ -301,7 +301,7 @@ def build_torchvision(host: RemoteHost, *,
         # Remove .so files to force static linking
         host.run_cmd("rm miniforge3/lib/libpng.so miniforge3/lib/libpng16.so miniforge3/lib/libjpeg.so")
         # And patch setup.py to include libz dependency for libpng
-        host.run_cmd(['sed -i -e \'s/image_link_flags\.append("png")/image_link_flags += ["png", "z"]/\' vision/setup.py'])
+        host.run_cmd(['sed -i -e \'s/image_link_flags\\.append("png")/image_link_flags += ["png", "z"]/\' vision/setup.py'])
 
     build_vars = ""
     if branch == "nightly":

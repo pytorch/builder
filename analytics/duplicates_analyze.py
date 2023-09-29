@@ -81,7 +81,7 @@ def print_symbols_overlap(libname1: str, libname2: str) -> None:
     sym1 = get_defined_symbols(libname1, verbose=True)
     sym2 = get_defined_symbols(libname2, verbose=True)
     sym1_size = sum(sym1.values())
-    sym2_size = sum(sym2.values())
+    sum(sym2.values())
     sym_overlap = set(sym1.keys()).intersection(set(sym2.keys()))
     overlap_size = sum(sym1[s] for s in sym_overlap)
     if overlap_size == 0:
