@@ -104,6 +104,35 @@ def test_cuda_runtime_errors_captured() -> None:
     if(cuda_exception_missed):
         raise RuntimeError( f"Expected CUDA RuntimeError but have not received!")
 
+def backward_pass_inverse_fft() -> None:
+    device = 'cuda'
+
+    x = torch.randn(32, dtype=torch.cfloat, device=device, requires_grad=True)
+    dout = torch.zeros(32, dtype=torch.cfloat, device=device)
+
+    # compute iFFT(FFT(x))
+    out = torch.fft.ifft(torch.fft.fft(x))
+    out.backward(dout, retain_graph=True)
+
+    print('Gradient of iFFT(FFT(x)) should be FFT(iFFT(dout))')
+    dx = torch.fft.fft(torch.fft.ifft(dout))
+
+    print('Difference between x.grad and what it should be. This should be zero!')
+    zeroDiff = (x.grad - dx).abs().max()
+    print(zeroDiff)
+    if(zeroDiff > 1e-05):
+        raise RuntimeError(
+                f"Failed on zero Difference expected {zeroDiff}"
+            )
+
+    print('Difference between x.grad and x. This should be non-zero.')
+    nonZeroDiff = (x.grad - x).abs().max()
+    print(nonZeroDiff)
+    if(nonZeroDiff < 1e-05):
+        raise RuntimeError(
+                f"Failed on non-zero Difference expected {nonZeroDiff}"
+            )
+
 def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
@@ -129,6 +158,8 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
+
+        backward_pass_inverse_fft()
 
         # torch.compile is available only on Linux and python 3.8-3.10
         if (sys.platform == "linux" or sys.platform == "linux2") and sys.version_info < (3, 11, 0) and channel == "release":
@@ -193,6 +224,13 @@ def smoke_test_compile() -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
+
+    # Trivial torch.compile code
+    x = torch.rand(3, 3, device="cuda")
+    x_eager = foo(x)
+    x_pt2 = torch.compile(foo)(x)
+    print(torch.allclose(x_eager, x_pt2))
+
     for dtype in supported_dtypes:
         print(f"Testing smoke_test_compile for {dtype}")
         x = torch.rand(3, 3, device="cuda").type(dtype)
