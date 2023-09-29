@@ -1,0 +1,15 @@
+ignore = [
+    "E501",  # line too long
+    "E402",
+    "F401",
+    "F403",
+    # "W503",
+    # "W504",
+]
+line-length = 120
+select = [
+    "E",
+    "F",
+    "W",
+]
+
