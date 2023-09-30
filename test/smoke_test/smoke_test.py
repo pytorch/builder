@@ -1,10 +1,8 @@
 import os
 import re
 import sys
-from pathlib import Path
 import argparse
 import torch
-import platform
 import importlib
 import subprocess
 import torch._dynamo
@@ -41,7 +39,7 @@ MODULES = [
 
 class Net(nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super().__init__()
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1)
         self.fc1 = nn.Linear(9216, 1)
@@ -69,7 +67,7 @@ def check_version(package: str) -> None:
 
 
 def check_nightly_binaries_date(package: str) -> None:
-    from datetime import datetime, timedelta
+    from datetime import datetime
     format_dt = '%Y%m%d'
 
     date_t_str = re.findall("dev\\d+", torch.__version__)
@@ -177,11 +175,11 @@ def smoke_test_linalg() -> None:
     print("Testing smoke_test_linalg")
     A = torch.randn(5, 3)
     U, S, Vh = torch.linalg.svd(A, full_matrices=False)
-    U.shape, S.shape, Vh.shape
+    assert U.shape == A.shape and S.shape == torch.Size([3]) and Vh.shape == torch.Size([3, 3])
     torch.dist(A, U @ torch.diag(S) @ Vh)
 
     U, S, Vh = torch.linalg.svd(A)
-    U.shape, S.shape, Vh.shape
+    assert U.shape == A.shape and S.shape == torch.Size([3]) and Vh.shape == torch.Size([3, 3])
     torch.dist(A, U[:, :3] @ torch.diag(S) @ Vh)
 
     A = torch.randn(7, 5, 3)
@@ -234,9 +232,9 @@ def smoke_test_modules():
                     smoke_test_command, stderr=subprocess.STDOUT, shell=True,
                     universal_newlines=True)
             except subprocess.CalledProcessError as exc:
-                raise RuntimeError(f"Module {module['name']} FAIL: {exc.returncode} Output: {exc.output}")
+                raise RuntimeError(f"Module {module['name']} FAIL: {exc.returncode} Output: {exc.output}") from exc
             else:
-                print("Output: \n{}\n".format(output))
+                print(f"Output: \n{output}\n")
 
 
 def main() -> None:
