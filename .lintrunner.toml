@@ -2,7 +2,7 @@ merge_base_with = "origin/main"
 
 [[linter]]
 code = 'RUFF'
-include_patterns = ['test/smoke_test/*.py']
+include_patterns = ['test/smoke_test/*.py', 's3_management/*.py']
 command = [
     'python3',
     'tools/linter/adapters/ruff_linter.py',
