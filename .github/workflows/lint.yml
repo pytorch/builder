@@ -14,7 +14,7 @@ jobs:
   lintrunner:
     name: lintrunner
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
@@ -28,7 +28,7 @@ jobs:
       - name: Run lintrunner on all files - Linux
         run: |
           set +e
-          if ! lintrunner -v --force-color --all-files --tee-json=lint.json --take ACTIONLINT,MYPY,RUSTFMT,COPYRIGHT,LINTRUNNER_VERSION; then
+          if ! lintrunner -v --force-color --all-files --tee-json=lint.json; then
               echo ""
               echo -e "\e[1m\e[36mYou can reproduce these results locally by using \`lintrunner -m main\`.\e[0m"
               exit 1
