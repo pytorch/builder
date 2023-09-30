@@ -1,0 +1,29 @@
+---
+ cmake/platform.cmake | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/cmake/platform.cmake b/cmake/platform.cmake
+index 8630460ce..602eafe8e 100644
+--- a/cmake/platform.cmake
++++ b/cmake/platform.cmake
+@@ -198,7 +198,7 @@ elseif(UNIX OR MINGW)
+              endif()
+              # For native compilation tune for the host processor
+              if (CMAKE_SYSTEM_PROCESSOR STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
+-                 append(DEF_ARCH_OPT_FLAGS "-mcpu=native")
++                 append(DEF_ARCH_OPT_FLAGS "-march=armv8-a")
+              endif()
+         elseif(DNNL_TARGET_ARCH STREQUAL "PPC64")
+              if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+@@ -295,7 +295,7 @@ elseif(UNIX OR MINGW)
+             endif()
+             # For native compilation tune for the host processor
+             if (CMAKE_SYSTEM_PROCESSOR STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
+-                append(DEF_ARCH_OPT_FLAGS "-mcpu=native")
++                append(DEF_ARCH_OPT_FLAGS "-march=armv8-a")
+             endif()
+         elseif(DNNL_TARGET_ARCH STREQUAL "PPC64")
+             if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+-- 
+2.34.1
+
