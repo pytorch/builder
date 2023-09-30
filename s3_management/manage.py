@@ -184,9 +184,7 @@ class S3Index:
             if package_name not in PACKAGE_ALLOW_LIST:
                 to_hide.add(obj)
                 continue
-            if packages[package_name] >= KEEP_THRESHOLD:
-                to_hide.add(obj)
-            elif between_bad_dates(package_build_time):
+            if packages[package_name] >= KEEP_THRESHOLD or between_bad_dates(package_build_time):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
@@ -215,14 +213,13 @@ class S3Index:
         )
         subdir = self._resolve_subdir(subdir) + '/'
         for obj in objects:
-            if package_name is not None:
-                if self.obj_to_package_name(obj) != package_name:
-                    continue
+            if package_name is not None and self.obj_to_package_name(obj) != package_name:
+                continue
             if self.is_obj_at_root(obj) or obj.key.startswith(subdir):
                 yield obj
 
     def get_package_names(self, subdir: Optional[str] = None) -> List[str]:
-        return sorted(set(self.obj_to_package_name(obj) for obj in self.gen_file_list(subdir)))
+        return sorted({self.obj_to_package_name(obj) for obj in self.gen_file_list(subdir)})
 
     def normalize_package_version(self: S3IndexType, obj: S3Object) -> str:
         # removes the GPU specifier from the package name as well as
@@ -284,7 +281,7 @@ class S3Index:
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
-        out.append('<!--TIMESTAMP {}-->'.format(int(time.time())))
+        out.append(f'<!--TIMESTAMP {int(time.time())}-->')
         return '\n'.join(out)
 
     def to_simple_packages_html(
@@ -303,7 +300,7 @@ class S3Index:
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
-        out.append('<!--TIMESTAMP {}-->'.format(int(time.time())))
+        out.append(f'<!--TIMESTAMP {int(time.time())}-->')
         return '\n'.join(out)
 
     def upload_legacy_html(self) -> None:
@@ -412,7 +409,7 @@ def main():
     args = parser.parse_args()
     action = "Saving" if args.do_not_upload else "Uploading"
     if args.prefix == 'all':
-        for prefix in PREFIXES_WITH_HTML.keys():
+        for prefix in PREFIXES_WITH_HTML:
             print(f"INFO: {action} indices for '{prefix}'")
             idx = S3Index.from_S3(prefix=prefix)
             if args.do_not_upload:
