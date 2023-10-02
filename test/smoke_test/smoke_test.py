@@ -179,7 +179,7 @@ def smoke_test_linalg() -> None:
     torch.dist(A, U @ torch.diag(S) @ Vh)
 
     U, S, Vh = torch.linalg.svd(A)
-    assert U.shape == A.shape and S.shape == torch.Size([3]) and Vh.shape == torch.Size([3, 3])
+    assert U.shape == torch.Size([5, 5]) and S.shape == torch.Size([3]) and Vh.shape == torch.Size([3, 3])
     torch.dist(A, U[:, :3] @ torch.diag(S) @ Vh)
 
     A = torch.randn(7, 5, 3)
