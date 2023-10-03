@@ -21,8 +21,8 @@ upload_pypi_to_staging() {
 }
 
 # Uncomment these to promote to pypi
-PYTORCH_LINUX_VERSION_SUFFIX="%2Bcu117.with.pypi.cudnn"
-LINUX_VERSION_SUFFIX="%2Bcu117"
+PYTORCH_LINUX_VERSION_SUFFIX="%2Bcu121.with.pypi.cudnn"
+LINUX_VERSION_SUFFIX="%2Bcu121"
 WIN_VERSION_SUFFIX="%2Bcpu"
 MACOS_X86_64="macosx_.*_x86_64"
 MACOS_ARM64="macosx_.*_arm64"
