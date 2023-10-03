@@ -6,11 +6,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${DIR}/release_versions.sh"
 
 # Make sure to update these versions when doing a release first
-PYTORCH_VERSION=${PYTORCH_VERSION:-2.0.0}
-TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.15.0}
-TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.0.0}
-TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.15.0}
-TORCHDATA_VERSION=${TORCHDATA_VERSION:-0.6.0}
+PYTORCH_VERSION=${PYTORCH_VERSION:-2.1.0}
+TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.16.0}
+TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.1.0}
+TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.16.0}
+TORCHDATA_VERSION=${TORCHDATA_VERSION:-0.7.0}
 
 DRY_RUN=${DRY_RUN:-enabled}
 
@@ -104,9 +104,9 @@ promote_pypi() {
 # promote_s3 torchdata whl "${TORCHDATA_VERSION}"
 # promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
 
-# promote_conda torchtriton conda "2.0.0"
-# promote_conda pytorch-cuda conda "11.7"
+# promote_conda torchtriton conda "2.1.0"
 # promote_conda pytorch-cuda conda "11.8"
+# promote_conda pytorch-cuda conda "12.1"
 
 # promote_conda pytorch conda "${PYTORCH_VERSION}"
 # promote_conda torchvision conda "${TORCHVISION_VERSION}"
