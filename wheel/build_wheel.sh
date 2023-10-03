@@ -177,7 +177,7 @@ fi
 if [[ "$(uname -m)" == "arm64" ]]; then
   retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja
 else
-  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
+  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2023.2.0 mkl-static==2023.2.0 -c intel
 fi
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
