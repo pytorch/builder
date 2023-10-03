@@ -151,7 +151,13 @@ case ${desired_python} in
         NUMPY_PINNED_VERSION="=1.19"
         ;;
     3.8)
-        NUMPY_PINNED_VERSION="=1.17"
+        if [[ "$(uname -m)" == "arm64" ]]; then
+          SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+          PYYAML_PINNED_VERSION=">=5.3"
+          NUMPY_PINNED_VERSION="=1.19"
+        else
+          NUMPY_PINNED_VERSION="=1.17"
+        fi
         ;;
     *)
         NUMPY_PINNED_VERSION="=1.11.3"
