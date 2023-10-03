@@ -184,7 +184,7 @@ if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
     export USE_MKLDNN=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
-else
+elif [[ "$(uname -m)" == "x86_64" ]]; then
     retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
     export USE_LLVM="${CONDA_PREFIX}"
 fi
