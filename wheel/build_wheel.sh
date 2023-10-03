@@ -179,8 +179,10 @@ retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
-    export CMAKE_OSX_ARCHITECTURES=arm64
+if [[ -n "$CROSS_COMPILE_ARM64" || "$(uname -m)" == "arm64" ]]; then
+    if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+        export CMAKE_OSX_ARCHITECTURES=arm64
+    fi
     export USE_MKLDNN=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
