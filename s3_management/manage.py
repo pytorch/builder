@@ -6,7 +6,6 @@ import concurrent.futures
 import dataclasses
 import functools
 import time
-import hashlib
 
 from os import path, makedirs
 from datetime import datetime
@@ -363,12 +362,8 @@ class S3Index:
         for obj in self.objects:
             if obj.checksum is not None:
                 continue
-            print(f"Computing sha256 for {obj.orig_key} of size {obj.size}")
-            sha256_sum = hashlib.sha256()
+            print(f"Updating {obj.orig_key} of size {obj.size} with SHA256 checksum")
             s3_obj = BUCKET.Object(key=obj.orig_key)
-            sha256_sum.update(s3_obj.get()["Body"].read())
-            digest = sha256_sum.hexdigest()
-            s3_obj.metadata.update({"checksum-sha256": digest})
             s3_obj.copy_from(CopySource={"Bucket": BUCKET.name, "Key": obj.orig_key},
                              Metadata=s3_obj.metadata, MetadataDirective="REPLACE",
                              ACL="public-read",
