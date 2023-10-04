@@ -6,6 +6,7 @@ import concurrent.futures
 import dataclasses
 import functools
 import time
+import hashlib
 
 from os import path, makedirs
 from datetime import datetime
@@ -116,7 +117,9 @@ S3IndexType = TypeVar('S3IndexType', bound='S3Index')
 @functools.total_ordering
 class S3Object:
     key: str
+    orig_key: str
     checksum: Optional[str]
+    size: Optional[int]
 
     def __str__(self):
         return self.key
@@ -356,6 +359,20 @@ class S3Index:
                 with open(path.join(subdir, pkg_name, "index.html"), mode="w", encoding="utf-8") as f:
                     f.write(self.to_simple_package_html(subdir=subdir, package_name=pkg_name))
 
+    def compute_sha256(self) -> None:
+        for obj in self.objects:
+            if obj.checksum is not None:
+                continue
+            print(f"Computing sha256 for {obj.orig_key} of size {obj.size}")
+            sha256_sum = hashlib.sha256()
+            s3_obj = BUCKET.Object(key=obj.orig_key)
+            sha256_sum.update(s3_obj.get()["Body"].read())
+            digest = sha256_sum.hexdigest()
+            s3_obj.metadata.update({"checksum-sha256": digest})
+            s3_obj.copy_from(CopySource={"Bucket": BUCKET.name, "Key": obj.orig_key},
+                             Metadata=s3_obj.metadata, MetadataDirective="REPLACE")
+
+
     @classmethod
     def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
         prefix = prefix.rstrip("/")
@@ -383,10 +400,15 @@ class S3Index:
                 # For older files, rely on checksum-sha256 metadata that can be added to the file later
                 if sha256 is None:
                     sha256 = response.get("Metadata", {}).get("checksum-sha256")
+                    if sha256 is not None:
+                        print(f"Find metadata for {obj_key}")
                 sanitized_key = obj_key.replace("+", "%2B")
+                size = response.get("ContentLength")
                 s3_object = S3Object(
                     key=sanitized_key,
+                    orig_key=obj_key,
                     checksum=sha256,
+                    size=int(size) if size else size,
                 )
                 objects.append(s3_object)
         return cls(objects, prefix)
@@ -401,18 +423,24 @@ def create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--do-not-upload", action="store_true")
     parser.add_argument("--generate-pep503", action="store_true")
+    parser.add_argument("--compute-sha256", action="store_true")
     return parser
 
 
 def main() -> None:
     parser = create_parser()
     args = parser.parse_args()
-    action = "Saving" if args.do_not_upload else "Uploading"
+    action = "Saving indices" if args.do_not_upload else "Uploading indices"
+    if args.compute_sha256:
+        action = "Computing checksums"
+
     prefixes = PREFIXES_WITH_HTML if args.prefix == 'all' else [args.prefix]
     for prefix in prefixes:
-        print(f"INFO: {action} indices for '{prefix}'")
+        print(f"INFO: {action} for '{prefix}'")
         idx = S3Index.from_S3(prefix=prefix)
-        if args.do_not_upload:
+        if args.compute_sha256:
+            idx.compute_sha256()
+        elif args.do_not_upload:
             idx.save_legacy_html()
             if args.generate_pep503:
                 idx.save_pep503_htmls()
