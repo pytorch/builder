@@ -370,12 +370,28 @@ class S3Index:
             digest = sha256_sum.hexdigest()
             s3_obj.metadata.update({"checksum-sha256": digest})
             s3_obj.copy_from(CopySource={"Bucket": BUCKET.name, "Key": obj.orig_key},
-                             Metadata=s3_obj.metadata, MetadataDirective="REPLACE")
+                             Metadata=s3_obj.metadata, MetadataDirective="REPLACE",
+                             ACL="public-read",
+                             ChecksumAlgorithm="SHA256")
 
 
     @classmethod
-    def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
-        prefix = prefix.rstrip("/")
+    def has_public_read(cls:Type[S3IndexType], key: str) -> bool:
+        def is_all_users_group(o) -> bool:
+            return o.get("Grantee",{}).get("URI") == "http://acs.amazonaws.com/groups/global/AllUsers"
+
+        def can_read(o) -> bool:
+            return o.get("Permission") in ["READ", "FULL_CONTROL"]
+
+        acl_grants = CLIENT.get_object_acl(Bucket=BUCKET.name, Key=key)["Grants"]
+        return any(is_all_users_group(x) and can_read(x) for x in acl_grants)
+
+    @classmethod
+    def grant_public_read(cls: Type[S3IndexType], key: str) -> None:
+        CLIENT.put_object_acl(Bucket=BUCKET.name, Key=key, ACL="public-read")
+
+    @classmethod
+    def fetch_object_names(cls: Type[S3IndexType], prefix: str) -> List[str]:
         obj_names = []
         for obj in BUCKET.objects.filter(Prefix=prefix):
             is_acceptable = any([path.dirname(obj.key) == prefix] + [
@@ -388,6 +404,12 @@ class S3Index:
             if not is_acceptable:
                 continue
             obj_names.append(obj.key)
+        return obj_names
+
+    @classmethod
+    def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
+        prefix = prefix.rstrip("/")
+        obj_names = cls.fetch_object_names(prefix)
         objects = []
         def fetch_metadata(key: str) :
             return CLIENT.head_object(Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled")
