@@ -404,21 +404,14 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main():
+def main() -> None:
     parser = create_parser()
     args = parser.parse_args()
     action = "Saving" if args.do_not_upload else "Uploading"
-    if args.prefix == 'all':
-        for prefix in PREFIXES_WITH_HTML:
-            print(f"INFO: {action} indices for '{prefix}'")
-            idx = S3Index.from_S3(prefix=prefix)
-            if args.do_not_upload:
-                idx.save_legacy_html()
-            else:
-                idx.upload_legacy_html()
-    else:
-        print(f"INFO: {action} indices for '{args.prefix}'")
-        idx = S3Index.from_S3(prefix=args.prefix)
+    prefixes = PREFIXES_WITH_HTML if args.prefix == 'all' else [args.prefix]
+    for prefix in prefixes:
+        print(f"INFO: {action} indices for '{prefix}'")
+        idx = S3Index.from_S3(prefix=prefix)
         if args.do_not_upload:
             idx.save_legacy_html()
             if args.generate_pep503:
