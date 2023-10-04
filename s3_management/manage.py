@@ -400,8 +400,6 @@ class S3Index:
                 # For older files, rely on checksum-sha256 metadata that can be added to the file later
                 if sha256 is None:
                     sha256 = response.get("Metadata", {}).get("checksum-sha256")
-                    if sha256 is not None:
-                        print(f"Find metadata for {obj_key}")
                 sanitized_key = obj_key.replace("+", "%2B")
                 size = response.get("ContentLength")
                 s3_object = S3Object(
