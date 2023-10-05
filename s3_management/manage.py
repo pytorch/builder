@@ -428,6 +428,18 @@ class S3Index:
                 objects.append(s3_object)
         return cls(objects, prefix)
 
+    @classmethod
+    def undelete_prefix(cls: Type[S3IndexType], prefix: str) -> None:
+        paginator = CLIENT.get_paginator("list_object_versions")
+        for page in paginator.paginate(Bucket=BUCKET.name, Prefix=prefix):
+            for obj in page.get("DeleteMarkers", []):
+                if not obj.get("IsLatest"):
+                    continue
+                obj_key, obj_version_id = obj["Key"], obj["VersionId"]
+                obj_ver = S3.ObjectVersion(BUCKET.name, obj_key, obj_version_id)
+                print(f"Undeleting {obj_key} deleted on {obj['LastModified']}")
+                obj_ver.delete()
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("Manage S3 HTML indices for PyTorch")
