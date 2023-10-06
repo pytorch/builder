@@ -26,10 +26,12 @@ if [[ ${MATRIX_CHANNEL} != "release" ]]; then
     fi
 else
     export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
+    poetry source add --priority=explicit domains "https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+    poetry source add --priority=supplemental pytorch "https://download.pytorch.org/whl/"
     if [[ ${TORCH_ONLY} == 'true' ]]; then
         poetry --quiet add torch
     else
-        poetry --quiet add torch torchaudio torchvision
+        poetry --quiet add --source pytorch torch torchaudio torchvision
     fi
 fi
 
