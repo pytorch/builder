@@ -3,7 +3,7 @@
 set -ex
 
 function install_118 {
-    echo "Installing CUDA 11.8 and cuDNN 8.7 and NCCL 2.15"
+    echo "Installing CUDA 11.8 and cuDNN 8.7 and NCCL 2.15 and cuSparseLt-0.5.0"
     rm -rf /usr/local/cuda-11.8 /usr/local/cuda
     # install CUDA 11.8.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
@@ -31,10 +31,20 @@ function install_118 {
     cd ..
     rm -rf tmp_nccl
     ldconfig
+
+    # cuSparseLt license: https://docs.nvidia.com/cuda/cusparselt/license.html
+    mkdir tmp_cusparselt && pushd tmp_cusparselt
+    wget -q https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-x86_64/libcusparse_lt-linux-x86_64-0.5.0.1-archive.tar.xz
+    tar xf libcusparse_lt-linux-x86_64-0.5.0.1-archive.tar.xz
+    cp -a libcusparse_lt-linux-x86_64-0.5.0.1-archive/include/* /usr/local/cuda/include/
+    cp -a libcusparse_lt-linux-x86_64-0.5.0.1-archive/lib/* /usr/local/cuda/lib64/
+    popd
+    rm -rf tmp_custparselt
+    ldconfig
 }
 
 function install_121 {
-    echo "Installing CUDA 12.1 and cuDNN 8.9 and NCCL 2.18.1"
+    echo "Installing CUDA 12.1 and cuDNN 8.9 and NCCL 2.18.1 and cuSparseLt-0.5.0"
     rm -rf /usr/local/cuda-12.1 /usr/local/cuda
     # install CUDA 12.1.0 in the same container
     wget -q https://developer.download.nvidia.com/compute/cuda/12.1.1/local_installers/cuda_12.1.1_530.30.02_linux.run
@@ -61,6 +71,16 @@ function install_121 {
     cp -a nccl_2.18.1-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
     cd ..
     rm -rf tmp_nccl
+    ldconfig
+
+    # cuSparseLt license: https://docs.nvidia.com/cuda/cusparselt/license.html
+    mkdir tmp_cusparselt && pushd tmp_cusparselt
+    wget -q https://developer.download.nvidia.com/compute/cusparselt/redist/libcusparse_lt/linux-x86_64/libcusparse_lt-linux-x86_64-0.5.0.1-archive.tar.xz
+    tar xf libcusparse_lt-linux-x86_64-0.5.0.1-archive.tar.xz
+    cp -a libcusparse_lt-linux-x86_64-0.5.0.1-archive/include/* /usr/local/cuda/include/
+    cp -a libcusparse_lt-linux-x86_64-0.5.0.1-archive/lib/* /usr/local/cuda/lib64/
+    popd
+    rm -rf tmp_custparselt
     ldconfig
 }
 
