@@ -159,6 +159,10 @@ FROM cpu_final as rocm_final
 ARG ROCM_VERSION=3.7
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
+# Adding ROCM_PATH env var so that LoadHip.cmake (even with logic updated for ROCm6.0) 
+# find HIP works for ROCm5.7. Not needed for ROCm6.0 and above.
+# Remove below when ROCm5.7 is not in support matrix anymore.
+ENV ROCM_PATH /opt/rocm
 # No need to install ROCm as base docker image should have full ROCm install
 #ADD ./common/install_rocm.sh install_rocm.sh
 #RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh
