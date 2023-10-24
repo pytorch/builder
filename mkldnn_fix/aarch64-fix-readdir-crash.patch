@@ -1,0 +1,14 @@
+diff --git a/src/cpu/aarch64/xbyak_aarch64/src/util_impl.cpp b/src/cpu/aarch64/xbyak_aarch64/src/util_impl.cpp
+index cb800b2509..5516373b90 100644
+--- a/src/cpu/aarch64/xbyak_aarch64/src/util_impl.cpp
++++ b/src/cpu/aarch64/xbyak_aarch64/src/util_impl.cpp
+@@ -170,6 +170,8 @@ int Cpu::getFilePathMaxTailNumPlus1(const char *path) {
+   fflush(stdout);
+ 
+   DIR *dir = opendir(dir_path);
++  if (dir == NULL)
++    return 0;
+   struct dirent *dp;
+ 
+   dp = readdir(dir);
+
