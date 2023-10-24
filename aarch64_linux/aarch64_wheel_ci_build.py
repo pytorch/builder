@@ -30,7 +30,7 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
               "cp -r src $acl_install_dir; cd /")
 
 
-def complete_wheel(folder: str):
+def complete_wheel(folder: str) -> str:
     '''
     Complete wheel build and put in artifact location
     '''
