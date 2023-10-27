@@ -21,7 +21,7 @@ S3 = boto3.resource('s3')
 CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
-ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
+ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz", ".whl.metadata")
 ACCEPTED_SUBDIR_PATTERNS = [
     r"cu[0-9]+",           # for cuda
     r"rocm[0-9]+\.[0-9]+", # for rocm
@@ -148,8 +148,15 @@ def between_bad_dates(package_build_time: datetime):
 
 
 class S3Index:
-    def __init__(self: S3IndexType, objects: List[S3Object], prefix: str) -> None:
+    def __init__(
+            self: S3IndexType,
+            objects: List[S3Object],
+            # Maps an object's key to the sha256 of the relevant .metadata (if it exists)
+            object_metadatas: Dict[str, str],
+            prefix: str,
+        ) -> None:
         self.objects = objects
+        self.object_metadatas = object_metadatas
         self.prefix = prefix.rstrip("/")
         self.html_name = PREFIXES_WITH_HTML[self.prefix]
         # should dynamically grab subdirectories like whl/test/cu101
@@ -279,8 +286,14 @@ class S3Index:
         out.append('  <body>')
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
+            attributes = []
+            if metadata_sha256 := self.object_metadatas.get(obj.key):
+                # Serve the PEP 658 and PEP 714 metadata attributes
+                attributes += f'data-dist-info-metadata="{metadata_sha256}"'
+                attributes += f'data-core-metadata="{metadata_sha256}"'
+            attributes = " ".join(attributes)
             maybe_fragment = f"#sha256={obj.checksum}" if obj.checksum else ""
-            out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj.key).replace("%2B","+")}</a><br/>')
+            out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj.key).replace("%2B","+")} {attributes}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
@@ -407,6 +420,8 @@ class S3Index:
         prefix = prefix.rstrip("/")
         obj_names = cls.fetch_object_names(prefix)
         objects = []
+        object_metadatas = {}
+
         def fetch_metadata(key: str) :
             return CLIENT.head_object(Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled")
 
@@ -420,14 +435,17 @@ class S3Index:
                     sha256 = response.get("Metadata", {}).get("checksum-sha256")
                 sanitized_key = obj_key.replace("+", "%2B")
                 size = response.get("ContentLength")
-                s3_object = S3Object(
-                    key=sanitized_key,
-                    orig_key=obj_key,
-                    checksum=sha256,
-                    size=int(size) if size else size,
-                )
-                objects.append(s3_object)
-        return cls(objects, prefix)
+                if sanitized_key.endswith(".metadata"):
+                    object_metadatas[sanitized_key[:-len(".metadata")]] = sha256
+                else:
+                    s3_object = S3Object(
+                        key=sanitized_key,
+                        orig_key=obj_key,
+                        checksum=sha256,
+                        size=int(size) if size else size,
+                    )
+                    objects.append(s3_object)
+        return cls(objects, object_metadatas, prefix)
 
     @classmethod
     def undelete_prefix(cls: Type[S3IndexType], prefix: str) -> None:

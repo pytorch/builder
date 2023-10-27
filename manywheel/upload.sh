@@ -33,12 +33,17 @@ for cuda_ver in "${CUDA_VERSIONS[@]}"; do
 
     # Upload the wheels to s3
     if [[ -d "$wheel_dir" ]]; then
+        pushd "$wheel_dir"
+        find . -type f -exec sh -c 'unzip -j {} -d . "*.dist-info/METADATA" && mv METADATA {}.metadata' \;
         echo "Uploading all of: $(ls $wheel_dir) to $s3_wheel_dir"
-        ls "$wheel_dir" | xargs -I {} aws s3 cp "$wheel_dir"/{} "$s3_wheel_dir" --acl public-read
+        ls . | xargs -I {} aws s3 cp {} "$s3_wheel_dir" --acl public-read
+        popd
     fi
 
     if [[ -d "$libtorch_dir" ]]; then
+        pushd "$libtorch_dir"
         echo "Uploading all of: $(ls $libtorch_dir) to $s3_libtorch_dir"
-        ls "$libtorch_dir" | xargs -I {} aws s3 cp "$libtorch_dir"/{} "$s3_libtorch_dir" --acl public-read
+        ls . | xargs -I {} aws s3 cp {} "$s3_libtorch_dir" --acl public-read
+        popd
     fi
 done
