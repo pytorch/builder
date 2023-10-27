@@ -411,7 +411,7 @@ class S3Index:
 
             sanitized_key = obj.key.replace("+", "%2B")
             if obj.key.endswith(".whl.metadata"):
-                whls_with_metadata.add(sanitized_key[:-9])
+                whls_with_metadata.add(sanitized_key[:-len(".metadata")])
         return obj_names
 
     @classmethod
