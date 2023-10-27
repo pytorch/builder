@@ -4,9 +4,9 @@
 # Do not use unless you know what you are doing
 # Usage:  python backup_conda.py --version 1.6.0
 
-import conda.api
 import boto3
 from typing import List, Optional
+import conda.api
 import urllib
 import os
 import hashlib
@@ -22,8 +22,11 @@ def compute_md5(path:str) -> str:
         return hashlib.md5(f.read()).hexdigest()
 
 
-def download_conda_package(package:str, version:Optional[str] = None, depends:Optional[str] = None, channel:Optional[str] = None) -> List[str]:
-    packages = conda.api.SubdirData.query_all(package, channels = [channel] if channel is not None else None, subdirs = _known_subdirs)
+def download_conda_package(package:str, version:Optional[str] = None,
+                           depends:Optional[str] = None, channel:Optional[str] = None) -> List[str]:
+    packages = conda.api.SubdirData.query_all(package,
+                                              channels = [channel] if channel is not None else None,
+                                              subdirs = _known_subdirs)
     rc = []
 
     for pkg in packages:
@@ -36,9 +39,8 @@ def download_conda_package(package:str, version:Optional[str] = None, depends:Op
         os.makedirs(pkg.subdir, exist_ok = True)
         fname = f"{pkg.subdir}/{pkg.fn}"
         if not os.path.exists(fname):
-            with open(fname, "wb") as f:
-                with urllib.request.urlopen(pkg.url) as url:
-                    f.write(url.read())
+            with open(fname, "wb") as f, urllib.request.urlopen(pkg.url) as url:
+                f.write(url.read())
         if compute_md5(fname) != pkg.md5:
             print(f"md5 of {fname} is {compute_md5(fname)} does not match {pkg.md5}")
             continue

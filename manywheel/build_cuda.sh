@@ -13,6 +13,7 @@ export ATEN_STATIC_CUDA=1
 export USE_CUDA_STATIC_LINK=1
 export INSTALL_TEST=0 # dont install test binaries into site-packages
 export USE_CUPTI_SO=0
+export USE_CUSPARSELT=${USE_CUSPARSELT:-1} # Enable if not disabled by libtorch build
 
 # Keep an array of cmake variables to add to
 if [[ -z "$CMAKE_ARGS" ]]; then
@@ -112,16 +113,26 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
 fi
 
+DEPS_LIST=(
+    "$LIBGOMP_PATH"
+)
+DEPS_SONAME=(
+    "libgomp.so.1"
+)
+
+if [[ $USE_CUSPARSELT == "1" ]]; then
+        DEPS_SONAME+=(
+            "libcusparseLt.so.0"
+        )
+        DEPS_LIST+=(
+            "/usr/local/cuda/lib64/libcusparseLt.so.0"
+        )
+fi
+
 if [[ $CUDA_VERSION == "12.1" ]]; then
     export USE_STATIC_CUDNN=0
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
-    DEPS_LIST=(
-        "$LIBGOMP_PATH"
-    )
-    DEPS_SONAME=(
-        "libgomp.so.1"
-    )
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         echo "Bundling with cudnn and cublas."
@@ -186,12 +197,6 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
     export USE_STATIC_CUDNN=0
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
-    DEPS_LIST=(
-        "$LIBGOMP_PATH"
-    )
-    DEPS_SONAME=(
-        "libgomp.so.1"
-    )
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         echo "Bundling with cudnn and cublas."

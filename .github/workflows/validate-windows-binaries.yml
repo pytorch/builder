@@ -12,10 +12,11 @@ on:
         default: ""
         required: false
         type: string
-      limit-win-builds:
-        description: "Limit windows builds to single python/cuda config"
-        default: "disable"
-        type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -32,11 +33,11 @@ on:
         default: ""
         required: false
         type: string
-      limit-win-builds:
-        description: "Limit windows builds to single python/cuda config"
-        default: "disable"
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
         required: false
-        type: string
+        type: boolean
 
 jobs:
   generate-windows-matrix:
@@ -45,7 +46,6 @@ jobs:
       package-type: all
       os: windows
       channel: ${{ inputs.channel }}
-      limit-win-builds: ${{ inputs.limit-win-builds }}
 
   win:
     needs: generate-windows-matrix
@@ -65,6 +65,7 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="windows"
+        export TORCH_ONLY=${{ inputs.torchonly }}
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
         if [[ ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
           ./windows/internal/driver_update.bat

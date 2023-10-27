@@ -14,6 +14,8 @@ export USE_STATIC_NCCL=1
 export ATEN_STATIC_CUDA=1
 export USE_CUDA_STATIC_LINK=1
 export INSTALL_TEST=0 # dont install test binaries into site-packages
+# Set RPATH instead of RUNPATH when using patchelf to avoid LD_LIBRARY_PATH override
+export FORCE_RPATH="--force-rpath"
 
 # Keep an array of cmake variables to add to
 if [[ -z "$CMAKE_ARGS" ]]; then
@@ -93,6 +95,10 @@ ROCM_SO_FILES=(
     "libroctracer64.so"
     "libroctx64.so"
 )
+
+if [[ $ROCM_INT -ge 50600 ]]; then
+    ROCM_SO_FILES+=("libhipblaslt.so")
+fi
 
 if [[ $ROCM_INT -lt 50500 ]]; then
     ROCM_SO_FILES+=("librocfft-device-0.so")
@@ -199,6 +205,34 @@ if [[ $ROCM_INT -ge 50500 ]]; then
     DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
     DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
 fi
+
+if [[ $ROCM_INT -ge 50600 ]]; then
+    # RCCL library files
+    if [[ $ROCM_INT -ge 50700 ]]; then
+        RCCL_SHARE_SRC=$ROCM_HOME/share/rccl/msccl-algorithms
+        RCCL_SHARE_DST=share/rccl/msccl-algorithms
+    else
+        RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
+        RCCL_SHARE_DST=lib/msccl-algorithms
+    fi
+    RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+
+    DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
+    DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
+fi
+
+# Add triton install dependency
+if [[ $(uname) == "Linux" ]]; then
+    TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.ci/docker/ci_commit_pins/triton-rocm.txt)
+    TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
+
+    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton-rocm==${TRITON_VERSION}+${TRITON_SHORTHASH}"
+    else
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton-rocm==${TRITON_VERSION}+${TRITON_SHORTHASH}"
+    fi
+fi
+
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 

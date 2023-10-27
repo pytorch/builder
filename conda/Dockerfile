@@ -1,6 +1,6 @@
 ARG CUDA_VERSION=10.2
 ARG BASE_TARGET=cuda${CUDA_VERSION}
-FROM nvidia/cuda:9.2-devel-centos7 as base
+FROM centos:7 as base
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -47,6 +47,8 @@ ARG CUDA_VERSION=10.2
 RUN rm -rf /usr/local/cuda-*
 ADD ./common/install_cuda.sh install_cuda.sh
 ENV CUDA_HOME=/usr/local/cuda-${CUDA_VERSION}
+# Preserve CUDA_VERSION for the builds
+ENV CUDA_VERSION=${CUDA_VERSION}
 # Make things in our path by default
 ENV PATH=/usr/local/cuda-${CUDA_VERSION}/bin:$PATH
 
@@ -68,9 +70,6 @@ COPY --from=cuda11.8  /usr/local/cuda-11.8 /usr/local/cuda-11.8
 COPY --from=cuda12.1  /usr/local/cuda-12.1 /usr/local/cuda-12.1
 
 FROM ${BASE_TARGET} as final
-# Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl           /opt/openssl
 COPY --from=patchelf           /patchelf              /usr/local/bin/patchelf
 COPY --from=conda              /opt/conda             /opt/conda

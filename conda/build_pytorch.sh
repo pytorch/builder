@@ -98,13 +98,11 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     # These are passed to tools/build_pytorch_libs.sh::build_caffe2()
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
+
 if [[ -z "$DESIRED_PYTHON" ]]; then
-    if [[ "$OSTYPE" == "msys" ]]; then
-        DESIRED_PYTHON=('3.5' '3.6' '3.7')
-    else
-        DESIRED_PYTHON=('2.7' '3.5' '3.6' '3.7' '3.8')
-    fi
+    DESIRED_PYTHON=('3.8')
 fi
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
 fi
@@ -201,7 +199,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_sh"
-    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o "$miniconda_sh"
+    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-MacOSX-x86_64.sh -o "$miniconda_sh"
     chmod +x "$miniconda_sh" && \
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
@@ -212,7 +210,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_exe"
-    curl -sSk https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe -o "$miniconda_exe"
+    curl -sSk https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-Windows-x86_64.exe -o "$miniconda_exe"
     "$SOURCE_DIR/install_conda.bat" && rm "$miniconda_exe"
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
@@ -286,9 +284,7 @@ fi
 
 # Some tricks for sccache with conda builds on Windows
 if [[ "$OSTYPE" == "msys" && "$USE_SCCACHE" == "1" ]]; then
-    if [[ ! -d "/c/cb" ]]; then
-        rm -rf /c/cb
-    fi
+    rm -rf /c/cb
     mkdir -p /c/cb/pytorch_1000000000000
     export CONDA_BLD_PATH="C:\\cb"
     export CONDA_BUILD_EXTRA_ARGS="--dirty"
@@ -337,12 +333,14 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     # Build the package
     echo "Build $build_folder for Python version $py_ver"
     conda config --set anaconda_upload no
-    conda install -y conda-package-handling conda==22.9.0
 
     if [[ "$OSTYPE" == "msys" ]]; then
       # Don't run tests on windows (they were ignored mostly anyways)
       NO_TEST="--no-test"
+      # Fow windows need to keep older conda version
+      conda install -y conda-package-handling conda==22.9.0
     else
+      conda install -y conda-package-handling conda==23.5.2
       # NS: To be removed after conda docker images are updated
       conda update -y conda-build
     fi
@@ -353,6 +351,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
+         USE_CUSPARSELT=0 \
          conda build -c "$ANACONDA_USER" \
                      ${NO_TEST:-} \
                      --no-anaconda-upload \
@@ -417,7 +416,12 @@ done
 
 # Cleanup the tricks for sccache with conda builds on Windows
 if [[ "$OSTYPE" == "msys" ]]; then
+    # Please note sometimes we get Device or resource busy during
+    # this cleanup step. We don't want to fail the build because of this
+    # hence adding +e, -e around the cleanup step
+    set +e
     rm -rf /c/cb/pytorch_1000000000000
+    set -e
     unset CONDA_BLD_PATH
 fi
 unset CONDA_BUILD_EXTRA_ARGS

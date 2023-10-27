@@ -151,7 +151,13 @@ case ${desired_python} in
         NUMPY_PINNED_VERSION="=1.19"
         ;;
     3.8)
-        NUMPY_PINNED_VERSION="=1.17"
+        if [[ "$(uname -m)" == "arm64" ]]; then
+          SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+          PYYAML_PINNED_VERSION=">=5.3"
+          NUMPY_PINNED_VERSION="=1.19"
+        else
+          NUMPY_PINNED_VERSION="=1.17"
+        fi
         ;;
     *)
         NUMPY_PINNED_VERSION="=1.11.3"
@@ -168,19 +174,25 @@ if [[ "$desired_python" == "3.11" ]]; then
 else
   retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 fi
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
+if [[ "$(uname -m)" == "arm64" ]]; then
+  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja
+else
+  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
+fi
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
-    export CMAKE_OSX_ARCHITECTURES=arm64
+if [[ -n "$CROSS_COMPILE_ARM64" || "$(uname -m)" == "arm64" ]]; then
+    if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+        export CMAKE_OSX_ARCHITECTURES=arm64
+    fi
     export USE_MKLDNN=OFF
     export USE_QNNPACK=OFF
     export BUILD_TEST=OFF
-else
+elif [[ "$(uname -m)" == "x86_64" ]]; then
     retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
     export USE_LLVM="${CONDA_PREFIX}"
 fi

@@ -1,8 +1,8 @@
 # syntax = docker/dockerfile:experimental
 ARG ROCM_VERSION=3.7
-ARG BASE_CUDA_VERSION=10.1
+ARG BASE_CUDA_VERSION=11.8
 
-ARG GPU_IMAGE=nvidia/cuda:${BASE_CUDA_VERSION}-devel-centos7
+ARG GPU_IMAGE=centos:7
 FROM centos:7 as base
 
 ENV LC_ALL en_US.UTF-8
@@ -114,8 +114,6 @@ RUN git config --global --add safe.directory "*"
 
 ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 # Install LLVM version
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm                             /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi                /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl                          /opt/openssl
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
@@ -154,11 +152,17 @@ FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=cuda     /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
 COPY --from=magma    /usr/local/cuda-${BASE_CUDA_VERSION}  /usr/local/cuda-${BASE_CUDA_VERSION}
+RUN ln -sf /usr/local/cuda-${BASE_CUDA_VERSION} /usr/local/cuda
+ENV PATH=/usr/local/cuda/bin:$PATH
 
 FROM cpu_final as rocm_final
 ARG ROCM_VERSION=3.7
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
+# Adding ROCM_PATH env var so that LoadHip.cmake (even with logic updated for ROCm6.0) 
+# find HIP works for ROCm5.7. Not needed for ROCm6.0 and above.
+# Remove below when ROCm5.7 is not in support matrix anymore.
+ENV ROCM_PATH /opt/rocm
 # No need to install ROCm as base docker image should have full ROCm install
 #ADD ./common/install_rocm.sh install_rocm.sh
 #RUN ROCM_VERSION=${ROCM_VERSION} bash ./install_rocm.sh && rm install_rocm.sh

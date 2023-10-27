@@ -42,11 +42,14 @@ requirements:
     {% endif %}
     - libuv # [win]
     - intel-openmp # [win]
+    # llvm-openmp 16 leads to wrong processor affinity for fork child, see #99625.
+    # Before a decent fix, force llvm-openmp version <16.
+    - llvm-openmp <16 # [linux]
     - typing_extensions
     - sympy
     - filelock
     - networkx
-    - jinja2 # [py <= 310]
+    - jinja2
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
     - blas * mkl
@@ -91,6 +94,7 @@ build:
     - USE_COREML_DELEGATE # [osx]
     - _GLIBCXX_USE_CXX11_ABI # [unix]
     - OVERRIDE_TORCH_CUDA_ARCH_LIST
+    - USE_CUSPARSELT
 
 test:
  imports:

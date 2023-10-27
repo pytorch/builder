@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
 import argparse
+import base64
+import concurrent.futures
+import dataclasses
+import functools
 import time
 
 from os import path, makedirs
 from datetime import datetime
 from collections import defaultdict
-from typing import Iterator, List, Type, Dict, Set, TypeVar, Optional
+from typing import Iterable, List, Type, Dict, Set, TypeVar, Optional
 from re import sub, match, search
 from packaging.version import parse
 
@@ -14,6 +18,7 @@ import boto3
 
 
 S3 = boto3.resource('s3')
+CLIENT = boto3.client('s3')
 BUCKET = S3.Bucket('pytorch')
 
 ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
@@ -39,6 +44,7 @@ PACKAGE_ALLOW_LIST = {
     "charset_normalizer",
     "cmake",
     "colorama",
+    "fbgemm_gpu",
     "filelock",
     "fsspec",
     "idna",
@@ -79,11 +85,13 @@ PACKAGE_ALLOW_LIST = {
     "requests",
     "sympy",
     "torch",
+    "torch_tensorrt",
     "torcharrow",
     "torchaudio",
     "torchcsprng",
     "torchdata",
     "torchdistx",
+    "torchmetrics",
     "torchrec",
     "torchtext",
     "torchvision",
@@ -91,6 +99,7 @@ PACKAGE_ALLOW_LIST = {
     "tqdm",
     "typing_extensions",
     "urllib3",
+    "xformers",
 }
 
 # Should match torch-2.0.0.dev20221221+cu118-cp310-cp310-linux_x86_64.whl as:
@@ -102,6 +111,25 @@ PACKAGE_DATE_REGEX = r"([a-zA-z]*-[0-9.]*.dev)([0-9]*)"
 KEEP_THRESHOLD = 60
 
 S3IndexType = TypeVar('S3IndexType', bound='S3Index')
+
+
+@dataclasses.dataclass(frozen=True)
+@functools.total_ordering
+class S3Object:
+    key: str
+    orig_key: str
+    checksum: Optional[str]
+    size: Optional[int]
+
+    def __str__(self):
+        return self.key
+
+    def __eq__(self, other):
+        return self.key == other.key
+
+    def __lt__(self, other):
+        return self.key < other.key
+
 
 def extract_package_build_time(full_package_name: str) -> datetime:
     result = search(PACKAGE_DATE_REGEX, full_package_name)
@@ -120,7 +148,7 @@ def between_bad_dates(package_build_time: datetime):
 
 
 class S3Index:
-    def __init__(self: S3IndexType, objects: List[str], whls_with_metadata: Set[str], prefix: str) -> None:
+    def __init__(self: S3IndexType, objects: List[S3Object], whls_with_metadata: Set[str], prefix: str) -> None:
         self.objects = objects
         self.whls_with_metadata = set(whls_with_metadata)
         self.prefix = prefix.rstrip("/")
@@ -128,10 +156,10 @@ class S3Index:
         # should dynamically grab subdirectories like whl/test/cu101
         # so we don't need to add them manually anymore
         self.subdirs = {
-            path.dirname(obj) for obj in objects if path.dirname != prefix
+            path.dirname(obj.key) for obj in objects if path.dirname != prefix
         }
 
-    def nightly_packages_to_show(self: S3IndexType) -> Set[str]:
+    def nightly_packages_to_show(self: S3IndexType) -> Set[S3Object]:
         """Finding packages to show based on a threshold we specify
 
         Basically takes our S3 packages, normalizes the version for easier
@@ -160,9 +188,7 @@ class S3Index:
             if package_name not in PACKAGE_ALLOW_LIST:
                 to_hide.add(obj)
                 continue
-            if packages[package_name] >= KEEP_THRESHOLD:
-                to_hide.add(obj)
-            elif between_bad_dates(package_build_time):
+            if packages[package_name] >= KEEP_THRESHOLD or between_bad_dates(package_build_time):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
@@ -171,8 +197,8 @@ class S3Index:
             if self.normalize_package_version(obj) in to_hide
         })
 
-    def is_obj_at_root(self, obj:str) -> bool:
-        return path.dirname(obj) == self.prefix
+    def is_obj_at_root(self, obj: S3Object) -> bool:
+        return path.dirname(obj.key) == self.prefix
 
     def _resolve_subdir(self, subdir: Optional[str] = None) -> str:
         if not subdir:
@@ -184,33 +210,32 @@ class S3Index:
         self,
         subdir: Optional[str]=None,
         package_name: Optional[str] = None
-    ) -> Iterator[str]:
+    ) -> Iterable[S3Object]:
         objects = (
             self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
             else self.objects
         )
         subdir = self._resolve_subdir(subdir) + '/'
         for obj in objects:
-            if package_name is not None:
-                if self.obj_to_package_name(obj) != package_name:
-                    continue
-            if self.is_obj_at_root(obj) or obj.startswith(subdir):
+            if package_name is not None and self.obj_to_package_name(obj) != package_name:
+                continue
+            if self.is_obj_at_root(obj) or obj.key.startswith(subdir):
                 yield obj
 
     def get_package_names(self, subdir: Optional[str] = None) -> List[str]:
-        return sorted(set(self.obj_to_package_name(obj) for obj in self.gen_file_list(subdir)))
+        return sorted({self.obj_to_package_name(obj) for obj in self.gen_file_list(subdir)})
 
-    def normalize_package_version(self: S3IndexType, obj: str) -> str:
+    def normalize_package_version(self: S3IndexType, obj: S3Object) -> str:
         # removes the GPU specifier from the package name as well as
         # unnecessary things like the file extension, architecture name, etc.
         return sub(
             r"%2B.*",
             "",
-            "-".join(path.basename(obj).split("-")[:2])
+            "-".join(path.basename(obj.key).split("-")[:2])
         )
 
-    def obj_to_package_name(self, obj: str) -> str:
-        return path.basename(obj).split('-', 1)[0]
+    def obj_to_package_name(self, obj: S3Object) -> str:
+        return path.basename(obj.key).split('-', 1)[0]
 
     def to_legacy_html(
         self,
@@ -228,7 +253,7 @@ class S3Index:
         is_root = subdir == self.prefix
         for obj in self.gen_file_list(subdir):
             # Strip our prefix
-            sanitized_obj = obj.replace(subdir, "", 1)
+            sanitized_obj = obj.key.replace(subdir, "", 1)
             if sanitized_obj.startswith('/'):
                 sanitized_obj = sanitized_obj.lstrip("/")
             # we include objects at our root prefix so that users can still
@@ -236,7 +261,7 @@ class S3Index:
             # to install a specific GPU arch of torch / torchvision
             if not is_root and self.is_obj_at_root(obj):
                 # strip root prefix
-                sanitized_obj = obj.replace(self.prefix, "", 1).lstrip("/")
+                sanitized_obj = obj.key.replace(self.prefix, "", 1).lstrip("/")
                 sanitized_obj = f"../{sanitized_obj}"
             out.append(f'<a href="{sanitized_obj}">{sanitized_obj}</a><br/>')
         return "\n".join(sorted(out))
@@ -261,11 +286,12 @@ class S3Index:
                 attributes += 'data-dist-info-metadata=true'
                 attributes += 'data-core-metadata=true'
             attributes = " ".join(attributes)
-            out.append(f'    <a href="/{obj}">{path.basename(obj).replace("%2B","+")} {attributes}</a><br/>')
+            maybe_fragment = f"#sha256={obj.checksum}" if obj.checksum else ""
+            out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj).replace("%2B","+")} {attributes}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
-        out.append('<!--TIMESTAMP {}-->'.format(int(time.time())))
+        out.append(f'<!--TIMESTAMP {int(time.time())}-->')
         return '\n'.join(out)
 
     def to_simple_packages_html(
@@ -284,7 +310,7 @@ class S3Index:
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
-        out.append('<!--TIMESTAMP {}-->'.format(int(time.time())))
+        out.append(f'<!--TIMESTAMP {int(time.time())}-->')
         return '\n'.join(out)
 
     def upload_legacy_html(self) -> None:
@@ -322,7 +348,6 @@ class S3Index:
                     Body=self.to_simple_package_html(subdir=subdir, package_name=pkg_name)
                 )
 
-
     def save_legacy_html(self) -> None:
         for subdir in self.subdirs:
             print(f"INFO Saving {subdir}/{self.html_name}")
@@ -341,11 +366,37 @@ class S3Index:
                 with open(path.join(subdir, pkg_name, "index.html"), mode="w", encoding="utf-8") as f:
                     f.write(self.to_simple_package_html(subdir=subdir, package_name=pkg_name))
 
+    def compute_sha256(self) -> None:
+        for obj in self.objects:
+            if obj.checksum is not None:
+                continue
+            print(f"Updating {obj.orig_key} of size {obj.size} with SHA256 checksum")
+            s3_obj = BUCKET.Object(key=obj.orig_key)
+            s3_obj.copy_from(CopySource={"Bucket": BUCKET.name, "Key": obj.orig_key},
+                             Metadata=s3_obj.metadata, MetadataDirective="REPLACE",
+                             ACL="public-read",
+                             ChecksumAlgorithm="SHA256")
+
+
     @classmethod
-    def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
-        objects = []
+    def has_public_read(cls:Type[S3IndexType], key: str) -> bool:
+        def is_all_users_group(o) -> bool:
+            return o.get("Grantee",{}).get("URI") == "http://acs.amazonaws.com/groups/global/AllUsers"
+
+        def can_read(o) -> bool:
+            return o.get("Permission") in ["READ", "FULL_CONTROL"]
+
+        acl_grants = CLIENT.get_object_acl(Bucket=BUCKET.name, Key=key)["Grants"]
+        return any(is_all_users_group(x) and can_read(x) for x in acl_grants)
+
+    @classmethod
+    def grant_public_read(cls: Type[S3IndexType], key: str) -> None:
+        CLIENT.put_object_acl(Bucket=BUCKET.name, Key=key, ACL="public-read")
+
+    @classmethod
+    def fetch_object_names(cls: Type[S3IndexType], prefix: str) -> List[str]:
+        obj_names = []
         whls_with_metadata = {}
-        prefix = prefix.rstrip("/")
         for obj in BUCKET.objects.filter(Prefix=prefix):
             is_acceptable = any([path.dirname(obj.key) == prefix] + [
                 match(
@@ -353,14 +404,55 @@ class S3Index:
                     path.dirname(obj.key)
                 )
                 for pattern in ACCEPTED_SUBDIR_PATTERNS
-            ])
+            ]) and obj.key.endswith(ACCEPTED_FILE_EXTENSIONS)
+            if not is_acceptable:
+                continue
+            obj_names.append(obj.key)
+
             sanitized_key = obj.key.replace("+", "%2B")
-            if obj.key.endswith(ACCEPTED_FILE_EXTENSIONS) and is_acceptable:
-                objects.append(sanitized_key)
             if obj.key.endswith(".whl.metadata"):
                 whls_with_metadata.append(sanitized_key[:-9])
+        return obj_names
 
-        return cls(objects, whls_with_metadata, prefix)
+    @classmethod
+    def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
+        prefix = prefix.rstrip("/")
+        obj_names = cls.fetch_object_names(prefix)
+        objects = []
+        def fetch_metadata(key: str) :
+            return CLIENT.head_object(Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled")
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+            # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
+            for obj_key, future in {key: executor.submit(fetch_metadata, key) for key in obj_names}.items():
+                response = future.result()
+                sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
+                # For older files, rely on checksum-sha256 metadata that can be added to the file later
+                if sha256 is None:
+                    sha256 = response.get("Metadata", {}).get("checksum-sha256")
+                sanitized_key = obj_key.replace("+", "%2B")
+                size = response.get("ContentLength")
+                s3_object = S3Object(
+                    key=sanitized_key,
+                    orig_key=obj_key,
+                    checksum=sha256,
+                    size=int(size) if size else size,
+                )
+                objects.append(s3_object)
+        return cls(objects, prefix)
+
+    @classmethod
+    def undelete_prefix(cls: Type[S3IndexType], prefix: str) -> None:
+        paginator = CLIENT.get_paginator("list_object_versions")
+        for page in paginator.paginate(Bucket=BUCKET.name, Prefix=prefix):
+            for obj in page.get("DeleteMarkers", []):
+                if not obj.get("IsLatest"):
+                    continue
+                obj_key, obj_version_id = obj["Key"], obj["VersionId"]
+                obj_ver = S3.ObjectVersion(BUCKET.name, obj_key, obj_version_id)
+                print(f"Undeleting {obj_key} deleted on {obj['LastModified']}")
+                obj_ver.delete()
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("Manage S3 HTML indices for PyTorch")
@@ -371,24 +463,24 @@ def create_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--do-not-upload", action="store_true")
     parser.add_argument("--generate-pep503", action="store_true")
+    parser.add_argument("--compute-sha256", action="store_true")
     return parser
 
-def main():
+
+def main() -> None:
     parser = create_parser()
     args = parser.parse_args()
-    action = "Saving" if args.do_not_upload else "Uploading"
-    if args.prefix == 'all':
-        for prefix in PREFIXES_WITH_HTML.keys():
-            print(f"INFO: {action} indices for '{prefix}'")
-            idx = S3Index.from_S3(prefix=prefix)
-            if args.do_not_upload:
-                idx.save_legacy_html()
-            else:
-                idx.upload_legacy_html()
-    else:
-        print(f"INFO: {action} indices for '{args.prefix}'")
-        idx = S3Index.from_S3(prefix=args.prefix)
-        if args.do_not_upload:
+    action = "Saving indices" if args.do_not_upload else "Uploading indices"
+    if args.compute_sha256:
+        action = "Computing checksums"
+
+    prefixes = PREFIXES_WITH_HTML if args.prefix == 'all' else [args.prefix]
+    for prefix in prefixes:
+        print(f"INFO: {action} for '{prefix}'")
+        idx = S3Index.from_S3(prefix=prefix)
+        if args.compute_sha256:
+            idx.compute_sha256()
+        elif args.do_not_upload:
             idx.save_legacy_html()
             if args.generate_pep503:
                 idx.save_pep503_htmls()
@@ -396,6 +488,7 @@ def main():
             idx.upload_legacy_html()
             if args.generate_pep503:
                 idx.upload_pep503_htmls()
+
 
 if __name__ == "__main__":
     main()

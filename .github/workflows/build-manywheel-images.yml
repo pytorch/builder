@@ -3,10 +3,16 @@ name: Build manywheel docker images
 on:
   push:
     branches:
-      main
+      - main
+      - release/*
+    tags:
+      # NOTE: Binary build pipelines should only get triggered on release candidate or nightly builds
+      # Release candidate tags look like: v1.11.0-rc1
+      - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/Dockerfile_aarch64
       - manywheel/Dockerfile_cxx11-abi
       - manywheel/build_docker.sh
       - 'common/*'
@@ -14,6 +20,7 @@ on:
     paths:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
+      - manywheel/Dockerfile_aarch64
       - manywheel/Dockerfile_cxx11-abi
       - 'common/*'
       - manywheel/build_docker.sh
@@ -23,11 +30,11 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_ID: ${{ secrets.DOCKER_ID }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+  WITH_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release')) }}
 
 jobs:
   build-docker-cuda:
-    runs-on: ubuntu-22.04
+    runs-on: linux.12xlarge.ephemeral
     strategy:
       matrix:
         cuda_version: ["12.1", "11.8"]
@@ -35,6 +42,8 @@ jobs:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
     steps:
+      - name: Purge tools folder (free space for build)
+        run: rm -rf /opt/hostedtoolcache
       - name: Checkout PyTorch builder
         uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
@@ -49,7 +58,7 @@ jobs:
     runs-on: linux.12xlarge
     strategy:
       matrix:
-        rocm_version: ["5.4.2", "5.5"]
+        rocm_version: ["5.6", "5.7"]
     env:
       GPU_ARCH_TYPE: rocm
       GPU_ARCH_VERSION: ${{ matrix.rocm_version }}
@@ -66,6 +75,21 @@ jobs:
           manywheel/build_docker.sh
   build-docker-cpu:
     runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout PyTorch
+        uses: actions/checkout@v3
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
+      - name: Build Docker Image
+        run: |
+          manywheel/build_docker.sh
+  build-docker-cpu-aarch64:
+    runs-on: linux.arm64.2xlarge
+    env:
+      GPU_ARCH_TYPE: cpu-aarch64
     steps:
       - name: Checkout PyTorch
         uses: actions/checkout@v3

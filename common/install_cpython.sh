@@ -64,10 +64,6 @@ function build_cpython {
     check_var $py_ver
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
-    # Only b2 version of 3.12 is available right now
-    if [ "$py_ver" = "3.12.0" ]; then
-        py_ver=$py_ver"b2"
-    fi
     wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
     do_cpython_build $py_ver none
     rm -f Python-$py_ver.tgz

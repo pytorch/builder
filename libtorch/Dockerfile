@@ -1,11 +1,11 @@
 ARG BASE_TARGET=base
-ARG GPU_IMAGE=nvidia/cuda:10.2-devel-ubuntu18.04
+ARG GPU_IMAGE=ubuntu:18.04
 FROM ${GPU_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get clean && apt-get update
-RUN apt-get install -y curl locales git-all autoconf automake make cmake wget unzip
+RUN apt-get install -y curl locales g++ git-all autoconf automake make cmake wget unzip
 # Just add everything as a safe.directory for git since these will be used in multiple places with git
 RUN git config --global --add safe.directory '*'
 
@@ -44,20 +44,25 @@ ENV CUDA_HOME /usr/local/cuda
 FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
-RUN /opt/conda/bin/conda install -y cmake=3.18
 
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
 RUN bash ./install_magma.sh 11.8
+RUN ln -sf /usr/local/cuda-11.8 /usr/local/cuda
 
 FROM cuda as cuda12.1
 RUN bash ./install_cuda.sh 12.1
 RUN bash ./install_magma.sh 12.1
+RUN ln -sf /usr/local/cuda-12.1 /usr/local/cuda
 
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 ENV MKLROOT /opt/intel
+# Adding ROCM_PATH env var so that LoadHip.cmake (even with logic updated for ROCm6.0) 
+# find HIP works for ROCm5.7. Not needed for ROCm6.0 and above.
+# Remove below when ROCm5.7 is not in support matrix anymore.
+ENV ROCM_PATH /opt/rocm
 # No need to install ROCm as base docker image should have full ROCm install
 #ADD ./common/install_rocm.sh install_rocm.sh
 ADD ./common/install_rocm_drm.sh install_rocm_drm.sh
@@ -72,9 +77,6 @@ RUN bash ./install_rocm_drm.sh && rm install_rocm_drm.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 
 FROM ${BASE_TARGET} as final
-# Install LLVM
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm              /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl           /opt/openssl
 # Install patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
@@ -84,4 +86,4 @@ COPY --from=conda /opt/conda /opt/conda
 # Install python
 COPY --from=python /opt/python    /opt/python
 COPY --from=python /opt/_internal /opt/_internal
-ENV PATH /opt/conda/bin:$PATH
+ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH

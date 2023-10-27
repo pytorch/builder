@@ -91,7 +91,9 @@ call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 
 :: do conda install to make sure all the dependencies are installed
-call conda install -yq pytorch %CONDA_EXTRA_ARGS%
+:: Install numpy see: https://github.com/pytorch/pytorch/issues/107228
+:: todo: Remove numpy install once the issue above is resolved
+call conda install -yq numpy pytorch %CONDA_EXTRA_ARGS%
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
