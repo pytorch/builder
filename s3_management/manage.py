@@ -281,13 +281,13 @@ class S3Index:
         out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             attributes = []
-            if obj in self.whls_with_metadata:
+            if obj.key in self.whls_with_metadata:
                 # Serve the PEP 658 and PEP 714 metadata attributes
                 attributes += 'data-dist-info-metadata=true'
                 attributes += 'data-core-metadata=true'
             attributes = " ".join(attributes)
             maybe_fragment = f"#sha256={obj.checksum}" if obj.checksum else ""
-            out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj).replace("%2B","+")} {attributes}</a><br/>')
+            out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj.key).replace("%2B","+")} {attributes}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
