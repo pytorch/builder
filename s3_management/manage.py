@@ -289,8 +289,8 @@ class S3Index:
             attributes = []
             if metadata_sha256 := self.object_metadatas.get(obj.key):
                 # Serve the PEP 658 and PEP 714 metadata attributes
-                attributes += f'data-dist-info-metadata={metadata_sha256}'
-                attributes += f'data-core-metadata={metadata_sha256}'
+                attributes += f'data-dist-info-metadata="{metadata_sha256}"'
+                attributes += f'data-core-metadata="{metadata_sha256}"'
             attributes = " ".join(attributes)
             maybe_fragment = f"#sha256={obj.checksum}" if obj.checksum else ""
             out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj.key).replace("%2B","+")} {attributes}</a><br/>')
