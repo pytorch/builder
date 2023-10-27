@@ -396,7 +396,7 @@ class S3Index:
     @classmethod
     def fetch_object_names(cls: Type[S3IndexType], prefix: str) -> List[str]:
         obj_names = []
-        whls_with_metadata = {}
+        whls_with_metadata = set()
         for obj in BUCKET.objects.filter(Prefix=prefix):
             is_acceptable = any([path.dirname(obj.key) == prefix] + [
                 match(
@@ -411,7 +411,7 @@ class S3Index:
 
             sanitized_key = obj.key.replace("+", "%2B")
             if obj.key.endswith(".whl.metadata"):
-                whls_with_metadata.append(sanitized_key[:-9])
+                whls_with_metadata.add(sanitized_key[:-9])
         return obj_names
 
     @classmethod
