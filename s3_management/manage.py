@@ -23,8 +23,8 @@ BUCKET = S3.Bucket('pytorch')
 
 ACCEPTED_FILE_EXTENSIONS = ("whl", "zip", "tar.gz")
 ACCEPTED_SUBDIR_PATTERNS = [
-    r"cu[0-9]+",           # for cuda
-    r"rocm[0-9]+\.[0-9]+", # for rocm
+    r"cu[0-9]+",            # for cuda
+    r"rocm[0-9]+\.[0-9]+",  # for rocm
     "cpu",
 ]
 PREFIXES_WITH_HTML = {
@@ -32,6 +32,8 @@ PREFIXES_WITH_HTML = {
     "whl/lts/1.8": "torch_lts.html",
     "whl/nightly": "torch_nightly.html",
     "whl/test": "torch_test.html",
+    "libtorch": "index.html",
+    "libtorch/nightly": "index.html",
 }
 
 # NOTE: This refers to the name on the wheels themselves and not the name of
@@ -141,6 +143,7 @@ def extract_package_build_time(full_package_name: str) -> datetime:
             pass
     return datetime.now()
 
+
 def between_bad_dates(package_build_time: datetime):
     start_bad = datetime(year=2022, month=8, day=17)
     end_bad = datetime(year=2022, month=12, day=30)
@@ -207,7 +210,7 @@ class S3Index:
 
     def gen_file_list(
         self,
-        subdir: Optional[str]=None,
+        subdir: Optional[str] = None,
         package_name: Optional[str] = None
     ) -> Iterable[S3Object]:
         objects = (
@@ -238,7 +241,7 @@ class S3Index:
 
     def to_legacy_html(
         self,
-        subdir: Optional[str]=None
+        subdir: Optional[str] = None
     ) -> str:
         """Generates a string that can be used as the HTML index
 
@@ -277,7 +280,7 @@ class S3Index:
         out.append('<!DOCTYPE html>')
         out.append('<html>')
         out.append('  <body>')
-        out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_","-")))
+        out.append('    <h1>Links for {}</h1>'.format(package_name.lower().replace("_", "-")))
         for obj in sorted(self.gen_file_list(subdir, package_name)):
             maybe_fragment = f"#sha256={obj.checksum}" if obj.checksum else ""
             out.append(f'    <a href="/{obj.key}{maybe_fragment}">{path.basename(obj.key).replace("%2B","+")}</a><br/>')
@@ -370,11 +373,10 @@ class S3Index:
                              ACL="public-read",
                              ChecksumAlgorithm="SHA256")
 
-
     @classmethod
-    def has_public_read(cls:Type[S3IndexType], key: str) -> bool:
+    def has_public_read(cls: Type[S3IndexType], key: str) -> bool:
         def is_all_users_group(o) -> bool:
-            return o.get("Grantee",{}).get("URI") == "http://acs.amazonaws.com/groups/global/AllUsers"
+            return o.get("Grantee", {}).get("URI") == "http://acs.amazonaws.com/groups/global/AllUsers"
 
         def can_read(o) -> bool:
             return o.get("Permission") in ["READ", "FULL_CONTROL"]
@@ -403,12 +405,22 @@ class S3Index:
         return obj_names
 
     @classmethod
-    def from_S3(cls: Type[S3IndexType], prefix: str) -> S3IndexType:
+    def from_S3(cls: Type[S3IndexType], prefix: str, with_metadata: bool = True) -> S3IndexType:
         prefix = prefix.rstrip("/")
         obj_names = cls.fetch_object_names(prefix)
         objects = []
-        def fetch_metadata(key: str) :
+
+        def fetch_metadata(key: str):
             return CLIENT.head_object(Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled")
+
+        def sanitize_key(key: str) -> str:
+            return key.replace("+", "%2B")
+
+        if not with_metadata:
+            return cls([S3Object(key=sanitize_key(key),
+                                 orig_key=key,
+                                 checksum=None,
+                                 size=None) for key in obj_names], prefix)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
             # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
@@ -418,10 +430,9 @@ class S3Index:
                 # For older files, rely on checksum-sha256 metadata that can be added to the file later
                 if sha256 is None:
                     sha256 = response.get("Metadata", {}).get("checksum-sha256")
-                sanitized_key = obj_key.replace("+", "%2B")
                 size = response.get("ContentLength")
                 s3_object = S3Object(
-                    key=sanitized_key,
+                    key=sanitize_key(obj_key),
                     orig_key=obj_key,
                     checksum=sha256,
                     size=int(size) if size else size,
@@ -465,7 +476,7 @@ def main() -> None:
     prefixes = PREFIXES_WITH_HTML if args.prefix == 'all' else [args.prefix]
     for prefix in prefixes:
         print(f"INFO: {action} for '{prefix}'")
-        idx = S3Index.from_S3(prefix=prefix)
+        idx = S3Index.from_S3(prefix=prefix, with_metadata=args.generate_pep503 or args.compute_sha256)
         if args.compute_sha256:
             idx.compute_sha256()
         elif args.do_not_upload:
