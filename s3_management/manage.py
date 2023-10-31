@@ -115,13 +115,16 @@ KEEP_THRESHOLD = 60
 S3IndexType = TypeVar('S3IndexType', bound='S3Index')
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=False)
 @functools.total_ordering
 class S3Object:
     key: str
     orig_key: str
     checksum: Optional[str]
     size: Optional[int]
+
+    def __hash__(self):
+        return hash(self.key)
 
     def __str__(self):
         return self.key
@@ -155,6 +158,7 @@ def safe_parse_version(ver_str: str) -> Version:
         return _parse_version(ver_str)
     except InvalidVersion:
         return Version("0.0.0")
+
 
 
 class S3Index:
@@ -411,41 +415,43 @@ class S3Index:
             obj_names.append(obj.key)
         return obj_names
 
-    @classmethod
-    def from_S3(cls: Type[S3IndexType], prefix: str, with_metadata: bool = True) -> S3IndexType:
-        prefix = prefix.rstrip("/")
-        obj_names = cls.fetch_object_names(prefix)
-        objects = []
-
-        def fetch_metadata(key: str):
-            return CLIENT.head_object(Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled")
-
-        def sanitize_key(key: str) -> str:
-            return key.replace("+", "%2B")
-
-        if not with_metadata:
-            return cls([S3Object(key=sanitize_key(key),
-                                 orig_key=key,
-                                 checksum=None,
-                                 size=None) for key in obj_names], prefix)
-
+    def fetch_metadata(self: S3IndexType) -> None:
+        # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
         with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
-            # Add PEP 503-compatible hashes to URLs to allow clients to avoid spurious downloads, if possible.
-            for obj_key, future in {key: executor.submit(fetch_metadata, key) for key in obj_names}.items():
+            for idx, future in {
+                idx: executor.submit(
+                    lambda key: CLIENT.head_object(
+                        Bucket=BUCKET.name, Key=key, ChecksumMode="Enabled"
+                    ),
+                    obj.orig_key,
+                )
+                for (idx, obj) in enumerate(self.objects)
+                if obj.size is None
+            }.items():
                 response = future.result()
                 sha256 = (_b64 := response.get("ChecksumSHA256")) and base64.b64decode(_b64).hex()
                 # For older files, rely on checksum-sha256 metadata that can be added to the file later
                 if sha256 is None:
                     sha256 = response.get("Metadata", {}).get("checksum-sha256")
-                size = response.get("ContentLength")
-                s3_object = S3Object(
-                    key=sanitize_key(obj_key),
-                    orig_key=obj_key,
-                    checksum=sha256,
-                    size=int(size) if size else size,
-                )
-                objects.append(s3_object)
-        return cls(objects, prefix)
+                self.objects[idx].checksum = sha256
+                if size := response.get("ContentLength"):
+                    self.objects[idx].size = int(size)
+
+    @classmethod
+    def from_S3(cls: Type[S3IndexType], prefix: str, with_metadata: bool = True) -> S3IndexType:
+        prefix = prefix.rstrip("/")
+        obj_names = cls.fetch_object_names(prefix)
+
+        def sanitize_key(key: str) -> str:
+            return key.replace("+", "%2B")
+
+        rc = cls([S3Object(key=sanitize_key(key),
+                           orig_key=key,
+                           checksum=None,
+                           size=None) for key in obj_names], prefix)
+        if with_metadata:
+            rc.fetch_metadata()
+        return rc
 
     @classmethod
     def undelete_prefix(cls: Type[S3IndexType], prefix: str) -> None:
