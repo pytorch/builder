@@ -12,7 +12,7 @@ from datetime import datetime
 from collections import defaultdict
 from typing import Iterable, List, Type, Dict, Set, TypeVar, Optional
 from re import sub, match, search
-from packaging.version import parse
+from packaging.version import parse as _parse_version, Version, InvalidVersion
 
 import boto3
 
@@ -150,6 +150,12 @@ def between_bad_dates(package_build_time: datetime):
     return start_bad <= package_build_time <= end_bad
 
 
+def safe_parse_version(ver_str: str) -> Version:
+    try:
+        return _parse_version(ver_str)
+    except InvalidVersion:
+        return Version(0, 0, 0)
+
 class S3Index:
     def __init__(self: S3IndexType, objects: List[S3Object], prefix: str) -> None:
         self.objects = objects
@@ -177,7 +183,7 @@ class S3Index:
         # sorting, sorts in reverse to put the most recent versions first
         all_sorted_packages = sorted(
             {self.normalize_package_version(obj) for obj in self.objects},
-            key=lambda name_ver: parse(name_ver.split('-', 1)[-1]),
+            key=lambda name_ver: safe_parse_version(name_ver.split('-', 1)[-1]),
             reverse=True,
         )
         packages: Dict[str, int] = defaultdict(int)
