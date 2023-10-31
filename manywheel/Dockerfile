@@ -145,7 +145,6 @@ RUN yum install -y python3-pip && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 # ninja
-RUN yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
 RUN yum install -y ninja-build
 
 FROM cpu_final as cuda_final
