@@ -99,8 +99,10 @@ mkdir -p "$whl_tmp_dir"
 
 if [[ -n "$CROSS_COMPILE_ARM64" || $(uname -m) == "arm64" ]]; then
     mac_version='macosx_11_0_arm64'
+    libtorch_arch='-arm64-'
 else
     mac_version='macosx_10_9_x86_64'
+    libtorch_arch=''
 fi
 
 # Create a consistent wheel package name to rename the wheel to
@@ -264,17 +266,19 @@ else
         cp -r "$(pwd)/any_wheel/torch/lib/include" "$(pwd)/libtorch/"
     fi
     cp -r "$(pwd)/any_wheel/torch/share/cmake" "$(pwd)/libtorch/share/"
-    if [[ -x "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" ]]; then
-        cp -r "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" "$(pwd)/libtorch/lib/"
-    else
-        cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
+    if [[ "${libtorch_arch}" != "-arm64-" ]]; then
+      if [[ -x "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" ]]; then
+          cp -r "$(pwd)/any_wheel/torch/.dylibs/libiomp5.dylib" "$(pwd)/libtorch/lib/"
+      else
+          cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
+      fi
     fi
     rm -rf "$(pwd)/any_wheel"
 
     echo $PYTORCH_BUILD_VERSION > libtorch/build-version
     echo "$(pushd $pytorch_rootdir && git rev-parse HEAD)" > libtorch/build-hash
 
-    zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip" libtorch
-    cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-$PYTORCH_BUILD_VERSION.zip"  \
-       "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-latest.zip"
+    zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos${libtorch_arch}-$PYTORCH_BUILD_VERSION.zip" libtorch
+    cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos${libtorch_arch}-$PYTORCH_BUILD_VERSION.zip"  \
+       "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos${libtorch_arch}-latest.zip"
 fi
