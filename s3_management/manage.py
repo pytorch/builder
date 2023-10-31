@@ -476,7 +476,10 @@ def main() -> None:
     prefixes = PREFIXES_WITH_HTML if args.prefix == 'all' else [args.prefix]
     for prefix in prefixes:
         print(f"INFO: {action} for '{prefix}'")
+        stime = time.time()
         idx = S3Index.from_S3(prefix=prefix, with_metadata=args.generate_pep503 or args.compute_sha256)
+        etime = time.time()
+        print(f"DEBUG: Fetched {len(idx.objects)} objects for '{prefix}' in {etime-stime:.2f} seconds")
         if args.compute_sha256:
             idx.compute_sha256()
         elif args.do_not_upload:
