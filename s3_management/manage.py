@@ -154,7 +154,8 @@ def safe_parse_version(ver_str: str) -> Version:
     try:
         return _parse_version(ver_str)
     except InvalidVersion:
-        return Version(0, 0, 0)
+        return Version("0.0.0")
+
 
 class S3Index:
     def __init__(self: S3IndexType, objects: List[S3Object], prefix: str) -> None:
