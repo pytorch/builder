@@ -172,7 +172,7 @@ class S3Index:
             path.dirname(obj.key) for obj in objects if path.dirname != prefix
         }
 
-    def nightly_packages_to_show(self: S3IndexType) -> Set[S3Object]:
+    def nightly_packages_to_show(self: S3IndexType) -> List[S3Object]:
         """Finding packages to show based on a threshold we specify
 
         Basically takes our S3 packages, normalizes the version for easier
@@ -205,10 +205,10 @@ class S3Index:
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
-        return set(self.objects).difference({
+        return list(set(self.objects).difference({
             obj for obj in self.objects
             if self.normalize_package_version(obj) in to_hide
-        })
+        }))
 
     def is_obj_at_root(self, obj: S3Object) -> bool:
         return path.dirname(obj.key) == self.prefix
@@ -224,10 +224,7 @@ class S3Index:
         subdir: Optional[str] = None,
         package_name: Optional[str] = None
     ) -> Iterable[S3Object]:
-        objects = (
-            self.nightly_packages_to_show() if self.prefix == 'whl/nightly'
-            else self.objects
-        )
+        objects = self.objects
         subdir = self._resolve_subdir(subdir) + '/'
         for obj in objects:
             if package_name is not None and self.obj_to_package_name(obj) != package_name:
@@ -449,6 +446,8 @@ class S3Index:
                            orig_key=key,
                            checksum=None,
                            size=None) for key in obj_names], prefix)
+        if prefix == "whl/nightly":
+           rc.objects = rc.nightly_packages_to_show()
         if with_metadata:
             rc.fetch_metadata()
         return rc
