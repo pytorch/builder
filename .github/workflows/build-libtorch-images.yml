@@ -26,7 +26,7 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_ID: ${{ secrets.DOCKER_ID }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release')) }}
+  WITH_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release') || (startsWith(github.event.ref, 'refs/tags/')) }}
 
 jobs:
   build-docker-cuda:
