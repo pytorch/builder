@@ -15,13 +15,13 @@ case ${GPU_ARCH_TYPE} in
     cpu)
         BASE_TARGET=cpu
         DOCKER_TAG=cpu
-        GPU_IMAGE=ubuntu:18.04
+        GPU_IMAGE=ubuntu:20.04
         DOCKER_GPU_BUILD_ARG=""
         ;;
     cuda)
         BASE_TARGET=cuda${GPU_ARCH_VERSION}
         DOCKER_TAG=cuda${GPU_ARCH_VERSION}
-        GPU_IMAGE=ubuntu:18.04
+        GPU_IMAGE=ubuntu:20.04
         DOCKER_GPU_BUILD_ARG=""
         ;;
     rocm)
