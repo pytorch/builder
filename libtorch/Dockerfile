@@ -1,5 +1,5 @@
 ARG BASE_TARGET=base
-ARG GPU_IMAGE=ubuntu:18.04
+ARG GPU_IMAGE=ubuntu:20.04
 FROM ${GPU_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
