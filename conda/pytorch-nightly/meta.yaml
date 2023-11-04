@@ -93,6 +93,7 @@ build:
     - USE_PYTORCH_METAL_EXPORT # [osx]
     - USE_COREML_DELEGATE # [osx]
     - _GLIBCXX_USE_CXX11_ABI # [unix]
+    - MAX_JOBS # [unix]
     - OVERRIDE_TORCH_CUDA_ARCH_LIST
     - USE_CUSPARSELT
 
