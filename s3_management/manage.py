@@ -310,7 +310,7 @@ class S3Index:
         out.append('<html>')
         out.append('  <body>')
         for pkg_name in sorted(self.get_package_names(subdir)):
-            out.append(f'    <a href="{pkg_name.replace("_","-")}/">{pkg_name.replace("_","-")}</a><br/>')
+            out.append(f'    <a href="{pkg_name.lower().replace("_","-")}/">{pkg_name.replace("_","-")}</a><br/>')
         # Adding html footer
         out.append('  </body>')
         out.append('</html>')
