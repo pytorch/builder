@@ -136,7 +136,7 @@ export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
 EXTRA_CONDA_INSTALL_FLAGS=""
-case ${desired_python} in
+case $desired_python in
     3.12)
         SETUPTOOLS_PINNED_VERSION=">=68.2.2"
         PYYAML_PINNED_VERSION=">=6.0.1"
