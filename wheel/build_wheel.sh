@@ -140,7 +140,7 @@ case ${desired_python} in
     3.12)
         SETUPTOOLS_PINNED_VERSION=">=68.2.2"
         PYYAML_PINNED_VERSION=">=6.0.1"
-        NUMPY_PINNED_VERSION="==1.16.1"
+        NUMPY_PINNED_VERSION="==1.26.1"
         ;;
     3.11)
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
