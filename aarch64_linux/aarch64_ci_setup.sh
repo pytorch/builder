@@ -19,15 +19,16 @@ curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/late
 chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
-/opt/conda/bin/conda config --set ssl_verify False
-/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON}
-/opt/conda/bin/conda install -y -c conda-forge numpy
-/opt/conda/bin/conda install -y -c conda-forge pyyaml
-/opt/conda/bin/conda install -y -c conda-forge patchelf
-/opt/conda/bin/conda install -y -c conda-forge pygit2
-/opt/conda/bin/conda install -y -c conda-forge openblas
-/opt/conda/bin/conda install -y -c conda-forge ninja
-/opt/conda/bin/conda install -y -c conda-forge scons
-pip install setuptools
+source /opt/conda/etc/profile.d/conda.sh
+conda config --set ssl_verify False
+conda create -y -c conda-forge -n aarch64_env python=${DESIRED_PYTHON}
+conda activate aarch64_env
+conda install -y -c conda-forge numpy
+conda install -y -c conda-forge pyyaml
+conda install -y -c conda-forge patchelf
+conda install -y -c conda-forge pygit2
+conda install -y -c conda-forge openblas
+conda install -y -c conda-forge ninja
+conda install -y -c conda-forge scons
 python --version
 conda --version
