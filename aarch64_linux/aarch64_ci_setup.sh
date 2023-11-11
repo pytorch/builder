@@ -20,7 +20,14 @@ chmod +x /mambaforge.sh
 /mambaforge.sh -b -p /opt/conda
 rm /mambaforge.sh
 /opt/conda/bin/conda config --set ssl_verify False
-/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON} numpy pyyaml patchelf pygit2 openblas ninja scons
+/opt/conda/bin/conda install -y -c conda-forge python=${DESIRED_PYTHON}
+/opt/conda/bin/conda install -y -c conda-forge numpy
+/opt/conda/bin/conda install -y -c conda-forge pyyaml
+/opt/conda/bin/conda install -y -c conda-forge patchelf
+/opt/conda/bin/conda install -y -c conda-forge pygit2
+/opt/conda/bin/conda install -y -c conda-forge openblas
+/opt/conda/bin/conda install -y -c conda-forge ninja
+/opt/conda/bin/conda install -y -c conda-forge scons
 pip install setuptools
 python --version
 conda --version
