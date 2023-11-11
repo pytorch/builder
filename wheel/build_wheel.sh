@@ -139,9 +139,9 @@ EXTRA_CONDA_INSTALL_FLAGS=""
 case $desired_python in
     3.12)
         echo "Using 3.12 deps"
-        SETUPTOOLS_PINNED_VERSION=">=68.2.2"
+        SETUPTOOLS_PINNED_VERSION=">=68.0.0"
         PYYAML_PINNED_VERSION=">=6.0.1"
-        NUMPY_PINNED_VERSION="==1.26.1"
+        NUMPY_PINNED_VERSION="==1.26.0"
         ;;
     3.11)
         echo "Using 3.11 deps"

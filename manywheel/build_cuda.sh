@@ -263,7 +263,9 @@ else
 fi
 
 # TODO: Remove me when Triton has a proper release channel
-if [[ $(uname) == "Linux" ]]; then
+# No triton dependency for now on 3.12 since we don't have binaries for it
+# and torch.compile doesn't work.
+if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
     TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
