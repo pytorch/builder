@@ -57,10 +57,10 @@ for whl_file in "$@"; do
             rm -rf "${whl_dir}/caffe2"
             rm -rf "${whl_dir}"/torch/lib/libnvrtc*
 
-            sed -i -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
+            sed -i '' -e "s/-with-pypi-cudnn//g" "${whl_dir}/torch/version.py"
         fi
 
-        find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
+        find "${dist_info_folder}" -type f -exec sed -i '' -e "s!${version_with_suffix}!${version_no_suffix}!" {} \;
         # Moves distinfo from one with a version suffix to one without
         # Example: torch-1.8.0+cpu.dist-info => torch-1.8.0.dist-info
         mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}"

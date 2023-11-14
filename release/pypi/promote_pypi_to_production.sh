@@ -7,7 +7,7 @@ source "${DIR}/../release_versions.sh"
 
 PYTORCH_DIR=${PYTORCH_DIR:-~/pytorch}
 
-DRY_RUN=${DRY_RUN:-enabled}
+DRY_RUN=${DRY_RUN:-disabled}
 
 TWINE_UPLOAD="true twine upload"
 if [[ ${DRY_RUN:-enabled} = "disabled" ]]; then
@@ -30,7 +30,8 @@ promote_staging_binaries() {
     )
 }
 
-promote_staging_binaries torch "${PYTORCH_VERSION}"
+#promote_staging_binaries torch "${PYTORCH_VERSION}"
 promote_staging_binaries torchvision "${TORCHVISION_VERSION}"
 promote_staging_binaries torchaudio "${TORCHAUDIO_VERSION}"
-promote_staging_binaries torchtext "${TORCHTEXT_VERSION}"
+#promote_staging_binaries torchtext "${TORCHTEXT_VERSION}"
+#promote_staging_binaries torchdata "${TORCHDATA_VERSION}"

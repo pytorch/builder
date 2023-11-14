@@ -12,7 +12,7 @@ TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.1.0}
 TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.16.0}
 TORCHDATA_VERSION=${TORCHDATA_VERSION:-0.7.0}
 
-DRY_RUN=${DRY_RUN:-enabled}
+DRY_RUN=${DRY_RUN:-disabled}
 
 promote_s3() {
     local package_name
@@ -100,8 +100,8 @@ promote_pypi() {
 # promote_s3 torch whl "${PYTORCH_VERSION}"
 # promote_s3 torchvision whl "${TORCHVISION_VERSION}"
 # promote_s3 torchaudio whl "${TORCHAUDIO_VERSION}"
-# promote_s3 torchtext whl "${TORCHTEXT_VERSION}"
-# promote_s3 torchdata whl "${TORCHDATA_VERSION}"
+promote_s3 torchtext whl "${TORCHTEXT_VERSION}"
+#promote_s3 torchdata whl "${TORCHDATA_VERSION}"
 # promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
 
 # promote_conda torchtriton conda "2.1.0"
@@ -111,8 +111,8 @@ promote_pypi() {
 # promote_conda pytorch conda "${PYTORCH_VERSION}"
 # promote_conda torchvision conda "${TORCHVISION_VERSION}"
 # promote_conda torchaudio conda "${TORCHAUDIO_VERSION}"
-# promote_conda torchtext conda "${TORCHTEXT_VERSION}"
-# promote_conda torchdata conda "${TORCHDATA_VERSION}"
+#promote_conda torchtext conda "${TORCHTEXT_VERSION}"
+#promote_conda torchdata conda "${TORCHDATA_VERSION}"
 
 # Uncomment these to promote to pypi
 LINUX_VERSION_SUFFIX="%2Bcu102"

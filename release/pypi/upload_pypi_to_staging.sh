@@ -20,7 +20,7 @@ PLATFORM=${PLATFORM:-}
 
 pkgs_to_promote=$(\
     curl -fsSL "https://download.pytorch.org/whl/test/${PACKAGE_NAME}/index.html" \
-        | grep "${PACKAGE_NAME}-${PACKAGE_VERSION}${VERSION_SUFFIX}-" \
+        | grep "${PACKAGE_NAME}-${PACKAGE_VERSION}" \
         | grep "${PLATFORM}" \
         | cut -d '"' -f2
 )
@@ -31,7 +31,7 @@ trap 'rm -rf ${tmp_dir} ${output_tmp_dir}' EXIT
 pushd "${output_tmp_dir}"
 
 # Dry run by default
-DRY_RUN=${DRY_RUN:-enabled}
+DRY_RUN=${DRY_RUN:-disabled}
 # On dry run just echo the commands that are meant to be run
 TWINE_UPLOAD="echo twine upload"
 DRY_RUN_FLAG="--dryrun"
@@ -42,6 +42,11 @@ fi
 
 for pkg in ${pkgs_to_promote}; do
     pkg_basename="$(basename "${pkg}")"
+   #if [[ "${pkg}" != *%cpu-cp39-cp39*  || "${pkg}" != *cp38-cp38*  ]]; then
+   #     echo "${VERSION_SUFFIX}"
+   #     continue
+   # fi
+
     # Don't attempt to change if manylinux2014
     if [[ "${pkg}" != *manylinux2014* ]]; then
         # sub out linux for manylinux1
