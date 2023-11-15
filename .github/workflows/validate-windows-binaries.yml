@@ -17,6 +17,16 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -38,6 +48,16 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-windows-matrix:
@@ -46,7 +66,6 @@ jobs:
       package-type: all
       os: windows
       channel: ${{ inputs.channel }}
-
   win:
     needs: generate-windows-matrix
     strategy:
@@ -66,9 +85,10 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="windows"
         export TORCH_ONLY=${{ inputs.torchonly }}
+        export RELEASE_VERSION=${{ inputs.version }}
+        printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
         if [[ ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
           ./windows/internal/driver_update.bat
         fi
-
         source ./.github/scripts/validate_binaries.sh
