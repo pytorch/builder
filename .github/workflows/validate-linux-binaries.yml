@@ -50,7 +50,7 @@ jobs:
     needs: generate-linux-matrix
     uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
     with:
-      version: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix).stable_version }}
+      version: "2.1.1"
 
   linux:
     needs: [generate-linux-matrix, generate-release-matrix]
