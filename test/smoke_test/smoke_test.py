@@ -3,18 +3,20 @@ import re
 import sys
 import argparse
 import torch
+import json
 import importlib
 import subprocess
 import torch._dynamo
 import torch.nn as nn
 import torch.nn.functional as F
+from pathlib import Path
 
 gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
-stable_version = os.getenv("MATRIX_STABLE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS")
+BASE_DIR =  Path(__file__).parent.parent.parent
 
 is_cuda_system = gpu_arch_type == "cuda"
 NIGHTLY_ALLOWED_DELTA = 3
@@ -52,8 +54,27 @@ class Net(nn.Module):
         output = self.fc1(x)
         return output
 
+def load_json_from_basedir(filename: str):
+    try:
+        with open(BASE_DIR / filename) as fptr:
+            return json.load(fptr)
+    except FileNotFoundError as exc:
+        raise ImportError(f"File {filename} not found error: {exc.strerror}") from exc
+    except json.JSONDecodeError as exc:
+        raise ImportError(f"Invalid JSON {filename}") from exc
+
+def read_release_matrix():
+    return load_json_from_basedir("release_matrix.json")
 
 def check_version(package: str) -> None:
+    release_version = os.getenv("RELEASE_VERSION")
+    # if release_version is specified, use it to validate the packages
+    if(release_version):
+        release_matrix = read_release_matrix()
+        stable_version = release_matrix["torch"]
+    else:
+        stable_version = os.getenv("MATRIX_STABLE_VERSION")
+
     # only makes sense to check nightly package where dates are known
     if channel == "nightly":
         check_nightly_binaries_date(package)
@@ -62,6 +83,20 @@ def check_version(package: str) -> None:
             raise RuntimeError(
                 f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
             )
+
+        if release_version and package == "all":
+            for module in MODULES:
+                imported_module = importlib.import_module(module["name"])
+                module_version = imported_module.__version__
+                if not module_version.startswith(release_matrix[module["name"]]):
+                    raise RuntimeError(
+                        f"{module['name']} version mismatch, expected: \
+                            {release_matrix[module['name']]} for channel {channel}. But its {module_version}"
+                    )
+                else:
+                     print(f"{module['name']} version actual: {module_version} expected: \
+                        {release_matrix[module['name']]} for channel {channel}.")
+
     else:
         print(f"Skip version check for channel {channel} as stable version is None")
 
@@ -255,6 +290,7 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
+
     check_version(options.package)
     smoke_test_conv2d()
     smoke_test_linalg()

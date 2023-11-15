@@ -17,6 +17,16 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -38,6 +48,16 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-linux-matrix:
@@ -64,8 +84,11 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TORCH_ONLY=${{ inputs.torchonly }}
+        export RELEASE_VERSION=${{ inputs.version }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
+        printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
+        cat release_matrix.json
 
         # Special case PyPi installation package. And Install of PyPi package via poetry
         if [[ ${MATRIX_PACKAGE_TYPE} == "manywheel" && ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
