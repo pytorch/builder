@@ -23,12 +23,6 @@ source /opt/conda/etc/profile.d/conda.sh
 conda config --set ssl_verify False
 conda create -y -c conda-forge -n aarch64_env python=${DESIRED_PYTHON}
 conda activate aarch64_env
-conda install -y -c conda-forge numpy
-conda install -y -c conda-forge pyyaml
-conda install -y -c conda-forge patchelf
-conda install -y -c conda-forge pygit2
-conda install -y -c conda-forge openblas
-conda install -y -c conda-forge ninja
-conda install -y -c conda-forge scons
+conda install -y -c conda-forge numpy==1.26.0 pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 openblas==0.3.24 ninja==1.11.1 scons==4.5.2
 python --version
 conda --version
