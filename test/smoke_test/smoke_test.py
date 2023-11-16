@@ -3,6 +3,7 @@ import re
 import sys
 import argparse
 import torch
+import json
 import importlib
 import subprocess
 import torch._dynamo
@@ -15,6 +16,7 @@ channel = os.getenv("MATRIX_CHANNEL")
 stable_version = os.getenv("MATRIX_STABLE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS")
+BASE_DIR =  Path(__file__).parent.parent
 
 is_cuda_system = gpu_arch_type == "cuda"
 NIGHTLY_ALLOWED_DELTA = 3
@@ -54,11 +56,8 @@ class Net(nn.Module):
 
 def load_json_from_basedir(filename: str):
     try:
-        if os.path.exists(BASE_DIR / filename):
-            with open(BASE_DIR / filename) as fptr:
-                return json.load(fptr)
-        else:
-            return None
+        with open(BASE_DIR / filename) as fptr:
+            return json.load(fptr)
     except FileNotFoundError as exc:
         raise ImportError(f"File {filename} not found error: {exc.strerror}") from exc
     except json.JSONDecodeError as exc:
