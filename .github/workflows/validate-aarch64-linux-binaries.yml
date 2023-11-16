@@ -56,12 +56,13 @@ jobs:
       package-type: wheel
       os: linux-aarch64
       channel: ${{ inputs.channel }}
+      with-cuda: disable
   generate-release-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
     with:
       version: ${{ inputs.version }}
   linux-aarch64:
-    needs: generate-aarch64-linux-matrix
+    needs: [generate-aarch64-linux-matrix, generate-release-matrix]
     strategy:
       matrix: ${{ fromJson(needs.generate-aarch64-linux-matrix.outputs.matrix) }}
       fail-fast: false

@@ -57,6 +57,7 @@ jobs:
       os: macos-arm64
       channel: ${{ inputs.channel }}
   generate-release-matrix:
+    needs: generate-macos-arm64-matrix
     uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
     with:
       version: ${{ inputs.version }}
