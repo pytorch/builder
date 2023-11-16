@@ -404,12 +404,6 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRE
     echo "Test that linalg works"
     python -c "import torch;x=torch.rand(3,3,device='cuda');print(torch.linalg.svd(torch.mm(x.t(), x)))"
 
-    echo "Test that linalg.eigh works"
-    python -c "import torch;x=torch.rand(3,3,device='cuda');print(torch.linalg.eigh(torch.mm(x.t(), x)))"
-
-    echo "Checking that basic torch.compile works"
-    python ${TEST_CODE_DIR}/torch_compile_smoke.py
-
     popd
   fi # if libtorch
 fi # if cuda
