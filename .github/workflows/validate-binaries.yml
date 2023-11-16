@@ -60,6 +60,12 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+
 
 jobs:
   win:
@@ -69,6 +75,7 @@ jobs:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -77,6 +84,7 @@ jobs:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64'
@@ -85,6 +93,7 @@ jobs:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
 
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -93,6 +102,7 @@ jobs:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -101,3 +111,4 @@ jobs:
       channel: ${{ inputs.channel }}
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}

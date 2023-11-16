@@ -17,6 +17,11 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -38,6 +43,11 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-macos-matrix:
@@ -46,8 +56,12 @@ jobs:
       package-type: all
       os: macos
       channel: ${{ inputs.channel }}
+  generate-release-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
+    with:
+      version: ${{ inputs.version }}
   macos:
-    needs: generate-macos-matrix
+    needs: [generate-macos-matrix, generate-release-matrix]
     strategy:
       matrix: ${{ fromJson(needs.generate-macos-matrix.outputs.matrix) }}
       fail-fast: false
@@ -64,4 +78,6 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos"
         export TORCH_ONLY=${{ inputs.torchonly }}
+        export RELEASE_VERSION=${{ inputs.version }}
+        printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
         source ./.github/scripts/validate_binaries.sh
