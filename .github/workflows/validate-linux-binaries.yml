@@ -88,6 +88,7 @@ jobs:
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
+        cat release_matrix.json
 
         # Special case PyPi installation package. And Install of PyPi package via poetry
         if [[ ${MATRIX_PACKAGE_TYPE} == "manywheel" && ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
