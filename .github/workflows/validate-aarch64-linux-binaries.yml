@@ -5,7 +5,8 @@ on:
     inputs:
       channel:
         description: "Channel to use (nightly, test, release, all)"
-        required: true
+        required: false
+        default: test
         type: string
       ref:
         description: 'Reference to checkout, defaults to empty'
@@ -38,6 +39,9 @@ on:
         default: false
         required: false
         type: boolean
+  pull_request:
+    paths:
+      - .github/workflows/validate-aarch64-linux-binaries.yml
 
 jobs:
   generate-aarch64-linux-matrix:
@@ -45,7 +49,7 @@ jobs:
     with:
       package-type: wheel
       os: linux-aarch64
-      channel: ${{ inputs.channel }}
+      channel: test
       with-cuda: disable
 
   linux-aarch64:
@@ -71,7 +75,7 @@ jobs:
 
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
-        export TORCH_ONLY=${{ inputs.torchonly }}
+        export TORCH_ONLY=true
         eval "$(conda shell.bash hook)"
 
         # Standart case: Validate binaries
