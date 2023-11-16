@@ -17,6 +17,11 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -38,6 +43,12 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+
 
 jobs:
   generate-linux-matrix:
@@ -47,10 +58,9 @@ jobs:
       os: linux
       channel: ${{ inputs.channel }}
   generate-release-matrix:
-    needs: generate-linux-matrix
     uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
     with:
-      version: "2.1.1"
+      version: ${{ inputs.version }}
 
   linux:
     needs: [generate-linux-matrix, generate-release-matrix]
@@ -69,6 +79,7 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TORCH_ONLY=${{ inputs.torchonly }}
+        export RELEASE_VERSION=${{ inputs.version }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
         printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json

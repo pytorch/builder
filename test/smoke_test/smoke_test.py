@@ -15,9 +15,11 @@ gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
 stable_version = os.getenv("MATRIX_STABLE_VERSION")
+release_version = os.getenv("RELEASE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS")
 BASE_DIR =  Path(__file__).parent.parent.parent
+release_matrix = None
 
 is_cuda_system = gpu_arch_type == "cuda"
 NIGHTLY_ALLOWED_DELTA = 3
@@ -40,21 +42,6 @@ MODULES = [
 ]
 
 
-class Net(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(1, 32, 3, 1)
-        self.conv2 = nn.Conv2d(32, 64, 3, 1)
-        self.fc1 = nn.Linear(9216, 1)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.conv2(x)
-        x = F.max_pool2d(x, 2)
-        x = torch.flatten(x, 1)
-        output = self.fc1(x)
-        return output
-
 def load_json_from_basedir(filename: str):
     try:
         with open(BASE_DIR / filename) as fptr:
@@ -76,17 +63,17 @@ def check_version(package: str) -> None:
             raise RuntimeError(
                 f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
             )
-        release_version = read_release_matrix()
-        if package == "all":
+
+        if release_version and package == "all":
             for module in MODULES:
                 imported_module = importlib.import_module(module["name"])
                 module_version = imported_module.__version__
-                if not module_version.startswith(release_version[module["name"]]):
+                if not module_version.startswith(release_matrix[module["name"]]):
                     raise RuntimeError(
-                        f"{module['name']} version mismatch, expected {release_version[module['name']]} for channel {channel}. But its {module_version}"
+                        f"{module['name']} version mismatch, expected {release_matrix[module['name']]} for channel {channel}. But its {module_version}"
                     )
                 else:
-                     print(f"{module['name']} version actual: {module_version} expected: {release_version[module['name']]} for channel {channel}.")
+                     print(f"{module['name']} version actual: {module_version} expected: {release_matrix[module['name']]} for channel {channel}.")
 
     else:
         print(f"Skip version check for channel {channel} as stable version is None")
@@ -281,6 +268,12 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
+
+    # if release_version is specified, override stable_version coming from the matrix file
+    if(release_version):
+        release_matrix = read_release_matrix()
+        stable_version = release_matrix["torch"]
+
     check_version(options.package)
     smoke_test_conv2d()
     smoke_test_linalg()
