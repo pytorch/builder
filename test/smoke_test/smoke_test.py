@@ -52,6 +52,20 @@ class Net(nn.Module):
         output = self.fc1(x)
         return output
 
+def load_json_from_basedir(filename: str):
+    try:
+        if os.path.exists(BASE_DIR / filename):
+            with open(BASE_DIR / filename) as fptr:
+                return json.load(fptr)
+        else:
+            return None
+    except FileNotFoundError as exc:
+        raise ImportError(f"File {filename} not found error: {exc.strerror}") from exc
+    except json.JSONDecodeError as exc:
+        raise ImportError(f"Invalid JSON {filename}") from exc
+
+def read_release_matrix():
+    return load_json_from_basedir("release_matrix.json")
 
 def check_version(package: str) -> None:
     # only makes sense to check nightly package where dates are known
@@ -62,6 +76,16 @@ def check_version(package: str) -> None:
             raise RuntimeError(
                 f"Torch version mismatch, expected {stable_version} for channel {channel}. But its {torch.__version__}"
             )
+        release_version = read_release_matrix()
+        if package == "all":
+            for module in MODULES:
+                imported_module = importlib.import_module(module["name"])
+                module_version = imported_module.__version__
+                if not module_version.startswith(release_version[module["name"]]):
+                    raise RuntimeError(
+                        f"{module['name']} version mismatch, expected {release_version[module['name']]} for channel {channel}. But its {module_version}"
+                    )
+
     else:
         print(f"Skip version check for channel {channel} as stable version is None")
 
