@@ -282,11 +282,14 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
+    print(f"torch expected: {release_version}")
 
     # if release_version is specified, override stable_version coming binary matrix
     if(release_version):
+        print(f"reading release_matrix for: {release_version}")
         release_matrix = read_release_matrix()
         stable_version = release_matrix["torch"]
+        print(f"new stable version : {stable_version}")
 
     check_version(options.package)
     smoke_test_conv2d()
