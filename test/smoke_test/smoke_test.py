@@ -14,8 +14,6 @@ from pathlib import Path
 gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
-stable_version = os.getenv("MATRIX_STABLE_VERSION")
-release_version = os.getenv("RELEASE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS")
 BASE_DIR =  Path(__file__).parent.parent.parent
@@ -69,11 +67,13 @@ def read_release_matrix():
     return load_json_from_basedir("release_matrix.json")
 
 def check_version(package: str) -> None:
-
-    # if release_version is specified, override stable_version coming binary matrix
+    release_version = os.getenv("RELEASE_VERSION")
+    # if release_version is specified, use it to validate the packages
     if(release_version):
         release_matrix = read_release_matrix()
         stable_version = release_matrix["torch"]
+    else:
+        stable_version = os.getenv("MATRIX_STABLE_VERSION")
 
     # only makes sense to check nightly package where dates are known
     if channel == "nightly":
