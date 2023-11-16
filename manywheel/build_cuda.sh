@@ -47,7 +47,7 @@ if [[ -n "$DESIRED_CUDA" ]]; then
     # There really has to be a better way to do this - eli
     # Possibly limiting builds to specific cuda versions be delimiting images would be a choice
     if [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-        echo "Switching to CUDA version $DESIRED_CUDA"
+        echo "Switching to CUDA version ${DESIRED_CUDA}"
         /builder/conda/switch_cuda_version.sh "${DESIRED_CUDA}"
     fi
 else
