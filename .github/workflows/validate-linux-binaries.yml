@@ -22,6 +22,11 @@ on:
         default: ""
         required: false
         type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -48,7 +53,11 @@ on:
         default: ""
         required: false
         type: string
-
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-linux-matrix:
@@ -57,14 +66,9 @@ jobs:
       package-type: all
       os: linux
       channel: ${{ inputs.channel }}
-  generate-release-matrix:
-    needs: generate-linux-matrix
-    uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
-    with:
-      version: ${{ inputs.version }}
 
   linux:
-    needs: [generate-linux-matrix, generate-release-matrix]
+    needs: generate-linux-matrix
     strategy:
       matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
       fail-fast: false
@@ -83,7 +87,7 @@ jobs:
         export RELEASE_VERSION=${{ inputs.version }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
-        printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
+        printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
 
         # Special case PyPi installation package. And Install of PyPi package via poetry
         if [[ ${MATRIX_PACKAGE_TYPE} == "manywheel" && ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
