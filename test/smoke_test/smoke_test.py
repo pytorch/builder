@@ -193,6 +193,9 @@ def smoke_test_linalg() -> None:
             A = torch.randn(20, 16, 50, 100, device="cuda").type(dtype)
             torch.linalg.svd(A)
 
+        A = torch.rand(3, 3, device="cuda")
+        L, Q = torch.linalg.eigh(torch.mm(A.t(), A))
+
 
 def smoke_test_compile() -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
