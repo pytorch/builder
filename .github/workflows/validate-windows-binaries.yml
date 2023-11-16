@@ -79,8 +79,8 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="windows"
         export TORCH_ONLY=${{ inputs.torchonly }}
-	      export RELEASE_VERSION=${{ inputs.version }}
-	      printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
+        export RELEASE_VERSION=${{ inputs.version }}
+        printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
         if [[ ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
           ./windows/internal/driver_update.bat

@@ -41,6 +41,20 @@ MODULES = [
     },
 ]
 
+class Net(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 32, 3, 1)
+        self.conv2 = nn.Conv2d(32, 64, 3, 1)
+        self.fc1 = nn.Linear(9216, 1)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = F.max_pool2d(x, 2)
+        x = torch.flatten(x, 1)
+        output = self.fc1(x)
+        return output
 
 def load_json_from_basedir(filename: str):
     try:
@@ -269,7 +283,7 @@ def main() -> None:
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
 
-    # if release_version is specified, override stable_version coming from the matrix file
+    # if release_version is specified, override stable_version coming binary matrix
     if(release_version):
         release_matrix = read_release_matrix()
         stable_version = release_matrix["torch"]

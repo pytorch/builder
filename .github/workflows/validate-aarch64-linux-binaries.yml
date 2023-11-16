@@ -84,8 +84,8 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
         export TORCH_ONLY=${{ inputs.torchonly }}
-	      export RELEASE_VERSION=${{ inputs.version }}
-	      printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
+        export RELEASE_VERSION=${{ inputs.version }}
+        printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
         eval "$(conda shell.bash hook)"
 
         # Standart case: Validate binaries
