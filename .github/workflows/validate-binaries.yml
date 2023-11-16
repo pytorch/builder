@@ -82,7 +82,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
-      release-matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      release-matrix: ${{ fromJson(needs.generate-release-matrix.outputs.matrix) }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -93,7 +93,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
-      release-matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      release-matrix: ${{ fromJson(needs.generate-release-matrix.outputs.matrix) }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64'
@@ -104,7 +104,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
-      release-matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      release-matrix: ${{ fromJson(needs.generate-release-matrix.outputs.matrix) }}
 
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -115,7 +115,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
-      release-matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      release-matrix: ${{ fromJson(needs.generate-rlease-matrix.outputs.matrix) }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -126,4 +126,4 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
-      release-matrix: ${{ fromJson(needs.generate-linux-matrix.outputs.matrix) }}
+      release-matrix: ${{ fromJson(needs.generate-release-matrix.outputs.matrix) }}
