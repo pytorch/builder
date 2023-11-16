@@ -22,6 +22,11 @@ on:
         default: ""
         required: false
         type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -48,6 +53,11 @@ on:
         default: ""
         required: false
         type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-aarch64-linux-matrix:
@@ -57,12 +67,8 @@ jobs:
       os: linux-aarch64
       channel: ${{ inputs.channel }}
       with-cuda: disable
-  generate-release-matrix:
-    uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
-    with:
-      version: ${{ inputs.version }}
   linux-aarch64:
-    needs: [generate-aarch64-linux-matrix, generate-release-matrix]
+    needs: generate-aarch64-linux-matrix
     strategy:
       matrix: ${{ fromJson(needs.generate-aarch64-linux-matrix.outputs.matrix) }}
       fail-fast: false
@@ -86,7 +92,7 @@ jobs:
         export TARGET_OS="linux-aarch64"
         export TORCH_ONLY=${{ inputs.torchonly }}
         export RELEASE_VERSION=${{ inputs.version }}
-        printf '%s\n' ${{ toJson(needs.generate-release-matrix.outputs.matrix) }} > release_matrix.json
+        printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         eval "$(conda shell.bash hook)"
 
         # Standart case: Validate binaries
