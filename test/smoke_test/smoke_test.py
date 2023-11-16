@@ -17,7 +17,7 @@ channel = os.getenv("MATRIX_CHANNEL")
 stable_version = os.getenv("MATRIX_STABLE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS")
-BASE_DIR =  Path(__file__).parent.parent
+BASE_DIR =  Path(__file__).parent.parent.parent
 
 is_cuda_system = gpu_arch_type == "cuda"
 NIGHTLY_ALLOWED_DELTA = 3
@@ -85,6 +85,8 @@ def check_version(package: str) -> None:
                     raise RuntimeError(
                         f"{module['name']} version mismatch, expected {release_version[module['name']]} for channel {channel}. But its {module_version}"
                     )
+                else:
+                     print(f"{module['name']} version actual: {module_version} expected: {release_version[module['name']]} for channel {channel}.")
 
     else:
         print(f"Skip version check for channel {channel} as stable version is None")
