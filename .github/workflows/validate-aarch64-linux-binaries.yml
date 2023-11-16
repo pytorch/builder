@@ -17,6 +17,16 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -38,6 +48,16 @@ on:
         default: false
         required: false
         type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-aarch64-linux-matrix:
@@ -47,7 +67,6 @@ jobs:
       os: linux-aarch64
       channel: ${{ inputs.channel }}
       with-cuda: disable
-
   linux-aarch64:
     needs: generate-aarch64-linux-matrix
     strategy:
@@ -72,6 +91,8 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
         export TORCH_ONLY=${{ inputs.torchonly }}
+        export RELEASE_VERSION=${{ inputs.version }}
+        printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         eval "$(conda shell.bash hook)"
 
         # Standart case: Validate binaries
