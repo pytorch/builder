@@ -9,6 +9,7 @@ import subprocess
 import torch._dynamo
 import torch.nn as nn
 import torch.nn.functional as F
+from pathlib import Path
 
 gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
