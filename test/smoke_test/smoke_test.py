@@ -19,7 +19,6 @@ release_version = os.getenv("RELEASE_VERSION")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS")
 BASE_DIR =  Path(__file__).parent.parent.parent
-release_matrix = None
 
 is_cuda_system = gpu_arch_type == "cuda"
 NIGHTLY_ALLOWED_DELTA = 3
@@ -40,6 +39,7 @@ MODULES = [
         "repo_name": "audio",
     },
 ]
+
 
 class Net(nn.Module):
     def __init__(self):
@@ -69,6 +69,12 @@ def read_release_matrix():
     return load_json_from_basedir("release_matrix.json")
 
 def check_version(package: str) -> None:
+
+    # if release_version is specified, override stable_version coming binary matrix
+    if(release_version):
+        release_matrix = read_release_matrix()
+        stable_version = release_matrix["torch"]
+
     # only makes sense to check nightly package where dates are known
     if channel == "nightly":
         check_nightly_binaries_date(package)
@@ -282,14 +288,6 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
-    print(f"torch expected: {release_version}")
-
-    # if release_version is specified, override stable_version coming binary matrix
-    if(release_version):
-        print(f"reading release_matrix for: {release_version}")
-        release_matrix = read_release_matrix()
-        stable_version = release_matrix["torch"]
-        print(f"new stable version : {stable_version}")
 
     check_version(options.package)
     smoke_test_conv2d()
