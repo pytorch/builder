@@ -15,7 +15,8 @@ else
     # if RELESE version is passed as parameter - install speific version
     if [[ ! -z ${RELEASE_VERSION} ]]; then
           INSTALLATION=${INSTALLATION/"torch "/"torch==${RELEASE_VERSION} "}
-          INSTALLATION=${INSTALLATION/"pytorch "/"pytorch==${RELEASE_VERSION} "}
+          INSTALLATION=${INSTALLATION/"-y pytorch "/"-y pytorch==${RELEASE_VERSION} "}
+          INSTALLATION=${INSTALLATION/"::pytorch "/"::pytorch==${RELEASE_VERSION} "}
     fi
 
     export OLD_PATH=${PATH}
