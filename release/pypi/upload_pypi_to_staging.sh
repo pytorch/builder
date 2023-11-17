@@ -43,7 +43,7 @@ fi
 for pkg in ${pkgs_to_promote}; do
     pkg_basename="$(basename "${pkg}")"
 
-    if [[ "${pkg}" != *aarch64* ]]; then
+    if [[ "${pkg}" != *aarch64* && "${pkg}" != *torchdata* ]]; then
         # sub out linux for manylinux1
         pkg_basename="$(basename "${pkg//linux/manylinux1}")"
     elif [[ "${pkg}" == *manylinux_2_17_aarch64* ]]; then
