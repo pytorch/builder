@@ -26,7 +26,7 @@ else
     poetry --quiet add --source pytorch torch${RELEASE_SUFFIX} torchaudio torchvision
 fi
 
-python ../test/smoke_test/smoke_test.py --package torchonly --runtime-error-check disabled
+python ../test/smoke_test/smoke_test.py ${TEST_SUFFIX} --runtime-error-check disabled
 conda deactivate
 conda env remove -p ${ENV_NAME}_poetry
 cd ..
