@@ -19,9 +19,6 @@ if [[ ! -z ${RELEASE_VERSION} ]]; then
     RELEASE_SUFFIX="@${RELEASE_VERSION}"
 fi
 
-# Installing poetry from our custom repo. We need to configure it before use and disable authentication
-export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
-poetry source add --priority=explicit pytorch "https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
 if [[ ${TORCH_ONLY} == 'true' ]]; then
     poetry --quiet add torch${RELEASE_SUFFIX}
 else
