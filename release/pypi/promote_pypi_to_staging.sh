@@ -45,7 +45,6 @@ PLATFORM="win_amd64"             VERSION_SUFFIX="${CPU_VERSION_SUFFIX}"   upload
 PLATFORM="${MACOS_X86_64}"       VERSION_SUFFIX=""                        upload_pypi_to_staging torchaudio "${TORCHAUDIO_VERSION}"
 PLATFORM="${MACOS_ARM64}"        VERSION_SUFFIX=""                        upload_pypi_to_staging torchaudio "${TORCHAUDIO_VERSION}"
 
-# this is not a mistake
 PLATFORM="linux_x86" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 PLATFORM="win_amd64" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 PLATFORM="${MACOS_X86_64}" VERSION_SUFFIX="" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
