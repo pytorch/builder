@@ -19,7 +19,6 @@ if [[ ! -z ${RELEASE_VERSION} ]]; then
     RELEASE_SUFFIX="@${RELEASE_VERSION}"
 fi
 
-
 if [[ ${TORCH_ONLY} == 'true' ]]; then
     poetry --quiet add torch${RELEASE_SUFFIX}
 else

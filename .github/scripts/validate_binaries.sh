@@ -12,6 +12,13 @@ else
         TEST_SUFFIX=" --package torchonly"
     fi
 
+    # if RELESE version is passed as parameter - install speific version
+    if [[ ! -z ${RELEASE_VERSION} ]]; then
+          INSTALLATION=${INSTALLATION/"torch "/"torch==${RELEASE_VERSION} "}
+          INSTALLATION=${INSTALLATION/"-y pytorch "/"-y pytorch==${RELEASE_VERSION} "}
+          INSTALLATION=${INSTALLATION/"::pytorch "/"::pytorch==${RELEASE_VERSION} "}
+    fi
+
     export OLD_PATH=${PATH}
     # Workaround macos-arm64 runners. Issue: https://github.com/pytorch/test-infra/issues/4342
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then

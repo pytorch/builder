@@ -343,7 +343,7 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
     fi
 
     # zip up the wheel back
-    zip -rq $(basename $pkg) $PREIX*
+    zip -rq $(basename $pkg) $PREFIX*
 
     # replace original wheel
     rm -f $pkg
