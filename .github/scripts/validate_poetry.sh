@@ -22,7 +22,7 @@ fi
 if [[ ${TORCH_ONLY} == 'true' ]]; then
     poetry --quiet add torch${RELEASE_SUFFIX}
 else
-    poetry --quiet add --source pytorch torch${RELEASE_SUFFIX} torchaudio torchvision
+    poetry --quiet add torch${RELEASE_SUFFIX} torchaudio torchvision
 fi
 
 python ../test/smoke_test/smoke_test.py ${TEST_SUFFIX} --runtime-error-check disabled
