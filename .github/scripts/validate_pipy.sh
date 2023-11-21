@@ -10,14 +10,9 @@ fi
 
 if [[ ${TORCH_ONLY} == 'true' ]]; then
     TEST_SUFFIX=" --package torchonly"
-    pip3 install --pre torch${RELEASE_SUFFIX} --extra-index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
+    pip3 install torch${RELEASE_SUFFIX}
 else
-    if [[ ${MATRIX_CHANNEL} != "release" ]]; then
-        pip3 install --pre torch${RELEASE_SUFFIX}  --extra-index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}_pypi_cudnn"
-        pip3 install --pre torchvision torchaudio --extra-index-url "https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
-    else
-        pip3 install torch${RELEASE_SUFFIX}  torchvision torchaudio
-    fi
+    pip3 install torch${RELEASE_SUFFIX} torchvision torchaudio
 fi
 
 python ./test/smoke_test/smoke_test.py ${TEST_SUFFIX} --runtime-error-check disabled
