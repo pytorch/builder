@@ -136,23 +136,33 @@ export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
 EXTRA_CONDA_INSTALL_FLAGS=""
-case ${desired_python} in
+case $desired_python in
+    3.12)
+        echo "Using 3.12 deps"
+        SETUPTOOLS_PINNED_VERSION=">=68.0.0"
+        PYYAML_PINNED_VERSION=">=6.0.1"
+        NUMPY_PINNED_VERSION="==1.26.0"
+        ;;
     3.11)
+        echo "Using 3.11 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="==1.23.5"
         ;;
     3.10)
+        echo "Using 3.10 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="=1.21.2"
         ;;
     3.9)
+        echo "Using 3.9 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="=1.19"
         ;;
     3.8)
+        echo "Using 3.8 deps"
         if [[ "$(uname -m)" == "arm64" ]]; then
           SETUPTOOLS_PINNED_VERSION=">=46.0.0"
           PYYAML_PINNED_VERSION=">=5.3"
@@ -162,6 +172,7 @@ case ${desired_python} in
         fi
         ;;
     *)
+        echo "Using default deps"
         NUMPY_PINNED_VERSION="=1.11.3"
         ;;
 esac

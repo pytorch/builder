@@ -90,10 +90,12 @@ def check_version(package: str) -> None:
                 module_version = imported_module.__version__
                 if not module_version.startswith(release_matrix[module["name"]]):
                     raise RuntimeError(
-                        f"{module['name']} version mismatch, expected {release_matrix[module['name']]} for channel {channel}. But its {module_version}"
+                        f"{module['name']} version mismatch, expected: \
+                            {release_matrix[module['name']]} for channel {channel}. But its {module_version}"
                     )
                 else:
-                     print(f"{module['name']} version actual: {module_version} expected: {release_matrix[module['name']]} for channel {channel}.")
+                     print(f"{module['name']} version actual: {module_version} expected: \
+                        {release_matrix[module['name']]} for channel {channel}.")
 
     else:
         print(f"Skip version check for channel {channel} as stable version is None")
