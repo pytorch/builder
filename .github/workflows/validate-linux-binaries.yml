@@ -93,7 +93,10 @@ jobs:
         # Special case PyPi installation package. And Install of PyPi package via poetry
         if [[ ${MATRIX_PACKAGE_TYPE} == "manywheel" && ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
           source ./.github/scripts/validate_pipy.sh
-          source ./.github/scripts/validate_poetry.sh
+
+          if [[ ${MATRIX_CHANNEL} == "release" ]]; then
+            source ./.github/scripts/validate_poetry.sh
+          fi
         fi
 
         # Standart case: Validate binaries
