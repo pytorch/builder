@@ -261,7 +261,7 @@ fi
 if [[ $(uname) == "Linux" ]]; then
     TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="triton==${TRITON_VERSION}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64'"
     fi
 fi
 
