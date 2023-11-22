@@ -268,7 +268,7 @@ fi
 if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
     TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
     TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
-    TRITON_REQUIREMENT="pytorch-triton==${TRITON_VERSION}+${TRITON_SHORTHASH}"
+    TRITON_REQUIREMENT="pytorch-triton==${TRITON_VERSION}+${TRITON_SHORTHASH}; platform_system == 'Linux' and platform_machine == 'x86_64'"
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${TRITON_REQUIREMENT}"
