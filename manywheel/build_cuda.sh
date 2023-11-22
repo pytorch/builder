@@ -267,11 +267,12 @@ fi
 # and torch.compile doesn't work.
 if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
     TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
+    TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton==2.1.0+${TRITON_SHORTHASH}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton==${TRITON_VERSION}+${TRITON_SHORTHASH}"
     else
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton==2.1.0+${TRITON_SHORTHASH}"
+        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton==${TRITON_VERSION}+${TRITON_SHORTHASH}"
     fi
 fi
 
