@@ -226,8 +226,8 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
 
 def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
-    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 build=native"
-    host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.05.1 {git_clone_flags}")
+    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 fixed_format_kernels=1 build=native"
+    host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.08 {git_clone_flags}")
     host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags}")
 
 

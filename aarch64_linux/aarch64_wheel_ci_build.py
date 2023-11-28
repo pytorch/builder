@@ -20,9 +20,9 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     '''
     print('Building Arm Compute Library')
     os.system("cd / && mkdir /acl")
-    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.05.1 {git_clone_flags}")
+    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.08 {git_clone_flags}")
     os.system("cd ComputeLibrary; export acl_install_dir=/acl; "
-              "scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 build=native build_dir=$acl_install_dir/build; "
+              "scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 fixed_format_kernels=1 build=native build_dir=$acl_install_dir/build; "
               "cp -r arm_compute $acl_install_dir; "
               "cp -r include $acl_install_dir; "
               "cp -r utils $acl_install_dir; "
