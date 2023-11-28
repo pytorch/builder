@@ -106,8 +106,6 @@ if __name__ == '__main__':
         print("build pytorch without mkldnn backend")
 
     # work around to fix Raspberry pie crash
-    print("Applying mkl-dnn patch to fix Raspberry pie crash")
-    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/aarch64-fix-default-build-flags-to-armv8-a.patch")
     print("Applying mkl-dnn patch to fix readdir crash")
     os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/aarch64-fix-readdir-crash.patch")
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
