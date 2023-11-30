@@ -303,6 +303,11 @@ fi
 
 # Loop through all Python versions to build a package for each
 for py_ver in "${DESIRED_PYTHON[@]}"; do
+    # TODO: Enable TLS support for 3.12 builds (or disable it for the rest
+    if [[ "$(uname)" == 'Linux' && "${py_ver}" == '3.12' ]]; then
+      export USE_GLOO_WITH_OPENSSL=0
+    fi
+
     build_string="py${py_ver}_${build_string_suffix}"
     folder_tag="${build_string}_$(date +'%Y%m%d')"
 
