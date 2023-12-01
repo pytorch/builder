@@ -6,8 +6,9 @@ set -eux -o pipefail
 
 CONDA_PYTHON_EXE=/opt/conda/bin/python
 CONDA_EXE=/opt/conda/bin/conda
+CONDA_ENV_NAME=aarch64_env
 PATH=/opt/conda/bin:$PATH
-LD_LIBRARY_PATH=/opt/conda/lib:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=/opt/conda/envs/${CONDA_ENV_NAME}/lib/:/opt/conda/lib:$LD_LIBRARY_PATH
 
 ###############################################################################
 # Install conda
@@ -21,8 +22,8 @@ chmod +x /mambaforge.sh
 rm /mambaforge.sh
 source /opt/conda/etc/profile.d/conda.sh
 conda config --set ssl_verify False
-conda create -y -c conda-forge -n aarch64_env python=${DESIRED_PYTHON}
-conda activate aarch64_env
+conda create -y -c conda-forge -n "${CONDA_ENV_NAME}" python=${DESIRED_PYTHON}
+conda activate "${CONDA_ENV_NAME}"
 
 if [[ "$DESIRED_PYTHON"  == "3.8" ]]; then
     NUMPY_VERSION="1.24.4"
