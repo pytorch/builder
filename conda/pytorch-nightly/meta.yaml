@@ -49,7 +49,7 @@ requirements:
     # Before a decent fix, force llvm-openmp version <16.
     - llvm-openmp <16 # [linux]
     - typing_extensions
-    - sympy # [py < 312]
+    - sympy
     - filelock
     - networkx
     - jinja2
