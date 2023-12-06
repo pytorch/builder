@@ -262,13 +262,11 @@ else
     exit 1
 fi
 
-# TODO: Remove me when Triton has a proper release channel
 # No triton dependency for now on 3.12 since we don't have binaries for it
 # and torch.compile doesn't work.
 if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
-    TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.github/ci_commit_pins/triton.txt)
     TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
-    TRITON_REQUIREMENT="pytorch-triton==${TRITON_VERSION}+${TRITON_SHORTHASH}; platform_system == 'Linux' and platform_machine == 'x86_64'"
+    TRITON_REQUIREMENT="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64'"
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${TRITON_REQUIREMENT}"
