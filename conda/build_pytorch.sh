@@ -274,9 +274,9 @@ else
         exit 1
     fi
     if [[ "$OSTYPE" != "msys" ]]; then
-        # TODO: Remove me when Triton has a proper release channel
-        TRITON_SHORTHASH=$(cut -c1-10 $pytorch_rootdir/.github/ci_commit_pins/triton.txt)
-        export CONDA_TRITON_CONSTRAINT="    - torchtriton==2.1.0+${TRITON_SHORTHASH} # [py < 312]"
+        # Prepare for 2.2.0 release
+        TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
+        export CONDA_TRITON_CONSTRAINT="    - torchtriton==${TRITON_VERSION} # [py < 312]"
     fi
 
     build_string_suffix="cuda${CUDA_VERSION}_cudnn${CUDNN_VERSION}_${build_string_suffix}"
@@ -400,7 +400,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         else
           local_channel="$(pwd)/$output_folder"
         fi
-        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c pytorch-nightly -c nvidia
+        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c pytorch-test -c nvidia
 
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"
