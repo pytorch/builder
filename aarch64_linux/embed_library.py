@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 
 
 def replace_tag(filename):
-   with open(filename, 'r') as f:
+   with open(filename) as f:
      lines = f.read().split("\\n")
    for i,line in enumerate(lines):
        if not line.startswith("Tag: "):
