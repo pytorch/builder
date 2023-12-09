@@ -108,6 +108,9 @@ if __name__ == '__main__':
     # work around to fix Raspberry pie crash
     print("Applying mkl-dnn patch to fix readdir crash")
     os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/aarch64-fix-readdir-crash.patch")
+    # patch acl inner product to accelerate torch.compile() path
+    print("Applying mkl-dnn patch to acl inner product")
+    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/cpu-aarch64-add-sbgemm-fp32-input-and-bf16-weights-ip.patch")
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")
     print(f"Build Compelete. Created {pytorch_wheel_name}..")

@@ -1,0 +1,46 @@
+cpu: aarch64: add sbgemm (fp32 input and bf16 weights) inner
+ product op
+
+---
+ src/cpu/aarch64/acl_inner_product.hpp | 8 ++++++--
+ src/cpu/cpu_inner_product_list.cpp    | 4 ++++
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/src/cpu/aarch64/acl_inner_product.hpp b/src/cpu/aarch64/acl_inner_product.hpp
+index a2be164f0..eca56b289 100644
+--- a/src/cpu/aarch64/acl_inner_product.hpp
++++ b/src/cpu/aarch64/acl_inner_product.hpp
+@@ -99,9 +99,13 @@ struct acl_inner_product_fwd_t : public primitive_t {
+             const bool is_fp32_ok = expect_data_types(f32, f32, f32, f32, undef)
+                     && attr()->has_default_values(
+                             primitive_attr_t::skip_mask_t::post_ops, f32);
++            const bool is_fp32_bf16_ok
++                    = expect_data_types(f32, bf16, f32, f32, undef)
++                    && attr()->has_default_values(
++                            primitive_attr_t::skip_mask_t::post_ops, f32);
+             const bool ok = is_fwd() && !has_zero_dim_memory()
+-                    && utils::one_of(true, is_fp16_ok, is_fp32_ok)
+-                    && weights_md_.format_kind == format_kind::any
++                    && utils::one_of(
++                            true, is_fp16_ok, is_fp32_ok, is_fp32_bf16_ok)
+                     && set_default_params() == status::success;
+ 
+             if (!ok) return status::unimplemented;
+diff --git a/src/cpu/cpu_inner_product_list.cpp b/src/cpu/cpu_inner_product_list.cpp
+index fdd7b1776..5a3dc1ea7 100644
+--- a/src/cpu/cpu_inner_product_list.cpp
++++ b/src/cpu/cpu_inner_product_list.cpp
+@@ -83,6 +83,10 @@ const std::map<pk_dt_impl_key_t, std::vector<impl_list_item_t>> &impl_list_map()
+             CPU_INSTANCE(ref_inner_product_fwd_t)
+             nullptr,
+         }},
++        {{forward, f32, bf16, f32}, {
++            CPU_INSTANCE_AARCH64_ACL(acl_inner_product_fwd_t)
++            nullptr,
++        }},
+         {{backward_data, f32, f32, f32}, REG_BWD_PK({
+             CPU_INSTANCE_AMX(brgemm_inner_product_bwd_data_t<avx512_core_amx>) // bf32
+             CPU_INSTANCE_AVX512(brgemm_inner_product_bwd_data_t<avx512_core>)
+-- 
+2.34.1
+
