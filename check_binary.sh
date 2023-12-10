@@ -412,7 +412,7 @@ fi # if cuda
 # Run parts of smoke tests
 ##########################
 if [[ "$PACKAGE_TYPE" != 'libtorch' ]]; then
-  pushd test/smoke_test
+  pushd "$(dirname ${BASH_SOURCE[0]})/test/smoke_test"
   python -c "from smoke_test import test_linalg; test_linalg()"
   if [[ "$DESIRED_CUDA" == *cuda* ]]; then
     python -c "from smoke_test import test_linalg; test_linalg('cuda')"
