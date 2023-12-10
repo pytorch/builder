@@ -17,19 +17,10 @@ concurrency:
 jobs:
   check_binary:
     name: Test check binary
-
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Install latest nightly
-        run: |
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    with:
+      repository: "pytorch/builder"
+      docker-image: python:3.11
+      script: |
           pip install --pre torch --index-url https://download.pytorch.org/whl/nightly/cpu
-      - name: Run check_binary.sh
-        run: |
-          set +e
           DESIRED_PYTHON=3.11 DESIRED_CUDA=cpu PACKAGE_TYPE=manywheel ./check_binary.sh 
