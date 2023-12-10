@@ -29,7 +29,6 @@ jobs:
       - name: Install latest nightly
         run: |
           pip install --pre torch --index-url https://download.pytorch.org/whl/nightly/cpu
-          lintrunner init
       - name: Run check_binary.sh
         run: |
           set +e
