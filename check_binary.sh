@@ -408,6 +408,18 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRE
   fi # if libtorch
 fi # if cuda
 
+##########################
+# Run parts of smoke tests
+##########################
+if [[ "$PACKAGE_TYPE" != 'libtorch' ]]; then
+  pushd test/smoke_test
+  python -c "from smoke_test import test_linalg; test_linalg()"
+  if [[ "$DESIRED_CUDA" == *cuda* ]]; then
+    python -c "from smoke_test import test_linalg; test_linalg('cuda')"
+  fi
+  popd
+fi
+
 ###############################################################################
 # Check PyTorch supports TCP_TLS gloo transport
 ###############################################################################
