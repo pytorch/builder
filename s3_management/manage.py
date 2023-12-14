@@ -112,6 +112,12 @@ PACKAGE_DATE_REGEX = r"([a-zA-z]*-[0-9.]*.dev)([0-9]*)"
 # How many packages should we keep of a specific package?
 KEEP_THRESHOLD = 60
 
+# TODO (huydhn): Clean this up once ExecuTorch has a new stable release that
+# match PyTorch stable release cadence. This nightly version is currently
+# referred to publicly in ExecuTorch alpha 0.1 release. So we want to keep
+# nightly binaries around for now
+KEEP_NIGHTLY_PACKAGES_FOR_EXECUTORCH = {datetime(2023, 10, 10, 0, 0)}
+
 S3IndexType = TypeVar('S3IndexType', bound='S3Index')
 
 
@@ -201,7 +207,10 @@ class S3Index:
             if package_name not in PACKAGE_ALLOW_LIST:
                 to_hide.add(obj)
                 continue
-            if packages[package_name] >= KEEP_THRESHOLD or between_bad_dates(package_build_time):
+            if package_build_time not in KEEP_NIGHTLY_PACKAGES_FOR_EXECUTORCH and (
+                packages[package_name] >= KEEP_THRESHOLD
+                or between_bad_dates(package_build_time)
+            ):
                 to_hide.add(obj)
             else:
                 packages[package_name] += 1
