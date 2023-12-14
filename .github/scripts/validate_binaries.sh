@@ -2,6 +2,8 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     curl ${MATRIX_INSTALLATION} -o libtorch.zip
     unzip libtorch.zip
 else
+
+    conda update -y -n base -c defaults conda
     # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
