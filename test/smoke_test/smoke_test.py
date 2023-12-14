@@ -258,7 +258,11 @@ def smoke_test_modules():
         if module["repo"]:
             if not os.path.exists(f"{cwd}/{module['repo_name']}"):
                 print(f"Path does not exist: {cwd}/{module['repo_name']}")
-                subprocess.check_output(f"git clone --depth 1 {module['repo']}", stderr=subprocess.STDOUT, shell=True)
+                try:
+                    output = subprocess.check_output(f"git clone --depth 1 {module['repo']}", stderr=subprocess.STDOUT, shell=True)
+                except subprocess.CalledProcessError as exc:
+                    print(f"==== {output}")
+                    raise RuntimeError(f"CLONE FAIL: {exc.returncode} {exc.output}") from exc
             try:
                 smoke_test_command = f"python3 {module['smoke_test']}"
                 if target_os == 'windows':
