@@ -261,7 +261,6 @@ def smoke_test_modules():
                 try:
                     output = subprocess.check_output(f"git clone --depth 1 {module['repo']}", stderr=subprocess.STDOUT, shell=True)
                 except subprocess.CalledProcessError as exc:
-                    print(f"==== {output}")
                     raise RuntimeError(f"CLONE FAIL: {exc.returncode} {exc.output}") from exc
             try:
                 smoke_test_command = f"python3 {module['smoke_test']}"
