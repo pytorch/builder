@@ -39,11 +39,14 @@ else
         ${PWD}/check_binary.sh
     fi
 
-    # NB: The latest conda 23.11.0 pulls in some dependencies of conda-libmamba-solver that
-    # require GLIBC_2.25, which is not available in the current aarch64 image causing the
-    # suqsequence git command to fail. Basically, they don't work with CentOS 7 which AML 2
-    # is based on https://github.com/ContinuumIO/anaconda-issues/issues/12822
-    unset LD_LIBRARY_PATH
+    if [[ ${TARGET_OS} == 'linux-aarch64' ]]; then
+        OLD_LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
+        # NB: The latest conda 23.11.0 pulls in some dependencies of conda-libmamba-solver that
+        # require GLIBC_2.25, which is not available in the current aarch64 image causing the
+        # suqsequence git command to fail. Basically, they don't work with CentOS 7 which AML 2
+        # is based on https://github.com/ContinuumIO/anaconda-issues/issues/12822
+        unset LD_LIBRARY_PATH
+    fi
 
     if [[ ${TARGET_OS} == 'windows' ]]; then
         python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
@@ -57,4 +60,8 @@ else
 
     conda deactivate
     conda env remove -n ${ENV_NAME}
+
+    if [[ ${TARGET_OS} == 'linux-aarch64' ]]; then
+        LD_LIBRARY_PATH=${OLD_LD_LIBRARY_PATH}
+    fi
 fi
