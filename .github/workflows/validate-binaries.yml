@@ -96,7 +96,7 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
 
   linux-aarch64:
-    if:  inputs.os == 'linux-aarch64'
+    if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
     needs: generate-release-matrix
     uses: ./.github/workflows/validate-aarch64-linux-binaries.yml
     with:
@@ -105,6 +105,7 @@ jobs:
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
     needs: generate-release-matrix
