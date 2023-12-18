@@ -275,7 +275,7 @@ else
     fi
     if [[ "$OSTYPE" != "msys" ]]; then
         # TODO: Remove me when Triton has a proper release channel
-        TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
+        TRITON_VERSION=$(cat $pytorch_rootdir/.ci/docker/triton_version.txt)
         TRITON_SHORTHASH=$(cut -c1-10 $pytorch_rootdir/.github/ci_commit_pins/triton.txt)
         export CONDA_TRITON_CONSTRAINT="    - torchtriton==${TRITON_VERSION}+${TRITON_SHORTHASH} # [py < 312]"
     fi
