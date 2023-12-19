@@ -49,7 +49,7 @@ case ${GPU_ARCH_TYPE} in
         DOCKER_TAG=rocm${GPU_ARCH_VERSION}
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-rocm:${GPU_ARCH_VERSION}
         GPU_IMAGE=rocm/dev-centos-7:${GPU_ARCH_VERSION}-complete
-        PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908;gfx90a;gfx1030;gfx1100"
+        PYTORCH_ROCM_ARCH="gfx900;gfx906;gfx908;gfx90a;gfx942;gfx1030;gfx1100"
         ROCM_REGEX="([0-9]+)\.([0-9]+)[\.]?([0-9]*)"
         if [[ $GPU_ARCH_VERSION =~ $ROCM_REGEX ]]; then
             ROCM_VERSION_INT=$((${BASH_REMATCH[1]}*10000 + ${BASH_REMATCH[2]}*100 + ${BASH_REMATCH[3]:-0}))
