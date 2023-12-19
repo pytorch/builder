@@ -88,7 +88,7 @@ fi
 
 yum remove -y miopen-hip
 
-git clone https://github.com/ROCmSoftwarePlatform/MIOpen -b ${MIOPEN_BRANCH}
+git clone https://github.com/ROCm/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
 # remove .git to save disk space since CI runner was running out
 rm -rf .git
