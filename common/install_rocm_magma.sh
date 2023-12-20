@@ -10,12 +10,12 @@ set -ex
 MKLROOT=${MKLROOT:-/opt/intel}
 
 # "install" hipMAGMA into /opt/rocm/magma by copying after build
-git clone https://bitbucket.org/jithunnair-amd/magma.git -b gcnArch_deprecation
+git clone https://bitbucket.org/icl/magma.git
 pushd magma
 if [[ $PYTORCH_BRANCH == "release/1.10.1" ]]; then
     git checkout magma_ctrl_launch_bounds
 else
-    git checkout a1d5ecd1a93bd031819bcb6500002c109ac29c74
+    git checkout a1625ff4d9bc362906bd01f805dbbe12612953f6
 fi
 cp make.inc-examples/make.inc.hip-gcc-mkl make.inc
 echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
