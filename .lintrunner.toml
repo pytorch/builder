@@ -18,3 +18,26 @@ init_command = [
     'ruff==0.1.1',
 ]
 is_formatter = true
+
+[[linter]]
+code = 'TABS'
+include_patterns = ['**/*.sh']
+exclude_patterns = [
+    '**/*Makefile',
+    'common/install_rocm_drm.sh',
+    '.lintrunner.toml',
+]
+command = [
+    'python3',
+    'tools/linter/adapters/grep_linter.py',
+    # @lint-ignore TXT2
+    '--pattern=	',
+    '--linter-name=TABS',
+    '--error-name=saw some tabs',
+    '--replace-pattern=s/\t/    /',
+    """--error-description=\
+        This line has tabs; please replace them with spaces.\
+    """,
+    '--',
+    '@{{PATHSFILE}}'
+]

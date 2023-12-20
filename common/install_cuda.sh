@@ -146,11 +146,11 @@ while test $# -gt 0
 do
     case "$1" in
     11.8) install_118; prune_118
-	        ;;
+        ;;
     12.1) install_121; prune_121
-	        ;;
-	*) echo "bad argument $1"; exit 1
-	   ;;
+        ;;
+    *) echo "bad argument $1"; exit 1
+        ;;
     esac
     shift
 done

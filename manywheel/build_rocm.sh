@@ -88,7 +88,7 @@ ROCM_SO_FILES=(
     "librccl.so"
     "librocblas.so"
     "librocfft.so"
-    "librocm_smi64.so"   
+    "librocm_smi64.so"
     "librocrand.so"
     "librocsolver.so"
     "librocsparse.so"
@@ -128,7 +128,7 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
         LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.6"
     else
         LIBTINFO_PATH="/lib/x86_64-linux-gnu/libtinfo.so.5"
-    fi	
+    fi
     LIBDRM_PATH="/usr/lib/x86_64-linux-gnu/libdrm.so.2"
     LIBDRM_AMDGPU_PATH="/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1"
     MAYBE_LIB64=lib
@@ -170,8 +170,8 @@ do
         file_path=($(find $ROCM_HOME/ -name "$lib")) # Then search in ROCM_HOME
     fi
     if [[ -z $file_path ]]; then
-	echo "Error: Library file $lib is not found." >&2
-	exit 1
+        echo "Error: Library file $lib is not found." >&2
+        exit 1
     fi
     ROCM_SO_PATHS[${#ROCM_SO_PATHS[@]}]="$file_path" # Append lib to array
 done

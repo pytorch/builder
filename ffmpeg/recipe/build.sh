@@ -23,7 +23,7 @@ fi
         --disable-static \
         --enable-version3 \
         --enable-zlib \
-	    --enable-libmp3lame
+        --enable-libmp3lame
 
 make -j${CPU_COUNT}
 make install -j${CPU_COUNT}
