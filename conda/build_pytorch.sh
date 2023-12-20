@@ -356,7 +356,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
-         USE_CUSPARSELT=0 \
          conda build -c "$ANACONDA_USER" \
                      ${NO_TEST:-} \
                      --no-anaconda-upload \

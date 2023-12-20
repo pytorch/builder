@@ -98,7 +98,6 @@ build:
     - _GLIBCXX_USE_CXX11_ABI # [unix]
     - MAX_JOBS # [unix]
     - OVERRIDE_TORCH_CUDA_ARCH_LIST
-    - USE_CUSPARSELT
 
 test:
  imports:
