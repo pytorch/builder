@@ -106,6 +106,10 @@ if __name__ == '__main__':
     else:
         print("build pytorch without mkldnn backend")
 
+    # patch mkldnn to fix aarch64 mac and aws lambda crash
+    print("Applying mkl-dnn patch to fix crash due to /sys not accesible")
+    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/fix-xbyak-failure.patch")
+
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")
     print(f"Build Compelete. Created {pytorch_wheel_name}..")
