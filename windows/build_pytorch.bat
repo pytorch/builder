@@ -67,10 +67,6 @@ exit /B 1
 :: Install MKL
 rmdir /s /q mkl
 del mkl_2020.2.254.7z
-curl https://s3.amazonaws.com/ossci-windows/mkl_2020.2.254.7z -k -O
-7z x -aoa mkl_2020.2.254.7z -omkl
-set CMAKE_INCLUDE_PATH=%cd%\mkl\include
-set LIB=%cd%\mkl\lib;%LIB%
 
 :: Download MAGMA Files on CUDA builds
 set MAGMA_VERSION=2.5.4
@@ -126,7 +122,7 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     ) else (
         set "PATH=%CONDA_HOME%\envs\%%v;%CONDA_HOME%\envs\%%v\scripts;%CONDA_HOME%\envs\%%v\Library\bin;%ORIG_PATH%"
     )
-    pip install ninja
+    pip install ninja mkl-include==2021.4.0 mkl-devel==2021.4.0
     @setlocal
     :: Set Flags
     if not "%CUDA_VERSION%"=="cpu" (
