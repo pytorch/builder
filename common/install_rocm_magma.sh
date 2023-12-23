@@ -15,7 +15,7 @@ pushd magma
 if [[ $PYTORCH_BRANCH == "release/1.10.1" ]]; then
     git checkout magma_ctrl_launch_bounds
 else
-    git checkout 28592a7170e4b3707ed92644bf4a689ed600c27f
+    git checkout a1625ff4d9bc362906bd01f805dbbe12612953f6
 fi
 cp make.inc-examples/make.inc.hip-gcc-mkl make.inc
 echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc

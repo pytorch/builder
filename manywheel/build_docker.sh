@@ -57,6 +57,9 @@ case ${GPU_ARCH_TYPE} in
             echo "ERROR: rocm regex failed"
             exit 1
         fi
+        if [[ $ROCM_VERSION_INT -ge 60000 ]]; then
+            PYTORCH_ROCM_ARCH+=";gfx942"
+        fi
         DOCKER_GPU_BUILD_ARG="--build-arg ROCM_VERSION=${GPU_ARCH_VERSION} --build-arg PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH} --build-arg DEVTOOLSET_VERSION=9"
         ;;
     *)
