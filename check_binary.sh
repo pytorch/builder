@@ -116,7 +116,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   #
   # To check whether it is using cxx11 ABI, check non-existence of symbol:
   PRE_CXX11_SYMBOLS=(
-    "std::basic_string"
+    "std::basic_string<"
     "std::list"
   )
   # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
