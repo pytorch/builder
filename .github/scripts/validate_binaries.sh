@@ -49,6 +49,10 @@ else
         export PATH=${OLD_PATH}
     fi
 
+    if [[ ${INCLUDE_TEST_OPS} == 'true' ]]; then
+        source ./.github/scripts/validate_test_ops.sh
+    fi
+
     conda deactivate
     conda env remove -n ${ENV_NAME}
 fi
