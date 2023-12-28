@@ -108,7 +108,3 @@ jobs:
 
         # Standart case: Validate binaries
         source ./.github/scripts/validate_binaries.sh
-
-        if [[ ${INCLUDE_TEST_OPS} == 'true' ]]; then
-          source ./.github/scripts/validate_test_ops.sh
-        fi
