@@ -6,15 +6,15 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
-BRANCH="@main"
+BRANCH=""
 if [[ ${MATRIX_CHANNEL} == "test" ]]; then
     SHORT_VERSION=${MATRIX_STABLE_VERSION%.*}
-    BRANCH="@release/${SHORT_VERSION}"
+    BRANCH="--branch release/${SHORT_VERSION}"
 fi
 
 
 # Clone the Pytorch branch
-retry git clone --depth 1 https://github.com/pytorch/pytorch.git${BRANCH}
+retry git clone ${BRANCH} --depth 1 https://github.com/pytorch/pytorch.git
 retry git submodule update --init --recursive
 pushd pytorch
 
