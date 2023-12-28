@@ -6,8 +6,8 @@ retry () {
     $*  || (sleep 1 && $*) || (sleep 2 && $*) || (sleep 4 && $*) || (sleep 8 && $*)
 }
 
-BRANCH = "@main"
-if [[ ${MATRIX_CHANNEL} == "test" ]]
+BRANCH="@main"
+if [[ ${MATRIX_CHANNEL} == "test" ]]; then
     SHORT_VERSION=${MATRIX_STABLE_VERSION%.*}
     BRANCH="@release/${SHORT_VERSION}"
 fi
