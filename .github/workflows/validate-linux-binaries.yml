@@ -27,6 +27,11 @@ on:
         default: ""
         required: false
         type: string
+      include-test-ops:
+        description: 'Include Test Ops tests (only Linux)'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -58,6 +63,11 @@ on:
         default: ""
         required: false
         type: string
+      include-test-ops:
+        description: 'Include Test Ops tests (only Linux)'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-linux-matrix:
@@ -84,6 +94,7 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TORCH_ONLY=${{ inputs.torchonly }}
+        export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
         export RELEASE_VERSION=${{ inputs.version }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
@@ -97,3 +108,7 @@ jobs:
 
         # Standart case: Validate binaries
         source ./.github/scripts/validate_binaries.sh
+
+        if [[ ${INCLUDE_TEST_OPS} == 'true' ]]; then
+          source ./.github/scripts/validate_test_ops.sh
+        fi
