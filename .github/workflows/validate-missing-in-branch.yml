@@ -1,0 +1,37 @@
+name: Validate Missing in branch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/validate-missing-in-branch.yml
+  pull_request:
+    paths:
+      - .github/workflows/validate-missing-in-branch.yml
+  workflow_call:
+    inputs:
+      milestone:
+        description: 'Milestone to check'
+        default: "40"
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      milestone:
+        description: 'Milestone to check'
+        default: "40"
+        required: false
+        type: string
+
+jobs:
+  missing-in-branch:
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    with:
+      runner: linux.2xlarge
+      repository: "pytorch/builder"
+      timeout: 30
+      script: |
+        set -ex
+        retry git clone --depth 1 https://github.com/pytorch/pytorch.git
+        python ./analytics/github_analyze.py --repo-path ../pytorch --remote upstream --branch release/2.2 --milestone-id ${{ input.milestone }} --missing-in-branch
