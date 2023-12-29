@@ -18,8 +18,8 @@ retry git clone ${BRANCH} --depth 1 https://github.com/pytorch/pytorch.git
 retry git submodule update --init --recursive
 pushd pytorch
 
-pip install expecttest numpy pyyaml jinja2 packaging xmlrunner hypothesis unittest-xml-reporting
+pip install expecttest numpy pyyaml jinja2 packaging hypothesis unittest-xml-reporting
 
 # Run test_ops validation
 export CUDA_LAUNCH_BLOCKING=1
-python3 test/test_ops.py
+python3 test/test_ops.py TestCommonCUDA

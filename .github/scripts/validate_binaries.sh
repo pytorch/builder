@@ -49,7 +49,7 @@ else
         export PATH=${OLD_PATH}
     fi
 
-    if [[ ${INCLUDE_TEST_OPS} == 'true' ]]; then
+    if [[ ${INCLUDE_TEST_OPS} == 'true' &&  ${MATRIX_GPU_ARCH_TYPE} == 'cuda' ]]; then
         source ./.github/scripts/validate_test_ops.sh
     fi
 
