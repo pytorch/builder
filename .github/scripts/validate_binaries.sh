@@ -50,7 +50,7 @@ else
     fi
 
     # We are only interested in CUDA tests and Python 3.8-3.11. Not all requirement libraries are available for 3.12 yet.
-    if [[ ${INCLUDE_TEST_OPS} == 'true' &&  ${MATRIX_GPU_ARCH_TYPE} == 'cuda' && ${MATRIX_PYTHON_VERSION} != "3.12" ]]; then
+    if [[ ${INCLUDE_TEST_OPS:-} == 'true' &&  ${MATRIX_GPU_ARCH_TYPE} == 'cuda' && ${MATRIX_PYTHON_VERSION} != "3.12" ]]; then
         source ./.github/scripts/validate_test_ops.sh
     fi
 
