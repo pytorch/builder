@@ -23,9 +23,9 @@ pip install expecttest numpy pyyaml jinja2 packaging hypothesis unittest-xml-rep
 # Run pytorch cuda wheels validation 
 # Detect ReduceLogicKernel (ReduceOp and kernel) IMA
 python test/test_ops.py -k test_dtypes_all_cuda
-# Detect BinaryMulKernel (at::native::BitwiseAndFunctor) IMA
+# Detect BinaryMulKernel (elementwise binary functor internal mul) IMA
 python test/test_torch.py -k test_index_reduce_reduce_prod_cuda_int32
-# Detect BinaryBitwiseOpsKernels (elementwise binary functor bitwise) IMA
+# Detect BinaryBitwiseOpsKernels (at::native::BitwiseAndFunctor) IMA
 python test/test_binary_ufuncs.py -k test_contig_vs_every_other___rand___cuda_int32
 # Detect MaxMinElementwiseKernel (maximum) IMA
 python test/test_schema_check.py -k test_schema_correctness_clamp_cuda_int8
