@@ -21,5 +21,17 @@ pushd pytorch
 pip install expecttest numpy pyyaml jinja2 packaging hypothesis unittest-xml-reporting scipy
 
 # Run test_ops validation
-export CUDA_LAUNCH_BLOCKING=1
-python3 test/test_ops.py TestCommonCUDA
+
+# Detect ReduceLogicKernel (ReduceOp and kernel) IMA
+python test/test_ops.py -k test_dtypes_all_cuda
+# Detect BinaryMulKernel (at::native::BitwiseAndFunctor) IMA
+python test/test_torch.py -k test_index_reduce_reduce_prod_cuda_int32
+# Detect BinaryBitwiseOpsKernels (elementwise binary functor bitwise) IMA
+python test/test_binary_ufuncs.py -k test_contig_vs_every_other___rand___cuda_int32
+# Detect MaxMinElementwiseKernel (maximum) IMA
+python test/test_schema_check.py -k test_schema_correctness_clamp_cuda_int8
+# Detect StepKernel (nextafter) IMA
+python -c "import torch; print(torch.nextafter(torch.tensor([-4.5149, -5.9053, -0.9516, -2.3615,  1.5591], device='cuda:0'), torch.tensor(3.8075, device='cuda:0')))"
+# Detect BinaryGeometricKernels (atan2) IMA
+python -c "import torch; x = (torch.randn((2,1,1), dtype=torch.float, device="cuda")*5).to(torch.float32); y=(torch.randn((), dtype=torch.float, device="cuda")*5).to(torch.float32); print(torch.atan2(x,y))"
+
