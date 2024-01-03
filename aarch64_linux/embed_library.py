@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 
 
 def replace_tag(filename):
-   with open(filename, 'r') as f:
+   with open(filename) as f:
      lines = f.read().split("\\n")
    for i,line in enumerate(lines):
        if not line.startswith("Tag: "):
@@ -42,7 +42,7 @@ def embed_library(whl_path, lib_soname, update_tag=False):
         torchlib_path = os.path.join(ctx._tmpdir.name, 'torch', 'lib')
         ctx.out_wheel=tmp_whl_name
         new_lib_path, new_lib_soname = None, None
-        for filename, elf in elf_file_filter(ctx.iter_files()):
+        for filename, _ in elf_file_filter(ctx.iter_files()):
             if not filename.startswith('torch/lib'):
                 continue
             libtree = lddtree(filename)

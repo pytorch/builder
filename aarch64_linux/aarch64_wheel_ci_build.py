@@ -2,7 +2,7 @@
 # encoding: UTF-8
 
 import os
-import subprocess
+from subprocess import check_output
 from pygit2 import Repository
 from typing import List
 
@@ -11,7 +11,7 @@ def list_dir(path: str) -> List[str]:
     ''''
     Helper for getting paths for Python
     '''
-    return subprocess.check_output(["ls", "-1", path]).decode().split("\n")
+    return check_output(["ls", "-1", path]).decode().split("\n")
 
 
 def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
@@ -19,10 +19,12 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     Using ArmComputeLibrary for aarch64 PyTorch
     '''
     print('Building Arm Compute Library')
+    acl_build_flags=" ".join(["debug=0", "neon=1", "opencl=0", "os=linux", "openmp=1", "cppthreads=0",
+                              "arch=armv8a", "multi_isa=1", "fixed_format_kernels=1", "build=native"])
     os.system("cd / && mkdir /acl")
     os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.08 {git_clone_flags}")
     os.system("cd ComputeLibrary; export acl_install_dir=/acl; "
-              "scons Werror=1 -j8 debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 fixed_format_kernels=1 build=native build_dir=$acl_install_dir/build; "
+              f"scons Werror=1 -j8 {acl_build_flags} build_dir=$acl_install_dir/build; "
               "cp -r arm_compute $acl_install_dir; "
               "cp -r include $acl_install_dir; "
               "cp -r utils $acl_install_dir; "
@@ -86,13 +88,12 @@ if __name__ == '__main__':
     if override_package_version is not None:
         version = override_package_version
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version} PYTORCH_BUILD_NUMBER=1 "
-    else:
-        if branch in ['nightly', 'master']:
-            build_date = subprocess.check_output(['git', 'log', '--pretty=format:%cs', '-1'], cwd='/pytorch').decode().replace('-', '')
-            version = subprocess.check_output(['cat', 'version.txt'], cwd='/pytorch').decode().strip()[:-2]
-            build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
-        if branch.startswith("v1.") or branch.startswith("v2."):
-            build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
+    elif branch in ['nightly', 'master']:
+        build_date = check_output(['git', 'log', '--pretty=format:%cs', '-1'], cwd='/pytorch').decode().replace('-', '')
+        version = check_output(['cat', 'version.txt'], cwd='/pytorch').decode().strip()[:-2]
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
+    elif branch.startswith(("v1.", "v2.")):
+        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
 
     if enable_mkldnn:
         build_ArmComputeLibrary(git_clone_flags)
@@ -105,9 +106,10 @@ if __name__ == '__main__':
     else:
         print("build pytorch without mkldnn backend")
 
-    # work around to fix Raspberry pie crash
-    print("Applying mkl-dnn patch to fix readdir crash")
-    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/aarch64-fix-readdir-crash.patch")
+    # patch mkldnn to fix aarch64 mac and aws lambda crash
+    print("Applying mkl-dnn patch to fix crash due to /sys not accesible")
+    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/fix-xbyak-failure.patch")
+
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")
     print(f"Build Compelete. Created {pytorch_wheel_name}..")

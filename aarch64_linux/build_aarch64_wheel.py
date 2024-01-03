@@ -2,9 +2,10 @@
 
 # This script is for building  AARCH64 wheels using AWS EC2 instances.
 # To generate binaries for the release follow these steps:
-# 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:  "v1.11.0": ("0.11.0", "rc1"),
-# 2. Run script with following arguments for each of the supported python versions and specify required RC tag for example: v1.11.0-rc3:
-# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --branch <RCtag>
+# 1. Update mappings for each of the Domain Libraries by adding new row to a table like this:
+#         "v1.11.0": ("0.11.0", "rc1"),
+# 2. Run script with following arguments for each of the supported python versions and required tag, for example:
+# build_aarch64_wheel.py --key-name <YourPemKey> --use-docker --python 3.8 --branch v1.11.0-rc3
 
 
 import boto3
@@ -177,7 +178,7 @@ def wait_for_connection(addr, port, timeout=15, attempt_cnt=5):
         try:
             with socket.create_connection((addr, port), timeout=timeout):
                 return
-        except (ConnectionRefusedError, socket.timeout):
+        except (ConnectionRefusedError, socket.timeout):  # noqa: PERF203
             if i == attempt_cnt - 1:
                 raise
             time.sleep(timeout)
@@ -203,7 +204,7 @@ def install_condaforge(host: RemoteHost,
     if host.using_docker():
         host.run_cmd("echo 'PATH=$HOME/miniforge3/bin:$PATH'>>.bashrc")
     else:
-        host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])
+        host.run_cmd(['sed', '-i', '\'/^# If not running interactively.*/i PATH=$HOME/miniforge3/bin:$PATH\'', '.bashrc'])  # noqa: E501
 
 
 def install_condaforge_python(host: RemoteHost, python_version="3.8") -> None:
@@ -221,12 +222,13 @@ def build_OpenBLAS(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building OpenBLAS')
     host.run_cmd(f"git clone https://github.com/xianyi/OpenBLAS -b v0.3.25 {git_clone_flags}")
     make_flags = "NUM_THREADS=64 USE_OPENMP=1 NO_SHARED=1 DYNAMIC_ARCH=1 TARGET=ARMV8"
-    host.run_cmd(f"pushd OpenBLAS && make {make_flags} -j8 && sudo make {make_flags} install && popd && rm -rf OpenBLAS")
+    host.run_cmd(f"pushd OpenBLAS && make {make_flags} -j8 && sudo make {make_flags} install && popd && rm -rf OpenBLAS")  # noqa: E501
 
 
 def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None:
     print('Building Arm Compute Library')
-    acl_build_flags="debug=0 neon=1 opencl=0 os=linux openmp=1 cppthreads=0 arch=armv8a multi_isa=1 fixed_format_kernels=1 build=native"
+    acl_build_flags=" ".join(["debug=0", "neon=1", "opencl=0", "os=linux", "openmp=1", "cppthreads=0",
+                              "arch=armv8a", "multi_isa=1", "fixed_format_kernels=1", "build=native"])
     host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.08 {git_clone_flags}")
     host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags}")
 
@@ -301,7 +303,7 @@ def build_torchvision(host: RemoteHost, *,
         # Remove .so files to force static linking
         host.run_cmd("rm miniforge3/lib/libpng.so miniforge3/lib/libpng16.so miniforge3/lib/libjpeg.so")
         # And patch setup.py to include libz dependency for libpng
-        host.run_cmd(['sed -i -e \'s/image_link_flags\.append("png")/image_link_flags += ["png", "z"]/\' vision/setup.py'])
+        host.run_cmd(['sed -i -e \'s/image_link_flags\\.append("png")/image_link_flags += ["png", "z"]/\' vision/setup.py'])  # noqa: E501
 
     build_vars = ""
     if branch == "nightly":
@@ -525,7 +527,7 @@ def start_build(host: RemoteHost, *,
     if host.using_docker():
         print("Move libgfortant.a into a standard location")
         # HACK: pypa gforntran.a is compiled without PIC, which leads to the following error
-        # libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'
+        # libgfortran.a(error.o)(.text._gfortrani_st_printf+0x34): unresolvable R_AARCH64_ADR_PREL_PG_HI21 relocation against symbol `__stack_chk_guard@@GLIBC_2.17'  # noqa: E501
         # Workaround by copying gfortran library from the host
         host.run_ssh_cmd("sudo apt-get install -y gfortran-8")
         host.run_cmd("mkdir -p /usr/lib/gcc/aarch64-linux-gnu/8")
@@ -543,10 +545,10 @@ def start_build(host: RemoteHost, *,
     # Breakpad build fails on aarch64
     build_vars = "USE_BREAKPAD=0 "
     if branch == 'nightly':
-        build_date = host.check_output("cd pytorch && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")
+        build_date = host.check_output("cd pytorch && git log --pretty=format:%s -1").strip().split()[0].replace("-", "")  # noqa: E501
         version = host.check_output("cat pytorch/version.txt").strip()[:-2]
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1"
-    if branch.startswith("v1.") or branch.startswith("v2."):
+    if branch.startswith(("v1.", "v2.")):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1"
     if host.using_docker():
         build_vars += " CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000"
@@ -554,11 +556,12 @@ def start_build(host: RemoteHost, *,
         build_ArmComputeLibrary(host, git_clone_flags)
         print("build pytorch with mkldnn+acl backend")
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
-        host.run_cmd(f"cd $HOME && git clone https://github.com/pytorch/builder.git")
-        host.run_cmd(f"cd $HOME/pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary && {build_vars} python3 setup.py bdist_wheel{build_opts}")
+        host.run_cmd("cd $HOME && git clone https://github.com/pytorch/builder.git && cd builder && git checkout release/2.2")  # noqa: E501
+        host.run_cmd("cd $HOME/pytorch/third_party/ideep/mkl-dnn && patch -p1 < $HOME/builder/mkldnn_fix/fix-xbyak-failure.patch")  # noqa: E501
+        host.run_cmd(f"cd $HOME/pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary && {build_vars} python3 setup.py bdist_wheel{build_opts}")  # noqa: E501
         print('Repair the wheel')
         pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
-        host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib && auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")
+        host.run_cmd(f"export LD_LIBRARY_PATH=$HOME/acl/build:$HOME/pytorch/build/lib && auditwheel repair $HOME/pytorch/dist/{pytorch_wheel_name}")  # noqa: E501
         print('replace the original wheel with the repaired one')
         pytorch_repaired_wheel_name = host.list_dir("wheelhouse")[0]
         host.run_cmd(f"cp $HOME/wheelhouse/{pytorch_repaired_wheel_name} $HOME/pytorch/dist/{pytorch_wheel_name}")
@@ -706,7 +709,7 @@ def parse_arguments():
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--os", type=str, choices=list(os_amis.keys()), default='ubuntu20_04')
-    parser.add_argument("--python-version", type=str, choices=['3.6', '3.7', '3.8', '3.9', '3.10', '3.11'], default=None)
+    parser.add_argument("--python-version", type=str, choices=[f'3.{d}' for d in range(6, 12)], default=None)
     parser.add_argument("--alloc-instance", action="store_true")
     parser.add_argument("--list-instances", action="store_true")
     parser.add_argument("--pytorch-only", action="store_true")
