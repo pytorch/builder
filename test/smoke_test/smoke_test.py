@@ -163,14 +163,17 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
                 f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}"
             )
         print(f"torch cuda: {torch.version.cuda}")
-        print(f"torch nccl version: {torch.cuda.nccl.version()}" )
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
         # torch.compile is available only on Linux and python 3.8-3.11
-        if (sys.platform in ["linux", "linux2"]) and sys.version_info < (3, 12, 0):
-            smoke_test_compile()
+        # nccl is availbale only on Linux
+        if (sys.platform in ["linux", "linux2"]):
+            print(f"torch nccl version: {torch.cuda.nccl.version()}")
+
+            if(sys.version_info < (3, 12, 0)):
+                smoke_test_compile()
 
         if runtime_error_check == "enabled":
             test_cuda_runtime_errors_captured()
