@@ -67,7 +67,7 @@ function install_121 {
 
     # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
     mkdir tmp_nccl && cd tmp_nccl
-    wget -q https://developer.nvidia.com/downloads/compute/machine-learning/nccl/secure/2.19.3/agnostic/x64/nccl_2.19.3-1+cuda12.0_x86_64.txz
+    wget -q https://ossci-linux.s3.amazonaws.com/nccl_2.19.3-1%2Bcuda12.0_x86_64.txz
     tar xf nccl_2.19.3-1+cuda12.0_x86_64.txz
     cp -a nccl_2.19.3-1+cuda12.0_x86_64/include/* /usr/local/cuda/include/
     cp -a nccl_2.19.3-1+cuda12.0_x86_64/lib/* /usr/local/cuda/lib64/
