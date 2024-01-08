@@ -33,13 +33,13 @@ function install_118 {
     rm -rf tmp_cudnn
 
     # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
-    mkdir tmp_nccl && cd tmp_nccl
-    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.15.5/nccl_2.15.5-1+cuda11.8_x86_64.txz
-    tar xf nccl_2.15.5-1+cuda11.8_x86_64.txz
-    cp -a nccl_2.15.5-1+cuda11.8_x86_64/include/* /usr/local/cuda/include/
-    cp -a nccl_2.15.5-1+cuda11.8_x86_64/lib/* /usr/local/cuda/lib64/
+    # Follow build: https://github.com/NVIDIA/nccl/tree/v2.19.3-1?tab=readme-ov-file#build
+    git clone -b v2.19.3-1 --depth 1 https://github.com/NVIDIA/nccl.git
+    cd nccl && make -j src.build
+    cp -a build/include/* /usr/local/cuda/include/
+    cp -a build/lib/* /usr/local/cuda/lib64/
     cd ..
-    rm -rf tmp_nccl
+    rm -rf nccl
 
     install_cusparselt_040
 
@@ -66,13 +66,13 @@ function install_121 {
     rm -rf tmp_cudnn
 
     # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
-    mkdir tmp_nccl && cd tmp_nccl
-    wget -q https://developer.download.nvidia.com/compute/redist/nccl/v2.18.1/nccl_2.18.1-1+cuda12.1_x86_64.txz
-    tar xf nccl_2.18.1-1+cuda12.1_x86_64.txz
-    cp -a nccl_2.18.1-1+cuda12.1_x86_64/include/* /usr/local/cuda/include/
-    cp -a nccl_2.18.1-1+cuda12.1_x86_64/lib/* /usr/local/cuda/lib64/
+    # Follow build: https://github.com/NVIDIA/nccl/tree/v2.19.3-1?tab=readme-ov-file#build
+    git clone -b v2.19.3-1 --depth 1 https://github.com/NVIDIA/nccl.git
+    cd nccl && make -j src.build
+    cp -a build/include/* /usr/local/cuda/include/
+    cp -a build/lib/* /usr/local/cuda/lib64/
     cd ..
-    rm -rf tmp_nccl
+    rm -rf nccl
 
     install_cusparselt_040
 
