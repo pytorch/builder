@@ -163,6 +163,7 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
                 f"Wrong CUDA version. Loaded: {torch.version.cuda} Expected: {gpu_arch_ver}"
             )
         print(f"torch cuda: {torch.version.cuda}")
+        print(f"torch nccl version: {torch.cuda.nccl.version()}" )
         # todo add cudnn version validation
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
