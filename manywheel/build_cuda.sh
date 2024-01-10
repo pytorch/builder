@@ -266,8 +266,7 @@ fi
 # and torch.compile doesn't work.
 if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
     TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
-    # while triton is not released officially yet. use pytorch triton
-    TRITON_REQUIREMENT="pytorch-triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64'"
+    TRITON_REQUIREMENT="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64'"
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${TRITON_REQUIREMENT}"
