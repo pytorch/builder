@@ -6,6 +6,8 @@ echo CMAKE_GENERATOR=%CMAKE_GENERATOR%
 if "%USE_CUDA%"==""  echo CUDA_PATH=%CUDA_PATH%
 if NOT "%CC%"==""   echo CC=%CC%
 if NOT "%CXX%"==""  echo CXX=%CXX%
+if NOT "%CMAKE_C_COMPILER_LAUNCHER%"=="" echo CMAKE_C_COMPILER_LAUNCHER=%CMAKE_C_COMPILER_LAUNCHER%
+if NOT "%CMAKE_CXX_COMPILER_LAUNCHER%"=="" echo CMAKE_CXX_COMPILER_LAUNCHER=%CMAKE_CXX_COMPILER_LAUNCHER%
 if NOT "%DISTUTILS_USE_SDK%"==""  echo DISTUTILS_USE_SDK=%DISTUTILS_USE_SDK%
 
 set SRC_DIR=%~dp0\..
@@ -22,8 +24,9 @@ IF NOT exist "setup.py" (
     cd %MODULE_NAME%
 )
 
-if "%CXX%"=="sccache cl" goto sccache_start
-if "%CXX%"=="sccache-cl" goto sccache_start
+:: if "%CXX%"=="sccache cl" goto sccache_start
+:: if "%CXX%"=="sccache-cl" goto sccache_start
+if "%CMAKE_CXX_COMPILER_LAUNCHER%"=="sccache" goto sccache_start
 goto sccache_end
 
 :sccache_start
@@ -92,8 +95,9 @@ python setup.py bdist_wheel -d "%PYTORCH_FINAL_PACKAGE_DIR%"
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
 
-if "%CXX%"=="sccache cl" goto sccache_cleanup
-if "%CXX%"=="sccache-cl" goto sccache_cleanup
+:: if "%CXX%"=="sccache cl" goto sccache_cleanup
+:: if "%CXX%"=="sccache-cl" goto sccache_cleanup
+if "%CMAKE_CXX_COMPILER_LAUNCHER%"=="sccache" goto sccache_cleanup
 goto sccache_cleanup_end
 
 :sccache_cleanup

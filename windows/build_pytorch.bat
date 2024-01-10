@@ -91,25 +91,27 @@ if not "%CUDA_VERSION%" == "cpu" (
 :: Install sccache
 if "%USE_SCCACHE%" == "1" (
     mkdir %CD%\tmp_bin
-    curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %CD%\tmp_bin\sccache.exe
-    curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %CD%\tmp_bin\sccache-cl.exe
+    ::curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %CD%\tmp_bin\sccache.exe
+    ::curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %CD%\tmp_bin\sccache-cl.exe
+    curl -L --retry 3 --retry-all-errors -k https://github.com/mozilla/sccache/releases/download/v0.7.4/sccache-v0.7.4-x86_64-pc-windows-msvc.zip --output %SRC_DIR%\tmp_bin\sccache.zip
+    7z e "%SRC_DIR%\tmp_bin\sccache.zip" -o "%SRC_DIR%\tmp_bin" -y
     if not "%CUDA_VERSION%" == "" (
         set ADDITIONAL_PATH=%CD%\tmp_bin
         set SCCACHE_IDLE_TIMEOUT=1500
-
+        set CMAKE_CUDA_COMPILER_LAUNCHER=sccache
         :: randomtemp is used to resolve the intermittent build error related to CUDA.
         :: code: https://github.com/peterjc123/randomtemp-rust
         :: issue: https://github.com/pytorch/pytorch/issues/25393
         ::
         :: CMake requires a single command as CUDA_NVCC_EXECUTABLE, so we push the wrappers
         :: randomtemp.exe and sccache.exe into a batch file which CMake invokes.
-        curl -kL https://github.com/peterjc123/randomtemp-rust/releases/download/v0.4/randomtemp.exe --output %SRC_DIR%\tmp_bin\randomtemp.exe
-        echo @"%SRC_DIR%\tmp_bin\randomtemp.exe" "%SRC_DIR%\tmp_bin\sccache.exe" "%CUDA_PATH%\bin\nvcc.exe" %%* > "%SRC_DIR%/tmp_bin/nvcc.bat"
-        cat %SRC_DIR%/tmp_bin/nvcc.bat
-        set CUDA_NVCC_EXECUTABLE=%SRC_DIR%/tmp_bin/nvcc.bat
+        ::curl -kL https://github.com/peterjc123/randomtemp-rust/releases/download/v0.4/randomtemp.exe --output %SRC_DIR%\tmp_bin\randomtemp.exe
+        ::echo @"%SRC_DIR%\tmp_bin\randomtemp.exe" "%SRC_DIR%\tmp_bin\sccache.exe" "%CUDA_PATH%\bin\nvcc.exe" %%* > "%SRC_DIR%/tmp_bin/nvcc.bat"
+        ::cat %SRC_DIR%/tmp_bin/nvcc.bat
+        ::set CUDA_NVCC_EXECUTABLE=%SRC_DIR%/tmp_bin/nvcc.bat
         :: CMake doesn't accept back-slashes in the path
-        for /F "usebackq delims=" %%n in (`cygpath -m "%CUDA_PATH%\bin\nvcc.exe"`) do set CMAKE_CUDA_COMPILER=%%n
-        set CMAKE_CUDA_COMPILER_LAUNCHER=%SRC_DIR%\tmp_bin\randomtemp.exe;%SRC_DIR%\tmp_bin\sccache.exe
+        ::for /F "usebackq delims=" %%n in (`cygpath -m "%CUDA_PATH%\bin\nvcc.exe"`) do set CMAKE_CUDA_COMPILER=%%n
+        ::set CMAKE_CUDA_COMPILER_LAUNCHER=%SRC_DIR%\tmp_bin\randomtemp.exe;%SRC_DIR%\tmp_bin\sccache.exe
     )
 )
 
