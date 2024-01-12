@@ -44,8 +44,7 @@ echo libuv_ROOT=%libuv_ROOT%
 
 IF "%USE_SCCACHE%" == "1" (
     mkdir %SRC_DIR%\tmp_bin
-    curl -k https://s3.amazonaws.com/ossci-windows/sccache.exe --output %SRC_DIR%\tmp_bin\sccache.exe
-    curl -k https://s3.amazonaws.com/ossci-windows/sccache-cl.exe --output %SRC_DIR%\tmp_bin\sccache-cl.exe
+    curl -k https://ossci-windows.s3.amazonaws.com/sccache-v0.7.4.exe  --output %SRC_DIR%\tmp_bin\sccache.exe
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
     set SCCACHE_IDLE_TIMEOUT=1500
 )
@@ -87,8 +86,9 @@ sccache --stop-server
 sccache --start-server
 sccache --zero-stats
 
-set CC=sccache-cl
-set CXX=sccache-cl
+set CMAKE_C_COMPILER_LAUNCHER=sccache
+set CMAKE_CXX_COMPILER_LAUNCHER=sccache
+
 
 :sccache_end
 

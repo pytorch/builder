@@ -31,8 +31,8 @@ where /q sccache.exe
 
 IF NOT ERRORLEVEL 1 (
     echo sccache found, using it to speed up builds
-    set CC=sccache cl
-    set CXX=sccache cl
+    set CMAKE_C_COMPILER_LAUNCHER=sccache
+    set CMAKE_CXX_COMPILER_LAUNCHER=sccache
 )
 
 :sccache_end
