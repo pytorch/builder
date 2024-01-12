@@ -1,5 +1,5 @@
 @echo off
-
+echo "THIS IS FROM MY BRANCH"
 :: This script parses args, installs required libraries (miniconda, MKL,
 :: Magma), and then delegates to cpu.bat, cuda80.bat, etc.
 

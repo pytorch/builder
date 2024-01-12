@@ -1,3 +1,4 @@
+echo "THIS IS FROM MY BRANCH"
 call windows/internal/vc_install_helper.bat
 if errorlevel 1 exit /b 1
 

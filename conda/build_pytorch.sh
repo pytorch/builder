@@ -4,7 +4,7 @@ if [[ -x "/remote/anaconda_token" ]]; then
 fi
 
 set -ex
-
+echo "THIS IS FROM MY BRANCH"
 # TODO there is a LOT of duplicate code everywhere. There's duplicate code for
 # mac siloing of pytorch and conda installations with wheel/build_wheel.sh.
 # There's also duplicate versioning logic amongst *all* the building scripts
