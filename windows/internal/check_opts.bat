@@ -17,16 +17,6 @@ IF NOT ERRORLEVEL 1 (
     set CXX=clcache
 )
 
-where /q sccache-cl.exe
-
-IF NOT ERRORLEVEL 1 (
-    echo sccache-cl found, using it to speed up builds
-    set CC=sccache-cl
-    set CXX=sccache-cl
-)
-
-IF "%CC%" == "sccache-cl" IF "%CXX%" == "sccache-cl" goto sccache_end
-
 where /q sccache.exe
 
 IF NOT ERRORLEVEL 1 (

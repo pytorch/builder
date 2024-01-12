@@ -22,8 +22,7 @@ IF NOT exist "setup.py" (
     cd %MODULE_NAME%
 )
 
-if "%CXX%"=="sccache" goto sccache_start
-if "%CXX%"=="sccache-cl" goto sccache_start
+if "%CMAKE_CXX_COMPILER_LAUNCHER%"=="sccache" goto sccache_start
 goto sccache_end
 
 :sccache_start
@@ -92,8 +91,7 @@ python setup.py bdist_wheel -d "%PYTORCH_FINAL_PACKAGE_DIR%"
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
 
-if "%CXX%"=="sccache" goto sccache_cleanup
-if "%CXX%"=="sccache-cl" goto sccache_cleanup
+if "%CMAKE_CXX_COMPILER_LAUNCHER%"=="sccache" goto sccache_cleanup
 goto sccache_cleanup_end
 
 :sccache_cleanup
