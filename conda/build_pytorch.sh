@@ -67,7 +67,7 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
 fi
 
 # differentiate package name for cross compilation to avoid collision
-if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+if [[ -n "$CROSS_COMPILE_ARM64" || "$(uname -m)" == "arm64" ]]; then
     export PYTORCH_LLVM_PACKAGE=""
 fi
 
