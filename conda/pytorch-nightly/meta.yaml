@@ -55,7 +55,7 @@ requirements:
     - jinja2
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
-    - blas * mkl
+    - blas * mkl # [x86_64]
     {% endif %}
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
