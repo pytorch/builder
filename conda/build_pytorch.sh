@@ -104,7 +104,11 @@ if [[ -z "$DESIRED_PYTHON" ]]; then
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
+    else
+        DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
+    fi
 fi
 if [[ "$desired_cuda" == 'cpu' ]]; then
     cpu_only=1
