@@ -19,8 +19,12 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
 )
 endlocal
 
-
-:: Install libuv
-conda install -y -q -c conda-forge libuv=1.39
-set libuv_ROOT=%CONDA_HOME%\Library
-echo libuv_ROOT=%libuv_ROOT%
+if "%CROSS_COMPILE_ARM64%" == "" (
+    :: Install libuv
+    conda install -y -q -c conda-forge libuv=1.39
+    set libuv_ROOT=%CONDA_HOME%\Library
+    echo libuv_ROOT=%libuv_ROOT%
+) else (
+    :: Install protobuf
+    conda install -y -q -c conda-forge protobuf=3.13 python=3.8
+)

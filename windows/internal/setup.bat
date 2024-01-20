@@ -3,6 +3,8 @@
 echo The flags after configuring:
 echo USE_CUDA=%USE_CUDA%
 echo CMAKE_GENERATOR=%CMAKE_GENERATOR%
+echo CROSS_COMPILE_ARM64=%CROSS_COMPILE_ARM64%
+
 if "%USE_CUDA%"==""  echo CUDA_PATH=%CUDA_PATH%
 if NOT "%CC%"==""   echo CC=%CC%
 if NOT "%CXX%"==""  echo CXX=%CXX%
@@ -10,10 +12,19 @@ if NOT "%DISTUTILS_USE_SDK%"==""  echo DISTUTILS_USE_SDK=%DISTUTILS_USE_SDK%
 
 set SRC_DIR=%~dp0\..
 
+if "%CROSS_COMPILE_ARM64%" == "" (
+    set VSDEVCMD_ARCH=x64
+) else (
+    set VSDEVCMD_ARCH=x64_arm64
+    set CMAKE_TOOLCHAIN_FILE=cmake\Toolchains\msvc2022-x64-arm64.cmake
+    set USE_HOST_PROTOC=1
+    set PROTOC=%CONDA_HOME%\Library\bin\protoc.exe
+)
+
 IF "%VSDEVCMD_ARGS%" == "" (
-    call "%VS15VCVARSALL%" x64
+    call "%VS15VCVARSALL%" %VSDEVCMD_ARCH%
 ) ELSE (
-    call "%VS15VCVARSALL%" x64 %VSDEVCMD_ARGS%
+    call "%VS15VCVARSALL%" %VSDEVCMD_ARCH% %VSDEVCMD_ARGS%
 )
 
 pushd %SRC_DIR%
