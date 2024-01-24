@@ -87,7 +87,7 @@ set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
 conda create -qyn testenv python=%DESIRED_PYTHON%
 if errorlevel 1 exit /b 1
-call conda install -yq conda-build numpy
+call conda install -yq conda-build
 if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
@@ -98,7 +98,8 @@ if ERRORLEVEL 1 exit /b 1
 call conda index %PYTORCH_FINAL_PACKAGE_DIR%
 if errorlevel 1 exit /b 1
 call conda install -yq -c "file:///%PYTORCH_FINAL_PACKAGE_DIR%" pytorch==%PYTORCH_BUILD_VERSION% -c pytorch -c numba/label/dev -c nvidia
-
+if ERRORLEVEL 1 exit /b 1
+call conda install -yq numpy
 if ERRORLEVEL 1 exit /b 1
 
 set /a CUDA_VER=%CUDA_VERSION%
