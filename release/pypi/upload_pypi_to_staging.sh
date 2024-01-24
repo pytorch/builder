@@ -5,6 +5,9 @@ set -eou pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Allow for users to pass PACKAGE_NAME
 
+# Set TMPDIR
+#export TMPDIR="/home/ec2-user/github/builder/release/pypi/work"
+
 # For use with other packages, i.e. torchvision, etc.
 PACKAGE_NAME=${PACKAGE_NAME:-torch}
 
