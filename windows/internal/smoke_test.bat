@@ -54,7 +54,7 @@ if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
-pip install -q numpy protobuf 
+pip install -q numpy protobuf
 if errorlevel 1 exit /b 1
 
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
@@ -87,7 +87,7 @@ set "PATH=%CONDA_HOME%;%CONDA_HOME%\scripts;%CONDA_HOME%\Library\bin;%PATH%"
 
 conda create -qyn testenv python=%DESIRED_PYTHON%
 if errorlevel 1 exit /b 1
-call conda install -yq conda-build 
+call conda install -yq conda-build numpy
 if errorlevel 1 exit /b 1
 call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
