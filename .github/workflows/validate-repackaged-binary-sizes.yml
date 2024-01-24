@@ -23,19 +23,19 @@ jobs:
       fail-fast: false
       matrix:
         whl:
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0-cu121-cp312-cp312-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp312-cp312-linux_x86_64.whl
             python: "3.12"
             artifact: false
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0-cu121-cp311-cp311-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp311-cp311-linux_x86_64.whl
             python: "3.11"  # python version to use for smoke tests
             upload_artifact: false # upload the repackaged binary as an artifact
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0-cu121-cp310-cp310-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp310-cp310-linux_x86_64.whl
             python: "3.10"
             artifact: false
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0-cu121-cp319-cp319-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp319-cp319-linux_x86_64.whl
             python: "3.9"
             artifact: false
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0-cu121-cp318-cp318-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp318-cp318-linux_x86_64.whl
             python: "3.8"
             artifact: false
 
@@ -47,11 +47,11 @@ jobs:
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
-        export GPU_ARCH_VER="11.7"
+        export GPU_ARCH_VER="12.1"
         export GPU_ARCH_TYPE="cuda"
-        export CUDA_VER="11.7"
+        export CUDA_VER="12.1"
         export DESIRED_PYTHON="${{ matrix.whl.python }}"
-        export DESIRED_CUDA="cu117"
+        export DESIRED_CUDA="cu121"
         export PACKAGE_TYPE="wheel"
         export TARGET_OS="linux"
         export INSTALLATION=""
