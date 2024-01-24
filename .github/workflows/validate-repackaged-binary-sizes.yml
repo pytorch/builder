@@ -23,19 +23,19 @@ jobs:
       fail-fast: false
       matrix:
         whl:
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp312-cp312-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0%2Bcu121-cp312-cp312-linux_x86_64.whl
             python: "3.12"
             artifact: false
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp311-cp311-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0%2Bcu121-cp311-cp311-linux_x86_64.whl
             python: "3.11"  # python version to use for smoke tests
             upload_artifact: false # upload the repackaged binary as an artifact
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp310-cp310-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0%2Bcu121-cp310-cp310-linux_x86_64.whl
             python: "3.10"
             artifact: false
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp319-cp319-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0%2Bcu121-cp39-cp39-linux_x86_64.whl
             python: "3.9"
             artifact: false
-          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0+cu121-cp318-cp318-linux_x86_64.whl
+          - url: https://download.pytorch.org/whl/test/cu121/torch-2.2.0%2Bcu121-cp38-cp38-linux_x86_64.whl
             python: "3.8"
             artifact: false
 
