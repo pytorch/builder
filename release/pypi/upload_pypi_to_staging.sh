@@ -5,9 +5,6 @@ set -eou pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Allow for users to pass PACKAGE_NAME
 
-# Set TMPDIR
-#export TMPDIR="/home/ec2-user/github/builder/release/pypi/work"
-
 # For use with other packages, i.e. torchvision, etc.
 PACKAGE_NAME=${PACKAGE_NAME:-torch}
 
@@ -36,10 +33,8 @@ pushd "${output_tmp_dir}"
 # Dry run by default
 DRY_RUN=${DRY_RUN:-enabled}
 # On dry run just echo the commands that are meant to be run
-TWINE_UPLOAD="echo twine upload"
 DRY_RUN_FLAG="--dryrun"
 if [[ $DRY_RUN = "disabled" ]]; then
-    TWINE_UPLOAD="twine upload"
     DRY_RUN_FLAG=""
 fi
 
