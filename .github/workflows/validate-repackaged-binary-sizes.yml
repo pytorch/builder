@@ -41,7 +41,7 @@ jobs:
 
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     with:
-      runner: linux.4xlarge.nvidia.gpu
+      runner: linux.g5.4xlarge.nvidia.gpu
       job-name: "Validate binary size"
       upload-artifact: ${{ matrix.whl.upload_artifact == 'true' && 'repackaged-binary' || '' }}
       script: |
