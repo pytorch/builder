@@ -47,14 +47,12 @@ jobs:
       script: |
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
-        export GPU_ARCH_VER="12.1"
-        export GPU_ARCH_TYPE="cuda"
-        export CUDA_VER="12.1"
+        export MATRIX_GPU_ARCH_VERSION="12.1"
+        export MATRIX_GPU_ARCH_TYPE="cuda"
+        export MATRIX_CUDA_VER="12.1"
         export DESIRED_PYTHON="${{ matrix.whl.python }}"
-        export DESIRED_CUDA="cu121"
-        export PACKAGE_TYPE="wheel"
+        export MATRIX_PACKAGE_TYPE="wheel"
         export TARGET_OS="linux"
-        export INSTALLATION=""
 
         # install zip
         sudo yum install zip -y
