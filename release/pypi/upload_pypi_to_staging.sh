@@ -33,10 +33,8 @@ pushd "${output_tmp_dir}"
 # Dry run by default
 DRY_RUN=${DRY_RUN:-enabled}
 # On dry run just echo the commands that are meant to be run
-TWINE_UPLOAD="echo twine upload"
 DRY_RUN_FLAG="--dryrun"
 if [[ $DRY_RUN = "disabled" ]]; then
-    TWINE_UPLOAD="twine upload"
     DRY_RUN_FLAG=""
 fi
 
