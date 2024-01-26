@@ -95,6 +95,7 @@ if "%USE_SCCACHE%" == "1" (
     if not "%CUDA_VERSION%" == "" (
         set ADDITIONAL_PATH=%CD%\tmp_bin
         set SCCACHE_IDLE_TIMEOUT=1500
+        set SCCACHE_REGION=us-east-1
 
         :: randomtemp is used to resolve the intermittent build error related to CUDA.
         :: code: https://github.com/peterjc123/randomtemp-rust

@@ -47,6 +47,7 @@ IF "%USE_SCCACHE%" == "1" (
     curl -k https://ossci-windows.s3.amazonaws.com/sccache-v0.7.4.exe  --output %SRC_DIR%\tmp_bin\sccache.exe
     set "PATH=%SRC_DIR%\tmp_bin;%PATH%"
     set SCCACHE_IDLE_TIMEOUT=1500
+    set SCCACHE_REGION=us-east-1
 )
 
 IF "%build_with_cuda%" == "" goto cuda_end
