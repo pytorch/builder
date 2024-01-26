@@ -49,7 +49,8 @@ PLATFORM="win_amd64" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_stagi
 PLATFORM="${MACOS_X86_64}" VERSION_SUFFIX="" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 
-PLATFORM="manylinux2014_x86_64" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
-PLATFORM="win_amd64" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
-PLATFORM="${MACOS_X86_64}" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
-PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
+# Please note torchdata is not released currently hence turning it off
+#PLATFORM="manylinux2014_x86_64" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
+#PLATFORM="win_amd64" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
+#PLATFORM="${MACOS_X86_64}" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
+#PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
