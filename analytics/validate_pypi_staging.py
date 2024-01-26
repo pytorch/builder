@@ -2,11 +2,12 @@
 
 import os.path
 import shutil
+import subprocess
 import tempfile
 import zipfile
+
 import boto3
 import botocore
-
 
 PLATFORMS = [
     "manylinux1_x86_64",
@@ -72,6 +73,22 @@ def validate_file_metadata(build: str, package: str, version: str):
     tmp_file = f"{temp_dir}/{os.path.basename(build)}"
     s3.download_file(Bucket=S3_PYPI_STAGING, Key=build, Filename=tmp_file)
     print(f"Downloaded: {tmp_file}  {get_size(tmp_file)}")
+
+    try:
+        check_wheels = subprocess.run(
+            ["check-wheel-contents", tmp_file, "--ignore", "W002,W009,W004"],
+            capture_output=True,
+            text=True,
+            check=True,
+            encoding="utf-8",
+        )
+        print(check_wheels.stdout)
+        print(check_wheels.stderr)
+    except subprocess.CalledProcessError as e:
+        exit_code = e.returncode
+        stderror = e.stderr
+        print(exit_code, stderror)
+
     with zipfile.ZipFile(f"{temp_dir}/{os.path.basename(build)}", "r") as zip_ref:
         zip_ref.extractall(f"{temp_dir}")
 
