@@ -107,7 +107,7 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TORCH_ONLY=${{ inputs.torchonly }}
         export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
-        export USE_ONLY_DL_PYTORCH_ORG = ${{ inputs.use-only-dl-pytorch-org }}
+        export USE_ONLY_DL_PYTORCH_ORG=${{ inputs.use-only-dl-pytorch-org }}
         export RELEASE_VERSION=${{ inputs.version }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
