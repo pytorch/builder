@@ -32,6 +32,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       os:
@@ -75,6 +80,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
 
 
 jobs:
@@ -93,6 +103,7 @@ jobs:
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -105,6 +116,7 @@ jobs:
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       include-test-ops: ${{ inputs.include-test-ops }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
@@ -116,6 +128,7 @@ jobs:
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
 
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -127,6 +140,7 @@ jobs:
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -138,3 +152,4 @@ jobs:
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
