@@ -107,13 +107,17 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TORCH_ONLY=${{ inputs.torchonly }}
         export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
+        export USE_ONLY_DL_PYTORCH_ORG = ${{ inputs.use-only-dl-pytorch-org }}
         export RELEASE_VERSION=${{ inputs.version }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
 
         # Special case PyPi installation package. And Install of PyPi package via poetry
-        if [[ ${MATRIX_PACKAGE_TYPE} == "manywheel" && ${MATRIX_GPU_ARCH_VERSION} == "12.1" && ${MATRIX_CHANNEL} == "release" ]]; then
+        if [[ ${MATRIX_PACKAGE_TYPE} == "manywheel" &&
+              ${MATRIX_GPU_ARCH_VERSION} == "12.1" &&
+              ${MATRIX_CHANNEL} == "release" &&
+              ${USE_ONLY_DL_PYTORCH_ORG} == "false" ]]; then
           source ./.github/scripts/validate_pipy.sh
           source ./.github/scripts/validate_poetry.sh
         fi
