@@ -7,7 +7,7 @@ retry () {
 }
 
 BRANCH=""
-if [[ ${MATRIX_CHANNEL} == "test" ]]; then
+if [[ ${MATRIX_CHANNEL} == "test" || ${MATRIX_CHANNEL} == "release" ]]; then
     SHORT_VERSION=${MATRIX_STABLE_VERSION%.*}
     BRANCH="--branch release/${SHORT_VERSION}"
 fi
