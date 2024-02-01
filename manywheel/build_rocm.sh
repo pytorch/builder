@@ -133,7 +133,7 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     LIBDRM_AMDGPU_PATH="/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1"
     MAYBE_LIB64=lib
 fi
-OS_SO_PATHS=($LIBGOMP_PATH $LIBNUMA_PATH\ 
+OS_SO_PATHS=($LIBGOMP_PATH $LIBNUMA_PATH\
              $LIBELF_PATH $LIBTINFO_PATH\
              $LIBDRM_PATH $LIBDRM_AMDGPU_PATH)
 OS_SO_FILES=()
@@ -147,7 +147,7 @@ done
 if [[ $ROCM_INT -ge 50200 ]]; then
     ROCBLAS_LIB_SRC=$ROCM_HOME/lib/rocblas/library
     ROCBLAS_LIB_DST=lib/rocblas/library
-else 
+else
     ROCBLAS_LIB_SRC=$ROCM_HOME/rocblas/lib/library
     ROCBLAS_LIB_DST=lib/library
 fi
@@ -156,17 +156,24 @@ ARCH_SPECIFIC_FILES=$(ls $ROCBLAS_LIB_SRC | grep -E $ARCH)
 OTHER_FILES=$(ls $ROCBLAS_LIB_SRC | grep -v gfx)
 ROCBLAS_LIB_FILES=($ARCH_SPECIFIC_FILES $OTHER_FILES)
 
+# hipblaslt library files
+HIPBLASLT_LIB_SRC=$ROCM_HOME/lib/hipblaslt/library
+HIPBLASLT_LIB_DST=lib/hipblaslt/library
+ARCH_SPECIFIC_FILES=$(ls $HIPBLASLT_LIB_SRC | grep -E $ARCH)
+OTHER_FILES=$(ls $HIPBLASLT_LIB_SRC | grep -v gfx)
+HIPBLASLT_LIB_FILES=($ARCH_SPECIFIC_FILES $OTHER_FILES)
+
 # ROCm library files
 ROCM_SO_PATHS=()
 for lib in "${ROCM_SO_FILES[@]}"
 do
     file_path=($(find $ROCM_HOME/lib/ -name "$lib")) # First search in lib
-    if [[ -z $file_path ]]; then 
+    if [[ -z $file_path ]]; then
         if [ -d "$ROCM_HOME/lib64/" ]; then
             file_path=($(find $ROCM_HOME/lib64/ -name "$lib")) # Then search in lib64
         fi
     fi
-    if [[ -z $file_path ]]; then 
+    if [[ -z $file_path ]]; then
         file_path=($(find $ROCM_HOME/ -name "$lib")) # Then search in ROCM_HOME
     fi
     if [[ -z $file_path ]]; then
@@ -188,11 +195,13 @@ DEPS_SONAME=(
 
 DEPS_AUX_SRCLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}"
+    "${HIPBLASLT_LIB_FILES[@]/#/$HIPBLASLT_LIB_SRC/}"
     "/opt/amdgpu/share/libdrm/amdgpu.ids"
 )
 
 DEPS_AUX_DSTLIST=(
     "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}"
+    "${HIPBLASLT_LIB_FILES[@]/#/$HIPBLASLT_LIB_DST/}"
     "share/libdrm/amdgpu.ids"
 )
 
