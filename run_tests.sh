@@ -142,7 +142,7 @@ if [[ "$cuda_ver" != 'cpu' ]]; then
     fi
 fi
 
-# Check that OpenBlas is not linked to on Macs
+# Check that OpenBlas is not linked to on MacOS
 if [[ "$(uname)" == 'Darwin' ]]; then
     echo "Checking the OpenBLAS is not linked to"
     all_dylibs=($(find "$(python -c "import site; print(site.getsitepackages()[0])")"/torch -name '*.dylib'))
@@ -153,6 +153,9 @@ if [[ "$(uname)" == 'Darwin' ]]; then
             exit 1
         fi
     done
+
+    echo "Checking that OpenMP is available"
+    python -c "import torch; exit(0 if torch.backends.openmp.is_available() else 1)"
 fi
 
 popd
