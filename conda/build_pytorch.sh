@@ -204,7 +204,8 @@ if [[ "$(uname)" == 'Darwin' ]]; then
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
     export PATH="$tmp_conda/bin:$PATH"
-    retry conda install -yq conda-build
+    # TODO(huydhn): We can revert the pin after https://github.com/conda/conda-build/issues/5167 is resolved
+    retry conda install -yq conda-build=3.28.4
 elif [[ "$OSTYPE" == "msys" ]]; then
     export tmp_conda="${WIN_PACKAGE_WORK_DIR}\\conda"
     export miniconda_exe="${WIN_PACKAGE_WORK_DIR}\\miniconda.exe"
@@ -346,8 +347,6 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
       conda install -y conda-package-handling conda==22.9.0
     else
       conda install -y conda-package-handling conda==23.5.2
-      # NS: To be removed after conda docker images are updated
-      conda update -y conda-build
     fi
 
     echo "Calling conda-build at $(date)"
