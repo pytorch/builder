@@ -220,8 +220,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     popd
-    # TODO(huydhn): We can revert the pin after https://github.com/conda/conda-build/issues/5167 is resolved
-    retry conda install -yq conda-build=3.28.4
+    retry conda install -yq conda-build
 fi
 
 cd "$SOURCE_DIR"
