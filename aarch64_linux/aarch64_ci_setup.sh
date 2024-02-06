@@ -30,7 +30,7 @@ if [[ "$DESIRED_PYTHON"  == "3.8" ]]; then
 else
     NUMPY_VERSION="1.26.2"
 fi
-conda install -y -c conda-forge numpy==${NUMPY_VERSION} pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 openblas==0.3.25 ninja==1.11.1 scons==4.5.2
+conda install -y -c conda-forge numpy==${NUMPY_VERSION} pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 openblas==0.3.25=*openmp* ninja==1.11.1 scons==4.5.2
 
 python --version
 conda --version
