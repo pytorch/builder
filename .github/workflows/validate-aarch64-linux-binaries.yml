@@ -27,6 +27,11 @@ on:
         default: ""
         required: false
         type: string
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -58,6 +63,11 @@ on:
         default: ""
         required: false
         type: string
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-aarch64-linux-matrix:
@@ -67,6 +77,8 @@ jobs:
       os: linux-aarch64
       channel: ${{ inputs.channel }}
       with-cuda: disable
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+
   linux-aarch64:
     needs: generate-aarch64-linux-matrix
     strategy:

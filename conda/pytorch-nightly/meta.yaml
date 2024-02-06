@@ -23,7 +23,8 @@ requirements:
     - mkl-include # [x86_64]
     - mkl=2020.2 # [py <= 311 and x86_64 and not win]
     - mkl=2023.1 # [py >= 312 and x86_64]
-    - mkl=2021.4 # [x86_64 and win and py <= 311]
+    - mkl-devel=2021.4.0 # [x86_64 and win and py<=311]
+    - mkl-devel=2023.1 # [x86_64 and win and py>=312]
     {% endif %}
     - typing_extensions
     - ninja
@@ -41,13 +42,15 @@ requirements:
   run:
     - python
     {% if cross_compile_arm64 == 0 %}
-    - mkl >=2018 # [x86_64]
+    - mkl >=2018 # [x86_64 and not win]
+    - mkl=2021.4 # [x86_64 and win and py <= 311]
+    - mkl=2023.1 # [x86_64 and win and py >= 312]
     {% endif %}
     - libuv # [win]
     - intel-openmp # [win]
     # llvm-openmp 16 leads to wrong processor affinity for fork child, see #99625.
     # Before a decent fix, force llvm-openmp version <16.
-    - llvm-openmp <16 # [linux]
+    - llvm-openmp <16 # [linux or  arm64]
     - typing_extensions
     - sympy
     - filelock
@@ -55,7 +58,7 @@ requirements:
     - jinja2
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
-    - blas * mkl
+    - blas * mkl # [x86_64]
     {% endif %}
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}

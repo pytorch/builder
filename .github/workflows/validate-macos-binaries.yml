@@ -27,6 +27,11 @@ on:
         default: ""
         required: false
         type: string
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -58,6 +63,11 @@ on:
         default: ""
         required: false
         type: string
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-macos-matrix:
@@ -66,6 +76,8 @@ jobs:
       package-type: all
       os: macos
       channel: ${{ inputs.channel }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+
   macos:
     needs: generate-macos-matrix
     strategy:

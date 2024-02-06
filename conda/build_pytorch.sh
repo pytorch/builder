@@ -67,7 +67,7 @@ if [[ -n "$OVERRIDE_PACKAGE_VERSION" ]]; then
 fi
 
 # differentiate package name for cross compilation to avoid collision
-if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+if [[ -n "$CROSS_COMPILE_ARM64" || "$(uname -m)" == "arm64" ]]; then
     export PYTORCH_LLVM_PACKAGE=""
 fi
 
@@ -104,7 +104,11 @@ if [[ -z "$DESIRED_PYTHON" ]]; then
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        DEVELOPER_DIR=/Applications/Xcode_14.3.1.app/Contents/Developer
+    else
+        DEVELOPER_DIR=/Applications/Xcode_13.3.1.app/Contents/Developer
+    fi
 fi
 if [[ "$desired_cuda" == 'cpu' ]]; then
     cpu_only=1
@@ -199,7 +203,7 @@ if [[ "$(uname)" == 'Darwin' ]]; then
     miniconda_sh="${MAC_PACKAGE_WORK_DIR}/miniconda.sh"
     rm -rf "$tmp_conda"
     rm -f "$miniconda_sh"
-    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-MacOSX-x86_64.sh -o "$miniconda_sh"
+    retry curl -sS https://repo.anaconda.com/miniconda/Miniconda3-py310_23.5.2-0-MacOSX-$(uname -m).sh -o "$miniconda_sh"
     chmod +x "$miniconda_sh" && \
         "$miniconda_sh" -b -p "$tmp_conda" && \
         rm "$miniconda_sh"
