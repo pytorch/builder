@@ -85,6 +85,8 @@ if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
         DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
         ;;
     esac
+else
+    python_nodot="${echo $DESIRED_PYTHON | sed -e 's/^cp\([0-9]*\)-.*/\1/'}"
 fi
 
 if [[ ${python_nodot} -ge 310 ]]; then
