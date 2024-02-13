@@ -262,17 +262,13 @@ else
     exit 1
 fi
 
-# No triton dependency for now on 3.12 since we don't have binaries for it
-# and torch.compile doesn't work.
-if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
-    TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
-    TRITON_REQUIREMENT="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64'"
-
-    if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${TRITON_REQUIREMENT}"
-    else
-        export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | ${TRITON_REQUIREMENT}"
-    fi
+# We do want to have same dependencies for all wheels. Hence including triton with constraints
+TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
+TRITON_REQUIREMENT="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version < 3.12"
+if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
+    export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${TRITON_REQUIREMENT}"
+else
+    export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | ${TRITON_REQUIREMENT}"
 fi
 
 # builder/test.sh requires DESIRED_CUDA to know what tests to exclude
