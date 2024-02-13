@@ -264,7 +264,7 @@ fi
 
 # We do want to have same dependencies for all wheels. Hence including triton with constraints
 TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
-TRITON_REQUIREMENT="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version < 3.12"
+TRITON_REQUIREMENT="triton==${TRITON_VERSION}; platform_system == 'Linux' and platform_machine == 'x86_64' and python_version < '3.12'"
 if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
     export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${TRITON_REQUIREMENT}"
 else
