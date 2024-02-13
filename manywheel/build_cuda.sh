@@ -197,6 +197,8 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
     export USE_STATIC_CUDNN=0
     # Try parallelizing nvcc as well
     export TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2"
+    # Bundle ptxas into the wheel, see https://github.com/pytorch/pytorch/pull/119750
+    export BUILD_BUNDLE_PTXAS=1
 
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         echo "Bundling with cudnn and cublas."
