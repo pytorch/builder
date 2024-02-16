@@ -6,12 +6,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${DIR}/release_versions.sh"
 
 # Make sure to update these versions when doing a release first
-PYTORCH_VERSION=${PYTORCH_VERSION:-2.1.1}
-TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.16.1}
-TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.1.1}
-TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.16.1}
+PYTORCH_VERSION=${PYTORCH_VERSION:-2.2.1}
+TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.17.1}
+TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.2.1}
+TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.17.1}
 TORCHDATA_VERSION=${TORCHDATA_VERSION:-0.7.1}
 TORCHREC_VERSION=${TORCHREC_VERSION:-0.6.0}
+TENSORRT_VERSION=${TENSORRT_VERSION:-2.2.0}
 
 # NB: FBGEMMGPU uses the practice of keeping rc version in the filename, i.e.
 # fbgemm_gpu-0.6.0rc1+cpu-cp311-cp311. On the other hand, its final RC will
@@ -113,6 +114,7 @@ promote_pypi() {
 # promote_s3 torchrec whl "${TORCHREC_VERSION}"
 # promote_s3 fbgemm-gpu whl "${FBGEMMGPU_VERSION}"
 # promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
+# promote_s3 "torch_tensorrt" whl "${TENSORRT_VERSION}"
 
 # promote_conda torchtriton conda "2.1.0"
 # promote_conda pytorch-cuda conda "11.8"
