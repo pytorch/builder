@@ -10,6 +10,11 @@ else
     conda activate ${ENV_NAME}
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
     TEST_SUFFIX=""
+
+    if [[ ${USE_FORCE_REINSTALL} == 'true' ]]; then
+        INSTALLATION=${INSTALLATION/"pip3 install"/"pip3 install --force-reinstall"}
+    fi
+
     if [[ ${TORCH_ONLY} == 'true' ]]; then
         INSTALLATION=${INSTALLATION/"torchvision torchaudio"/""}
         TEST_SUFFIX=" --package torchonly"

@@ -32,6 +32,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -68,6 +73,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-windows-matrix:
@@ -98,6 +108,8 @@ jobs:
         export TARGET_OS="windows"
         export TORCH_ONLY=${{ inputs.torchonly }}
         export RELEASE_VERSION=${{ inputs.version }}
+        export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
+
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
         if [[ ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
