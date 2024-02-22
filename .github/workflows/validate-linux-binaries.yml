@@ -37,6 +37,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -78,6 +83,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-linux-matrix:
@@ -109,6 +119,7 @@ jobs:
         export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
         export USE_ONLY_DL_PYTORCH_ORG=${{ inputs.use-only-dl-pytorch-org }}
         export RELEASE_VERSION=${{ inputs.version }}
+        export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json

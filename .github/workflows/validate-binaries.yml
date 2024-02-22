@@ -37,6 +37,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       os:
@@ -85,6 +90,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
 
 
 jobs:
@@ -104,6 +114,7 @@ jobs:
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -117,6 +128,7 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       include-test-ops: ${{ inputs.include-test-ops }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
@@ -129,6 +141,7 @@ jobs:
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
 
   mac:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -141,6 +154,7 @@ jobs:
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -153,3 +167,4 @@ jobs:
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
