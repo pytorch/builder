@@ -23,9 +23,8 @@ RUN wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm &
     rpm -ivh epel-release-latest-7.noarch.rpm && \
     rm -f epel-release-latest-7.noarch.rpm
 
-# cmake-3.18.4 from pip
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install cmake==3.22.0 && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 RUN yum install -y autoconf aclocal automake make
@@ -139,9 +138,9 @@ ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-${DEVTOOLSET_VERSION}/root/usr/lib64:/opt
 
 # cmake is already installed inside the rocm base image, so remove if present
 RUN rpm -e cmake || true
-# cmake-3.18.4 from pip
+
 RUN yum install -y python3-pip && \
-    python3 -mpip install cmake==3.18.4 && \
+    python3 -mpip install cmake==3.22.0 && \
     ln -s /usr/local/bin/cmake /usr/bin/cmake
 
 # ninja
