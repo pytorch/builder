@@ -2,7 +2,8 @@
 # encoding: UTF-8
 
 import os
-from subprocess import check_output
+import shutil
+from subprocess import check_output, check_call
 from pygit2 import Repository
 from typing import List
 
@@ -19,17 +20,20 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
     Using ArmComputeLibrary for aarch64 PyTorch
     '''
     print('Building Arm Compute Library')
-    acl_build_flags=" ".join(["debug=0", "neon=1", "opencl=0", "os=linux", "openmp=1", "cppthreads=0",
-                              "arch=armv8a", "multi_isa=1", "fixed_format_kernels=1", "build=native"])
-    os.system("cd / && mkdir /acl")
-    os.system(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v23.08 {git_clone_flags}")
-    os.system("cd ComputeLibrary; export acl_install_dir=/acl; "
-              f"scons Werror=1 -j8 {acl_build_flags} build_dir=$acl_install_dir/build; "
-              "cp -r arm_compute $acl_install_dir; "
-              "cp -r include $acl_install_dir; "
-              "cp -r utils $acl_install_dir; "
-              "cp -r support $acl_install_dir; "
-              "cp -r src $acl_install_dir; cd /")
+    acl_build_flags=["debug=0", "neon=1", "opencl=0", "os=linux", "openmp=1", "cppthreads=0",
+                     "arch=armv8a", "multi_isa=1", "fixed_format_kernels=1", "build=native"]
+    acl_install_dir="/acl"
+    acl_checkout_dir="ComputeLibrary"
+    os.makedirs(acl_install_dir)
+    check_call(["git", "clone", "https://github.com/ARM-software/ComputeLibrary.git", "-b", "v23.08",
+                "--depth", "1", "--shallow-submodules"])
+    check_call(["scons", "Werror=1", "-j8", f"build_dir=/{acl_install_dir}/build"] + acl_build_flags,
+               cwd=acl_checkout_dir)
+    shutil.copy2(f"{acl_checkout_dir}/arm_compute", acl_install_dir)
+    shutil.copy2(f"{acl_checkout_dir}/include", acl_install_dir)
+    shutil.copy2(f"{acl_checkout_dir}/utils", acl_install_dir)
+    shutil.copy2(f"{acl_checkout_dir}/support", acl_install_dir)
+    shutil.copy2(f"{acl_checkout_dir}/src", acl_install_dir)
 
 
 def complete_wheel(folder: str) -> str:
@@ -78,7 +82,6 @@ if __name__ == '__main__':
     if branch == 'HEAD':
         branch = 'master'
 
-    git_clone_flags = " --depth 1 --shallow-submodules"
 
     print('Building PyTorch wheel')
     build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
@@ -96,7 +99,7 @@ if __name__ == '__main__':
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
 
     if enable_mkldnn:
-        build_ArmComputeLibrary(git_clone_flags)
+        build_ArmComputeLibrary()
         print("build pytorch with mkldnn+acl backend")
         build_vars += "USE_MKLDNN=ON USE_MKLDNN_ACL=ON " \
                       "ACL_ROOT_DIR=/acl " \
