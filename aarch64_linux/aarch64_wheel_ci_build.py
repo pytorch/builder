@@ -41,16 +41,16 @@ def complete_wheel(folder: str) -> str:
 
     if "pytorch" in folder:
         print("Repairing Wheel with AuditWheel")
-        os.system(f"cd /{folder}; auditwheel repair dist/{wheel_name}")
+        check_call(["auditwheel","repair", f"dist/{wheel_name}"], cwd=folder)
         repaired_wheel_name = list_dir(f"/{folder}/wheelhouse")[0]
 
         print(f"Moving {repaired_wheel_name} wheel to /{folder}/dist")
-        os.system(f"mv /{folder}/wheelhouse/{repaired_wheel_name} /{folder}/dist/")
+        os.rename(f"/{folder}/wheelhouse/{repaired_wheel_name}", f"/{folder}/dist/{repaired_wheel_name}")
     else:
         repaired_wheel_name = wheel_name
 
     print(f"Copying {repaired_wheel_name} to artfacts")
-    os.system(f"mv /{folder}/dist/{repaired_wheel_name} /artifacts/")
+    os.rename(f"/{folder}/dist/{repaired_wheel_name}", f"/artifacts/{repaired_wheel_name}")
 
     return repaired_wheel_name
 
