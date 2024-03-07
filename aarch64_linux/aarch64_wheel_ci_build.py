@@ -15,7 +15,7 @@ def list_dir(path: str) -> List[str]:
     return check_output(["ls", "-1", path]).decode().split("\n")
 
 
-def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
+def build_ArmComputeLibrary() -> None:
     '''
     Using ArmComputeLibrary for aarch64 PyTorch
     '''
@@ -29,11 +29,11 @@ def build_ArmComputeLibrary(git_clone_flags: str = "") -> None:
                 "--depth", "1", "--shallow-submodules"])
     check_call(["scons", "Werror=1", "-j8", f"build_dir=/{acl_install_dir}/build"] + acl_build_flags,
                cwd=acl_checkout_dir)
-    shutil.copy2(f"{acl_checkout_dir}/arm_compute", acl_install_dir)
-    shutil.copy2(f"{acl_checkout_dir}/include", acl_install_dir)
-    shutil.copy2(f"{acl_checkout_dir}/utils", acl_install_dir)
-    shutil.copy2(f"{acl_checkout_dir}/support", acl_install_dir)
-    shutil.copy2(f"{acl_checkout_dir}/src", acl_install_dir)
+    shutil.copytree(f"{acl_checkout_dir}/arm_compute", acl_install_dir)
+    shutil.copytree(f"{acl_checkout_dir}/include", acl_install_dir)
+    shutil.copytree(f"{acl_checkout_dir}/utils", acl_install_dir)
+    shutil.copytree(f"{acl_checkout_dir}/support", acl_install_dir)
+    shutil.copytree(f"{acl_checkout_dir}/src", acl_install_dir)
 
 
 def complete_wheel(folder: str) -> str:
