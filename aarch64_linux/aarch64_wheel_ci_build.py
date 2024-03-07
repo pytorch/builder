@@ -29,11 +29,8 @@ def build_ArmComputeLibrary() -> None:
                 "--depth", "1", "--shallow-submodules"])
     check_call(["scons", "Werror=1", "-j8", f"build_dir=/{acl_install_dir}/build"] + acl_build_flags,
                cwd=acl_checkout_dir)
-    shutil.copytree(f"{acl_checkout_dir}/arm_compute", acl_install_dir)
-    shutil.copytree(f"{acl_checkout_dir}/include", acl_install_dir)
-    shutil.copytree(f"{acl_checkout_dir}/utils", acl_install_dir)
-    shutil.copytree(f"{acl_checkout_dir}/support", acl_install_dir)
-    shutil.copytree(f"{acl_checkout_dir}/src", acl_install_dir)
+    for d in ["arm_compute", "include", "utils", "support", "src"]:
+        shutil.copytree(f"{acl_checkout_dir}/{d}", f"{acl_install_dir}/{d}")
 
 
 def complete_wheel(folder: str) -> str:
