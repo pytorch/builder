@@ -50,7 +50,7 @@ def complete_wheel(folder: str) -> str:
         repaired_wheel_name = wheel_name
 
     print(f"Copying {repaired_wheel_name} to artfacts")
-    os.rename(f"/{folder}/dist/{repaired_wheel_name}", f"/artifacts/{repaired_wheel_name}")
+    shutil.copy2(f"/{folder}/dist/{repaired_wheel_name}", f"/artifacts/{repaired_wheel_name}")
 
     return repaired_wheel_name
 
