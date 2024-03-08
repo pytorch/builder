@@ -225,7 +225,7 @@ do
     12.1) install_121; prune_121
         ;;
     12.4) install_124; prune_124
-	;;
+        ;;
     *) echo "bad argument $1"; exit 1
         ;;
     esac
