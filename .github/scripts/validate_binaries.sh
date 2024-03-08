@@ -3,12 +3,7 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     unzip libtorch.zip
 else
 
-    if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
-        conda update -y -n base -c defaults conda
-    else
-        # Conda pinned see issue: https://github.com/ContinuumIO/anaconda-issues/issues/13350
-        conda install -y conda=23.11.0
-    fi
+    conda update -y -n base -c defaults conda
     # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
