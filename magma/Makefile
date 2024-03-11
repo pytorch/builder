@@ -24,9 +24,9 @@ clean:
 	$(RM) -r output
 
 .PHONY: magma-cuda124
-magma-cuda121: DESIRED_CUDA := 12.4
-magma-cuda121: PACKAGE_NAME := magma-cuda124
-magma-cuda121:
+magma-cuda124: DESIRED_CUDA := 12.4
+magma-cuda124: PACKAGE_NAME := magma-cuda124
+magma-cuda124:
 	$(DOCKER_RUN)
 
 .PHONY: magma-cuda121
