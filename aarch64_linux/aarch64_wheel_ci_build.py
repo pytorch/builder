@@ -6,7 +6,6 @@ import shutil
 from subprocess import check_output, check_call
 from pygit2 import Repository
 from typing import List
-import shutil
 
 
 def list_dir(path: str) -> List[str]:
