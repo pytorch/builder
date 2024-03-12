@@ -139,10 +139,10 @@ if __name__ == '__main__':
         check_call(["patch", "-p1"], stdin=f, cwd="/pytorch/third_party/ideep/mkl-dnn")
     
     if enable_cuda:
-        build_vars += 'TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2" USE_STATIC_CUDNN=0 ' \
-            'NCCL_ROOT_DIR=/usr/local/cuda TH_BINARY_BUILD=1 USE_STATIC_NCCL=1 ATEN_STATIC_CUDA=1 ' \
-            'USE_CUDA_STATIC_LINK=1 INSTALL_TEST=0 USE_CUPTI_SO=0  TORCH_CUDA_ARCH_LIST="5.0;6.0;7.0;7.5;8.0;8.6;3.7;9.0" ' \
-            'EXTRA_CAFFE2_CMAKE_FLAGS="-DATEN_NO_TEST=ON" ' 
+        build_vars += "TORCH_NVCC_FLAGS='-Xfatbin -compress-all --threads 2' USE_STATIC_CUDNN=0 " \
+                      "NCCL_ROOT_DIR=/usr/local/cuda TH_BINARY_BUILD=1 USE_STATIC_NCCL=1 ATEN_STATIC_CUDA=1 " \
+                      "USE_CUDA_STATIC_LINK=1 INSTALL_TEST=0 USE_CUPTI_SO=0  TORCH_CUDA_ARCH_LIST='5.0;6.0;7.0;7.5;8.0;8.6;3.7;9.0' " \
+                      "EXTRA_CAFFE2_CMAKE_FLAGS='-DATEN_NO_TEST=ON' " 
 
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")
