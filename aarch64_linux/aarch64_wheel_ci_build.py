@@ -7,6 +7,7 @@ from subprocess import check_output, check_call
 from pygit2 import Repository
 from typing import List
 import shutil
+import shutil
 
 
 def list_dir(path: str) -> List[str]:
@@ -94,6 +95,7 @@ def parse_arguments():
     parser.add_argument("--test-only", type=str)
     parser.add_argument("--enable-mkldnn", action="store_true")
     parser.add_argument("--enable-cuda", action="store_true")
+    parser.add_argument("--enable-cuda", action="store_true")
     return parser.parse_args()
 
 
@@ -103,6 +105,7 @@ if __name__ == '__main__':
     '''
     args = parse_arguments()
     enable_mkldnn = args.enable_mkldnn
+    enable_cuda = args.enable_cuda
     enable_cuda = args.enable_cuda
     repo = Repository('/pytorch')
     branch = repo.head.name
@@ -147,8 +150,20 @@ if __name__ == '__main__':
     with open("/builder/mkldnn_fix/fix-xbyak-failure.patch") as f:
         check_call(["patch", "-p1"], stdin=f, cwd="/pytorch/third_party/ideep/mkl-dnn")
 
+    if enable_cuda:
+        build_vars += 'TORCH_NVCC_FLAGS="-Xfatbin -compress-all --threads 2" USE_STATIC_CUDNN=0 ' \
+            'NCCL_ROOT_DIR=/usr/local/cuda TH_BINARY_BUILD=1 USE_STATIC_NCCL=1 ATEN_STATIC_CUDA=1 ' \
+            'USE_CUDA_STATIC_LINK=1 INSTALL_TEST=0 USE_CUPTI_SO=0  TORCH_CUDA_ARCH_LIST="5.0;6.0;7.0;7.5;8.0;8.6;3.7;9.0" ' \
+            'EXTRA_CAFFE2_CMAKE_FLAGS="-DATEN_NO_TEST=ON" ' 
+
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")
+    print(f"Build Complete. Created {pytorch_wheel_name}..")
+    print('Update the cuda dependency.')
+    if enable_cuda:
+        filename = os.listdir('/pytorch/dist/')
+        wheel_path = f'/pytorch/dist/{filename[0]}'
+        update_wheel(wheel_path)
     print(f"Build Complete. Created {pytorch_wheel_name}..")
     print('Update the cuda dependency.')
     if enable_cuda:
