@@ -7,9 +7,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
 
 ARG DEVTOOLSET_VERSION=9
-RUN rpm -q nss
 RUN yum update -y
-RUN rpm -q nss
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which unzip
 # Just add everything as a safe.directory for git since these will be used in multiple places with git
 RUN git config --global --add safe.directory '*'
