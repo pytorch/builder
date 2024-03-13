@@ -27,7 +27,7 @@ git config --global --add safe.directory /pytorch
 pip install -r /pytorch/requirements.txt
 pip install auditwheel
 if [ $# -gt 0 ] && [ "$1" = "gpu" ]; then
-  python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-cuda
+  TORCH_CUDA_ARCH_LIST='5.0;6.0;7.0;7.5;8.0;8.6;9.0' python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-cuda
 else
   python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn
 fi
