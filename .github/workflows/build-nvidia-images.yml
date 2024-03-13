@@ -23,14 +23,14 @@ env:
   IN_CI: 1
   IS_GHA: 1
   IMAGE_NAME: "ghcr.io/pytorch/nvidia/cuda"
-  CUDA_VERSION: "11.5.0"
-  OS: "ubuntu1804"
-  OS_BASE: "ubuntu18.04"
+  CUDA_VERSION: "11.8.0"
+  OS: "ubuntu2204"
+  OS_BASE: "ubuntu22.04"
   ARCHES: "amd64"
 
 jobs:
   build-nvidia-docker:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Build Nvidia Docker Image
         run: |
