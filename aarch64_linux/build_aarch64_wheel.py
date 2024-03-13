@@ -558,6 +558,7 @@ def start_build(host: RemoteHost, *,
         build_vars += " USE_MKLDNN=ON USE_MKLDNN_ACL=ON"
         host.run_cmd("cd $HOME && git clone https://github.com/pytorch/builder.git")
         host.run_cmd("cd $HOME/pytorch/third_party/ideep/mkl-dnn && patch -p1 < $HOME/builder/mkldnn_fix/fix-xbyak-failure.patch")  # noqa: E501
+        host.run_cmd("cd $HOME/pytorch/third_party/ideep/mkl-dnn && patch -p1 < $HOME/builder/mkldnn_fix/onednn-pr1768-aarch64-add-acl-sbgemm-inner-product-primitive.patch")  # noqa: E501
         host.run_cmd(f"cd $HOME/pytorch && export ACL_ROOT_DIR=$HOME/ComputeLibrary && {build_vars} python3 setup.py bdist_wheel{build_opts}")  # noqa: E501
         print('Repair the wheel')
         pytorch_wheel_name = host.list_dir("pytorch/dist")[0]
