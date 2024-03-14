@@ -191,6 +191,11 @@ pushd "$pytorch_rootdir"
 git submodule update --init --recursive
 echo "Using Pytorch from "
 git --no-pager log --max-count 1
+
+# Apply patch for https://github.com/pytorch/pytorch/issues/120547
+pushd "./third_parthy/ideep/mkl-dnn/"
+git apply "$SCRIPTPATH/../mkldnn_fix/brdgmm.patch"
+popd
 popd
 
 # Windows builds need to install conda
