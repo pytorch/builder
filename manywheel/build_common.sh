@@ -118,10 +118,11 @@ fi
 pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
+git submodule update --init --recursive
 
 # Apply patch for https://github.com/pytorch/pytorch/issues/120547
 pushd "./third_parthy/ideep/mkl-dnn/"
-git apply "$SCRIPTPATH/../mkldnn_fix/brdgmm.patch"
+git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
 popd
 
 case ${DESIRED_PYTHON} in
