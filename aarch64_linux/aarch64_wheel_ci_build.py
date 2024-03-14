@@ -187,6 +187,9 @@ if __name__ == "__main__":
             "USE_CUDA_STATIC_LINK=1 INSTALL_TEST=0 USE_CUPTI_SO=0 "
             "EXTRA_CAFFE2_CMAKE_FLAGS='-DATEN_NO_TEST=ON' "
         )
+    
+    print("Applying mkl-dnn patch to improve torch.compile() perf")
+    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/onednn-pr1768-aarch64-add-acl-sbgemm-inner-product-primitive.patch")  # noqa: E501
 
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")
