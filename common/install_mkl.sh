@@ -3,8 +3,8 @@
 set -ex
 
 # MKL
-MKL_VERSION=2022.2.1
-MKL_BUILD=16993
+MKL_VERSION=2023.2.0
+MKL_BUILD=49495
 mkdir -p /opt/intel/lib
 pushd /tmp
 curl -fsSL https://anaconda.org/intel/mkl-static/${MKL_VERSION}/download/linux-64/mkl-static-${MKL_VERSION}-intel_${MKL_BUILD}.tar.bz2 | tar xjv
