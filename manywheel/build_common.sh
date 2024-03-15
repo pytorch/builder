@@ -121,19 +121,16 @@ retry pip install -qr requirements.txt
 git submodule update --init --recursive
 
 # Apply patch for https://github.com/pytorch/pytorch/issues/120547
-pushd "./third_parthy/ideep/mkl-dnn/"
+pushd "./third_party/ideep/mkl-dnn/"
 git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
 popd
 
 case ${DESIRED_PYTHON} in
-  cp36-cp36m)
-    retry pip install -q numpy==1.11
-    ;;
   cp3[7-8]*)
     retry pip install -q numpy==1.15
     ;;
   cp310*)
-    retry pip install -q numpy==1.21.2
+    retry pip install -q numpy==2.0.0
     ;;
   cp311*)
     retry pip install -q numpy==1.23.1
