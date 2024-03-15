@@ -37,7 +37,7 @@ jobs:
     runs-on: linux.12xlarge.ephemeral
     strategy:
       matrix:
-        cuda_version: ["11.8", "12.1"]
+        cuda_version: ["11.8", "12.1", "12.4"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
