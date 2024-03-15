@@ -389,8 +389,9 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
         : > "$record_file"
         # generate records for folders in wheel
         find * -type f | while read fname; do
-            make_wheel_record "$fname" >>"$record_file"
+            make_wheel_record "$fname" >>"$record_file" &
         done
+        wait
     fi
 
     if [[ $BUILD_DEBUG_INFO == "1" ]]; then
