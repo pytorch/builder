@@ -1,0 +1,34 @@
+From bbaec145f8c64818fd5c3ed2cb9e2ae69daef887 Mon Sep 17 00:00:00 2001
+From: Andrey Kalinin <andrey.kalinin@intel.com>
+Date: Tue, 27 Feb 2024 10:55:32 -0800
+Subject: [PATCH] x64: brdgmm: fix blocking for big bs_group
+
+---
+ src/cpu/x64/brgemm/brgemm_utils.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/cpu/x64/brgemm/brgemm_utils.cpp b/src/cpu/x64/brgemm/brgemm_utils.cpp
+index c786a125bd5..5c5e9a0471c 100644
+--- a/src/cpu/x64/brgemm/brgemm_utils.cpp
++++ b/src/cpu/x64/brgemm/brgemm_utils.cpp
+@@ -1,5 +1,5 @@
+ /*******************************************************************************
+-* Copyright 2022-2023 Intel Corporation
++* Copyright 2022-2024 Intel Corporation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+@@ -758,6 +758,13 @@ status_t brdgmm_blocking(brgemm_t *brg) {
+     nb_n_block1 = div_up(N, n_block1);
+     n_block1_tail = N % n_block1;
+ 
++    const auto min_possible_m_block2 = brg->brgattr.bs_group > 1
++            ? (max_acc_vmms / (2 * n_block1_num_steps) - brg->brgattr.bs_group
++                    + 1)
++            : 1;
++
++    if (min_possible_m_block2 < 1) brg->brgattr.bs_group = 1;
++
+     if (brg->brgattr.bs_group > 1) {
+         n_block2 = 1;
+     } else {
