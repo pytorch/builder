@@ -120,12 +120,6 @@ python setup.py clean
 retry pip install -qr requirements.txt
 git submodule update --init --recursive
 
-# Apply patch for https://github.com/pytorch/pytorch/issues/120547
-pushd "$PYTORCH_ROOT/third_party/ideep/mkl-dnn/"
-pwd
-git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
-popd
-
 case ${DESIRED_PYTHON} in
   cp3[7-8]*)
     retry pip install -q numpy==1.15
