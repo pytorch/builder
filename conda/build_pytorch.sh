@@ -222,7 +222,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     popd
-    retry conda install -yq conda-build
+    retry conda install -yq conda-build=24.3.0
 fi
 
 cd "$SOURCE_DIR"
