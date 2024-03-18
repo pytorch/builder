@@ -118,6 +118,13 @@ fi
 pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
+git submodule update --init --recursive
+
+# Apply patch for https://github.com/pytorch/pytorch/issues/120547
+pushd "$PYTORCH_ROOT/third_party/ideep/mkl-dnn/"
+git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
+popd
+
 case ${DESIRED_PYTHON} in
   cp36-cp36m)
     retry pip install -q numpy==1.11
@@ -280,7 +287,7 @@ replace_needed_sofiles() {
         patchedname=$3
         if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
             set +e
-            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*") 
+            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*")
             ERRCODE=$?
             set -e
             if [ "$ERRCODE" -eq "0" ]; then
