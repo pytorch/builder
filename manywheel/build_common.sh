@@ -131,7 +131,7 @@ case ${DESIRED_PYTHON} in
     retry pip install -q numpy==1.15
     ;;
   cp310*)
-    retry pip install -q numpy==1.21.2
+    retry pip install -q numpy==2.0.0
     ;;
   cp311*)
     retry pip install -q numpy==1.23.1
