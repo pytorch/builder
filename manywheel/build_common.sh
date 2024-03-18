@@ -127,6 +127,9 @@ git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
 popd
 
 case ${DESIRED_PYTHON} in
+  cp36-cp36m)
+    retry pip install -q numpy==1.11
+    ;;
   cp3[7-8]*)
     retry pip install -q numpy==1.15
     ;;
