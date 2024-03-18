@@ -193,8 +193,8 @@ echo "Using Pytorch from "
 git --no-pager log --max-count 1
 
 # Apply patch for https://github.com/pytorch/pytorch/issues/120547
-pushd "./third_party/ideep/mkl-dnn/"
-git apply "$SCRIPTPATH/../mkldnn_fix/brdgmm.patch"
+pushd "$pytorch_rootdir/third_party/ideep/mkl-dnn/"
+git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
 popd
 popd
 
