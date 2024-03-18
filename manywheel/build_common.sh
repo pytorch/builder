@@ -122,7 +122,6 @@ git submodule update --init --recursive
 
 # Apply patch for https://github.com/pytorch/pytorch/issues/120547
 pushd "$PYTORCH_ROOT/third_party/ideep/mkl-dnn/"
-pwd
 git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
 popd
 

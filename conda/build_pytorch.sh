@@ -194,7 +194,6 @@ git --no-pager log --max-count 1
 
 # Apply patch for https://github.com/pytorch/pytorch/issues/120547
 pushd "$pytorch_rootdir/third_party/ideep/mkl-dnn/"
-pwd
 git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
 popd
 popd
@@ -222,7 +221,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     popd
-    retry conda install -yq conda-build=24.1.2 conda=24.1.2
+    retry conda install -yq conda-build
 fi
 
 cd "$SOURCE_DIR"
