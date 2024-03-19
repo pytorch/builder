@@ -108,7 +108,12 @@ if __name__ == '__main__':
 
     # patch mkldnn to fix aarch64 mac and aws lambda crash
     print("Applying mkl-dnn patch to fix crash due to /sys not accesible")
-    os.system("cd /pytorch/third_party/ideep/mkl-dnn && patch -p1 < /builder/mkldnn_fix/fix-xbyak-failure.patch")
+    with open("/builder/mkldnn_fix/fix-xbyak-failure.patch") as f:
+        check_call(["patch", "-p1"], stdin=f, cwd="/pytorch/third_party/ideep/mkl-dnn")
+
+    # Apply patch for https://github.com/pytorch/pytorch/issues/120547
+    with open("/builder/mkldnn_fix/brdgmm.patch") as f:
+        check_call(["patch", "-p1"], stdin=f, cwd="/pytorch/third_party/ideep/mkl-dnn")
 
     os.system(f"cd /pytorch; {build_vars} python3 setup.py bdist_wheel")
     pytorch_wheel_name = complete_wheel("pytorch")

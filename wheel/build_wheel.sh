@@ -122,6 +122,12 @@ if [[ ! -d "$pytorch_rootdir" ]]; then
 fi
 pushd "$pytorch_rootdir"
 git submodule update --init --recursive
+
+# Apply patch for https://github.com/pytorch/pytorch/issues/120547
+pushd "$pytorch_rootdir/third_party/ideep/mkl-dnn/"
+git apply "$SOURCE_DIR/../mkldnn_fix/brdgmm.patch"
+popd
+
 popd
 
 ##########################
