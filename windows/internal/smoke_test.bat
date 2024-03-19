@@ -54,7 +54,14 @@ if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
-pip install -q numpy protobuf "mkl>=2019"
+pip install -q protobuf "mkl>=2019"
+if errorlevel 1 exit /b 1
+
+if "%DESIRED_PYTHON%" == "3.12" pip install -q --pre numpy==2.0.0b1
+if "%DESIRED_PYTHON%" == "3.11" pip install -q --pre numpy==2.0.0b1
+if "%DESIRED_PYTHON%" == "3.10" pip install -q --pre numpy==2.0.0b1
+if "%DESIRED_PYTHON%" == "3.9" pip install -q --pre numpy==2.0.0b1
+if "%DESIRED_PYTHON%" == "3.8" pip install -q numpy 
 if errorlevel 1 exit /b 1
 
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
