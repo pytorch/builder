@@ -168,13 +168,10 @@ case $desired_python in
         ;;
     3.8)
         echo "Using 3.8 deps"
-        if [[ "$(uname -m)" == "arm64" ]]; then
-          SETUPTOOLS_PINNED_VERSION=">=46.0.0"
-          PYYAML_PINNED_VERSION=">=5.3"
-          NUMPY_PINNED_VERSION="=1.19"
-        else
-          NUMPY_PINNED_VERSION="=1.17"
-        fi
+        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+        PYYAML_PINNED_VERSION=">=5.3"
+        NUMPY_PINNED_VERSION="=1.19"
+
         
         ;;
     *)
@@ -188,7 +185,11 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-pip install -q ${NUMPY_PRE} numpy=${NUMPY_PINNED_VERSION}
+if[[ $desired_python != "3.8" ]]; then
+    pip install -q ${NUMPY_PRE} numpy=${NUMPY_PINNED_VERSION}
+else
+    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS}  -yq "numpy${NUMPY_PINNED_VERSION}"
+fi
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 
 if [[ "$(uname -m)" == "arm64" ]]; then
