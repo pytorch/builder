@@ -136,30 +136,35 @@ export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
 PYYAML_PINNED_VERSION="=5.3"
 EXTRA_CONDA_INSTALL_FLAGS=""
+NUMPY_PRE=""
 case $desired_python in
     3.12)
         echo "Using 3.12 deps"
         SETUPTOOLS_PINNED_VERSION=">=68.0.0"
         PYYAML_PINNED_VERSION=">=6.0.1"
-        NUMPY_PINNED_VERSION="==1.26.0"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
+        NUMPY_PRE="--pre"
         ;;
     3.11)
         echo "Using 3.11 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="==1.23.5"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
+        NUMPY_PRE="--pre"
         ;;
     3.10)
         echo "Using 3.10 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.21.2"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
+        NUMPY_PRE="--pre"
         ;;
     3.9)
         echo "Using 3.9 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.19"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
+        NUMPY_PRE="--pre"
         ;;
     3.8)
         echo "Using 3.8 deps"
@@ -170,6 +175,7 @@ case $desired_python in
         else
           NUMPY_PINNED_VERSION="=1.17"
         fi
+        
         ;;
     *)
         echo "Using default deps"
@@ -182,7 +188,8 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+pip install -q ${NUMPY_PRE} numpy=${NUMPY_PINNED_VERSION}
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 
 if [[ "$(uname -m)" == "arm64" ]]; then
   retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja
