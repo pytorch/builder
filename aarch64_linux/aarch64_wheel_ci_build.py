@@ -2,7 +2,7 @@
 # encoding: UTF-8
 
 import os
-from subprocess import check_output
+from subprocess import check_output, check_call
 from pygit2 import Repository
 from typing import List
 
