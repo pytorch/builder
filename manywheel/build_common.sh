@@ -76,12 +76,7 @@ fi
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-    case ${DESIRED_PYTHON} in
-      # Should catch 3.8+
-      3.*)
-        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
-        ;;
-    esac
+    DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
 fi
 
 if [[ ${python_nodot} -ge 310 ]]; then
