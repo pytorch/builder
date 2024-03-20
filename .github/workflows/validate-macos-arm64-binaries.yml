@@ -120,8 +120,8 @@ jobs:
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
         if [[ ${USE_VERSION_SET} == 'true' ]]; then
-          export VISION_RELEASE_VERSION = ${{ inputs.release-matrix.torchvision }}
-          export AUDIO_RELEASE_VERSION = ${{ inputs.release-matrix.torchaudio }}
+          export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}
+          export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
         fi
 
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
