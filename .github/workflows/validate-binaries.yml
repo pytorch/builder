@@ -81,7 +81,7 @@ on:
         required: false
         type: string
       use-version-set:
-        description: 'Applies when version is used, use version for each domain'
+        description: 'Use version for each domain'
         default: false
         required: false
         type: boolean
