@@ -29,6 +29,11 @@ else
           INSTALLATION=${INSTALLATION/"torch "/"torch==${RELEASE_VERSION} "}
           INSTALLATION=${INSTALLATION/"-y pytorch "/"-y pytorch==${RELEASE_VERSION} "}
           INSTALLATION=${INSTALLATION/"::pytorch "/"::pytorch==${RELEASE_VERSION} "}
+
+        if [[ ${USE_VERSION_SET} == 'true' ]]; then
+          INSTALLATION=${INSTALLATION/"torchvision "/"torchvision==${VISION_RELEASE_VERSION} "}
+          INSTALLATION=${INSTALLATION/"torchaudio "/"torchaudio==${AUDIO_RELEASE_VERSION} "}
+        fi
     fi
 
     export OLD_PATH=${PATH}

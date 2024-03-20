@@ -22,6 +22,11 @@ on:
         default: ""
         required: false
         type: string
+      use-version-set:
+        description: 'Applies when version is used, use version for each domain'
+        default: false
+        required: false
+        type: boolean
       release-matrix:
         description: 'Release matrix - optional'
         default: ""
@@ -63,6 +68,11 @@ on:
         default: ""
         required: false
         type: string
+      use-version-set:
+        description: 'Applies when version is used, use version for each domain'
+        default: false
+        required: false
+        type: boolean
       release-matrix:
         description: 'Release matrix - optional'
         default: ""
@@ -109,6 +119,11 @@ jobs:
         export TORCH_ONLY=${{ inputs.torchonly }}
         export RELEASE_VERSION=${{ inputs.version }}
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
+        export USE_VERSION_SET=${{ inputs.use-version-set }}
+        if [[ ${USE_VERSION_SET} == 'true' ]]; then
+          export VISION_RELEASE_VERSION = ${{ inputs.release-matrix.torchvision }}
+          export AUDIO_RELEASE_VERSION = ${{ inputs.release-matrix.torchaudio }}
+        fi
 
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
