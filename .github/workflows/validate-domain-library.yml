@@ -57,14 +57,6 @@ jobs:
       os: windows
       channel: ${{ inputs.channel }}
       with-cuda: ${{ inputs.with_cuda }}
-  generate-macos-matrix:
-    if:  (inputs.os == 'macos' || inputs.os == 'all')
-    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
-    with:
-      package-type: ${{ inputs.package_type }}
-      os: macos
-      channel: ${{ inputs.channel }}
-      with-cuda: ${{ inputs.with_cuda }}
   generate-macos-arm64-matrix:
     if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main

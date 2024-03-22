@@ -136,25 +136,25 @@ case $desired_python in
         echo "Using 3.12 deps"
         SETUPTOOLS_PINNED_VERSION=">=68.0.0"
         PYYAML_PINNED_VERSION=">=6.0.1"
-        NUMPY_PINNED_VERSION="==1.26.0"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
         ;;
     3.11)
         echo "Using 3.11 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="==1.23.5"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
         ;;
     3.10)
         echo "Using 3.10 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.21.2"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
         ;;
     3.9)
         echo "Using 3.9 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.19"
+        NUMPY_PINNED_VERSION="=2.0.0b1"
         ;;
     3.8)
         echo "Using 3.8 deps"
@@ -173,7 +173,12 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq "numpy${NUMPY_PINNED_VERSION}" nomkl cmake ninja "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+if [[ $desired_python != "3.8" ]]; then
+    pip install -q --pre numpy=${NUMPY_PINNED_VERSION}
+else
+    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS}  -yq "numpy${NUMPY_PINNED_VERSION}"
+fi
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  nomkl cmake ninja "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
