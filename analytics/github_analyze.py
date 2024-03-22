@@ -372,6 +372,26 @@ def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, mile
                 continue
         print(f'{html_url};{issue["title"]};{state}')
 
+def commits_missing_in_release(repo: GitRepo, prev_branch: str, orig_prev_branch: str, target_branch: str) -> None:
+    def get_commits_dict(x, y):
+        return build_commit_dict(repo.get_commit_list(x, y))
+    cherry_pick_commits = get_commits_dict(orig_prev_branch, prev_branch) # all the cherry-picks for up to the current release branch
+    print(f"len(cherry_pick_commits)={len(cherry_pick_commits)}")
+   
+    target_branch_log = repo._run_git_log(target_branch)
+    print(target_branch, " len: ", len(target_branch_log))
+
+    cnt = 0
+    for commit_message in cherry_pick_commits.values():
+        cherry_pick_sha_hash = commit_message.commit_hash
+        exist_in_target_branch = any(cherry_pick_sha_hash in target_commit_message.commit_hash for target_commit_message in target_branch_log)
+        if not exist_in_target_branch:
+            author = commit_message.author
+            commit_date = commit_message.commit_date
+            print(cherry_pick_sha_hash, "; ",author, "; ", commit_date)
+            cnt += 1
+
+    print("Total missing commits from ", orig_prev_branch, " in ", target_branch, ": ", cnt)
 
 def analyze_stacks(repo: GitRepo) -> None:
     from tqdm.contrib.concurrent import thread_map
@@ -398,6 +418,7 @@ def parse_arguments():
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
     parser.add_argument("--milestone-id", type=str)
     parser.add_argument("--branch", type=str)
+    parser.add_argument("--target-branch", type=str)
     parser.add_argument("--remote",
                         type=str,
                         help="Remote to base off of",
@@ -406,6 +427,7 @@ def parse_arguments():
     parser.add_argument("--print-reverts", action="store_true")
     parser.add_argument("--contributor-stats", action="store_true")
     parser.add_argument("--missing-in-branch", action="store_true")
+    parser.add_argument("--missing-in-release", action="store_true")
     parser.add_argument("--analyze-stacks", action="store_true")
     return parser.parse_args()
 
@@ -443,9 +465,18 @@ def main():
                 return
 
         commits_missing_in_branch(repo,
-                                  args.branch,
+                                  args.branch, 
                                   f'orig/{args.branch}',
                                   milestone_idx)
+        return
+    
+    if args.missing_in_release:
+        # Use branch names to find missing cherry picks
+        commits_missing_in_release(repo,
+                                  args.branch,
+                                  f'orig/{args.branch}',
+                                  f'{remote}/{args.target_branch}'
+                                  )
         return
 
     print(f"Parsing git history with remote {remote}...", end='', flush=True)
