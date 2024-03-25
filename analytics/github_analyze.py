@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Any, Dict, List, Iterable, Optional, Union
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 import json
 import enum
 import os
+import time
 
 
 class IssueState(enum.Enum):
@@ -210,13 +211,22 @@ def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[s
         headers['Authorization'] = f'token {token}'
     if params is not None and len(params) > 0:
         url += '?' + '&'.join(f"{name}={val}" for name, val in params.items())
-    try:
-        with urlopen(Request(url, headers=headers)) as data:
-            return json.load(data)
-    except HTTPError as err:
-        if err.code == 403 and all(key in err.headers for key in ['X-RateLimit-Limit', 'X-RateLimit-Used']):
-            print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
-        raise
+    max_retries = 5
+    wait_time = 30  # Initial wait time in seconds
+
+    for attempt in range(max_retries):
+        try:
+            with urlopen(Request(url, headers=headers)) as data:
+                return json.load(data)
+
+        except HTTPError as err:
+            if err.code == 403 and all(key in err.headers for key in ['X-RateLimit-Limit', 'X-RateLimit-Used']):
+                print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
+                print(f"Waiting for {wait_time} seconds before retrying...")
+                time.sleep(wait_time)
+                wait_time *= 2  # Increase wait time for subsequent retries
+            else:
+                raise  # Re-raise other HTTP errors
 
 
 def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
@@ -372,23 +382,37 @@ def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, mile
                 continue
         print(f'{html_url};{issue["title"]};{state}')
 
-def commits_missing_in_release(repo: GitRepo, prev_branch: str, orig_prev_branch: str, target_branch: str) -> None:
+def find_pr_info_by_sha(commit_sha) -> Dict[str, Any]:
+    search_url = f"https://api.github.com/search/issues?q=sha:{commit_sha}+type:pr"
+    commit_summary = fetch_json(search_url)
+    pr_summary = commit_summary['items']
+    pr_info = {}
+    for pr in pr_summary:
+        pr_info['title'] = pr['title']
+        pr_info['html_url'] = pr['html_url']
+        pr_info['state'] = pr['state']
+
+    return pr_info
+    
+def commits_missing_in_release(repo: GitRepo, prev_branch: str, orig_prev_branch: str, target_branch: str, cut_off_date : datetime) -> None:
     def get_commits_dict(x, y):
         return build_commit_dict(repo.get_commit_list(x, y))
-    cherry_pick_commits = get_commits_dict(orig_prev_branch, prev_branch) # all the cherry-picks for up to the current release branch
+    cherry_pick_commits = get_commits_dict(orig_prev_branch, prev_branch) # all the cherry-picks for the specified branches
     print(f"len(cherry_pick_commits)={len(cherry_pick_commits)}")
    
     target_branch_log = repo._run_git_log(target_branch)
     print(target_branch, " len: ", len(target_branch_log))
-
+    print("URL;Title;Status")
     cnt = 0
     for commit_message in cherry_pick_commits.values():
         cherry_pick_sha_hash = commit_message.commit_hash
         exist_in_target_branch = any(cherry_pick_sha_hash in target_commit_message.commit_hash for target_commit_message in target_branch_log)
-        if not exist_in_target_branch:
+        after_cut_off_date = commit_message.commit_date > cut_off_date
+        if not exist_in_target_branch and after_cut_off_date:
             author = commit_message.author
             commit_date = commit_message.commit_date
-            print(cherry_pick_sha_hash, "; ",author, "; ", commit_date)
+            pr_info = find_pr_info_by_sha(cherry_pick_sha_hash)
+            print(pr_info['html_url'], "; ",pr_info['title'], "; ", pr_info['state'])
             cnt += 1
 
     print("Total missing commits from ", orig_prev_branch, " in ", target_branch, ": ", cnt)
@@ -429,6 +453,7 @@ def parse_arguments():
     parser.add_argument("--missing-in-branch", action="store_true")
     parser.add_argument("--missing-in-release", action="store_true")
     parser.add_argument("--analyze-stacks", action="store_true")
+    parser.add_argument('--date', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
     return parser.parse_args()
 
 
@@ -475,7 +500,8 @@ def main():
         commits_missing_in_release(repo,
                                   args.branch,
                                   f'orig/{args.branch}',
-                                  f'{remote}/{args.target_branch}'
+                                  f'{remote}/{args.target_branch}',
+                                  args.date
                                   )
         return
 
