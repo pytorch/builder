@@ -3,7 +3,7 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     unzip libtorch.zip
 else
 
-    if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
+    if [[ ${TARGET_OS} == 'macos-arm64' ]] || [[ ${TARGET_OS} == 'linux-aarch64' ]]; then
         conda update -y -n base -c defaults conda
     else
         # Conda pinned see issue: https://github.com/ContinuumIO/anaconda-issues/issues/13350
