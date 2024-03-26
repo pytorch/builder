@@ -69,6 +69,8 @@ else
         source ./.github/scripts/validate_test_ops.sh
     fi
 
-    conda deactivate
-    conda env remove -n ${ENV_NAME}
+    if [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
+        conda deactivate
+        conda env remove -n ${ENV_NAME}
+    fi
 fi
