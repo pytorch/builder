@@ -25,6 +25,7 @@ on:
       - .github/scripts/validate_binaries.sh
       - test/smoke_test/*
 
+
 jobs:
   release:
     uses: ./.github/workflows/validate-binaries.yml
