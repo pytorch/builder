@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Iterable, Optional, Union
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 import json
 import enum
 import os
-import time
 
 
 class IssueState(enum.Enum):
@@ -211,22 +210,13 @@ def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[s
         headers['Authorization'] = f'token {token}'
     if params is not None and len(params) > 0:
         url += '?' + '&'.join(f"{name}={val}" for name, val in params.items())
-    max_retries = 5
-    wait_time = 30  # Initial wait time in seconds
-
-    for attempt in range(max_retries):
-        try:
-            with urlopen(Request(url, headers=headers)) as data:
-                return json.load(data)
-
-        except HTTPError as err:
-            if err.code == 403 and all(key in err.headers for key in ['X-RateLimit-Limit', 'X-RateLimit-Used']):
-                print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
-                print(f"Waiting for {wait_time} seconds before retrying...")
-                time.sleep(wait_time)
-                wait_time *= 2  # Increase wait time for subsequent retries
-            else:
-                raise  # Re-raise other HTTP errors
+    try:
+        with urlopen(Request(url, headers=headers)) as data:
+            return json.load(data)
+    except HTTPError as err:
+        if err.code == 403 and all(key in err.headers for key in ['X-RateLimit-Limit', 'X-RateLimit-Used']):
+            print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
+        raise
 
 
 def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
@@ -245,7 +235,6 @@ def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> L
 def gh_get_milestones(org='pytorch', project='pytorch', state: IssueState = IssueState.OPEN) -> List[Dict[str, Any]]:
     url = f'https://api.github.com/repos/{org}/{project}/milestones'
     return fetch_multipage_json(url, {"state": state})
-
 
 def gh_get_milestone_issues(org: str, project: str, milestone_idx: int, state: IssueState = IssueState.OPEN):
     url = f'https://api.github.com/repos/{org}/{project}/issues'
@@ -382,40 +371,27 @@ def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, mile
                 continue
         print(f'{html_url};{issue["title"]};{state}')
 
-def find_pr_info_by_sha(commit_sha) -> Dict[str, Any]:
-    search_url = f"https://api.github.com/search/issues?q=sha:{commit_sha}+type:pr"
-    commit_summary = fetch_json(search_url)
-    pr_summary = commit_summary['items']
-    pr_info = {}
-    for pr in pr_summary:
-        pr_info['title'] = pr['title']
-        pr_info['html_url'] = pr['html_url']
-        pr_info['state'] = pr['state']
-
-    return pr_info
-    
-def commits_missing_in_release(repo: GitRepo, prev_branch: str, orig_prev_branch: str, target_branch: str, cut_off_date : datetime) -> None:
+def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, minor_release: str, milestone_idx: int, cut_off_date : datetime) -> None:
     def get_commits_dict(x, y):
         return build_commit_dict(repo.get_commit_list(x, y))
-    cherry_pick_commits = get_commits_dict(orig_prev_branch, prev_branch) # all the cherry-picks for the specified branches
+    cherry_pick_commits = get_commits_dict(orig_branch, branch) # all the cherry-picks for the specified branches
+    main_commits = get_commits_dict(minor_release, 'main')
+    print(f"len(main_commits)={len(main_commits)}")
     print(f"len(cherry_pick_commits)={len(cherry_pick_commits)}")
    
-    target_branch_log = repo._run_git_log(target_branch)
-    print(target_branch, " len: ", len(target_branch_log))
-    print("URL;Title;Status")
-    cnt = 0
-    for commit_message in cherry_pick_commits.values():
-        cherry_pick_sha_hash = commit_message.commit_hash
-        exist_in_target_branch = any(cherry_pick_sha_hash in target_commit_message.commit_hash for target_commit_message in target_branch_log)
-        after_cut_off_date = commit_message.commit_date > cut_off_date
-        if not exist_in_target_branch and after_cut_off_date:
-            author = commit_message.author
-            commit_date = commit_message.commit_date
-            pr_info = find_pr_info_by_sha(cherry_pick_sha_hash)
-            print(pr_info['html_url'], "; ",pr_info['title'], "; ", pr_info['state'])
-            cnt += 1
-
-    print("Total missing commits from ", orig_prev_branch, " in ", target_branch, ": ", cnt)
+    for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
+        html_url, state = issue["html_url"], issue["state"]
+        # Skip closed states if they were landed before merge date
+        if state == "closed":
+            mentioned_after_cut = any(html_url in commit_message for commit_message in main_commits.values())
+            # If issue is not mentioned after cut, that it must be present in release branch
+            if not mentioned_after_cut:
+                continue
+            mentioned_after_cut_off_date = any(cut_off_date < commit_message.commit_date for commit_message in main_commits.values())
+            # if Issue is mentioned before the cut-off date, then it is in the minor release.
+            if not mentioned_after_cut_off_date:
+                continue
+        print(f'{html_url};{issue["title"]};{state}')
 
 def analyze_stacks(repo: GitRepo) -> None:
     from tqdm.contrib.concurrent import thread_map
@@ -442,7 +418,7 @@ def parse_arguments():
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
     parser.add_argument("--milestone-id", type=str)
     parser.add_argument("--branch", type=str)
-    parser.add_argument("--target-branch", type=str)
+    parser.add_argument("--minor-release", type=str)
     parser.add_argument("--remote",
                         type=str,
                         help="Remote to base off of",
@@ -474,21 +450,21 @@ def main():
     if args.analyze_stacks:
         analyze_stacks(repo)
         return
+    
+    # Use milestone idx or search it along milestone titles
+    try:
+        milestone_idx = int(args.milestone_id)
+    except ValueError:
+        milestone_idx = -1
+        milestones = gh_get_milestones()
+        for milestone in milestones:
+            if milestone.get('title', '') == args.milestone_id:
+                milestone_idx = int(milestone.get('number', '-2'))
+        if milestone_idx < 0:
+            print(f'Could not find milestone {args.milestone_id}')
+            return
 
     if args.missing_in_branch:
-        # Use milestone idx or search it along milestone titles
-        try:
-            milestone_idx = int(args.milestone_id)
-        except ValueError:
-            milestone_idx = -1
-            milestones = gh_get_milestones()
-            for milestone in milestones:
-                if milestone.get('title', '') == args.milestone_id:
-                    milestone_idx = int(milestone.get('number', '-2'))
-            if milestone_idx < 0:
-                print(f'Could not find milestone {args.milestone_id}')
-                return
-
         commits_missing_in_branch(repo,
                                   args.branch, 
                                   f'orig/{args.branch}',
@@ -496,11 +472,11 @@ def main():
         return
     
     if args.missing_in_release:
-        # Use branch names to find missing cherry picks
         commits_missing_in_release(repo,
                                   args.branch,
                                   f'orig/{args.branch}',
-                                  f'{remote}/{args.target_branch}',
+                                  args.minor_release,
+                                  milestone_idx,
                                   args.date
                                   )
         return
