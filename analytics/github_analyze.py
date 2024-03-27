@@ -8,7 +8,6 @@ import json
 import enum
 import os
 
-
 class IssueState(enum.Enum):
     OPEN = "open"
     CLOSED = "closed"
@@ -218,7 +217,6 @@ def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[s
             print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
         raise
 
-
 def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     if params is None:
         params = {}
@@ -236,7 +234,6 @@ def gh_get_milestones(org='pytorch', project='pytorch', state: IssueState = Issu
     url = f'https://api.github.com/repos/{org}/{project}/milestones'
     return fetch_multipage_json(url, {"state": state})
 
-
 def gh_get_milestone_issues(org: str, project: str, milestone_idx: int, state: IssueState = IssueState.OPEN):
     url = f'https://api.github.com/repos/{org}/{project}/issues'
     return fetch_multipage_json(url, {"milestone": milestone_idx, "state": state})
@@ -253,6 +250,10 @@ def gh_get_ref_statuses(org: str, project: str, ref: str) -> Dict[str, Any]:
             rc["statuses"] += nrc["statuses"]
     return rc
 
+def get_issue_comments(org: str, project: str, issue_number : int):
+    url = f'https://api.github.com/repos/{org}/{project}/issues/{issue_number}/comments'
+
+    return fetch_multipage_json(url)
 
 def extract_statuses_map(json: Dict[str, Any]):
     return {s["context"]: s["state"] for s in json["statuses"]}
@@ -372,6 +373,28 @@ def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, mile
                 continue
         print(f'{html_url};{issue["title"]};{state}')
 
+def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, minor_release: str, milestone_idx: int, cut_off_date : datetime, issue_num :  int) -> None:
+    def get_commits_dict(x, y):
+        return build_commit_dict(repo.get_commit_list(x, y))
+    main_commits = get_commits_dict(minor_release, 'main')
+    prev_release_commits = get_commits_dict(orig_branch, branch)
+    current_issue_comments = get_issue_comments('pytorch', 'pytorch',issue_num) # issue comments for the release tracker as cherry picks
+    print(f"len(main_commits)={len(main_commits)}")
+    print(f"len(prev_release_commits)={len(prev_release_commits)}")
+    print(f"len(current_issue_comments)={len(current_issue_comments)}")
+    print(f"issue_num: {issue_num}, len(issue_comments)={len(current_issue_comments)}")
+    print("URL;Title;Status")
+
+    for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
+        html_url, state = issue["html_url"], issue["state"]
+
+        mentioned_in_prev_release = any(html_url in commit_message for commit_message in prev_release_commits.values())
+        mentioned_after_cut_off_date = any(cut_off_date < commit_message.commit_date for commit_message in main_commits.values())
+        mentioned_in_main =  any(html_url in commit_message for commit_message in main_commits.values())
+        not_cherry_picked_in_current_issue = any(html_url not in issue_comment['body'] for issue_comment in current_issue_comments) 
+        
+        if mentioned_in_prev_release and mentioned_after_cut_off_date and mentioned_in_main and not_cherry_picked_in_current_issue:
+            print(f'{html_url};{issue["title"]};{state}')
 
 def analyze_stacks(repo: GitRepo) -> None:
     from tqdm.contrib.concurrent import thread_map
@@ -398,6 +421,7 @@ def parse_arguments():
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
     parser.add_argument("--milestone-id", type=str)
     parser.add_argument("--branch", type=str)
+    parser.add_argument("--minor-release", type=str)
     parser.add_argument("--remote",
                         type=str,
                         help="Remote to base off of",
@@ -406,7 +430,10 @@ def parse_arguments():
     parser.add_argument("--print-reverts", action="store_true")
     parser.add_argument("--contributor-stats", action="store_true")
     parser.add_argument("--missing-in-branch", action="store_true")
+    parser.add_argument("--missing-in-release", action="store_true")
     parser.add_argument("--analyze-stacks", action="store_true")
+    parser.add_argument('--date', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+    parser.add_argument("--issue-num", type=int)
     return parser.parse_args()
 
 
@@ -427,25 +454,36 @@ def main():
     if args.analyze_stacks:
         analyze_stacks(repo)
         return
+    
+    # Use milestone idx or search it along milestone titles
+    try:
+        milestone_idx = int(args.milestone_id)
+    except ValueError:
+        milestone_idx = -1
+        milestones = gh_get_milestones()
+        for milestone in milestones:
+            if milestone.get('title', '') == args.milestone_id:
+                milestone_idx = int(milestone.get('number', '-2'))
+        if milestone_idx < 0:
+            print(f'Could not find milestone {args.milestone_id}')
+            return
 
     if args.missing_in_branch:
-        # Use milestone idx or search it along milestone titles
-        try:
-            milestone_idx = int(args.milestone_id)
-        except ValueError:
-            milestone_idx = -1
-            milestones = gh_get_milestones()
-            for milestone in milestones:
-                if milestone.get('title', '') == args.milestone_id:
-                    milestone_idx = int(milestone.get('number', '-2'))
-            if milestone_idx < 0:
-                print(f'Could not find milestone {args.milestone_id}')
-                return
-
         commits_missing_in_branch(repo,
-                                  args.branch,
+                                  args.branch, 
                                   f'orig/{args.branch}',
                                   milestone_idx)
+        return
+    
+    if args.missing_in_release:
+        commits_missing_in_release(repo,
+                                  args.branch,
+                                  f'orig/{args.branch}',
+                                  args.minor_release,
+                                  milestone_idx,
+                                  args.date,
+                                  args.issue_num
+                                  )
         return
 
     print(f"Parsing git history with remote {remote}...", end='', flush=True)
