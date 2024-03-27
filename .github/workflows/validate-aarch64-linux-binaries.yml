@@ -114,7 +114,6 @@ jobs:
       docker-image: ${{ matrix.container_image }}
       binary-matrix: ${{ toJSON(matrix) }}
       no-sudo: true
-      timeout: 60
       script: |
         set -ex
         export DESIRED_PYTHON=${{ matrix.python_version }}
