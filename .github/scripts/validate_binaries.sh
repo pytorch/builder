@@ -5,7 +5,7 @@ else
 
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
         conda update -y -n base -c defaults conda
-    else
+    elif [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
         # Conda pinned see issue: https://github.com/ContinuumIO/anaconda-issues/issues/13350
         conda install -y conda=23.11.0
     fi
@@ -69,6 +69,10 @@ else
         source ./.github/scripts/validate_test_ops.sh
     fi
 
-    conda deactivate
-    conda env remove -n ${ENV_NAME}
+    # TODO: remove if statement currently this step is timing out on linx-aarch64
+    if [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
+        conda deactivate
+        conda env remove -n ${ENV_NAME}
+    fi
+
 fi
