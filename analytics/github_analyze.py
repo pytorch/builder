@@ -8,7 +8,6 @@ import json
 import enum
 import os
 
-
 class IssueState(enum.Enum):
     OPEN = "open"
     CLOSED = "closed"
@@ -218,7 +217,6 @@ def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[s
             print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
         raise
 
-
 def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     if params is None:
         params = {}
@@ -252,6 +250,10 @@ def gh_get_ref_statuses(org: str, project: str, ref: str) -> Dict[str, Any]:
             rc["statuses"] += nrc["statuses"]
     return rc
 
+def get_issue_comments(org: str, project: str, issue_number : int):
+    url = f'https://api.github.com/repos/{org}/{project}/issues/{issue_number}/comments'
+
+    return fetch_multipage_json(url)
 
 def extract_statuses_map(json: Dict[str, Any]):
     return {s["context"]: s["state"] for s in json["statuses"]}
@@ -371,27 +373,28 @@ def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, mile
                 continue
         print(f'{html_url};{issue["title"]};{state}')
 
-def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, minor_release: str, milestone_idx: int, cut_off_date : datetime) -> None:
+def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, minor_release: str, milestone_idx: int, cut_off_date : datetime, issue_num :  int) -> None:
     def get_commits_dict(x, y):
         return build_commit_dict(repo.get_commit_list(x, y))
-    cherry_pick_commits = get_commits_dict(orig_branch, branch) # all the cherry-picks for the specified branches
     main_commits = get_commits_dict(minor_release, 'main')
+    prev_release_commits = get_commits_dict(orig_branch, branch)
+    current_issue_comments = get_issue_comments('pytorch', 'pytorch',issue_num) # issue comments for the release tracker as cherry picks
     print(f"len(main_commits)={len(main_commits)}")
-    print(f"len(cherry_pick_commits)={len(cherry_pick_commits)}")
-   
+    print(f"len(prev_release_commits)={len(prev_release_commits)}")
+    print(f"len(current_issue_comments)={len(current_issue_comments)}")
+    print(f"issue_num: {issue_num}, len(issue_comments)={len(current_issue_comments)}")
+    print("URL;Title;Status")
+
     for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
         html_url, state = issue["html_url"], issue["state"]
-        # Skip closed states if they were landed before merge date
-        if state == "closed":
-            mentioned_after_cut = any(html_url in commit_message for commit_message in main_commits.values())
-            # If issue is not mentioned after cut, that it must be present in release branch
-            if not mentioned_after_cut:
-                continue
-            mentioned_after_cut_off_date = any(cut_off_date < commit_message.commit_date for commit_message in main_commits.values())
-            # if Issue is mentioned before the cut-off date, then it is in the minor release.
-            if not mentioned_after_cut_off_date:
-                continue
-        print(f'{html_url};{issue["title"]};{state}')
+
+        mentioned_in_prev_release = any(html_url in commit_message for commit_message in prev_release_commits.values())
+        mentioned_after_cut_off_date = any(cut_off_date < commit_message.commit_date for commit_message in main_commits.values())
+        mentioned_in_main =  any(html_url in commit_message for commit_message in main_commits.values())
+        not_cherry_picked_in_current_issue = any(html_url not in issue_comment['body'] for issue_comment in current_issue_comments) 
+        
+        if mentioned_in_prev_release and mentioned_after_cut_off_date and mentioned_in_main and not_cherry_picked_in_current_issue:
+            print(f'{html_url};{issue["title"]};{state}')
 
 def analyze_stacks(repo: GitRepo) -> None:
     from tqdm.contrib.concurrent import thread_map
@@ -430,6 +433,7 @@ def parse_arguments():
     parser.add_argument("--missing-in-release", action="store_true")
     parser.add_argument("--analyze-stacks", action="store_true")
     parser.add_argument('--date', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+    parser.add_argument("--issue-num", type=int)
     return parser.parse_args()
 
 
@@ -477,7 +481,8 @@ def main():
                                   f'orig/{args.branch}',
                                   args.minor_release,
                                   milestone_idx,
-                                  args.date
+                                  args.date,
+                                  args.issue_num
                                   )
         return
 
