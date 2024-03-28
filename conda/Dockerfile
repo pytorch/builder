@@ -44,7 +44,7 @@ RUN bash ./install_conda.sh && rm install_conda.sh
 
 # Install CUDA
 FROM base as cuda
-ARG CUDA_VERSION=10.2
+ARG CUDA_VERSION=11.8
 RUN rm -rf /usr/local/cuda-*
 ADD ./common/install_cuda.sh install_cuda.sh
 ENV CUDA_HOME=/usr/local/cuda-${CUDA_VERSION}
