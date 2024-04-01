@@ -4,6 +4,8 @@ set -ex
 
 OPENSSL=openssl-3.2.1
 
+yum install -y perl-IPC-Cmd
+
 wget -q -O ${OPENSSL}.tar.gz "https://www.openssl.org/source/${OPENSSL}.tar.gz"
 tar xf "${OPENSSL}.tar.gz"
 cd "${OPENSSL}"
