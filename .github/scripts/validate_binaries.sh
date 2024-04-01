@@ -5,7 +5,7 @@ else
 
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
         conda update -y -n base -c defaults conda
-    else
+    elif [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
         # Conda pinned see issue: https://github.com/ContinuumIO/anaconda-issues/issues/13350
         conda install -y conda=23.11.0
     fi
@@ -29,6 +29,11 @@ else
           INSTALLATION=${INSTALLATION/"torch "/"torch==${RELEASE_VERSION} "}
           INSTALLATION=${INSTALLATION/"-y pytorch "/"-y pytorch==${RELEASE_VERSION} "}
           INSTALLATION=${INSTALLATION/"::pytorch "/"::pytorch==${RELEASE_VERSION} "}
+
+        if [[ ${USE_VERSION_SET} == 'true' ]]; then
+          INSTALLATION=${INSTALLATION/"torchvision "/"torchvision==${VISION_RELEASE_VERSION} "}
+          INSTALLATION=${INSTALLATION/"torchaudio "/"torchaudio==${AUDIO_RELEASE_VERSION} "}
+        fi
     fi
 
     export OLD_PATH=${PATH}
@@ -64,6 +69,10 @@ else
         source ./.github/scripts/validate_test_ops.sh
     fi
 
-    conda deactivate
-    conda env remove -n ${ENV_NAME}
+    # TODO: remove if statement currently this step is timing out on linx-aarch64
+    if [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
+        conda deactivate
+        conda env remove -n ${ENV_NAME}
+    fi
+
 fi

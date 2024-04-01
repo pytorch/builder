@@ -76,15 +76,7 @@ fi
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-    case ${DESIRED_PYTHON} in
-      3.[6-7]*)
-        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
-        ;;
-      # Should catch 3.8+
-      3.*)
-        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
-        ;;
-    esac
+    DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
 fi
 
 if [[ ${python_nodot} -ge 310 ]]; then
@@ -119,24 +111,15 @@ pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
 case ${DESIRED_PYTHON} in
-  cp36-cp36m)
-    retry pip install -q numpy==1.11
-    ;;
-  cp3[7-8]*)
+  cp38*)
     retry pip install -q numpy==1.15
     ;;
-  cp310*)
-    retry pip install -q numpy==1.21.2
-    ;;
-  cp311*)
-    retry pip install -q numpy==1.23.1
-    ;;
-  cp312*)
-    retry pip install -q numpy==1.26.1
+  cp31*)
+    retry pip install -q --pre numpy==2.0.0b1
     ;;
   # Should catch 3.9+
   *)
-    retry pip install -q numpy==1.19.4
+    retry pip install -q --pre numpy==2.0.0b1
     ;;
 esac
 
@@ -280,7 +263,7 @@ replace_needed_sofiles() {
         patchedname=$3
         if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
             set +e
-            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*") 
+            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*")
             ERRCODE=$?
             set -e
             if [ "$ERRCODE" -eq "0" ]; then
