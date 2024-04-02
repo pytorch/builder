@@ -24,6 +24,7 @@ class GitCommit:
     author: str
     author_date: datetime
     commit_date: Optional[datetime]
+    pr_url: str
 
     def __init__(self,
                  commit_hash: str,
@@ -31,6 +32,7 @@ class GitCommit:
                  author_date: datetime,
                  title: str,
                  body: str,
+                 pr_url : str,
                  commit_date: Optional[datetime] = None) -> None:
         self.commit_hash = commit_hash
         self.author = author
@@ -38,6 +40,7 @@ class GitCommit:
         self.commit_date = commit_date
         self.title = title
         self.body = body
+        self.pr_url = pr_url
 
     def __contains__(self, item: Any) -> bool:
         return item in self.body or item in self.title
@@ -136,12 +139,20 @@ def parse_fuller_format(lines: Union[str, List[str]]) -> GitCommit:
     assert lines[3].startswith("Commit: ")
     assert lines[4].startswith("CommitDate: ")
     assert len(lines[5]) == 0
+
+    prUrl = ""
+    for line in lines:
+        if "Pull Request resolved:" in line:
+            prUrl = line.split("Pull Request resolved:")[1].strip()
+            break
+
     return GitCommit(commit_hash=lines[0].split()[1].strip(),
                      author=lines[1].split(":", 1)[1].strip(),
                      author_date=datetime.fromtimestamp(int(lines[2].split(":", 1)[1].strip())),
                      commit_date=datetime.fromtimestamp(int(lines[4].split(":", 1)[1].strip())),
                      title=lines[6].strip(),
                      body="\n".join(lines[7:]),
+                     pr_url=prUrl,
                      )
 
 
@@ -385,16 +396,16 @@ def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, min
     print(f"issue_num: {issue_num}, len(issue_comments)={len(current_issue_comments)}")
     print("URL;Title;Status")
 
-    for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
-        html_url, state = issue["html_url"], issue["state"]
-
-        mentioned_in_prev_release = any(html_url in commit_message for commit_message in prev_release_commits.values())
-        mentioned_after_cut_off_date = any(cut_off_date < commit_message.commit_date for commit_message in main_commits.values())
-        mentioned_in_main =  any(html_url in commit_message for commit_message in main_commits.values())
-        not_cherry_picked_in_current_issue = any(html_url not in issue_comment['body'] for issue_comment in current_issue_comments) 
-        
-        if mentioned_in_prev_release and mentioned_after_cut_off_date and mentioned_in_main and not_cherry_picked_in_current_issue:
-            print(f'{html_url};{issue["title"]};{state}')
+    # Iterate over the previous release branch to find potentially missing cherry picks in the current issue. 
+    for commit in prev_release_commits.values():
+        not_cherry_picked_in_current_issue = any(commit.pr_url not in issue_comment['body'] for issue_comment in current_issue_comments)
+        for main_commit in main_commits.values():
+            if main_commit.pr_url == commit.pr_url :
+                mentioned_after_cut_off_date = cut_off_date < main_commit.commit_date
+                if not_cherry_picked_in_current_issue and mentioned_after_cut_off_date:
+                    # Commits that are release only, which exist in previous release branch and not in main.
+                    print(f'{commit.pr_url};{commit.title};{commit.commit_date}')
+                break
 
 def analyze_stacks(repo: GitRepo) -> None:
     from tqdm.contrib.concurrent import thread_map
