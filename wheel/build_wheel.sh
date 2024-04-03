@@ -178,7 +178,7 @@ if [[ $desired_python != "3.8" ]]; then
 else
     retry conda install ${EXTRA_CONDA_INSTALL_FLAGS}  -yq "numpy${NUMPY_PINNED_VERSION}"
 fi
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  nomkl cmake ninja "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  llvm-openmp=14.0.6 cmake ninja "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
