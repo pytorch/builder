@@ -39,7 +39,6 @@ else
 fi
 
 echo "Building for Python: $desired_python Version: $build_version Build: $build_number"
-echo "This is for OSX. There is no CUDA/CUDNN"
 python_nodot="$(echo $desired_python | tr -d m.u)"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
