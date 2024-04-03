@@ -30,6 +30,7 @@ requirements:
     - ninja
     - libuv # [win]
     - numpy=1.19 # [py <= 39]
+    - numpy=2.0.0rc1 # [py >= 39]
     - numpy=1.21.5 # [py == 310]
     - numpy=1.23.5 # [py == 311]
     - numpy=1.26.0 # [py >= 312]
