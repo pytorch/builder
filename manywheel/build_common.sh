@@ -115,11 +115,11 @@ case ${DESIRED_PYTHON} in
     retry pip install -q numpy==1.15
     ;;
   cp31*)
-    retry pip install -q --pre numpy==2.0.0b1
+    retry pip install -q --pre numpy==2.0.0rc1
     ;;
   # Should catch 3.9+
   *)
-    retry pip install -q --pre numpy==2.0.0b1
+    retry pip install -q --pre numpy==2.0.0rc1
     ;;
 esac
 
