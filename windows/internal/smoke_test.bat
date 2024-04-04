@@ -35,8 +35,6 @@ if "%DESIRED_PYTHON%" == "3.11" set "PYTHON_INSTALLER_URL=https://www.python.org
 if "%DESIRED_PYTHON%" == "3.10" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.10.0/python-3.10.0-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.9" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.9.0/python-3.9.0-amd64.exe"
 if "%DESIRED_PYTHON%" == "3.8" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.8.2/python-3.8.2-amd64.exe"
-if "%DESIRED_PYTHON%" == "3.7" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe"
-if "%DESIRED_PYTHON%" == "3.6" set "PYTHON_INSTALLER_URL=https://www.python.org/ftp/python/3.6.8/python-3.6.8-amd64.exe"
 if "%PYTHON_INSTALLER_URL%" == "" (
     echo Python %DESIRED_PYTHON% not supported yet
 )
@@ -54,7 +52,13 @@ if errorlevel 1 exit /b 1
 
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
-pip install -q numpy protobuf
+
+if "%DESIRED_PYTHON%" == "3.12" pip install -q --pre numpy==2.0.0rc1 protobuf
+if "%DESIRED_PYTHON%" == "3.11" pip install -q --pre numpy==2.0.0rc1 protobuf
+if "%DESIRED_PYTHON%" == "3.10" pip install -q --pre numpy==2.0.0rc1 protobuf
+if "%DESIRED_PYTHON%" == "3.9" pip install -q --pre numpy==2.0.0rc1 protobuf
+if "%DESIRED_PYTHON%" == "3.8" pip install -q numpy protobuf
+
 if errorlevel 1 exit /b 1
 
 for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *.whl') do pip install "%%i"
