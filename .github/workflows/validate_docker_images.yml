@@ -1,0 +1,21 @@
+name: Validate docker images
+
+on:
+  push:
+    branches:
+    - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Print a statement
+      run: echo "Validating docker images."
+    - name: Pull Docker image
+      run: docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
+    - name: Print a statement
+      run: echo "Done pulling docker image."
+    - name: Checkout the branch
+      uses: pytorch/builder/test/smoke_test/smoke_test.py@main
+    - name: Run smoke tests
+      run: python pytorch/builder/test/smoke_test/smoke_test.py --package torch_only --runtime-error-check enabled
