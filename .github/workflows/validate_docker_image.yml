@@ -1,3 +1,14 @@
-steps:
-  - name: Validate docker image
-    run: echo "Validating docker image."
+name: Validate docker image
+
+on:
+  push:
+    branches:
+    - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: print a statement
+      run: echo "Validating docker image."
+
