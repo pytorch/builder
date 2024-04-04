@@ -15,8 +15,8 @@ jobs:
       run: docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
     - name: Print a statement
       run: echo "Done pulling docker image."
-    - name: Checkout the branch
-      uses: pytorch/builder@main
+    - name: Checkout PyTorch builder
+        uses: actions/checkout@v3
     - name: Run smoke tests
       run: python -c "import torch;print(torch.__version__)"
 
