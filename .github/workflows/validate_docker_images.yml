@@ -17,5 +17,4 @@ jobs:
       run: echo "Done pulling docker image."
     - name: Checkout the branch
       uses: pytorch/builder/test/smoke_test/smoke_test.py@main
-    - name: Run smoke tests
-      run: python -c "import torch;print(torch.__version__)"
+
