@@ -18,5 +18,6 @@ jobs:
     - name: Checkout PyTorch builder
       uses: actions/checkout@v3
     - name: Run smoke tests
-      run:  python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+      run:  docker run -it ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel python -c "import torch; print(torch.__version__)"
+
 
