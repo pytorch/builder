@@ -32,6 +32,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-version-set:
+        description: 'Use version for each domain'
+        default: false
+        required: false
+        type: boolean
       use-only-dl-pytorch-org:
         description: 'Use only download.pytorch.org when generating wheel install command'
         default: false
