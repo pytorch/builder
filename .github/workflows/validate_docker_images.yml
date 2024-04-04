@@ -13,11 +13,11 @@ jobs:
       run:  echo "Validating docker images."
     - name: Pull Docker image
       run:  docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
-    - name: Print a statement
-      run:  echo "Done pulling docker image."
+    - name: Run docker image
+      run:  docker run ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
     - name: Checkout PyTorch builder
       uses: actions/checkout@v3
     - name: Run smoke tests
-      run:  docker run ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel python -c "import torch; print(torch.__version__)"
+      run:  python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
 
 
