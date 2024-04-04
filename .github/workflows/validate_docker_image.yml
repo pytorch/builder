@@ -13,3 +13,5 @@ jobs:
       run: echo "Validating docker image."
     - name: Pull Docker image
       run: docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
+    - name: print a statement
+      run: echo "Done pulling docker image."
