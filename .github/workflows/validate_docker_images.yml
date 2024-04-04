@@ -18,5 +18,5 @@ jobs:
     - name: Checkout PyTorch builder
       uses: actions/checkout@v3
     - name: Run smoke tests
-      run:  python -c "import math; print(math.sqrt(16))"
+      run:  python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
 
