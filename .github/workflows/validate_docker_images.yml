@@ -16,7 +16,7 @@ jobs:
     - name: Print a statement
       run: echo "Done pulling docker image."
     - name: Checkout PyTorch builder
-        uses: actions/checkout@v3
+      uses: actions/checkout@v3
     - name: Run smoke tests
       run: python -c "import torch;print(torch.__version__)"
 
