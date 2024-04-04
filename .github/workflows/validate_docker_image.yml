@@ -1,7 +1,7 @@
 name: Validate docker image
 
 on:
-  push:
+  pull_request:
     branches:
     - '*'
 jobs:
