@@ -15,8 +15,6 @@ jobs:
       run:  docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
     - name: Print a statement
       run:  echo "Done pulling docker image."
-    - name: Install Torch
-      run:  conda install -c pytorch pytorch
     - name: Checkout PyTorch builder
       uses: actions/checkout@v3
     - name: Run smoke tests
