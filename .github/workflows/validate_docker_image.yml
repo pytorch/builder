@@ -1,0 +1,3 @@
+steps:
+  - name: Validate docker image
+    run: echo "Validating docker image."
