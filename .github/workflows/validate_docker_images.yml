@@ -10,19 +10,7 @@ jobs:
     container: ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
     steps:
       - uses: actions/checkout@v3  
-      - name: Run tests
+      - name: Run smoke tests
         run:  python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
-    
-    # steps:
-    # - name: Print a statement
-    #   run:  echo "Validating docker images."
-    # - name: Pull Docker image
-    #   run:  docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
-    # - name: Run docker image 
-    #   run:  docker run ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
-    # - name: Checkout PyTorch builder
-    #   uses: actions/checkout@v3
-    # - name: Run smoke tests
-    #   run:  python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
 
   
