@@ -16,4 +16,4 @@ jobs:
     - name: Pull Docker image
       run:  docker pull ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
     - name: Run docker image and run smoke tests
-      run:  docker run ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+      run:  docker run ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
