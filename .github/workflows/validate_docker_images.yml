@@ -32,6 +32,8 @@ jobs:
     container:
       image: ghcr.io/pytorch/pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
       - name: Run smoke tests
         run: python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
