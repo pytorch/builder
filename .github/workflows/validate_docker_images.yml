@@ -1,16 +1,38 @@
-name: Validate docker images
+name: Validate Docker Images (with Matrix Generation)
 
 on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'PyTorch channel to use (nightly, test, release, all)'
+        required: true
+        type: choice
+        default: 'all'
+        options:
+          - 'nightly'
+          - 'test'
+          - 'release'
+          - 'all'
   push:
     branches:
     - '*'
-jobs:
-  run_tests:
-    runs-on: ubuntu-latest 
-    container: ghcr.io/pytorch/pytorch:2.2.2-cuda11.8-cudnn8-devel
-    steps:
-      - uses: actions/checkout@v3  
-      - name: Run smoke tests
-        run:  python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
 
-  
+jobs:
+  generate-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
+    with:
+      channel: ${{ inputs.channel }}
+    secrets: inherit
+
+  run-tests:
+    needs: generate-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+    container:
+      image: ghcr.io/pytorch/pytorch:${{ matrix.cuda_full_version }}-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      platform: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run smoke tests
+        run: python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
