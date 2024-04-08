@@ -45,6 +45,16 @@ class GitCommit:
     def __contains__(self, item: Any) -> bool:
         return item in self.body or item in self.title
 
+    def is_issue_mentioned(self, issue_url: str) -> bool:
+        if issue_url in self:
+            return True
+        if "/pull/" in issue_url:
+            return False
+        issue_hash = f"#{issue_url.split('issues/')[1]}"
+        if "fixes" in self.title.lower() and issue_hash in self.title:
+            return True
+        return any("fixes" in line.lower() and issue_hash in line for line in self.body.split("\n"))
+
 
 def get_revert_revision(commit: GitCommit) -> Optional[str]:
     import re
@@ -371,18 +381,18 @@ def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, mile
     print(f"len(release_commits)={len(release_commits)}")
     print("URL;Title;Status")
     for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
-        html_url, state = issue["html_url"], issue["state"]
+        issue_url, state = issue["html_url"], issue["state"]
         # Skip closed states if they were landed before merge date
         if state == "closed":
-            mentioned_after_cut = any(html_url in commit_message for commit_message in main_commits.values())
+            mentioned_after_cut = any(commit.is_issue_mentioned(issue_url) for commit in main_commits.values())
             # If issue is not mentioned after cut, that it must be present in release branch
             if not mentioned_after_cut:
                 continue
-            mentioned_in_release = any(html_url in commit_message for commit_message in release_commits.values())
+            mentioned_in_release = any(commit.is_issue_mentioned(issue_url) for commit in release_commits.values())
             # if Issue is mentioned is release branch, than it was picked already
             if mentioned_in_release:
                 continue
-        print(f'{html_url};{issue["title"]};{state}')
+        print(f'{issue_url};{issue["title"]};{state}')
 
 def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, minor_release: str, milestone_idx: int, cut_off_date : datetime, issue_num :  int) -> None:
     def get_commits_dict(x, y):

@@ -36,6 +36,14 @@ case ${GPU_ARCH_TYPE} in
         DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
         MANY_LINUX_VERSION="cxx11-abi"
         ;;
+    cpu-s390x)
+        TARGET=final
+        DOCKER_TAG=cpu-s390x
+        LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu-s390x
+        GPU_IMAGE=redhat/ubi9
+        DOCKER_GPU_BUILD_ARG=""
+        MANY_LINUX_VERSION="s390x"
+        ;;
     cuda)
         TARGET=cuda_final
         DOCKER_TAG=cuda${GPU_ARCH_VERSION}
