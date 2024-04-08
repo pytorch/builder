@@ -26,15 +26,20 @@ jobs:
 
   run-tests:
     needs: generate-matrix
-    runs-on: linux.g5.4xlarge.nvidia.gpu
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-    container:
-      image: ghcr.io/pytorch/pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run smoke tests
-        run: |
-          export MATRIX_GPU_ARCH_TYPE="cuda"
-          export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
-          python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    with:
+      runner: linux.g5.4xlarge.nvidia.gpu
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      binary-matrix: ${{ toJSON(matrix) }}
+      docker-image: ghcr.io/pytorch/pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      timeout: 180
+      script: |
+        set -ex
+        export MATRIX_GPU_ARCH_TYPE="cuda"
+        export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
+        python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
