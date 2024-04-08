@@ -69,7 +69,7 @@ def read_release_matrix():
 def test_numpy():
     import numpy as np
     x = np.arange(5)
-    t = torch.tensor(x)
+    torch.tensor(x)
 
 def check_version(package: str) -> None:
     release_version = os.getenv("RELEASE_VERSION")
