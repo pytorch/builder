@@ -66,6 +66,11 @@ def load_json_from_basedir(filename: str):
 def read_release_matrix():
     return load_json_from_basedir("release_matrix.json")
 
+def test_numpy():
+    import numpy as np
+    x = np.arange(5)
+    t = torch.tensor(x)
+
 def check_version(package: str) -> None:
     release_version = os.getenv("RELEASE_VERSION")
     # if release_version is specified, use it to validate the packages
@@ -307,6 +312,7 @@ def main() -> None:
     check_version(options.package)
     smoke_test_conv2d()
     test_linalg()
+    test_numpy()
     if is_cuda_system:
         test_linalg("cuda")
 
