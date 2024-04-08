@@ -20,13 +20,16 @@ on:
 jobs:
   generate-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
+    strategy:
+      matrix:
+        runner_type: ["linux.g5.4xlarge.nvidia.gpu"]
     with:
       channel: ${{ inputs.channel }}
     secrets: inherit
 
   run-tests:
     needs: generate-matrix
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner-type }}
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     container:
@@ -34,4 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run smoke tests
-        run: python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+        run: |
+          export MATRIX_GPU_ARCH_TYPE="cuda"
+          export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
+          python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
