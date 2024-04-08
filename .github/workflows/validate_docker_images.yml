@@ -20,16 +20,13 @@ on:
 jobs:
   generate-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
-    strategy:
-      matrix:
-        runner_type: ["linux.g5.4xlarge.nvidia.gpu"]
     with:
       channel: ${{ inputs.channel }}
     secrets: inherit
 
   run-tests:
     needs: generate-matrix
-    runs-on: ${{ matrix.runner-type }}
+    runs-on: linux.g5.4xlarge.nvidia.gpu
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     container:
