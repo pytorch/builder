@@ -71,7 +71,7 @@ requirements:
   {% endif %}
 
 build:
-  number: {{ environ.get('PYTORCH_BUILD_NUMBER', '1') }}
+  number: 1
   detect_binary_files_with_prefix: False
   string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
   script_env:
