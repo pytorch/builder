@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     with:
-      runner: linux.g5.4xlarge.nvidia.gpu
+      runner: ubuntu-latest
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
