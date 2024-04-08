@@ -22,7 +22,7 @@ jobs:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
     with:
       channel: ${{ inputs.channel }}
-    secrets: inherit
+      secrets: inherit
 
   run-tests:
     needs: generate-matrix
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest 
     steps:
       - uses: actions/checkout@v3  
-      - uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+      - uses: pytorch/test-infra/.github/workflows/linux_job.yml@main   
         with:
           repository: "pytorch/builder"
           ref: ${{ inputs.ref || github.ref }} 
