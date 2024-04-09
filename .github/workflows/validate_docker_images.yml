@@ -31,4 +31,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run smoke tests
-        run: python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+        run: | 
+          export MATRIX_GPU_ARCH_TYPE="cuda" 
+          export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}" 
+          python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+  
