@@ -29,7 +29,7 @@ jobs:
       runner: linux.g5.4xlarge.nvidia.gpu
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
-      job-name: pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      job-name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
       binary-matrix: ${{ toJSON(matrix) }}
       docker-image: ${{matrix.docker}}
       timeout: 180
