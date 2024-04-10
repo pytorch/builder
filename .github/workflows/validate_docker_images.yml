@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     container:
-      image: ghcr.io/pytorch/pytorch:2.2.2-cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      image: ${{ fromJson(needs.generate-matrix.outputs.matrix.docker) }}
     steps:
       - uses: actions/checkout@v3
       - name: Run smoke tests
