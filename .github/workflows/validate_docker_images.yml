@@ -1,0 +1,39 @@
+name: Validate Docker Images (with Matrix Generation)
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'PyTorch channel to use (nightly, test, release, all)'
+        required: true
+        type: choice
+        default: 'nightly'
+        options:
+          - 'nightly'
+          - 'test'
+          - 'release'
+
+jobs:
+  generate-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
+    with:
+      channel: ${{ inputs.channel }}
+    secrets: inherit
+  run-gpu-tests:
+    needs: generate-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    with:
+      runner: linux.g5.4xlarge.nvidia.gpu
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      binary-matrix: ${{ toJSON(matrix) }}
+      docker-image: ${{matrix.docker}}
+      timeout: 180
+      script: |
+        set -ex
+        export MATRIX_GPU_ARCH_TYPE="cuda"
+        export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
+        python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
