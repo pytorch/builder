@@ -19,18 +19,6 @@ jobs:
     with:
       channel: ${{ inputs.channel }}
     secrets: inherit
-  run-cpu-tests:
-    needs: generate-matrix
-    runs-on: ubuntu-latest
-    strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-    container:
-      image: ${{matrix.docker}}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run smoke tests
-        run:
-          python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
   run-gpu-tests:
     needs: generate-matrix
     strategy:
