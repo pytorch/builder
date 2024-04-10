@@ -12,9 +12,7 @@ on:
           - 'test'
           - 'release'
           - 'all'
-  push:
-    branches:
-    - '*'
+
 jobs:
   generate-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
