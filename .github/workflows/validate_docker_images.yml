@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     container:
-      image: ${{ fromJson(needs.generate-matrix.outputs.matrix.docker) }}
+      image: ${{matrix.docker}}
     steps:
       - uses: actions/checkout@v3
       - name: Run smoke tests
