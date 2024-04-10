@@ -6,7 +6,7 @@ on:
         description: 'PyTorch channel to use (nightly, test, release, all)'
         required: true
         type: choice
-        default: 'all'
+        default: 'nightly'
         options:
           - 'nightly'
           - 'test'
