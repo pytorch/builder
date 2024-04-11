@@ -243,7 +243,7 @@ def test_linalg(device="cpu") -> None:
 
 def smoke_test_compile() -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
-    dv = "cuda" if target_os == "linux" else "mps"
+    dv = "cuda" if target_os == "linux" else "cpu"
 
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
