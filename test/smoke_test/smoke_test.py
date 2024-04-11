@@ -177,7 +177,7 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
             print(f"torch nccl version: {torch.cuda.nccl.version()}")
 
         # torch.compile is available on macos-arm64 and Linux for python 3.8-3.11
-        if sys.version_info < (3, 12, 0) and target_os == in ["linux", "macos-arm64"]:
+        if sys.version_info < (3, 12, 0) and target_os in ["linux", "macos-arm64"]:
             smoke_test_compile()
 
         if runtime_error_check == "enabled":
