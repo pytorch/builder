@@ -36,4 +36,5 @@ jobs:
         set -ex
         export MATRIX_GPU_ARCH_TYPE="cuda"
         export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
+        export TARGET_OS="linux"
         python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
