@@ -13,6 +13,7 @@ on:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
       - manywheel/Dockerfile_aarch64
+      - manywheel/Dockerfile_cuda_aarch64
       - manywheel/Dockerfile_cxx11-abi
       - manywheel/build_docker.sh
       - 'common/*'
@@ -21,6 +22,7 @@ on:
       - .github/workflows/build-manywheel-images.yml
       - manywheel/Dockerfile
       - manywheel/Dockerfile_aarch64
+      - manywheel/Dockerfile_cuda_aarch64
       - manywheel/Dockerfile_cxx11-abi
       - 'common/*'
       - manywheel/build_docker.sh
@@ -45,6 +47,25 @@ jobs:
       - name: Purge tools folder (free space for build)
         run: rm -rf /opt/hostedtoolcache
       - name: Checkout PyTorch builder
+        uses: actions/checkout@v3
+      - name: Authenticate if WITH_PUSH
+        run: |
+          if [[ "${WITH_PUSH}" == true ]]; then
+            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
+          fi
+      - name: Build Docker Image
+        run: |
+          manywheel/build_docker.sh
+  build-docker-cuda-aarch64:
+    runs-on: linux.arm64.2xlarge
+    strategy:
+      matrix:
+        cuda_version: ["12.4"]
+    env:
+      GPU_ARCH_TYPE: cuda-aarch64
+      GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
+    steps:
+      - name: Checkout PyTorch
         uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
