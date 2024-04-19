@@ -58,7 +58,7 @@ case ${GPU_ARCH_TYPE} in
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cuda-aarch64
         GPU_IMAGE=arm64v8/centos:7
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=11"
-        MANY_LINUX_VERSION="cuda_aarch64"
+        MANY_LINUX_VERSION="aarch64"
         ;;
     rocm)
         TARGET=rocm_final
