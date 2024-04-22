@@ -413,7 +413,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         else
           local_channel="$(pwd)/$output_folder"
         fi
-        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c pytorch-nightly -c nvidia
+        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c pytorch-nightly -c nvidia -c nweidia
 
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"
