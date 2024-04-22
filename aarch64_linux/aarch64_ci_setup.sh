@@ -2,35 +2,36 @@
 set -eux -o pipefail
 
 # This script is used to prepare the Docker container for aarch64_ci_wheel_build.py python script
-# as we need to install conda and setup the python version for the build.
+# as we need to setup the required python version and install few tools.
+if [ "$DESIRED_PYTHON" == "3.8" ] || [ "$DESIRED_PYTHON" == "3.9" ] || [ "$DESIRED_PYTHON" == "3.11" ]; then
+    dnf install -y python$DESIRED_PYTHON
 
-CONDA_PYTHON_EXE=/opt/conda/bin/python
-CONDA_EXE=/opt/conda/bin/conda
-CONDA_ENV_NAME=aarch64_env
-PATH=/opt/conda/bin:$PATH
-LD_LIBRARY_PATH=/opt/conda/envs/${CONDA_ENV_NAME}/lib/:/opt/conda/lib:$LD_LIBRARY_PATH
-
-###############################################################################
-# Install conda
-# disable SSL_verify due to getting "Could not find a suitable TLS CA certificate bundle, invalid path"
-# when using Python version, less than the conda latest
-###############################################################################
-echo 'Installing conda-forge'
-curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
-chmod +x /mambaforge.sh
-/mambaforge.sh -b -p /opt/conda
-rm /mambaforge.sh
-source /opt/conda/etc/profile.d/conda.sh
-conda config --set ssl_verify False
-conda create -y -c conda-forge -n "${CONDA_ENV_NAME}" python=${DESIRED_PYTHON}
-conda activate "${CONDA_ENV_NAME}"
-
-if [[ "$DESIRED_PYTHON"  == "3.8" ]]; then
-    pip install -q numpy==1.24.4
+elif [ "$DESIRED_PYTHON" == "3.10" ] || [ "$DESIRED_PYTHON" == "3.12" ]; then
+   if [ "$DESIRED_PYTHON" == "3.10" ]; then
+      PYTHON_INSTALLED_VERSION="3.10.14"
+   else
+      PYTHON_INSTALLED_VERSION="3.12.3"
+   fi
+   wget https://www.python.org/ftp/python/${PYTHON_INSTALLED_VERSION}/Python-${PYTHON_INSTALLED_VERSION}.tgz
+   tar xzf Python-${PYTHON_INSTALLED_VERSION}.tgz
+   cd Python-${PYTHON_INSTALLED_VERSION}
+   ./configure --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions
+   make -j 8
+   make altinstall
+   cd ..
+   rm Python-${PYTHON_INSTALLED_VERSION}.tgz
 else
-    pip install -q --pre numpy==2.0.0rc1
+   echo "unsupported python version passed. 3.8, 3.9, 3.10 or 3.11 are the only supported versions"
+   exit 1
 fi
-conda install -y -c conda-forge pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 openblas==0.3.25=*openmp* ninja==1.11.1 scons==4.5.2
 
-python --version
-conda --version
+/usr/local/bin/python${DESIRED_PYTHON} -m venv appenv${DESIRED_PYTHON}
+source appenv${DESIRED_PYTHON}/bin/activate
+python3 --version
+
+python3 -m pip install dataclasses typing-extensions scons pyyaml pygit2 ninja patchelf Cython
+if [[ "$DESIRED_PYTHON"  == "3.8" ]]; then
+    python3 -m pip install -q numpy==1.24.4
+else
+    python3 -m pip install -q --pre numpy==2.0.0rc1
+fi
