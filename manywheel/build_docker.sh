@@ -9,6 +9,7 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 GPU_ARCH_TYPE=${GPU_ARCH_TYPE:-cpu}
 GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
 MANY_LINUX_VERSION=${MANY_LINUX_VERSION:-}
+DOCKERFILE_SUFFIX=${DOCKERFILE_SUFFIX:-}
 WITH_PUSH=${WITH_PUSH:-}
 
 case ${GPU_ARCH_TYPE} in
@@ -54,10 +55,11 @@ case ${GPU_ARCH_TYPE} in
     cuda-aarch64)
         TARGET=cuda_final
         DOCKER_TAG=cuda${GPU_ARCH_VERSION}
-        LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cuda-aarch64
+        LEGACY_DOCKER_IMAGE=''
         GPU_IMAGE=arm64v8/centos:7
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=11"
-        MANY_LINUX_VERSION="cuda_aarch64"
+        MANY_LINUX_VERSION="aarch64"
+        DOCKERFILE_SUFFIX="cuda_aarch64"
         ;;
     rocm)
         TARGET=rocm_final
@@ -86,11 +88,9 @@ esac
 IMAGES=''
 DOCKER_NAME=manylinux${MANY_LINUX_VERSION}
 DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/${DOCKER_NAME}-builder:${DOCKER_TAG}
-if [[ -n ${MANY_LINUX_VERSION} ]]; then
+if [[ -n ${MANY_LINUX_VERSION} && -z ${DOCKERFILE_SUFFIX} ]]; then
     DOCKERFILE_SUFFIX=_${MANY_LINUX_VERSION}
     LEGACY_DOCKER_IMAGE=''
-else
-    DOCKERFILE_SUFFIX=''
 fi
 (
     set -x
