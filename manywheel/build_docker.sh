@@ -9,7 +9,6 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 GPU_ARCH_TYPE=${GPU_ARCH_TYPE:-cpu}
 GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
 MANY_LINUX_VERSION=${MANY_LINUX_VERSION:-}
-
 WITH_PUSH=${WITH_PUSH:-}
 
 case ${GPU_ARCH_TYPE} in
@@ -54,11 +53,11 @@ case ${GPU_ARCH_TYPE} in
         ;;
     cuda-aarch64)
         TARGET=cuda_final
-        DOCKER_TAG=cuda-aarch64
+        DOCKER_TAG=cuda${GPU_ARCH_VERSION}
         LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cuda-aarch64
         GPU_IMAGE=arm64v8/centos:7
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=11"
-        MANY_LINUX_VERSION="aarch64"
+        MANY_LINUX_VERSION="cuda_aarch64"
         ;;
     rocm)
         TARGET=rocm_final
