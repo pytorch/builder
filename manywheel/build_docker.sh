@@ -59,7 +59,7 @@ case ${GPU_ARCH_TYPE} in
         GPU_IMAGE=arm64v8/centos:7
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=11"
         MANY_LINUX_VERSION="aarch64"
-        DOCKERFILE_SUFFIX="cuda_aarch64"
+        DOCKERFILE_SUFFIX="_cuda_aarch64"
         ;;
     rocm)
         TARGET=rocm_final
