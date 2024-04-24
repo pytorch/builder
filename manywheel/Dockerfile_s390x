@@ -1,7 +1,8 @@
 FROM --platform=linux/s390x docker.io/redhat/ubi9 as base
 
-# earliest available version in ubi9
-ARG DEVTOOLSET_VERSION=12
+# earliest available version in ubi9 is 12
+# but it causes some not yet investigated build issue in tests
+ARG DEVTOOLSET_VERSION=13
 
 # Language variables
 ENV LC_ALL=C.UTF-8
@@ -34,7 +35,6 @@ RUN dnf install -y --allowerasing \
   cmake \
   gcc-toolset-${DEVTOOLSET_VERSION}-gcc \
   gcc-toolset-${DEVTOOLSET_VERSION}-gcc-c++ \
-  gcc-toolset-${DEVTOOLSET_VERSION}-gcc-gfortran \
   gcc-toolset-${DEVTOOLSET_VERSION}-binutils
 
 # Ensure the expected gcc-toolset is used
