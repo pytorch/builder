@@ -15,6 +15,43 @@ def list_dir(path: str) -> List[str]:
     return check_output(["ls", "-1", path]).decode().split("\n")
 
 
+def build_OpenBLAS() -> None:
+    '''
+    Building OpenBLAS, because the package in many linux is old
+    '''
+    print('Building OpenBLAS')
+    openblas_build_flags = [
+        "NUM_THREADS=128",
+        "USE_OPENMP=1",
+        "NO_SHARED=1",
+        "DYNAMIC_ARCH=1",
+        "TARGET=ARMV8",
+        "CFLAGS=-O3",
+    ]
+    openblas_checkout_dir = "OpenBLAS"
+
+    check_call(
+        [
+            "git",
+            "clone",
+            "https://github.com/OpenMathLib/OpenBLAS.git",
+            "-b",
+            "v0.3.25",
+            "--depth",
+            "1",
+            "--shallow-submodules",
+        ]
+    )
+
+    check_call(["make", "-j8"]
+                + openblas_build_flags,
+                cwd=openblas_checkout_dir)
+    check_call(["make", "-j8"]
+                + openblas_build_flags
+                + ["install"],
+                cwd=openblas_checkout_dir)
+
+
 def build_ArmComputeLibrary() -> None:
     """
     Using ArmComputeLibrary for aarch64 PyTorch
@@ -186,6 +223,7 @@ if __name__ == "__main__":
     elif branch.startswith(("v1.", "v2.")):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
 
+    build_OpenBLAS()
     if enable_mkldnn:
         build_ArmComputeLibrary()
         print("build pytorch with mkldnn+acl backend")
@@ -195,6 +233,8 @@ if __name__ == "__main__":
             "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build:$LD_LIBRARY_PATH "
             "ACL_INCLUDE_DIR=/acl/build "
             "ACL_LIBRARY=/acl/build "
+            "BLAS=OpenBLAS "
+            "OpenBLAS_HOME=/OpenBLAS "
         )
     else:
         print("build pytorch without mkldnn backend")
