@@ -11,8 +11,8 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
     conda remove -n py!PYTHON_VERSION_STR! --all -y || rmdir %CONDA_HOME%\envs\py!PYTHON_VERSION_STR! /s
     if "%%v" == "3.8" call conda create -n py!PYTHON_VERSION_STR! -y -q numpy=1.11 "intel::mkl-static=2020.2" "intel::mkl-include=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.9" call conda create -n py!PYTHON_VERSION_STR! -y -q numpy>=1.11 "intel::mkl-static=2020.2" "intel::mkl-include=2020.2" pyyaml boto3 cmake ninja typing_extensions python=%%v
-    if "%%v" == "3.10" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.21.3 "intel::mkl-static=2020.2" "intel::mkl-include=2020.2" intel-openmp=2023.2.0 pyyaml boto3 "cmake=3.19.6" ninja typing_extensions python=%%v
-    if "%%v" == "3.11" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.23.4 "intel::mkl-static=2020.2" "intel::mkl-include=2020.2" intel-openmp=2023.2.0 pyyaml boto3 "cmake=3.19.6" ninja typing_extensions python=%%v
+    if "%%v" == "3.10" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.21.3 "intel::mkl-static=2022.2.1" "intel::mkl-include=2022.2.1" intel-openmp=2023.2.0 pyyaml boto3 "cmake=3.19.6" ninja typing_extensions python=%%v
+    if "%%v" == "3.11" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.23.4 "intel::mkl-static=2022.2.1" "intel::mkl-include=2022.2.1" intel-openmp=2023.2.0 pyyaml boto3 "cmake=3.19.6" ninja typing_extensions python=%%v
     if "%%v" == "3.12" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.26.0 "intel::mkl-static=2023.1" "intel::mkl-include=2023.1" intel-openmp=2023.2.0 pyyaml boto3 "cmake=3.19.6" ninja typing_extensions python=%%v
 )
 endlocal
