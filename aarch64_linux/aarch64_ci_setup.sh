@@ -30,7 +30,7 @@ if [[ "$DESIRED_PYTHON"  == "3.8" ]]; then
 else
     pip install -q --pre numpy==2.0.0rc1
 fi
-conda install -y -c conda-forge pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 openblas==0.3.25=*openmp* ninja==1.11.1 scons==4.5.2
+conda install -y -c conda-forge pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 ninja==1.11.1 scons==4.5.2
 
 python --version
 conda --version
