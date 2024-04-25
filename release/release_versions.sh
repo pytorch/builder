@@ -13,4 +13,4 @@ TENSORRT_VERSION=${TENSORRT_VERSION:-2.2.0}
 # be without rc suffix, fbgemm_gpu-0.6.0+cpu-cp311-cp311, and that's the one
 # ready to be promoted. So, keeping a + here in the version name allows the
 # promote script to find the correct binaries
-FBGEMMGPU_VERSION=${FBGEMMGPU_VERSION:-0.6.0+}
+FBGEMMGPU_VERSION=${FBGEMMGPU_VERSION:-0.7.0+}
