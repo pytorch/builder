@@ -63,11 +63,6 @@ echo "Failed to create conda env"
 exit /B 1
 :done
 
-
-:: Install MKL
-rmdir /s /q mkl
-del mkl_2020.2.254.7z
-
 :: Download MAGMA Files on CUDA builds
 set MAGMA_VERSION=2.5.4
 
