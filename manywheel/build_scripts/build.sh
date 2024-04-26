@@ -35,15 +35,15 @@ if [ "$(uname -m)" != "s390x" ] ; then
 else
     # Dependencies for compiling Python that we want to remove from
     # the final image after compiling Python
-    PYTHON_COMPILE_DEPS="zlib-devel bzip2-devel ncurses-devel sqlite-devel libdb-devel libpcap-devel xz-devel libffi-devel"
+    PYTHON_COMPILE_DEPS="zlib1g-dev libbz2-dev libncurses-dev libsqlite3-dev libdb-dev libpcap-dev liblzma-dev libffi-dev"
 
     # Libraries that are allowed as part of the manylinux1 profile
-    MANYLINUX1_DEPS="glibc-devel libstdc++-devel glib2-devel libX11-devel ncurses-devel"
+    MANYLINUX1_DEPS="libglib2.0-dev libX11-dev libncurses-dev"
 
     # Development tools and libraries
-    yum -y install bzip2 make git patch unzip diffutils \
+    apt install -y bzip2 make git patch unzip diffutils \
         automake which file cmake \
-        kernel-headers \
+        linux-headers-virtual \
         ${PYTHON_COMPILE_DEPS}
 fi
 
@@ -91,12 +91,16 @@ ln -s $PY37_BIN/auditwheel /usr/local/bin/auditwheel
 
 # Clean up development headers and other unnecessary stuff for
 # final image
-yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
-    avahi freetype bitstream-vera-fonts \
-    ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
-yum -y install ${MANYLINUX1_DEPS}
-yum -y clean all > /dev/null 2>&1
-yum list installed
+if [ "$(uname -m)" != "s390x" ] ; then
+    yum -y erase wireless-tools gtk2 libX11 hicolor-icon-theme \
+        avahi freetype bitstream-vera-fonts \
+        ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
+    yum -y install ${MANYLINUX1_DEPS}
+    yum -y clean all > /dev/null 2>&1
+    yum list installed
+else
+    apt purge -y ${PYTHON_COMPILE_DEPS} || true > /dev/null 2>&1
+fi
 # we don't need libpython*.a, and they're many megabytes
 find /opt/_internal -name '*.a' -print0 | xargs -0 rm -f
 # Strip what we can -- and ignore errors, because this just attempts to strip
