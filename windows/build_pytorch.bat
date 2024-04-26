@@ -63,11 +63,6 @@ echo "Failed to create conda env"
 exit /B 1
 :done
 
-
-:: Install MKL
-rmdir /s /q mkl
-del mkl_2020.2.254.7z
-
 :: Download MAGMA Files on CUDA builds
 set MAGMA_VERSION=2.5.4
 
@@ -122,7 +117,7 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     ) else (
         set "PATH=%CONDA_HOME%\envs\%%v;%CONDA_HOME%\envs\%%v\scripts;%CONDA_HOME%\envs\%%v\Library\bin;%ORIG_PATH%"
     )
-    pip install ninja mkl-include==2021.4.0 mkl-devel==2021.4.0
+    pip install ninja
     @setlocal
     :: Set Flags
     if not "%CUDA_VERSION%"=="cpu" (
