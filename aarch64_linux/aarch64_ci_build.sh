@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eux -o pipefail
 
+GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
+
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $SCRIPTPATH/aarch64_ci_setup.sh
 
