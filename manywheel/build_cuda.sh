@@ -155,7 +155,7 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
             "/usr/local/cuda/lib64/libcudart.so.12"
             "/usr/local/cuda/lib64/libnvToolsExt.so.1"
             "/usr/local/cuda/lib64/libnvrtc.so.12"
-            "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.1"
+            "/usr/local/cuda/lib64/libnvrtc-builtins.so.12"
         )
         DEPS_SONAME+=(
             "libcudnn_adv_infer.so.8"
@@ -170,7 +170,7 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
             "libcudart.so.12"
             "libnvToolsExt.so.1"
             "libnvrtc.so.12"
-            "libnvrtc-builtins.so.12.1"
+            "libnvrtc-builtins.so.12"
         )
     else
         echo "Using nvidia libs from pypi."
