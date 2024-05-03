@@ -137,18 +137,3 @@ jobs:
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
-  build-docker-cpu-s390x:
-    runs-on: linux.s390x
-    env:
-      GPU_ARCH_TYPE: cpu-s390x
-    steps:
-      - name: Checkout PyTorch
-        uses: actions/checkout@v3
-      - name: Authenticate if WITH_PUSH
-        run: |
-          if [[ "${WITH_PUSH}" == true ]]; then
-            echo "${DOCKER_TOKEN}" | docker login -u "${DOCKER_ID}" --password-stdin
-          fi
-      - name: Build Docker Image
-        run: |
-          manywheel/build_docker.sh

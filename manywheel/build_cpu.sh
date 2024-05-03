@@ -32,7 +32,11 @@ if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
 elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-    LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    if [[ "$(uname -m)" == "s390x" ]]; then
+        LIBGOMP_PATH="/usr/lib/s390x-linux-gnu/libgomp.so.1"
+    else
+        LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    fi
 fi
 
 DEPS_LIST=(
