@@ -170,7 +170,7 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
             "libcudart.so.12"
             "libnvToolsExt.so.1"
             "libnvrtc.so.12"
-            "libnvrtc-builtins.so" 
+            "libnvrtc-builtins.so"
         )
     else
         echo "Using nvidia libs from pypi."
