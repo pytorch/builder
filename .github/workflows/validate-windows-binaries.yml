@@ -127,7 +127,7 @@ jobs:
 
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
-        if [[ ${MATRIX_GPU_ARCH_VERSION} == "12.1" ]]; then
+        if [[ ${MATRIX_GPU_ARCH_TYPE} == "cuda" ]]; then
           ./windows/internal/driver_update.bat
         fi
         source ./.github/scripts/validate_binaries.sh
