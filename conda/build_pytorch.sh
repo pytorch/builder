@@ -85,7 +85,7 @@ if [ -z "$ANACONDA_TOKEN" ]; then
 fi
 if [[ -z "$ANACONDA_USER" ]]; then
     # This is the channel that finished packages will be uploaded to
-    ANACONDA_USER=soumith
+    ANACONDA_USER='pytorch'
 fi
 if [[ -z "$GITHUB_ORG" ]]; then
     GITHUB_ORG='pytorch'
@@ -268,7 +268,10 @@ else
     . ./switch_cuda_version.sh "$desired_cuda"
     # TODO, simplify after anaconda fixes their cudatoolkit versioning inconsistency.
     # see: https://github.com/conda-forge/conda-forge.github.io/issues/687#issuecomment-460086164
-    if [[ "$desired_cuda" == "12.1" ]]; then
+    if [[ "$desired_cuda" == "12.4" ]]; then
+        export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=12.4,<12.5 # [not osx]"
+        export MAGMA_PACKAGE="    - magma-cuda124 # [not osx and not win]"
+    elif [[ "$desired_cuda" == "12.1" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=12.1,<12.2 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda121 # [not osx and not win]"
     elif [[ "$desired_cuda" == "11.8" ]]; then
@@ -360,12 +363,14 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
     fi
 
     echo "Calling conda-build at $(date)"
+    # TODO: Remove atalman channel once we can wend numpy from
+    # anaconda or pytorch or pytorch nightly channel
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
          EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
          PYTORCH_GITHUB_ROOT_DIR="$pytorch_rootdir" \
          PYTORCH_BUILD_STRING="$build_string" \
          PYTORCH_MAGMA_CUDA_VERSION="$cuda_nodot" \
-         conda build -c "$ANACONDA_USER" \
+         conda build -c "$ANACONDA_USER" -c atalman \
                      ${NO_TEST:-} \
                      --no-anaconda-upload \
                      --python "$py_ver" \

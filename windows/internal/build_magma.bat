@@ -35,6 +35,9 @@ cd magma
 mkdir build && cd build
 
 set GPU_TARGET=All
+if "%CUVER_NODOT%" == "124" (
+  set CUDA_ARCH_LIST=-gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90
+)
 if "%CUVER_NODOT%" == "121" (
   set CUDA_ARCH_LIST=-gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90
 )

@@ -22,6 +22,11 @@ on:
         default: ""
         required: false
         type: string
+      use-version-set:
+        description: 'Applies when version is used, use version for each domain'
+        default: false
+        required: false
+        type: boolean
       release-matrix:
         description: 'Release matrix - optional'
         default: ""
@@ -68,6 +73,11 @@ on:
         default: ""
         required: false
         type: string
+      use-version-set:
+        description: 'Applies when version is used, use version for each domain'
+        default: false
+        required: false
+        type: boolean
       release-matrix:
         description: 'Release matrix - optional'
         default: ""
@@ -119,6 +129,12 @@ jobs:
         export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
         export USE_ONLY_DL_PYTORCH_ORG=${{ inputs.use-only-dl-pytorch-org }}
         export RELEASE_VERSION=${{ inputs.version }}
+        export USE_VERSION_SET=${{ inputs.use-version-set }}
+        if [[ ${USE_VERSION_SET} == 'true' ]]; then
+          export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}
+          export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
+        fi
+
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export TARGET_OS="linux"
         eval "$(conda shell.bash hook)"

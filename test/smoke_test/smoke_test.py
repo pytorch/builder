@@ -66,6 +66,11 @@ def load_json_from_basedir(filename: str):
 def read_release_matrix():
     return load_json_from_basedir("release_matrix.json")
 
+def test_numpy():
+    import numpy as np
+    x = np.arange(5)
+    torch.tensor(x)
+
 def check_version(package: str) -> None:
     release_version = os.getenv("RELEASE_VERSION")
     # if release_version is specified, use it to validate the packages
@@ -157,6 +162,12 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
                 version = imported_module._extension._check_cuda_version()
             print(f"{module['name']} CUDA: {version}")
 
+     # torch.compile is available on macos-arm64 and Linux for python 3.8-3.11
+    if sys.version_info < (3, 12, 0) and (
+        (target_os == "linux" and torch.cuda.is_available()) or
+        target_os == "macos-arm64"):
+        smoke_test_compile()
+
     if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
             raise RuntimeError(
@@ -167,13 +178,10 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
         print(f"torch cudnn: {torch.backends.cudnn.version()}")
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
-        # torch.compile is available only on Linux and python 3.8-3.11
         # nccl is availbale only on Linux
         if (sys.platform in ["linux", "linux2"]):
             print(f"torch nccl version: {torch.cuda.nccl.version()}")
 
-            if(sys.version_info < (3, 12, 0)):
-                smoke_test_compile()
 
         if runtime_error_check == "enabled":
             test_cuda_runtime_errors_captured()
@@ -235,13 +243,14 @@ def test_linalg(device="cpu") -> None:
 
 def smoke_test_compile() -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
+    dv = "cuda" if target_os == "linux" else "cpu"
 
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
 
     for dtype in supported_dtypes:
         print(f"Testing smoke_test_compile for {dtype}")
-        x = torch.rand(3, 3, device="cuda").type(dtype)
+        x = torch.rand(3, 3, device=dv).type(dtype)
         x_eager = foo(x)
         x_pt2 = torch.compile(foo)(x)
         print(torch.allclose(x_eager, x_pt2))
@@ -251,8 +260,8 @@ def smoke_test_compile() -> None:
     dtype = torch.float32
     torch.set_float32_matmul_precision('high')
     print(f"Testing smoke_test_compile with mode 'max-autotune' for {dtype}")
-    x = torch.rand(64, 1, 28, 28, device="cuda").type(torch.float32)
-    model = Net().to(device="cuda")
+    x = torch.rand(64, 1, 28, 28, device=dv).type(torch.float32)
+    model = Net().to(device=dv)
     x_pt2 = torch.compile(model, mode="max-autotune")(x)
 
 
@@ -307,6 +316,7 @@ def main() -> None:
     check_version(options.package)
     smoke_test_conv2d()
     test_linalg()
+    test_numpy()
     if is_cuda_system:
         test_linalg("cuda")
 

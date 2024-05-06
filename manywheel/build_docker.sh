@@ -9,7 +9,7 @@ DOCKER_REGISTRY="${DOCKER_REGISTRY:-docker.io}"
 GPU_ARCH_TYPE=${GPU_ARCH_TYPE:-cpu}
 GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
 MANY_LINUX_VERSION=${MANY_LINUX_VERSION:-}
-
+DOCKERFILE_SUFFIX=${DOCKERFILE_SUFFIX:-}
 WITH_PUSH=${WITH_PUSH:-}
 
 case ${GPU_ARCH_TYPE} in
@@ -36,6 +36,14 @@ case ${GPU_ARCH_TYPE} in
         DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=9"
         MANY_LINUX_VERSION="cxx11-abi"
         ;;
+    cpu-s390x)
+        TARGET=final
+        DOCKER_TAG=cpu-s390x
+        LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux-cpu-s390x
+        GPU_IMAGE=redhat/ubi9
+        DOCKER_GPU_BUILD_ARG=""
+        MANY_LINUX_VERSION="s390x"
+        ;;
     cuda)
         TARGET=cuda_final
         DOCKER_TAG=cuda${GPU_ARCH_VERSION}
@@ -43,6 +51,15 @@ case ${GPU_ARCH_TYPE} in
         # Keep this up to date with the minimum version of CUDA we currently support
         GPU_IMAGE=centos:7
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=9"
+        ;;
+    cuda-aarch64)
+        TARGET=cuda_final
+        DOCKER_TAG=cuda${GPU_ARCH_VERSION}
+        LEGACY_DOCKER_IMAGE=''
+        GPU_IMAGE=arm64v8/centos:7
+        DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=11"
+        MANY_LINUX_VERSION="aarch64"
+        DOCKERFILE_SUFFIX="_cuda_aarch64"
         ;;
     rocm)
         TARGET=rocm_final
@@ -71,11 +88,9 @@ esac
 IMAGES=''
 DOCKER_NAME=manylinux${MANY_LINUX_VERSION}
 DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/${DOCKER_NAME}-builder:${DOCKER_TAG}
-if [[ -n ${MANY_LINUX_VERSION} ]]; then
+if [[ -n ${MANY_LINUX_VERSION} && -z ${DOCKERFILE_SUFFIX} ]]; then
     DOCKERFILE_SUFFIX=_${MANY_LINUX_VERSION}
     LEGACY_DOCKER_IMAGE=''
-else
-    DOCKERFILE_SUFFIX=''
 fi
 (
     set -x

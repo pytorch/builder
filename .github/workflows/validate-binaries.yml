@@ -32,6 +32,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-version-set:
+        description: 'Use version for each domain'
+        default: false
+        required: false
+        type: boolean
       use-only-dl-pytorch-org:
         description: 'Use only download.pytorch.org when generating wheel install command'
         default: false
@@ -80,6 +85,11 @@ on:
         default: ""
         required: false
         type: string
+      use-version-set:
+        description: 'Use version for each domain'
+        default: false
+        required: false
+        type: boolean
       include-test-ops:
         description: 'Include Test Ops tests (only Linux)'
         default: false
@@ -112,6 +122,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
@@ -125,6 +136,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       include-test-ops: ${{ inputs.include-test-ops }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
@@ -139,6 +151,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
@@ -152,6 +165,7 @@ jobs:
       ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}

@@ -39,7 +39,6 @@ else
 fi
 
 echo "Building for Python: $desired_python Version: $build_version Build: $build_number"
-echo "This is for OSX. There is no CUDA/CUDNN"
 python_nodot="$(echo $desired_python | tr -d m.u)"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
@@ -97,13 +96,8 @@ fi
 whl_tmp_dir="${MAC_PACKAGE_WORK_DIR}/dist"
 mkdir -p "$whl_tmp_dir"
 
-if [[ -n "$CROSS_COMPILE_ARM64" || $(uname -m) == "arm64" ]]; then
-    mac_version='macosx_11_0_arm64'
-    libtorch_arch='arm64'
-else
-    mac_version='macosx_10_9_x86_64'
-    libtorch_arch='x86_64'
-fi
+mac_version='macosx_11_0_arm64'
+libtorch_arch='arm64'
 
 # Create a consistent wheel package name to rename the wheel to
 wheel_filename_new="${TORCH_PACKAGE_NAME}-${build_version}${build_number_prefix}-cp${python_nodot}-none-${mac_version}.whl"
@@ -130,7 +124,7 @@ popd
 
 export TH_BINARY_BUILD=1
 export INSTALL_TEST=0 # dont install test binaries into site-packages
-export MACOSX_DEPLOYMENT_TARGET=10.13
+export MACOSX_DEPLOYMENT_TARGET=10.15
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
 
 SETUPTOOLS_PINNED_VERSION="=46.0.0"
@@ -141,35 +135,31 @@ case $desired_python in
         echo "Using 3.12 deps"
         SETUPTOOLS_PINNED_VERSION=">=68.0.0"
         PYYAML_PINNED_VERSION=">=6.0.1"
-        NUMPY_PINNED_VERSION="==1.26.0"
+        NUMPY_PINNED_VERSION="=2.0.0rc1"
         ;;
     3.11)
         echo "Using 3.11 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="==1.23.5"
+        NUMPY_PINNED_VERSION="=2.0.0rc1"
         ;;
     3.10)
         echo "Using 3.10 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.21.2"
+        NUMPY_PINNED_VERSION="=2.0.0rc1"
         ;;
     3.9)
         echo "Using 3.9 deps"
         SETUPTOOLS_PINNED_VERSION=">=46.0.0"
         PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.19"
+        NUMPY_PINNED_VERSION="=2.0.0rc1"
         ;;
     3.8)
         echo "Using 3.8 deps"
-        if [[ "$(uname -m)" == "arm64" ]]; then
-          SETUPTOOLS_PINNED_VERSION=">=46.0.0"
-          PYYAML_PINNED_VERSION=">=5.3"
-          NUMPY_PINNED_VERSION="=1.19"
-        else
-          NUMPY_PINNED_VERSION="=1.17"
-        fi
+        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+        PYYAML_PINNED_VERSION=">=5.3"
+        NUMPY_PINNED_VERSION="=1.19"
         ;;
     *)
         echo "Using default deps"
@@ -182,30 +172,24 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq "numpy${NUMPY_PINNED_VERSION}" nomkl "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
-
-if [[ "$(uname -m)" == "arm64" ]]; then
-  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja
+if [[ $desired_python != "3.8" ]]; then
+    pip install -q --pre numpy=${NUMPY_PINNED_VERSION}
 else
-  retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq cmake ninja mkl-include==2022.2.1 mkl-static==2022.2.1 -c intel
+    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS}  -yq "numpy${NUMPY_PINNED_VERSION}"
 fi
+retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  llvm-openmp=14.0.6 cmake ninja "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
 # For USE_DISTRIBUTED=1 on macOS, need libuv and pkg-config to find libuv.
 export USE_DISTRIBUTED=1
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq libuv pkg-config
 
-if [[ -n "$CROSS_COMPILE_ARM64" || "$(uname -m)" == "arm64" ]]; then
-    if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
-        export CMAKE_OSX_ARCHITECTURES=arm64
-    fi
-    export USE_MKLDNN=OFF
-    export USE_QNNPACK=OFF
-    export BUILD_TEST=OFF
-elif [[ "$(uname -m)" == "x86_64" ]]; then
-    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq llvmdev=9
-    export USE_LLVM="${CONDA_PREFIX}"
+if [[ -n "$CROSS_COMPILE_ARM64" ]]; then
+    export CMAKE_OSX_ARCHITECTURES=arm64
 fi
+export USE_MKLDNN=OFF
+export USE_QNNPACK=OFF
+export BUILD_TEST=OFF
 
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
@@ -289,9 +273,4 @@ else
     zip -rq "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-${libtorch_arch}-$PYTORCH_BUILD_VERSION.zip" libtorch
     cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-${libtorch_arch}-$PYTORCH_BUILD_VERSION.zip"  \
        "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-${libtorch_arch}-latest.zip"
-    if [[ "${libtorch_arch}" == "x86_64" ]]; then
-      # For backward compatibility make unarched latest to point to x86_64
-      cp "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-${libtorch_arch}-$PYTORCH_BUILD_VERSION.zip"  \
-         "$PYTORCH_FINAL_PACKAGE_DIR/libtorch-macos-latest.zip"
-    fi
 fi

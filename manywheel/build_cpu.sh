@@ -29,8 +29,14 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
+    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
-    LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    if [[ "$(uname -m)" == "s390x" ]]; then
+        LIBGOMP_PATH="/usr/lib/s390x-linux-gnu/libgomp.so.1"
+    else
+        LIBGOMP_PATH="/usr/lib/x86_64-linux-gnu/libgomp.so.1"
+    fi
 fi
 
 DEPS_LIST=(
