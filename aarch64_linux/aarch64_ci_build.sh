@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eux -o pipefail
 
+GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
+
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $SCRIPTPATH/aarch64_ci_setup.sh
 
@@ -26,4 +28,10 @@ cd /
 git config --global --add safe.directory /pytorch
 pip install -r /pytorch/requirements.txt
 pip install auditwheel
-python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn
+if [ -n "$GPU_ARCH_VERSION" ]; then
+    echo "BASE_CUDA_VERSION is set to: $GPU_ARCH_VERSION"
+    python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn --enable-cuda
+else
+    echo "BASE_CUDA_VERSION is not set."
+    python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn
+fi

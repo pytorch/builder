@@ -6,12 +6,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${DIR}/release_versions.sh"
 
 # Make sure to update these versions when doing a release first
-PYTORCH_VERSION=${PYTORCH_VERSION:-2.2.1}
-TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.17.1}
-TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.2.1}
-TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.17.1}
-TORCHDATA_VERSION=${TORCHDATA_VERSION:-0.7.1}
-TORCHREC_VERSION=${TORCHREC_VERSION:-0.6.0}
+PYTORCH_VERSION=${PYTORCH_VERSION:-2.3.0}
+TORCHVISION_VERSION=${TORCHVISION_VERSION:-0.18.0}
+TORCHAUDIO_VERSION=${TORCHAUDIO_VERSION:-2.3.0}
+TORCHTEXT_VERSION=${TORCHTEXT_VERSION:-0.18.0}
+TORCHREC_VERSION=${TORCHREC_VERSION:-0.7.0}
 TENSORRT_VERSION=${TENSORRT_VERSION:-2.2.0}
 
 # NB: FBGEMMGPU uses the practice of keeping rc version in the filename, i.e.
@@ -19,7 +18,7 @@ TENSORRT_VERSION=${TENSORRT_VERSION:-2.2.0}
 # be without rc suffix, fbgemm_gpu-0.6.0+cpu-cp311-cp311, and that's the one
 # ready to be promoted. So, keeping a + here in the version name allows the
 # promote script to find the correct binaries
-FBGEMMGPU_VERSION=${FBGEMMGPU_VERSION:-0.6.0+}
+FBGEMMGPU_VERSION=${FBGEMMGPU_VERSION:-0.7.0+}
 
 DRY_RUN=${DRY_RUN:-enabled}
 
@@ -110,7 +109,6 @@ promote_pypi() {
 # promote_s3 torchvision whl "${TORCHVISION_VERSION}"
 # promote_s3 torchaudio whl "${TORCHAUDIO_VERSION}"
 # promote_s3 torchtext whl "${TORCHTEXT_VERSION}"
-# promote_s3 torchdata whl "${TORCHDATA_VERSION}"
 # promote_s3 torchrec whl "${TORCHREC_VERSION}"
 # promote_s3 fbgemm-gpu whl "${FBGEMMGPU_VERSION}"
 # promote_s3 "libtorch-*" libtorch "${PYTORCH_VERSION}"
@@ -124,7 +122,6 @@ promote_pypi() {
 # promote_conda torchvision conda "${TORCHVISION_VERSION}"
 # promote_conda torchaudio conda "${TORCHAUDIO_VERSION}"
 # promote_conda torchtext conda "${TORCHTEXT_VERSION}"
-# promote_conda torchdata conda "${TORCHDATA_VERSION}"
 
 # Uncomment these to promote to pypi
 LINUX_VERSION_SUFFIX="%2Bcu102"
@@ -132,17 +129,14 @@ WIN_VERSION_SUFFIX="%2Bcpu"
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torch "${PYTORCH_VERSION}"
 # PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torch "${PYTORCH_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torch "${PYTORCH_VERSION}"
-# PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}" # intel mac
 # PLATFORM="macosx_11_0"  VERSION_SUFFIX=""                        promote_pypi torch "${PYTORCH_VERSION}" # m1 mac
 
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torchvision "${TORCHVISION_VERSION}"
 # PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torchvision "${TORCHVISION_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torchvision "${TORCHVISION_VERSION}"
-# PLATFORM="macosx_10_9"  VERSION_SUFFIX=""                        promote_pypi torchvision "${TORCHVISION_VERSION}"
 # PLATFORM="macosx_11_0"  VERSION_SUFFIX=""                        promote_pypi torchvision "${TORCHVISION_VERSION}"
 
 # PLATFORM="linux_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
 # PLATFORM="manylinux2014_aarch64" VERSION_SUFFIX="" promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
 # PLATFORM="win_amd64"    VERSION_SUFFIX="${WIN_VERSION_SUFFIX}"   promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
-# PLATFORM="macosx_10_15"  VERSION_SUFFIX=""                        promote_pypi torchaudio "${TORCHAUDIO_VERSION}"
 # PLATFORM="macosx_11_0"  VERSION_SUFFIX=""                        promote_pypi torchaudio "${TORCHAUDIO_VERSION}"

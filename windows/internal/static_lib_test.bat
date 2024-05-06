@@ -70,11 +70,6 @@ echo "install and test libtorch"
 pip install cmake
 echo "installing cmake"
 
-curl https://s3.amazonaws.com/ossci-windows/mkl_2020.2.254.7z -k -O
-7z x -aoa mkl_2020.2.254.7z -omkl
-set LIB=%CD%\mkl\lib;%LIB%
-
-
 if "%VC_YEAR%" == "2019" powershell internal\vs2019_install.ps1
 if "%VC_YEAR%" == "2022" powershell internal\vs2022_install.ps1
 
