@@ -122,7 +122,6 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8",
         "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8",
         "/usr/local/cuda/lib64/libcudnn_ops_train.so.8",
-        "/opt/conda/envs/aarch64_env/lib/libopenblas.so.0",
         "/opt/conda/envs/aarch64_env/lib/libgfortran.so.5",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
         "/acl/build/libarm_compute.so",
