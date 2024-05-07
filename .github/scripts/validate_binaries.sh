@@ -69,8 +69,8 @@ else
         source ./.github/scripts/validate_test_ops.sh
     fi
 
-    # TODO: remove if statement currently this step is timing out on linx-aarch64
-    if [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
+    # this is optional step
+    if [[ ${TARGET_OS} != linux*  ]]; then
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
