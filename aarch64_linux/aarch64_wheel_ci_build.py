@@ -122,7 +122,6 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8",
         "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8",
         "/usr/local/cuda/lib64/libcudnn_ops_train.so.8",
-        "/opt/conda/envs/aarch64_env/lib/libgfortran.so.5",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
         "/acl/build/libarm_compute.so",
         "/acl/build/libarm_compute_graph.so",
@@ -200,7 +199,7 @@ if __name__ == "__main__":
         branch = "master"
 
     print("Building PyTorch wheel")
-    build_vars = "MAX_JOBS=4 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
+    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system("cd /pytorch; python setup.py clean")
 
     override_package_version = os.getenv("OVERRIDE_PACKAGE_VERSION")
