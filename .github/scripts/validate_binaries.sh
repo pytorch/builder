@@ -54,6 +54,11 @@ else
         ${PWD}/check_binary.sh
     fi
 
+     # We are only interested in CUDA tests and Python 3.8-3.11. Not all requirement libraries are available for 3.12 yet.
+    if [[ ${INCLUDE_TEST_OPS:-} == 'true' &&  ${MATRIX_GPU_ARCH_TYPE} == 'cuda' && ${MATRIX_PYTHON_VERSION} != "3.12" ]]; then
+        source ./.github/scripts/validate_test_ops.sh
+    fi
+
     if [[ ${TARGET_OS} == 'windows' ]]; then
         python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     else
@@ -64,13 +69,8 @@ else
         export PATH=${OLD_PATH}
     fi
 
-    # We are only interested in CUDA tests and Python 3.8-3.11. Not all requirement libraries are available for 3.12 yet.
-    if [[ ${INCLUDE_TEST_OPS:-} == 'true' &&  ${MATRIX_GPU_ARCH_TYPE} == 'cuda' && ${MATRIX_PYTHON_VERSION} != "3.12" ]]; then
-        source ./.github/scripts/validate_test_ops.sh
-    fi
-
-    # TODO: remove if statement currently this step is timing out on linx-aarch64
-    if [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
+    # this is optional step
+    if [[ ${TARGET_OS} != linux*  ]]; then
         conda deactivate
         conda env remove -n ${ENV_NAME}
     fi
