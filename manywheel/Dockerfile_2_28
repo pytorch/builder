@@ -84,8 +84,7 @@ RUN yum install -y \
         util-linux \
         wget \
         which \
-        xz \
-        yasm
+        xz
 RUN yum install -y \
     https://repo.ius.io/ius-release-el7.rpm \
     https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
