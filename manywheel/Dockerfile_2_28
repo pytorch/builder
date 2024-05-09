@@ -66,8 +66,9 @@ FROM ${GPU_IMAGE} as common
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
+RUN yum -y install epel-release
+RUN yum -y update
 RUN yum install -y \
-        aclocal \
         autoconf \
         automake \
         bison \
