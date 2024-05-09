@@ -138,7 +138,7 @@ def update_wheel(wheel_path) -> None:
     os.system(f"cd {folder}/tmp/; zip -r {folder}/cuda_wheel/{wheelname} *")
     shutil.move(
         f"{folder}/cuda_wheel/{wheelname}",
-        f"/dist/{wheelname}",
+        f"{folder}/{wheelname}",
         copy_function=shutil.copy2,
     )
     os.system(f"rm -rf {folder}/tmp {folder}/dist/cuda_wheel/")
