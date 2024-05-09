@@ -113,7 +113,6 @@ COPY --from=jni                /usr/local/include/jni.h              /usr/local/
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.2
-RUN yum install -y yum-utils centos-release-scl
 RUN yum-config-manager --enable rhel-server-rhscl-7-rpms
 RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
 ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
@@ -123,9 +122,6 @@ ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/roo
 RUN yum install -y cmake3 && \
     ln -s /usr/bin/cmake3 /usr/bin/cmake
 
-# ninja
-RUN yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-1.noarch.rpm
-RUN yum install -y ninja-build
 
 FROM cpu_final as cuda_final
 RUN rm -rf /usr/local/cuda-${BASE_CUDA_VERSION}
