@@ -199,7 +199,7 @@ if __name__ == "__main__":
         branch = "master"
 
     print("Building PyTorch wheel")
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
+    build_vars = "MAX_JOBS=4 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system("cd /pytorch; python setup.py clean")
 
     override_package_version = os.getenv("OVERRIDE_PACKAGE_VERSION")
