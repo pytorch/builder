@@ -141,7 +141,7 @@ def update_wheel(wheel_path) -> None:
         f"{folder}/{wheelname}",
         copy_function=shutil.copy2,
     )
-    os.system(f"rm -rf {folder}/tmp {folder}/dist/cuda_wheel/")
+    os.system(f"rm -rf {folder}/tmp/ {folder}/cuda_wheel/")
 
 
 def complete_wheel(folder: str) -> str:
