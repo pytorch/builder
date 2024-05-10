@@ -10,9 +10,9 @@ ENV LANGUAGE en_US.UTF-8
 
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which perl zlib-devel
 RUN yum install -y yum-utils
-RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
-ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
+RUN yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++ devtoolset-11-gcc-gfortran devtoolset-11-binutils
+ENV PATH=/opt/rh/devtoolset-11/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH
 
 # cmake
 RUN yum install -y cmake3 && \
@@ -111,9 +111,9 @@ COPY --from=jni                /usr/local/include/jni.h              /usr/local/
 
 FROM common as cpu_final
 ARG BASE_CUDA_VERSION=10.2
-RUN yum install -y devtoolset-7-gcc devtoolset-7-gcc-c++ devtoolset-7-gcc-gfortran devtoolset-7-binutils
-ENV PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
-ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
+RUN yum install -y devtoolset-11-gcc devtoolset-11-gcc-c++ devtoolset-11-gcc-gfortran devtoolset-11-binutils
+ENV PATH=/opt/rh/devtoolset-11/root/usr/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH
 
 # cmake
 RUN yum install -y cmake3 && \
