@@ -36,6 +36,14 @@ case ${GPU_ARCH_TYPE} in
         DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=10"
         MANY_LINUX_VERSION="aarch64"
         ;;
+    cpu-aarch64-2_28)
+        TARGET=final
+        DOCKER_TAG=cpu-aarch64
+        LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux_2_28-cpu-aarch64
+        GPU_IMAGE=arm64v8/almalinux:8
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=11"
+        MANY_LINUX_VERSION="2_28_aarch64"
+        ;;
     cpu-cxx11-abi)
         TARGET=final
         DOCKER_TAG=cpu-cxx11-abi
