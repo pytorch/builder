@@ -24,6 +24,8 @@ retry () {
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"AlmaLinux"* ]]; then
+    retry yum install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
     retry dnf install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
@@ -278,7 +280,7 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
             if [[ "$filepath" != "$destpath" ]]; then
                 cp $filepath $destpath
             fi
-            
+
             if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
                 patchedpath=$(fname_without_so_number $destpath)
             else
@@ -299,7 +301,7 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
                 patchedname=${patched[i]}
                 if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
                     set +e
-                    origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*") 
+                    origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*")
                     ERRCODE=$?
                     set -e
                     if [ "$ERRCODE" -eq "0" ]; then
