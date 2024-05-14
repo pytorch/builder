@@ -68,6 +68,14 @@ case ${GPU_ARCH_TYPE} in
         GPU_IMAGE=centos:7
         DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=9"
         ;;
+    cuda-manylinux_2_28)
+        TARGET=cuda_final
+        DOCKER_TAG=cuda${GPU_ARCH_VERSION}
+        LEGACY_DOCKER_IMAGE=${DOCKER_REGISTRY}/pytorch/manylinux_2_28-cuda${GPU_ARCH_VERSION//./}
+        GPU_IMAGE=amd64/almalinux:8
+        DOCKER_GPU_BUILD_ARG="--build-arg BASE_CUDA_VERSION=${GPU_ARCH_VERSION} --build-arg DEVTOOLSET_VERSION=11"
+        MANY_LINUX_VERSION="2_28"
+        ;;
     cuda-aarch64)
         TARGET=cuda_final
         DOCKER_TAG=cuda${GPU_ARCH_VERSION}
