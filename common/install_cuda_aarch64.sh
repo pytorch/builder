@@ -2,6 +2,8 @@
 
 set -ex
 
+NCCL_VERSION=v2.21.5-1
+
 function install_cusparselt_052 {
     # cuSparseLt license: https://docs.nvidia.com/cuda/cusparselt/license.html
     mkdir tmp_cusparselt && pushd tmp_cusparselt
@@ -14,7 +16,7 @@ function install_cusparselt_052 {
 }
 
 function install_124 {
-  echo "Installing CUDA 12.4 and cuDNN 8.9 and NCCL 2.20.5 and cuSparseLt-0.5.2"
+  echo "Installing CUDA 12.4 and cuDNN 8.9 and NCCL ${NCCL_VERSION} and cuSparseLt-0.5.2"
   rm -rf /usr/local/cuda-12.4 /usr/local/cuda
   # install CUDA 12.4.0 in the same container
   wget -q https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux_sbsa.run
@@ -34,7 +36,7 @@ function install_124 {
 
   # NCCL license: https://docs.nvidia.com/deeplearning/nccl/#licenses
   # Follow build: https://github.com/NVIDIA/nccl/tree/master?tab=readme-ov-file#build
-  git clone -b v2.20.5-1 --depth 1 https://github.com/NVIDIA/nccl.git
+  git clone -b ${NCCL_VERSION} --depth 1 https://github.com/NVIDIA/nccl.git
   cd nccl && make -j src.build
   cp -a build/include/* /usr/local/cuda/include/
   cp -a build/lib/* /usr/local/cuda/lib64/
