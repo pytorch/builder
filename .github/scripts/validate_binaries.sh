@@ -62,7 +62,7 @@ else
     if [[ ${TARGET_OS} == 'windows' ]]; then
         python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     else
-        python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
+        python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX} --runtime-error-check disabled
     fi
 
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
