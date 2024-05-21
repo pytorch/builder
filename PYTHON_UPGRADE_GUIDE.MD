@@ -8,7 +8,7 @@ Package availability to validate before starting upgrade process :
 
 1) Manywheel build: Python version is avalilable in either of these sources:
 - Github: https://github.com/python/cpython
-- Python ftp[here](https://www.python.org/ftp/python/). Please consult the [devguide.python.org/versions](https://devguide.python.org/versions/)
+- Python ftp [here](https://www.python.org/ftp/python/). Please consult the [devguide.python.org/versions](https://devguide.python.org/versions/)
 
 2) Conda build: Python package is available via anaconda [here](https://anaconda.org/anaconda/python/files). The upgrade for manywheel binaries can continue before this requirement is met.
 
