@@ -2,10 +2,11 @@
 set -uex -o pipefail
 
 PYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
+PYTHON_DOWNLOAD_GITHUB_BRANCH=https://github.com/python/cpython/archive/refs/heads/
 GET_PIP_URL=https://bootstrap.pypa.io/get-pip.py
 
 # Python versions to be installed in /opt/$VERSION_NO
-CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.7.5 3.8.1 3.9.0 3.10.1 3.11.0 3.12.0"}
+CPYTHON_VERSIONS=${CPYTHON_VERSIONS:-"3.8.1 3.9.0 3.10.1 3.11.0 3.12.0 3.13.0"}
 
 function check_var {
     if [ -z "$1" ]; then
@@ -64,7 +65,13 @@ function build_cpython {
     check_var $py_ver
     check_var $PYTHON_DOWNLOAD_URL
     local py_ver_folder=$py_ver
-    wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
+    # Only b2 version of 3.12 is available right now
+    if [ "$py_ver" = "3.13.0" ]; then
+        PY_VER_SHORT="3.13"
+        wget $PYTHON_DOWNLOAD_GITHUB_BRANCH/$PY_VER_SHORT.tar.gz -O Python-$PY_VER_SHORT.tgz
+    else
+        wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
+    fi
     do_cpython_build $py_ver none
     rm -f Python-$py_ver.tgz
 }
