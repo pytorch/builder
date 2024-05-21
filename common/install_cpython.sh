@@ -17,9 +17,11 @@ function check_var {
 
 function do_cpython_build {
     local py_ver=$1
+    local py_folder=$2
     check_var $py_ver
+    check_var $py_folder
     tar -xzf Python-$py_ver.tgz
-    pushd Python-$py_ver
+    pushd $py_folder
 
     local prefix="/opt/_internal/cpython-${py_ver}"
     mkdir -p ${prefix}/lib
@@ -45,7 +47,7 @@ function do_cpython_build {
     fi
 
     popd
-    rm -rf Python-$py_ver
+    rm -rf $py_folder
     # Some python's install as bin/python3. Make them available as
     # bin/python.
     if [ -e ${prefix}/bin/python3 ]; then
@@ -69,10 +71,12 @@ function build_cpython {
         PY_VER_SHORT="3.13"
         check_var $PYTHON_DOWNLOAD_GITHUB_BRANCH
         wget $PYTHON_DOWNLOAD_GITHUB_BRANCH/$PY_VER_SHORT.tar.gz -O Python-$py_ver.tgz
+        do_cpython_build $py_ver cpython-$PY_VER_SHORT
     else
         wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
+        do_cpython_build $py_ver Python-$py_ver
     fi
-    do_cpython_build $py_ver none
+
     rm -f Python-$py_ver.tgz
 }
 
