@@ -68,7 +68,7 @@ function build_cpython {
     # Only b2 version of 3.12 is available right now
     if [ "$py_ver" = "3.13.0" ]; then
         PY_VER_SHORT="3.13"
-        wget $PYTHON_DOWNLOAD_GITHUB_BRANCH/$PY_VER_SHORT.tar.gz -O Python-$PY_VER_SHORT.tgz
+        wget $PYTHON_DOWNLOAD_GITHUB_BRANCH/$PY_VER_SHORT.tar.gz -O Python-$py_ver.tgz
     else
         wget -q $PYTHON_DOWNLOAD_URL/$py_ver_folder/Python-$py_ver.tgz
     fi
