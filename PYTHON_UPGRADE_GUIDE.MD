@@ -1,17 +1,19 @@
 # Python Upgrade Runbook
 
-So you wanna upgrade PyTorch to support a new Python? Follow these steps in order! They are adapted from previous CUDA upgrade processes.
+So you wanna upgrade PyTorch to support a new Python? Follow these steps in order!
 
 ### 0.Before starting upgrade process. Check the package availability
 
 Package availability to validate before starting upgrade process :
 
-1) Python package is available via python ftp [here](https://www.python.org/ftp/python/) - This is minimal requirement for all wheel builds
+1) Manywheel build: Python version is avalilable in either of these sources:
+- Github: https://github.com/python/cpython
+- Python ftp[here](https://www.python.org/ftp/python/). Please consult the [schedule](https://peps.python.org/pep-0719/)
 
-2) Python package is available via anaconda [here](https://anaconda.org/anaconda/python/files) - This is required for conda builds
+2) Conda build: Python package is available via anaconda [here](https://anaconda.org/anaconda/python/files). The upgrade for manywheel binaries can continue before this requirement is met.
 
 ## 1. Maintain Progress and Updates
-Make an issue to track the progress, for example CUDA issue [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in Pytorch upgrades.
+Make an issue to track the progress, for example CUDA issue [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in CPython upgrades.
 
 ## 2. Modify scripts to install the new Python for Docker Manywheel images.
 
