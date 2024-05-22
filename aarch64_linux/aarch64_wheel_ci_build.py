@@ -122,12 +122,10 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8",
         "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8",
         "/usr/local/cuda/lib64/libcudnn_ops_train.so.8",
-        "/opt/conda/envs/aarch64_env/lib/libopenblas.so.0",
-        "/opt/conda/envs/aarch64_env/lib/libgfortran.so.5",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
+        "/opt/OpenBLAS/lib/libopenblas.so.0",
         "/acl/build/libarm_compute.so",
         "/acl/build/libarm_compute_graph.so",
-        "/acl/build/libarm_compute_core.so",
     ]
     # Copy libraries to unzipped_folder/a/lib
     for lib_path in libs_to_copy:
@@ -140,10 +138,10 @@ def update_wheel(wheel_path) -> None:
     os.system(f"cd {folder}/tmp/; zip -r {folder}/cuda_wheel/{wheelname} *")
     shutil.move(
         f"{folder}/cuda_wheel/{wheelname}",
-        f"/dist/{wheelname}",
+        f"{folder}/{wheelname}",
         copy_function=shutil.copy2,
     )
-    os.system(f"rm -rf {folder}/tmp {folder}/dist/cuda_wheel/")
+    os.system(f"rm -rf {folder}/tmp/ {folder}/cuda_wheel/")
 
 
 def complete_wheel(folder: str) -> str:
@@ -201,8 +199,9 @@ if __name__ == "__main__":
         branch = "master"
 
     print("Building PyTorch wheel")
-    build_vars = "CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
-    os.system("python setup.py clean")
+    os.system("export USE_PRIORITIZED_TEXT_FOR_LD=1") #enable linker script optimization https://github.com/pytorch/pytorch/pull/121975/files
+    build_vars = "MAX_JOBS=5 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
+    os.system("cd /pytorch; python setup.py clean")
 
     override_package_version = os.getenv("OVERRIDE_PACKAGE_VERSION")
     if override_package_version is not None:
