@@ -9,9 +9,9 @@ Here is the supported matrix for CUDA and CUDNN
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 11.7 | 8.5.0.96 | Stable CUDA Release |
-| 11.8 | 8.7.0.84 | Latest CUDA Release |
-| 12.1 | 8.9.2.26  | Latest CUDA Nightly |
+| 11.8 | 8.9.2.26 | Legacy CUDA Release |
+| 12.1 | 8.9.2.26  | Stable CUDA Release |
+| 12.4 | 8.9.2.26  | Latest CUDA Nightly |
 
 
 ### B. Check the package availability
@@ -24,13 +24,11 @@ https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installe
 
 2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
 
-3) CudaToolkit is available on conda via nvidia channel: https://anaconda.org/nvidia/cudatoolkit/files
-
-4) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
-   Following example is for cuda 11.5: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/11.5.1/ubuntu2004/runtime
+3) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
+   Following example is for cuda 12.4: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/12.4.0/ubuntu2204/devel?ref_type=heads
    (Make sure to use version without CUDNN, it should be installed separately by install script)
 
-5) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
+4) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
 
 
 ## 1. Maintain Progress and Updates
@@ -84,7 +82,7 @@ Add setup for our Docker `libtorch` and `manywheel`:
 
 Please note, since this step currently requires access to corporate AWS, this step should be performed by Meta employee. To be removed, once automated.
 1. For Windows you will need to rebuild the test AMI, please refer to this [PR](https://github.com/pytorch/test-infra/pull/452). After this is done, run the release of Windows AMI using this [proecedure](https://github.com/pytorch/test-infra/tree/main/aws/ami/windows). As time of this writing this is manual steps performed on dev machine. Please note that packer, aws cli needs to be installed and configured!
-2. After step 1 is complete and new Windows AMI have been deployed to AWS. We need to deploy the new AMI to our canary environment (https://github.com/pytorch/pytorch-canary) through https://github.com/fairinternal/pytorch-gha-infra example : [PR](https://github.com/fairinternal/pytorch-gha-infra/pull/31) . After this is completed Submit the code for all windows workflows to https://github.com/pytorch/pytorch-canary and make sure all test are passing for all CUDA versions. 
+2. After step 1 is complete and new Windows AMI have been deployed to AWS. We need to deploy the new AMI to our canary environment (https://github.com/pytorch/pytorch-canary) through https://github.com/fairinternal/pytorch-gha-infra example : [PR](https://github.com/fairinternal/pytorch-gha-infra/pull/31) . After this is completed Submit the code for all windows workflows to https://github.com/pytorch/pytorch-canary and make sure all test are passing for all CUDA versions.
 3. After that we can deploy the Windows AMI out to prod using the same pytorch-gha-infra repository.
 
 ## 7. Add the new CUDA version to the nightly binaries matrix.
@@ -108,7 +106,14 @@ If it is not there, make sure you add the correct ciflow label (ciflow/periodic,
 the test has been run and is green.
 3. It is likely that there will be tests that no longer pass with the new CUDA version or GPU driver. Disable them for the time being, notify people who can help, and make issues to track them (like [so](https://github.com/pytorch/pytorch/issues/57482)).
 
-## 9. Add the new version to torchvision and torchaudio CI.
+## 9. Update Linux Nvidia driver used during runner provisioning
+If linux driver update is required. The driver should be updated during the runner provisioning otherwise nightly workflows will fail with multiple Nova workflows.
+1. Post and merge [PR 5243](https://github.com/pytorch/test-infra/pull/5243)
+2. Run workflow [lambda-release-tag-runners workflow](https://github.com/pytorch/test-infra/actions/workflows/lambda-release-tag-runners.yml) this worklow will create new release [here](https://github.com/pytorch/test-infra/releases)
+3. Post and merge [PR 394](https://github.com/pytorch-labs/pytorch-gha-infra/pull/394)
+4. Deploy this change by running following workflow [runners-on-dispatch-release](https://github.com/pytorch-labs/pytorch-gha-infra/actions/workflows/runners-on-dispatch-release.yml)
+
+## 10. Add the new version to torchvision and torchaudio CI.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
 propagate the CI changes so that torchvision and torchaudio can be packaged for the new CUDA version as well.
 1. Add a change to a binary build matrix in test-infra repo [here](https://github.com/pytorch/test-infra/blob/main/tools/scripts/generate_binary_build_matrix.py#L29)
@@ -125,4 +130,3 @@ If you require to update CUDNN version for already existing CUDA version, please
 1. Builder PR: https://github.com/pytorch/builder/pull/1271
 2. Add new cudnn vesion to windows AMI: https://github.com/pytorch/test-infra/pull/1523. Rebuild and retest the AMI. Follow step 6  Generate new Windows AMI, test and deploy to canary and prod.
 3. Create PyTorch PR: https://github.com/pytorch/pytorch/pull/93086 and small wheel update PyTorch PR: https://github.com/pytorch/pytorch/pull/104757
-
