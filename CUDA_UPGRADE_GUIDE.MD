@@ -105,6 +105,7 @@ Testing the new version in CI is crucial for finding regressions and should be d
 If it is not there, make sure you add the correct ciflow label (ciflow/periodic, for example) to trigger the test. Just because the CI is green on your pull request does NOT mean
 the test has been run and is green.
 3. It is likely that there will be tests that no longer pass with the new CUDA version or GPU driver. Disable them for the time being, notify people who can help, and make issues to track them (like [so](https://github.com/pytorch/pytorch/issues/57482)).
+4. After merging the CI PR, Please open temporary issues for new builds and tests marking them unstable, example [issue](https://github.com/pytorch/pytorch/issues/127104). These issues should be closed after few days of opening, when newly added CI jobs are constantly green.
 
 ## 9. Update Linux Nvidia driver used during runner provisioning
 If linux driver update is required. The driver should be updated during the runner provisioning otherwise nightly workflows will fail with multiple Nova workflows.
