@@ -5,7 +5,7 @@ So you wanna upgrade PyTorch to support a new CUDA? Follow these steps in order!
 ## 0. Before starting upgrade process
 
 ### A. Currently Supported CUDA and CUDNN Libraries
-Here is the supported matrix for CUDA and CUDNN
+Here is the supported matrix for CUDA and CUDNN (versions can be looked up in https://github.com/pytorch/pytorch/blob/main/.ci/docker/common/install_cudnn.sh)
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
