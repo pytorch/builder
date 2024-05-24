@@ -9,9 +9,9 @@ Here is the supported matrix for CUDA and CUDNN
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 11.8 | 8.9.2.26 | Legacy CUDA Release |
+| 11.8 | 8.7.0.84 | Legacy CUDA Release |
 | 12.1 | 8.9.2.26  | Stable CUDA Release |
-| 12.4 | 8.9.2.26  | Latest CUDA Nightly |
+| 12.4 | 8.9.7.29  | Latest CUDA Nightly |
 
 
 ### B. Check the package availability
