@@ -199,7 +199,7 @@ if __name__ == "__main__":
         branch = "master"
 
     print("Building PyTorch wheel")
-    os.environ["USE_PRIORITIZED_TEXT_FOR_LD_environ"] = "1" #enable linker script optimization https://github.com/pytorch/pytorch/pull/121975/files
+    os.environ["USE_PRIORITIZED_TEXT_FOR_LD"] = "1" #enable linker script optimization https://github.com/pytorch/pytorch/pull/121975/files
     build_vars = "MAX_JOBS=5 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system("cd /pytorch; python setup.py clean")
 
