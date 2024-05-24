@@ -2,7 +2,7 @@
 
 set -ex
 
-cd /opt
+cd /
 git clone https://github.com/OpenMathLib/OpenBLAS.git -b v0.3.25 --depth 1 --shallow-submodules
 
 
@@ -17,5 +17,5 @@ CFLAGS=-O3
 
 OPENBLAS_CHECKOUT_DIR="OpenBLAS"
 
-make -j8 ${OPENBLAS_BUILD_FLAGS} ${OPENBLAS_CHECKOUT_DIR}
-make -j8 ${OPENBLAS_BUILD_FLAGS} "install" ${OPENBLAS_CHECKOUT_DIR}
+make -j8 ${OPENBLAS_BUILD_FLAGS} -C ${OPENBLAS_CHECKOUT_DIR}
+make -j8 ${OPENBLAS_BUILD_FLAGS} install -C ${OPENBLAS_CHECKOUT_DIR}
