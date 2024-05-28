@@ -128,6 +128,6 @@ This completes CUDA and CUDNN upgrade. Congrats! PyTorch now has support for a n
 ## Upgrade CUDNN version only
 
 If you require to update CUDNN version for already existing CUDA version, please perform the followin modifications.
-1. Builder PR: https://github.com/pytorch/builder/pull/1271
+1. Builder PR: https://github.com/pytorch/builder/pull/1271. Important note: Builder PR and Pytorch PR need to be validated and landed togeather to avoid breakage of CI and nightly!
 2. Add new cudnn vesion to windows AMI: https://github.com/pytorch/test-infra/pull/1523. Rebuild and retest the AMI. Follow step 6  Generate new Windows AMI, test and deploy to canary and prod.
 3. Create PyTorch PR: https://github.com/pytorch/pytorch/pull/93086 and small wheel update PyTorch PR: https://github.com/pytorch/pytorch/pull/104757
