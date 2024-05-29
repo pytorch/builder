@@ -11,12 +11,21 @@ on:
           - 'nightly'
           - 'test'
           - 'release'
-
+      generate_dockerhub_images:
+        description: 'Whether to generate Docker Hub images (no ghcr.io/ prefix for release if true)'
+        default: false
+        required: false
+        type: boolean
+push:
+  branches:	    
+    - '*'	      
+    
 jobs:
   generate-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
     with:
       channel: ${{ inputs.channel }}
+      generate_dockerhub_images : ${{ inputs.generate_dockerhub_images }}
     secrets: inherit
   run-gpu-tests:
     needs: generate-matrix
