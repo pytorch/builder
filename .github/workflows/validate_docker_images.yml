@@ -12,7 +12,7 @@ on:
           - 'test'
           - 'release'
       generate_dockerhub_images:
-        description: 'Whether to generate Docker Hub images (no ghcr.io/ prefix for release if true)'
+        description: 'Generate Docker Hub images (strip ghcr.io/ prefix for release)'
         default: false
         required: false
         type: boolean     
