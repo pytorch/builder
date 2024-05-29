@@ -19,8 +19,15 @@ Here is the supported matrix for CUDA and CUDNN (versions can be looked up in ht
 Package availability to validate before starting upgrade process :
 
 1) CUDA and CUDNN is available for Linux and Windows:
-https://developer.download.nvidia.com/compute/cuda/11.5.0/local_installers/cuda_11.5.0_495.29.05_linux.run
-https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installers/11.5/
+Check whether this page https://developer.nvidia.com/cuda-toolkit-archive contains the cuda version, e.g. CUDA Toolkit 12.4.0. 
+If this is available, then the following installation file should be downloadable. 
+wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda_12.4.0_550.54.14_linux.run
+The string 550.54.14 represents the recommended (user mode) driver that would be needed in later stages to update runner driver. 
+
+For CUDNN, check the archive page https://developer.nvidia.com/cudnn-archive to see if the desired cudnn version is available. 
+Then choose the cudnn version that goes with the CUDA version above. For cuda 12.4.0, the corresponding cudnn (e.g. 8.9.7) would be 
+"Download cuDNN v8.9.7 (December 5th, 2023), for CUDA 12.x". Note, you may need to use your email to download cuDNN. Simply put your email
+address and accept the terms and pick the architecture to download, e.g. x86_64, sbsa (arm server), and/or PPC. Tar files are recommended. 
 
 2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
 
@@ -29,17 +36,24 @@ https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installe
    (Make sure to use version without CUDNN, it should be installed separately by install script)
 
 4) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
-
+Note: drivers are forward-compatible most if not all the time, i.e. the driver version recommended for CUDA 12.4.1 (Linux, 550.54.15) works fine with CUDA 12.4.0.
 
 ## 1. Maintain Progress and Updates
 Make an issue to track the progress, for example [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in CUDA upgrades.
 
+The following PRs were needed on the pytorch/buider side to add CUDA 12.4 support: 
+1) Add magma build for CUDA12.4 (https://github.com/pytorch/builder/pull/1722). The success criteria of this PR is that https://anaconda.org/pytorch/magma-cuda124 should be available. When this PR gets merged, the new magma-cuda124 package would be uploaded to pytorch anaconda channel automatically. If anaconda token expired, be sure to ping Meta so that the upload is successful. 
+2) Update pytorch-cuda for cuda12.4 conda build (https://github.com/pytorch/builder/pull/1792). Note, merging this PR is not enough. Similar to magma build, the success criteria of this step is that https://anaconda.org/pytorch/pytorch-cuda should have pytorch-cuda12.4. Different from magma build that was automatically uploaded, this step requires manual uploading step from Meta. Pause and contact Meta to upload the pytorch-cuda12.4 anaconda package immediately after this PR was merged.
+3) Enable CUDA 12.4 builds (https://github.com/pytorch/builder/pull/1785)
+
+
+Below are legacy enabling steps for CONDA Build as a reference.
 ## 2. Modify scripts to install the new CUDA for Conda Docker Linux containers.
 There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about conda.
-
+ 
 1. Follow this [PR 992](https://github.com/pytorch/builder/pull/992) for all steps in this section
-2. Find the CUDA install link [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&=Debian&target_version=10&target_type=runfile_local)
-3. Get the cudnn link from NVIDIA on the PyTorch Slack
+2. Find the CUDA install link [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&=Debian&target_version=10&target_type=runfile_local) or from the CUDA archive page mentioned in pre-requisites section above.
+3. Get the cudnn link from NVIDIA on the PyTorch Slack or from the CUDNN link discussed in the pre-requisites section above. 
 4. Modify [`install_cuda.sh`](common/install_cuda.sh)
 5. Run the `install_116` chunk of code on your devbox to make sure it works.
 6. Check [this link](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/) to see if you need to add/remove any architectures to the nvprune list.
@@ -53,7 +67,7 @@ Build Magma for Linux. Our Linux CUDA jobs use conda, so we need to build magma-
 1. Follow this [PR 1368](https://github.com/pytorch/builder/pull/1368) for all steps in this section
 2. Currently, this is mainly copy-paste in [`magma/Makefile`](magma/Makefile) if there are no major code API changes/deprecations to the CUDA version. Previously, we've needed to add patches to MAGMA, so this may be something to check with NVIDIA about.
 3. To push the package, please update build-magma-linux workflow [PR 897](https://github.com/pytorch/builder/pull/897).
-4. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115)
+4. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115).
 
 ## 4. Modify scripts to install the new CUDA for Libtorch and Manywheel Docker Linux containers. Modify builder supporting scripts
 There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about libtorch and manywheel containers.
