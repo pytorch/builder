@@ -61,7 +61,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-cuda-manylinux_2_28:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: linux.12xlarge
     strategy:
       matrix:
         cuda_version: ["12.4", "12.1", "11.8"]
