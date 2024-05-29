@@ -44,8 +44,14 @@ Make an issue to track the progress, for example [#56721: Support 11.3](https://
 The following PRs were needed on the pytorch/buider side to add CUDA 12.4 support: 
 1) Add magma build for CUDA12.4 (https://github.com/pytorch/builder/pull/1722). The success criteria of this PR is that https://anaconda.org/pytorch/magma-cuda124 should be available. When this PR gets merged, the new magma-cuda124 package would be uploaded to pytorch anaconda channel automatically. If anaconda token expired, be sure to ping Meta so that the upload is successful. 
 2) Update pytorch-cuda for cuda12.4 conda build (https://github.com/pytorch/builder/pull/1792). Note, merging this PR is not enough. Similar to magma build, the success criteria of this step is that https://anaconda.org/pytorch/pytorch-cuda should have pytorch-cuda12.4. Different from magma build that was automatically uploaded, this step requires manual uploading step from Meta. Pause and contact Meta to upload the pytorch-cuda12.4 anaconda package immediately after this PR was merged.
-3) Enable CUDA 12.4 builds (https://github.com/pytorch/builder/pull/1785)
-
+3) Enable CUDA 12.4 builds (https://github.com/pytorch/builder/pull/1785), this PR depends on the https://github.com/pytorch/builder/pull/1792. 
+4) Build libtorch and manywheel for 12.4 (https://github.com/pytorch/builder/pull/1723/), this PR needs to push to docker registry (https://hub.docker.com/r/pytorch/manylinux-cuda124), pause and ping Meta to help create the docker tag. This PR also depends on the success of magma build and anaconda upload. The success signal is that https://hub.docker.com/r/pytorch/manylinux-cuda124/tags becomes available after the PR is merged. 
+5) Occasionally, you may need to fix failures like https://github.com/pytorch/builder/pull/1786/files and https://github.com/pytorch/builder/pull/1808/files
+6) The above focused on Linux related enablement. For Windows related changes, follow https://github.com/pytorch/builder/pull/1725/files. Note, after this PR gets merged. Pause and ping Meta so that they can help with preparing updated Windows AMI.
+7) The above are all pytorch/builder changes. On the pytorch/pytorch side, a few PRs are required: 
+7.1) Add cu124 docker images https://github.com/pytorch/pytorch/pull/125944
+7.2) Add CUDA 12.4 workflows https://github.com/pytorch/pytorch/pull/121684 After this PR gets merged, https://hud.pytorch.org/hud/pytorch/pytorch/nightly/1?per_page=50 should have cuda 12.4 related binaries generated. Note: here you may need to pause and ping Meta to, e.g. create cu124/ aws S3 index for binary tests. (https://download.pytorch.org/whl/nightly/cu124). The runners need to update the default driver version to support the upgraded cuda, i.e., using pytorch/test-infra PR: https://github.com/pytorch/test-infra/pull/5130.
+7.3) Enable CUDA 12.4 CI https://github.com/pytorch/pytorch/pull/121956, create CUDA 12.4 related issues in https://github.com/pytorch/pytorch/issues/126692 in case they are ignored and follow up to address them.
 
 Below are legacy enabling steps for CONDA Build as a reference.
 ## 2. Modify scripts to install the new CUDA for Conda Docker Linux containers.
