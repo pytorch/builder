@@ -15,10 +15,7 @@ on:
         description: 'Whether to generate Docker Hub images (no ghcr.io/ prefix for release if true)'
         default: false
         required: false
-        type: boolean
-push:
-  branches:	    
-    - '*'	      
+        type: boolean     
     
 jobs:
   generate-matrix:
