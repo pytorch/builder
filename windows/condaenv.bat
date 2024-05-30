@@ -14,6 +14,7 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
     if "%%v" == "3.10" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.21.3 intel::mkl-static intel::mkl-include pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.11" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.23.4 intel::mkl-static intel::mkl-include pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.12" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.26.0 intel::mkl-static intel::mkl-include pyyaml boto3 cmake ninja typing_extensions python=%%v
+    if "%%v" == "3.13" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.26.0 intel::mkl-static intel::mkl-include pyyaml boto3 cmake ninja typing_extensions python=%%v
 )
 endlocal
 
