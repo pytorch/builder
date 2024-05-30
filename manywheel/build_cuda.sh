@@ -152,7 +152,6 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
             "/usr/local/cuda/lib64/libcudnn_adv.so.9"
             "/usr/local/cuda/lib64/libcudnn_cnn.so.9"
             "/usr/local/cuda/lib64/libcudnn_ops.so.9"
-            "/usr/local/cuda/lib64/libcudnn_ops.so.9"
             "/usr/local/cuda/lib64/libcudnn.so.9"
             "/usr/local/cuda/lib64/libcublas.so.12"
             "/usr/local/cuda/lib64/libcublasLt.so.12"
@@ -223,10 +222,7 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
         )
         DEPS_SONAME+=(
             "libcudnn_adv.so.9"
-            "libcudnn_adv.so.9"
             "libcudnn_cnn.so.9"
-            "libcudnn_cnn.so.9"
-            "libcudnn_ops.so.9"
             "libcudnn_ops.so.9"
             "libcudnn.so.9"
             "libcublas.so.11"
