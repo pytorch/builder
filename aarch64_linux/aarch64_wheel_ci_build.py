@@ -180,7 +180,13 @@ if __name__ == "__main__":
         version = (
             check_output(["cat", "version.txt"], cwd="/pytorch").decode().strip()[:-2]
         )
-        build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
+        if enable_cuda:
+            desired_cuda = os.getenv("DESIRED_CUDA")
+            build_vars += (
+                f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date}+{desired_cuda} PYTORCH_BUILD_NUMBER=1 "
+            )
+        else:
+            build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
     elif branch.startswith(("v1.", "v2.")):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
 
