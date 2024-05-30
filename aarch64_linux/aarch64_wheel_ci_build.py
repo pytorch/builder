@@ -78,9 +78,13 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libnvJitLink.so.12",
         "/usr/local/cuda/lib64/libnvrtc.so.12",
         "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.4",
-        "/usr/local/cuda/lib64/libcudnn_adv.so.9",
-        "/usr/local/cuda/lib64/libcudnn_cnn.so.9",
-        "/usr/local/cuda/lib64/libcudnn_ops.so.9",
+        "/usr/local/cuda/lib64/libcudnn_adv.so.9"
+        "/usr/local/cuda/lib64/libcudnn_cnn.so.9"
+        "/usr/local/cuda/lib64/libcudnn_graph.so.9"
+        "/usr/local/cuda/lib64/libcudnn_ops.so.9"
+        "/usr/local/cuda/lib64/libcudnn_engines_runtime_compiled.so.9"
+        "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9"
+        "/usr/local/cuda/lib64/libcudnn_heuristic.so.9"
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
         "/opt/OpenBLAS/lib/libopenblas.so.0",
         "/acl/build/libarm_compute.so",
