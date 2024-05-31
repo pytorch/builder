@@ -192,6 +192,13 @@ export USE_QNNPACK=OFF
 export BUILD_TEST=OFF
 
 pushd "$pytorch_rootdir"
+
+if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+    BUILD_LIBTORCH_WHL=1 BUILD_PYTHON_ONLY=0 python setup.py install
+    python setup.py clean
+    BUILD_PYTHON_ONLY=1 BUILD_LIBTORCH_WHL=0 python setup.py bdist_wheel
+fi
+
 echo "Calling setup.py bdist_wheel at $(date)"
 
 python setup.py bdist_wheel -d "$whl_tmp_dir"
