@@ -151,7 +151,11 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
         DEPS_LIST+=(
             "/usr/local/cuda/lib64/libcudnn_adv.so.9"
             "/usr/local/cuda/lib64/libcudnn_cnn.so.9"
+            "/usr/local/cuda/lib64/libcudnn_graph.so.9"
             "/usr/local/cuda/lib64/libcudnn_ops.so.9"
+            "/usr/local/cuda/lib64/libcudnn_engines_runtime_compiled.so.9"
+            "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9"
+            "/usr/local/cuda/lib64/libcudnn_heuristic.so.9"
             "/usr/local/cuda/lib64/libcudnn.so.9"
             "/usr/local/cuda/lib64/libcublas.so.12"
             "/usr/local/cuda/lib64/libcublasLt.so.12"
@@ -163,7 +167,11 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
         DEPS_SONAME+=(
             "libcudnn_adv.so.9"
             "libcudnn_cnn.so.9"
+            "libcudnn_graph.so.9"
             "libcudnn_ops.so.9"
+            "libcudnn_engines_runtime_compiled.so.9"
+            "libcudnn_engines_precompiled.so.9"
+            "libcudnn_heuristic.so.9"
             "libcudnn.so.9"
             "libcublas.so.12"
             "libcublasLt.so.12"
