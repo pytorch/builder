@@ -1,7 +1,7 @@
 #!/bin/bash
 # Helper utilities for build
 
-OPENSSL_DOWNLOAD_URL=https://ftp.openssl.org/source/old/1.1.1/
+OPENSSL_DOWNLOAD_URL=https://www.openssl.org/source/old/1.1.1/
 CURL_DOWNLOAD_URL=https://curl.askapache.com/download
 
 AUTOCONF_DOWNLOAD_URL=https://ftp.gnu.org/gnu/autoconf
