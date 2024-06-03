@@ -1,5 +1,21 @@
 name: Validate Docker Images (with Matrix Generation)
 on:
+  workflow_call:
+    inputs:
+      channel:
+        description: 'PyTorch channel to use (nightly, test, release, all)'
+        required: true
+        type: choice
+        default: 'nightly'
+        options:
+          - 'nightly'
+          - 'test'
+          - 'release'
+      generate_dockerhub_images:
+        description: 'Generate Docker Hub images (strip ghcr.io/ prefix for release)'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -15,8 +31,8 @@ on:
         description: 'Generate Docker Hub images (strip ghcr.io/ prefix for release)'
         default: false
         required: false
-        type: boolean     
-    
+        type: boolean
+
 jobs:
   generate-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
