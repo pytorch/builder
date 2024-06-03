@@ -267,6 +267,8 @@ else
       else
           cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
       fi
+    else
+      cp -r "$(pwd)/any_wheel/torch/lib/libomp.dylib" "$(pwd)/libtorch/lib/"
     fi
     rm -rf "$(pwd)/any_wheel"
 
