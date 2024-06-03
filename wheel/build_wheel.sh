@@ -191,30 +191,31 @@ export USE_MKLDNN=OFF
 export USE_QNNPACK=OFF
 export BUILD_TEST=OFF
 
+pushd "$pytorch_rootdir"
+echo "Calling setup.py bdist_wheel at $(date)"
+
+python setup.py bdist_wheel -d "$whl_tmp_dir"
+
+echo "Finished setup.py bdist_wheel at $(date)"
+
+if [[ $package_type != 'libtorch' ]]; then
+    echo "delocating wheel dependencies"
+    retry pip install https://github.com/matthew-brett/delocate/archive/refs/tags/0.10.4.zip
+    echo "found the following wheels:"
+    find $whl_tmp_dir -name "*.whl"
+    echo "running delocate"
+    find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel -v {}
+    find $whl_tmp_dir -name "*.whl"
+    find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
+    echo "Finished delocating wheels at $(date)"
+fi
+
+echo "The wheel is in $(find $whl_tmp_dir -name '*.whl')"
+
+wheel_filename_gen=$(find $whl_tmp_dir -name '*.whl' | head -n1 | xargs -I {} basename {})
+popd
+
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
-    pushd "$pytorch_rootdir"
-    echo "Calling setup.py bdist_wheel at $(date)"
-
-    python setup.py bdist_wheel -d "$whl_tmp_dir"
-
-    echo "Finished setup.py bdist_wheel at $(date)"
-
-    if [[ $package_type != 'libtorch' ]]; then
-        echo "delocating wheel dependencies"
-        retry pip install https://github.com/matthew-brett/delocate/archive/refs/tags/0.10.4.zip
-        echo "found the following wheels:"
-        find $whl_tmp_dir -name "*.whl"
-        echo "running delocate"
-        find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel -v {}
-        find $whl_tmp_dir -name "*.whl"
-        find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
-        echo "Finished delocating wheels at $(date)"
-    fi
-
-    echo "The wheel is in $(find $whl_tmp_dir -name '*.whl')"
-
-    wheel_filename_gen=$(find $whl_tmp_dir -name '*.whl' | head -n1 | xargs -I {} basename {})
-    popd
     # Copy the whl to a final destination before tests are run
     echo "Renaming Wheel file: $wheel_filename_gen to $wheel_filename_new"
     cp "$whl_tmp_dir/$wheel_filename_gen" "$PYTORCH_FINAL_PACKAGE_DIR/$wheel_filename_new"
