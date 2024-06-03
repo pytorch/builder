@@ -240,11 +240,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     fi
 else
     pushd "$pytorch_rootdir"
-    mkdir -p build
-    pushd build
-    # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
-    CFLAGS='-Wno-deprecated-declarations' python ../tools/build_libtorch.py
-    popd
 
     mkdir -p libtorch/{lib,bin,include,share}
     cp -r "$(pwd)/build/lib" "$(pwd)/libtorch/"
