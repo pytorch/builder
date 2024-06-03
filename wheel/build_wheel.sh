@@ -191,38 +191,6 @@ export USE_MKLDNN=OFF
 export USE_QNNPACK=OFF
 export BUILD_TEST=OFF
 
-<<<<<<< HEAD
-pushd "$pytorch_rootdir"
-
-echo "Calling setup.py bdist_wheel at $(date)"
-
-if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
-    echo "Calling setup.py bdist_wheel for split build (BUILD_LIBTORCH_WHL)"
-    BUILD_LIBTORCH_WHL=1 BUILD_PYTHON_ONLY=0 python setup.py bdist_wheel -d "$whl_tmp_dir"
-    echo "Finished setup.py bdist_wheel for split build (BUILD_LIBTORCH_WHL)"
-    echo "Calling setup.py bdist_wheel for split build (BUILD_PYTHON_ONLY)"
-    BUILD_PYTHON_ONLY=1 BUILD_LIBTORCH_WHL=0 python setup.py bdist_wheel -d "$whl_tmp_dir" --cmake
-    echo "Finished setup.py bdist_wheel for split build (BUILD_PYTHON_ONLY)"
-else
-    python setup.py bdist_wheel -d "$whl_tmp_dir"
-fi
-
-echo "Finished setup.py bdist_wheel at $(date)"
-
-if [[ $package_type != 'libtorch' ]]; then
-    echo "delocating wheel dependencies"
-    retry pip install https://github.com/matthew-brett/delocate/archive/refs/tags/0.10.4.zip
-    echo "found the following wheels:"
-    find $whl_tmp_dir -name "*.whl"
-    echo "running delocate"
-    find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-wheel -v {}
-    find $whl_tmp_dir -name "*.whl"
-    find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
-    echo "Finished delocating wheels at $(date)"
-fi
-
-echo "The wheel is in $(find $whl_tmp_dir -name '*.whl')"
-=======
 if [[ -z "$BUILD_PYTHONLESS" ]]; then
     pushd "$pytorch_rootdir"
     echo "Calling setup.py bdist_wheel at $(date)"
@@ -251,7 +219,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
         find $whl_tmp_dir -name "*.whl" | xargs -I {} delocate-listdeps {}
         echo "Finished delocating wheels at $(date)"
     fi
->>>>>>> d88495a ([MacOS] Don't build wheel while building libtorch)
 
     echo "The wheel is in $(find $whl_tmp_dir -name '*.whl')"
 
