@@ -5,12 +5,8 @@ on:
       channel:
         description: 'PyTorch channel to use (nightly, test, release, all)'
         required: true
-        type: choice
+        type: string
         default: 'nightly'
-        options:
-          - 'nightly'
-          - 'test'
-          - 'release'
       generate_dockerhub_images:
         description: 'Generate Docker Hub images (strip ghcr.io/ prefix for release)'
         default: false
