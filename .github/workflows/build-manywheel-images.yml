@@ -60,6 +60,7 @@ jobs:
       - name: Build Docker Image
         run: |
           manywheel/build_docker.sh
+  # NOTE: manylinux_2_28 are still experimental, see https://github.com/pytorch/pytorch/issues/123649
   build-docker-cuda-manylinux_2_28:
     runs-on: linux.12xlarge
     strategy:
