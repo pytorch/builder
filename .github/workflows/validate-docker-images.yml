@@ -12,6 +12,11 @@ on:
         default: false
         required: false
         type: boolean
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -28,6 +33,11 @@ on:
         default: false
         required: false
         type: boolean
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
 
 jobs:
   generate-matrix:
