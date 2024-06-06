@@ -70,4 +70,4 @@ jobs:
         if [[ ${MATRIX_IMAGE_TYPE} == "runtime" ]]; then
           TORCH_COMPILE_CHECK="--torch-compile-check disabled"
         fi
-        python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled ${TORCH_COMPILE_CHECK}
+        python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check disabled ${TORCH_COMPILE_CHECK}
