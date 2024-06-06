@@ -67,7 +67,7 @@ jobs:
         export MATRIX_IMAGE_TYPE="${{ matrix.image_type }}"
         export TARGET_OS="linux"
         TORCH_COMPILE_CHECK="--torch-compile-check enabled"
-        if[[ ${MATRIX_IMAGE_TYPE} == "runtime" ]]; then
+        if [[ ${MATRIX_IMAGE_TYPE} == "runtime" ]]; then
           TORCH_COMPILE_CHECK="--torch-compile-check disabled"
         fi
         python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled ${TORCH_COMPILE_CHECK}
