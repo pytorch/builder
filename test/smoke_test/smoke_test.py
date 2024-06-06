@@ -146,7 +146,7 @@ def test_cuda_runtime_errors_captured() -> None:
         raise RuntimeError("Expected CUDA RuntimeError but have not received!")
 
 
-def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
+def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
 
@@ -163,7 +163,7 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
             print(f"{module['name']} CUDA: {version}")
 
      # torch.compile is available on macos-arm64 and Linux for python 3.8-3.11
-    if sys.version_info < (3, 12, 0) and (
+    if torch_compile_check == "enabled" and sys.version_info < (3, 12, 0) and (
         (target_os == "linux" and torch.cuda.is_available()) or
         target_os == "macos-arm64"):
         smoke_test_compile()
@@ -310,6 +310,13 @@ def main() -> None:
         choices=["enabled", "disabled"],
         default="enabled",
     )
+    parser.add_argument(
+        "--torch-compile-check",
+        help="Check torch compile",
+        type=str,
+        choices=["enabled", "disabled"],
+        default="enabled",
+    )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
 
@@ -323,7 +330,7 @@ def main() -> None:
     if options.package == "all":
         smoke_test_modules()
 
-    smoke_test_cuda(options.package, options.runtime_error_check)
+    smoke_test_cuda(options.package, options.runtime_error_check, options.torch_compile_check)
 
 
 if __name__ == "__main__":
