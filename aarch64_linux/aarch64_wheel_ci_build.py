@@ -97,6 +97,9 @@ def update_wheel(wheel_path) -> None:
     os.system(
         f"cd {folder}/tmp/torch/lib/; patchelf --set-rpath '$ORIGIN' {folder}/tmp/torch/lib/libtorch_cuda.so"
     )
+    os.system(
+        f"cd {folder}/tmp/torch/lib/; patchelf --set-rpath '$ORIGIN' {folder}/tmp/torch/lib/libcudnn_graph.so.9"
+    )
     os.mkdir(f"{folder}/cuda_wheel")
     os.system(f"cd {folder}/tmp/; zip -r {folder}/cuda_wheel/{wheelname} *")
     shutil.move(
