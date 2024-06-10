@@ -22,6 +22,19 @@ set -eux -o pipefail
 # libtorch package.
 
 
+if [[ -z ${DESIRED_PYTHON:-} ]]; then
+  export DESIRED_PYTHON=${MATRIX_PYTHON_VERSION:-}
+fi
+if [[ -z ${DESIRED_CUDA:-} ]]; then
+  export DESIRED_CUDA=${MATRIX_DESIRED_CUDA:-}
+fi
+if [[ -z ${DESIRED_DEVTOOLSET:-} ]]; then
+  export DESIRED_DEVTOOLSET=${MATRIX_DESIRED_DEVTOOLSET:-}
+fi
+if [[ -z ${PACKAGE_TYPE:-} ]]; then
+  export PACKAGE_TYPE=${MATRIX_PACKAGE_TYPE:-}
+fi
+
 # The install root depends on both the package type and the os
 # All MacOS packages use conda, even for the wheel packages.
 if [[ "$PACKAGE_TYPE" == libtorch ]]; then
@@ -36,21 +49,6 @@ else
     exit 1
   fi
   install_root="$(dirname $(which python))/../lib/python${py_dot}/site-packages/torch/"
-fi
-
-if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
-  # cu90, cu92, cu100, cu101
-  if [[ ${#DESIRED_CUDA} -eq 4 ]]; then
-    CUDA_VERSION="${DESIRED_CUDA:2:1}.${DESIRED_CUDA:3:1}"
-  elif [[ ${#DESIRED_CUDA} -eq 5 ]]; then
-    CUDA_VERSION="${DESIRED_CUDA:2:2}.${DESIRED_CUDA:4:1}"
-  fi
-  echo "Using CUDA $CUDA_VERSION as determined by DESIRED_CUDA"
-
-  # Switch `/usr/local/cuda` to the desired CUDA version
-  rm -rf /usr/local/cuda || true
-  ln -s "/usr/local/cuda-${CUDA_VERSION}" /usr/local/cuda
-  export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 fi
 
 ###############################################################################
@@ -118,7 +116,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   #
   # To check whether it is using cxx11 ABI, check non-existence of symbol:
   PRE_CXX11_SYMBOLS=(
-    "std::basic_string"
+    "std::basic_string<"
     "std::list"
   )
   # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
@@ -263,7 +261,7 @@ setup_link_flags () {
   fi
 }
 
-TEST_CODE_DIR="$(dirname ${BASH_SOURCE[0]})/test_example_code"
+TEST_CODE_DIR="$(dirname $(realpath ${BASH_SOURCE[0]}))/test_example_code"
 build_and_run_example_cpp () {
   if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     GLIBCXX_USE_CXX11_ABI=1
@@ -271,7 +269,7 @@ build_and_run_example_cpp () {
     GLIBCXX_USE_CXX11_ABI=0
   fi
   setup_link_flags
-  g++ ${TEST_CODE_DIR}/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
+  g++ ${TEST_CODE_DIR}/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++17 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
   ./$1
 }
 
@@ -283,7 +281,7 @@ build_example_cpp_with_incorrect_abi () {
   fi
   set +e
   setup_link_flags
-  g++ ${TEST_CODE_DIR}/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++14 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
+  g++ ${TEST_CODE_DIR}/$1.cpp -I${install_root}/include -I${install_root}/include/torch/csrc/api/include -D_GLIBCXX_USE_CXX11_ABI=$GLIBCXX_USE_CXX11_ABI -std=gnu++17 -L${install_root}/lib ${REF_LIB} ${ADDITIONAL_LINKER_FLAGS} -ltorch $TORCH_CPU_LINK_FLAGS $TORCH_CUDA_LINK_FLAGS $C10_LINK_FLAGS -o $1
   ERRCODE=$?
   set -e
   if [ "$ERRCODE" -eq "0" ]; then
@@ -298,6 +296,10 @@ build_example_cpp_with_incorrect_abi () {
 # Check simple Python/C++ calls
 ###############################################################################
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
+  # NS: Set LD_LIBRARY_PATH for CUDA builds, but perhaps it should be removed
+  if [[ "$DESIRED_CUDA" == "cu"* ]]; then
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64
+  fi
   build_and_run_example_cpp simple-torch-test
   # `_GLIBCXX_USE_CXX11_ABI` is always ignored by gcc in devtoolset7, so we test
   # the expected failure case for Ubuntu 16.04 + gcc 5.4 only.
@@ -328,12 +330,19 @@ fi
 if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that MKL is available"
   build_and_run_example_cpp check-torch-mkl
-else
+elif [[ "$(uname -m)" != "arm64" && "$(uname -m)" != "s390x" ]]; then
   if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
-    echo "Checking that MKL is available"
-    pushd /tmp
-    python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
-    popd
+    if [[ "$(uname -m)" == "aarch64" ]]; then
+      echo "Checking that MKLDNN is available on aarch64"
+      pushd /tmp
+      python -c 'import torch; exit(0 if torch.backends.mkldnn.is_available() else 1)'
+      popd
+    else
+      echo "Checking that MKL is available"
+      pushd /tmp
+      python -c 'import torch; exit(0 if torch.backends.mkl.is_available() else 1)'
+      popd
+    fi
   fi
 fi
 
@@ -345,7 +354,7 @@ if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
   echo "Checking that XNNPACK is available"
   build_and_run_example_cpp check-torch-xnnpack
 else
-  if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]]; then
+  if [[ "$(uname)" != 'Darwin' || "$PACKAGE_TYPE" != *wheel ]] && [[ "$(uname -m)" != "s390x"  ]]; then
     echo "Checking that XNNPACK is available"
     pushd /tmp
     python -c 'import torch.backends.xnnpack; exit(0 if torch.backends.xnnpack.enabled else 1)'
@@ -366,7 +375,7 @@ if [[ "$OSTYPE" == "msys" ]]; then
 fi
 
 # Test that CUDA builds are setup correctly
-if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
+if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != 'cpu-cxx11-abi' && "$DESIRED_CUDA" != *"rocm"* && "$(uname -m)" != "s390x" ]]; then
   if [[ "$PACKAGE_TYPE" == 'libtorch' ]]; then
     build_and_run_example_cpp check-torch-cuda
   else
@@ -392,9 +401,24 @@ if [[ "$DESIRED_CUDA" != 'cpu' && "$DESIRED_CUDA" != *"rocm"* ]]; then
     echo "Checking that basic CNN works"
     python ${TEST_CODE_DIR}/cnn_smoke.py
 
+    echo "Test that linalg works"
+    python -c "import torch;x=torch.rand(3,3,device='cuda');print(torch.linalg.svd(torch.mm(x.t(), x)))"
+
     popd
   fi # if libtorch
 fi # if cuda
+
+##########################
+# Run parts of smoke tests
+##########################
+if [[ "$PACKAGE_TYPE" != 'libtorch' ]]; then
+  pushd "$(dirname ${BASH_SOURCE[0]})/test/smoke_test"
+  python -c "from smoke_test import test_linalg; test_linalg()"
+  if [[ "$DESIRED_CUDA" == *cuda* ]]; then
+    python -c "from smoke_test import test_linalg; test_linalg('cuda')"
+  fi
+  popd
+fi
 
 ###############################################################################
 # Check PyTorch supports TCP_TLS gloo transport
@@ -418,8 +442,8 @@ fi
 ###############################################################################
 # Check for C++ ABI compatibility between gcc7 and gcc9 compiled binaries
 ###############################################################################
-if [[ "$(uname)" == 'Linux' && ("$PACKAGE_TYPE" == 'conda' || "$PACKAGE_TYPE" == 'manywheel') ]]; then
+if [[ "$(uname)" == 'Linux' && ("$PACKAGE_TYPE" == 'conda' || "$PACKAGE_TYPE" == 'manywheel')]]; then
   pushd /tmp
-  python -c "import torch; exit(0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1011' else 1)"
+  python -c "import torch; exit(0 if torch.compiled_with_cxx11_abi() else (0 if torch._C._PYBIND11_BUILD_ABI == '_cxxabi1011' else 1))"
   popd
 fi

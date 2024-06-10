@@ -12,6 +12,7 @@ cp ${PACKAGE_FILES}/thread_queue.patch ${PACKAGE_DIR}/thread_queue.patch
 cp ${PACKAGE_FILES}/cmakelists.patch ${PACKAGE_DIR}/cmakelists.patch
 cp ${PACKAGE_FILES}/getrf_shfl.patch ${PACKAGE_DIR}/getrf_shfl.patch
 cp ${PACKAGE_FILES}/getrf_nbparam.patch ${PACKAGE_DIR}/getrf_nbparam.patch
+cp ${PACKAGE_FILES}/CMake.patch ${PACKAGE_DIR}/CMake.patch
 
 conda install -yq conda-build conda-verify
 . ./conda/switch_cuda_version.sh "${DESIRED_CUDA}"

@@ -10,3 +10,7 @@ Folders:
 - **windows** : scripts to build Windows wheels
 - **cron** : scripts to drive all of the above scripts across multiple configurations together
 - **analytics** : scripts to pull wheel download count from our AWS s3 logs
+
+## Testing
+
+In order to test build triggered by PyTorch repo's GitHub actions see [these instructions](https://github.com/pytorch/pytorch/blob/master/.github/scripts/README.md#testing-pytorchbuilder-changes)

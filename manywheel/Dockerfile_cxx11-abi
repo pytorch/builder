@@ -3,6 +3,7 @@ FROM centos:8 as base
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
+ENV PATH /opt/rh/gcc-toolset-11/root/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # change to a valid repo
 RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*.repo
@@ -11,7 +12,7 @@ RUN sed -i 's|enabled=0|enabled=1|g' /etc/yum.repos.d/CentOS-Linux-PowerTools.re
 
 RUN yum -y update
 RUN yum install -y wget curl perl util-linux xz bzip2 git patch which zlib-devel
-RUN yum install -y autoconf automake make cmake gdb gcc gcc-c++
+RUN yum install -y autoconf automake make cmake gdb gcc-toolset-11-gcc-c++
 
 
 FROM base as openssl
@@ -49,8 +50,6 @@ ADD ./common/install_libpng.sh install_libpng.sh
 RUN bash ./install_libpng.sh && rm install_libpng.sh
 
 FROM base as final
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm                             /opt/llvm
-COPY --from=pytorch/llvm:9.0.1 /opt/llvm_no_cxx11_abi                /opt/llvm_no_cxx11_abi
 COPY --from=openssl            /opt/openssl                          /opt/openssl
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal

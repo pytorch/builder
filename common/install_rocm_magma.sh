@@ -12,8 +12,11 @@ MKLROOT=${MKLROOT:-/opt/intel}
 # "install" hipMAGMA into /opt/rocm/magma by copying after build
 git clone https://bitbucket.org/icl/magma.git
 pushd magma
-# fix for magma_queue memory leak issue
-git checkout c62d700d880c7283b33fb1d615d62fc9c7f7ca21
+if [[ $PYTORCH_BRANCH == "release/1.10.1" ]]; then
+    git checkout magma_ctrl_launch_bounds
+else
+    git checkout a1625ff4d9bc362906bd01f805dbbe12612953f6
+fi
 cp make.inc-examples/make.inc.hip-gcc-mkl make.inc
 echo 'LIBDIR += -L$(MKLROOT)/lib' >> make.inc
 # TODO (1)
@@ -29,7 +32,7 @@ else
   amdgpu_targets=`rocm_agent_enumerator | grep -v gfx000 | sort -u | xargs`
 fi
 for arch in $amdgpu_targets; do
-  echo "DEVCCFLAGS += --amdgpu-target=$arch" >> make.inc
+  echo "DEVCCFLAGS += --offload-arch=$arch" >> make.inc
 done
 # hipcc with openmp flag may cause isnan() on __device__ not to be found; depending on context, compiler may attempt to match with host definition
 sed -i 's/^FOPENMP/#FOPENMP/g' make.inc
@@ -37,5 +40,8 @@ make -f make.gen.hipMAGMA -j $(nproc)
 LANG=C.UTF-8 make lib/libmagma.so -j $(nproc) MKLROOT="${MKLROOT}"
 make testing/testing_dgemm -j $(nproc) MKLROOT="${MKLROOT}"
 popd
-mv magma /opt/rocm
+mkdir -p /opt/rocm/magma
+mv magma/include /opt/rocm/magma
+mv magma/lib /opt/rocm/magma
+rm -rf magma
 

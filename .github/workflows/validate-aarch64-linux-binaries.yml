@@ -1,0 +1,144 @@
+name: Validate Aarch64 linux binaries
+
+on:
+  workflow_call:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      use-version-set:
+        description: 'Applies when version is used, use version for each domain'
+        default: false
+        required: false
+        type: boolean
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        options:
+          - release
+          - nightly
+          - test
+          - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
+      version:
+        description: 'Version to validate - optional'
+        default: ""
+        required: false
+        type: string
+      use-version-set:
+        description: 'Applies when version is used, use version for each domain'
+        default: false
+        required: false
+        type: boolean
+      release-matrix:
+        description: 'Release matrix - optional'
+        default: ""
+        required: false
+        type: string
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  generate-aarch64-linux-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+    with:
+      package-type: wheel
+      os: linux-aarch64
+      channel: ${{ inputs.channel }}
+      with-cuda: disable
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+
+  linux-aarch64:
+    needs: generate-aarch64-linux-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-aarch64-linux-matrix.outputs.matrix) }}
+      fail-fast: false
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    name: ${{ matrix.build_name }}
+    with:
+      runner: ${{ matrix.validation_runner }}
+      repository: "pytorch/builder"
+      ref: ${{ inputs.ref || github.ref }}
+      job-name: ${{ matrix.build_name }}
+      docker-image: ${{ matrix.container_image }}
+      binary-matrix: ${{ toJSON(matrix) }}
+      no-sudo: true
+      script: |
+        set -ex
+        export DESIRED_PYTHON=${{ matrix.python_version }}
+        source ./aarch64_linux/aarch64_ci_setup.sh
+        echo "/opt/conda/bin" >> $GITHUB_PATH
+
+        export ENV_NAME="conda-env-${{ github.run_id }}"
+        export TARGET_OS="linux-aarch64"
+        export TORCH_ONLY=${{ inputs.torchonly }}
+        export RELEASE_VERSION=${{ inputs.version }}
+        export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
+        export USE_VERSION_SET=${{ inputs.use-version-set }}
+        if [[ ${USE_VERSION_SET} == 'true' ]]; then
+          export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}
+          export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
+        fi
+
+        printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
+        eval "$(conda shell.bash hook)"
+
+        # NB: The latest conda 23.11.0 pulls in some dependencies of conda-libmamba-solver that
+        # require GLIBC_2.25, which is not available in the current aarch64 image causing the
+        # subsequence git command to fail. Basically, they don't work with CentOS 7 which AML 2
+        # is based on https://github.com/ContinuumIO/anaconda-issues/issues/12822
+        unset LD_LIBRARY_PATH
+
+        # Standard case: Validate binaries
+        source ./.github/scripts/validate_binaries.sh

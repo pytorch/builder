@@ -20,33 +20,21 @@ if "%build_with_cuda%" == "" goto cuda_flags_end
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v%desired_cuda%
 set CUDA_BIN_PATH=%CUDA_PATH%\bin
 set TORCH_NVCC_FLAGS=-Xfatbin -compress-all
-set TORCH_CUDA_ARCH_LIST=3.7+PTX;5.0
-if "%desired_cuda%" == "10.2" set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5
-if "%desired_cuda%" == "11.3" (
-    set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
+set TORCH_CUDA_ARCH_LIST=5.0;6.0;6.1;7.0;7.5;8.0;8.6;9.0
+if "%desired_cuda%" == "11.8" (
+    set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;3.7+PTX
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
-if "%desired_cuda%" == "11.5" (
-    set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
+if "%desired_cuda%" == "12.1" (
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
-if "%desired_cuda%" == "11.6" (
-    set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
-    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
-)
-if "%desired_cuda%" == "11.7" (
-    set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;6.0;6.1;7.0;7.5;8.0;8.6
+if "%desired_cuda%" == "12.4" (
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
 
 :cuda_flags_end
 
 set DISTUTILS_USE_SDK=1
-
-curl https://s3.amazonaws.com/ossci-windows/mkl_2020.2.254.7z -k -O
-7z x -aoa mkl_2020.2.254.7z -omkl
-set CMAKE_INCLUDE_PATH=%SRC_DIR%\mkl\include
-set LIB=%SRC_DIR%\mkl\lib;%LIB%
 
 set libuv_ROOT=%PREFIX%\Library
 echo libuv_ROOT=%libuv_ROOT%
@@ -112,6 +100,7 @@ IF "%USE_SCCACHE%" == "1" (
 
 if NOT "%build_with_cuda%" == "" (
     copy "%CUDA_BIN_PATH%\cudnn*64_*.dll*" %SP_DIR%\torch\lib
+    copy "%NVTOOLSEXT_PATH%\bin\x64\nvToolsExt64_*.dll*" %SP_DIR%\torch\lib
     :: cupti library file name changes aggressively, bundle it to avoid
     :: potential file name mismatch.
     copy "%CUDA_PATH%\extras\CUPTI\lib64\cupti64_*.dll*" %SP_DIR%\torch\lib

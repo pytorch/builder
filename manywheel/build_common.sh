@@ -25,6 +25,10 @@ retry () {
 OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"AlmaLinux"* ]]; then
+    retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
+    retry dnf install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     # TODO: Remove this once nvidia package repos are back online
     # Comment out nvidia repositories to prevent them from getting apt-get updated, see https://github.com/pytorch/pytorch/issues/74968
@@ -76,15 +80,7 @@ fi
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-    case ${DESIRED_PYTHON} in
-      3.[6-7]*)
-        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
-        ;;
-      # Should catch 3.8+
-      3.*)
-        DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
-        ;;
-    esac
+    DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
 fi
 
 if [[ ${python_nodot} -ge 310 ]]; then
@@ -119,32 +115,22 @@ pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
 case ${DESIRED_PYTHON} in
-  cp36-cp36m)
-    retry pip install -q numpy==1.11
-    ;;
-  cp3[7-8]*)
+  cp38*)
     retry pip install -q numpy==1.15
     ;;
-  cp310*)
-    retry pip install -q numpy==1.21.2
-    ;;
-  cp311*)
-    retry pip install -q numpy==1.23.1
+  cp31*)
+    retry pip install -q --pre numpy==2.0.0rc1
     ;;
   # Should catch 3.9+
   *)
-    retry pip install -q numpy==1.19.4
+    retry pip install -q --pre numpy==2.0.0rc1
     ;;
 esac
 
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
-    export USE_LLVM="/opt/llvm"
-    export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 else
     export _GLIBCXX_USE_CXX11_ABI=0
-    export USE_LLVM="/opt/llvm_no_cxx11_abi"
-    export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 fi
 
 if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
@@ -162,11 +148,23 @@ else
     echo "BUILD_DEBUG_INFO was not set, skipping debug info"
 fi
 
+if [[ "$DISABLE_RCCL" = 1 ]]; then
+    echo "Disabling NCCL/RCCL in pyTorch"
+    USE_RCCL=0
+    USE_NCCL=0
+    USE_KINETO=0
+else
+    USE_RCCL=1
+    USE_NCCL=1
+    USE_KINETO=1
+fi
+
 echo "Calling setup.py bdist at $(date)"
 time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-     EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-     BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
-     python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
+    EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+    BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
+    USE_NCCL=${USE_NCCL} USE_RCCL=${USE_RCCL} USE_KINETO=${USE_KINETO} \
+    python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
 echo "Finished setup.py bdist at $(date)"
 
 # Build libtorch packages
@@ -267,9 +265,9 @@ replace_needed_sofiles() {
     find $1 -name '*.so*' | while read sofile; do
         origname=$2
         patchedname=$3
-        if [[ "$origname" != "$patchedname" ]]; then
+        if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
             set +e
-            $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
+            origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*")
             ERRCODE=$?
             set -e
             if [ "$ERRCODE" -eq "0" ]; then
@@ -359,15 +357,15 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
 
     # set RPATH of _C.so and similar to $ORIGIN, $ORIGIN/lib
     find $PREFIX -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN:$ORIGIN/lib'
-        $PATCHELF_BIN --set-rpath '$ORIGIN:$ORIGIN/lib' $sofile
+        echo "Setting rpath of $sofile to ${C_SO_RPATH:-'$ORIGIN:$ORIGIN/lib'}"
+        $PATCHELF_BIN --set-rpath ${C_SO_RPATH:-'$ORIGIN:$ORIGIN/lib'} ${FORCE_RPATH:-} $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 
     # set RPATH of lib/ files to $ORIGIN
     find $PREFIX/lib -maxdepth 1 -type f -name "*.so*" | while read sofile; do
-        echo "Setting rpath of $sofile to " '$ORIGIN'
-        $PATCHELF_BIN --set-rpath '$ORIGIN' $sofile
+        echo "Setting rpath of $sofile to ${LIB_SO_RPATH:-'$ORIGIN'}"
+        $PATCHELF_BIN --set-rpath ${LIB_SO_RPATH:-'$ORIGIN'} ${FORCE_RPATH:-} $sofile
         $PATCHELF_BIN --print-rpath $sofile
     done
 
@@ -375,10 +373,10 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip;
     record_file=$(echo $(basename $pkg) | sed -e 's/-cp.*$/.dist-info\/RECORD/g')
     if [[ -e $record_file ]]; then
         echo "Generating new record file $record_file"
-        rm -f $record_file
+        : > "$record_file"
         # generate records for folders in wheel
         find * -type f | while read fname; do
-            echo $(make_wheel_record $fname) >>$record_file
+            make_wheel_record "$fname" >>"$record_file"
         done
     fi
 

@@ -1,0 +1,19 @@
+name: Test validate domain library
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-domain-library.yml
+      - .github/workflows/test-validate-domain-library.yml
+  workflow_dispatch:
+
+jobs:
+  test-validate-domain-library:
+    uses: ./.github/workflows/validate-domain-library.yml
+    with:
+      package_type: "conda,wheel"
+      os: "all"
+      channel: "release"
+      repository: "pytorch/builder"
+      ref: main
+      smoke_test: "echo test"

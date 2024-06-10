@@ -3,7 +3,12 @@ name: Build libtorch docker images
 on:
   push:
     branches:
-      main
+      - main
+      - release/*
+    tags:
+      # NOTE: Binary build pipelines should only get triggered on release candidate or nightly builds
+      # Release candidate tags look like: v1.11.0-rc1
+      - v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+
     paths:
       - .github/workflows/build-libtorch-images.yml
       - libtorch/Dockerfile
@@ -21,20 +26,20 @@ env:
   DOCKER_BUILDKIT: 1
   DOCKER_ID: ${{ secrets.DOCKER_ID }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-  WITH_PUSH: ${{ github.event_name == 'push' }}
+  WITH_PUSH: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release')) }}
 
 jobs:
   build-docker-cuda:
-    runs-on: ubuntu-18.04
+    runs-on: linux.12xlarge
     strategy:
       matrix:
-        cuda_version: ["11.7", "11.6", "11.5", "11.3", "10.2"]
+        cuda_version: ["12.4", "12.1", "11.8"]
     env:
       GPU_ARCH_TYPE: cuda
       GPU_ARCH_VERSION: ${{ matrix.cuda_version }}
     steps:
       - name: Checkout PyTorch builder
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
@@ -44,16 +49,16 @@ jobs:
         run: |
           libtorch/build_docker.sh
   build-docker-rocm:
-    runs-on: ubuntu-18.04
+    runs-on: linux.12xlarge
     strategy:
       matrix:
-        rocm_version: ["5.1.1", "5.2"]
+        rocm_version: ["6.0", "6.1"]
     env:
       GPU_ARCH_TYPE: rocm
       GPU_ARCH_VERSION: ${{ matrix.rocm_version }}
     steps:
       - name: Checkout PyTorch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then
@@ -63,10 +68,10 @@ jobs:
         run: |
           libtorch/build_docker.sh
   build-docker-cpu:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout PyTorch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Authenticate if WITH_PUSH
         run: |
           if [[ "${WITH_PUSH}" == true ]]; then

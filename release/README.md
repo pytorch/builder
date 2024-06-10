@@ -12,6 +12,13 @@ These are a collection of scripts that are to be used for release activities.
 * Access to upload conda packages to the [`pytorch`](https://anaconda.org/pytorch) conda channel
 * Access to the PyPI repositories (like [torch](https://pypi.org/project/torch))
 
+## Promote pypi to staging
+
+Following steps needed in order to promote pypi to staging:
+1. Edit `release_versions.sh` and set correct version
+2. Run promote script : `./pypi/promote_pypi_to_staging.sh`
+3. Edit and run `../analytics/validate_pypi_staging.py` to perform initial prevalidation of binaries for pypi promotion
+4. Manually inspect and spot check binaries staged for pypi promotion by logging into s3 and downloading packages
 
 ## Promote
 

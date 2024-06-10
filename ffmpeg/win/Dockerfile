@@ -35,7 +35,7 @@ RUN yum install -y \
     nano
 
 # Update automake to 1.15
-RUN wget http://ftp.gnu.org/gnu/automake/automake-1.15.tar.gz
+RUN wget https://ftp.gnu.org/gnu/automake/automake-1.15.tar.gz
 RUN tar -xzvf automake-1.15.tar.gz
 RUN cd automake-1.15.tar.gz && ./configure && make && make install
 

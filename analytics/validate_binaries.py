@@ -6,10 +6,10 @@ import json
 PLATFORMS = ["osx-64", "linux-64", "win-64"]
 PYTHON_VERSIONS = ["3.10", "3.9", "3.8", "3.7"]
 CUDA_CUDNN_VERSION = [
-    ("11.5", "8.3.2"), ("11.3", "8.2.0"), ("11.1", "8.0.5"), ("10.2", "7.6.5"), ("cpu", None)
+    ("11.7", "8.5.0"), ("cpu", None)
 ]
 CHANNEL = "pytorch-test"
-VERSION = "1.11.*"
+VERSION = "1.13.*"
 
 
 def generate_expected_builds(platform: str) -> set:
@@ -22,9 +22,6 @@ def generate_expected_builds(platform: str) -> set:
 
         for cuda_version, cudnn_version in CUDA_CUDNN_VERSION:
             if platform == "win-64":
-                if cuda_version == "10.2":
-                    # win does not support cuda 10.2
-                    continue
                 cudnn_version = "8"
 
             if cuda_version == "cpu":

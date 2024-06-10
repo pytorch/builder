@@ -32,13 +32,13 @@ pushd drm
 ###########################
 patch -p1 <<'EOF'
 diff --git a/amdgpu/amdgpu_asic_id.c b/amdgpu/amdgpu_asic_id.c
-index a5007ffc..a3627529 100644
+index a5007ffc..13fa07fc 100644
 --- a/amdgpu/amdgpu_asic_id.c
 +++ b/amdgpu/amdgpu_asic_id.c
 @@ -22,6 +22,13 @@
   *
   */
- 
+
 +#define _XOPEN_SOURCE 700
 +#define _LARGEFILE64_SOURCE
 +#define _FILE_OFFSET_BITS 64
@@ -49,20 +49,18 @@ index a5007ffc..a3627529 100644
  #include <ctype.h>
  #include <stdio.h>
  #include <stdlib.h>
-@@ -34,6 +41,21 @@
+@@ -34,6 +41,19 @@
  #include "amdgpu_drm.h"
  #include "amdgpu_internal.h"
- 
+
 +static char *amdgpuids_path = NULL;
++static const char* amdgpuids_path_msg = NULL;
 +
 +static int check_for_location_of_amdgpuids(const char *filepath, const struct stat *info, const int typeflag, struct FTW *pathinfo)
 +{
 +	if (typeflag == FTW_F && strstr(filepath, "amdgpu.ids")) {
-+		if (NULL != amdgpuids_path) {
-+			free(amdgpuids_path);
-+		}
 +		amdgpuids_path = strdup(filepath);
-+		return 0;
++		return 1;
 +	}
 +
 +	return 0;
@@ -71,16 +69,20 @@ index a5007ffc..a3627529 100644
  static int parse_one_line(struct amdgpu_device *dev, const char *line)
  {
  	char *buf, *saveptr;
-@@ -113,13 +135,48 @@ void amdgpu_parse_asic_ids(struct amdgpu_device *dev)
+@@ -113,10 +133,46 @@ void amdgpu_parse_asic_ids(struct amdgpu_device *dev)
  	int line_num = 1;
  	int r = 0;
- 
--	fp = fopen(AMDGPU_ASIC_ID_TABLE, "r");
+
++	// attempt to find typical location for amdgpu.ids file
+ 	fp = fopen(AMDGPU_ASIC_ID_TABLE, "r");
++
++	// if it doesn't exist, search
++	if (!fp) {
++
 +	char self_path[ PATH_MAX ];
 +	ssize_t count;
 +	ssize_t i;
 +
-+	fp = NULL;
 +	count = readlink( "/proc/self/exe", self_path, PATH_MAX );
 +	if (count > 0) {
 +		self_path[count] = '\0';
@@ -97,30 +99,43 @@ index a5007ffc..a3627529 100644
 +		}
 +		self_path[i] = '\0';
 +
-+		if (0 == nftw(self_path, check_for_location_of_amdgpuids, 5, FTW_PHYS)) {
-+			if (amdgpuids_path) {
-+				fp = fopen(amdgpuids_path, "r");
-+				if (!fp) {
-+					fprintf(stderr, "%s: %s\n", amdgpuids_path, strerror(errno));
-+				}
-+			}
++		if (1 == nftw(self_path, check_for_location_of_amdgpuids, 5, FTW_PHYS)) {
++			fp = fopen(amdgpuids_path, "r");
++			amdgpuids_path_msg = amdgpuids_path;
 +		}
 +	}
 +
-+	if (!fp) {
-+
-+	fp = fopen(AMDGPU_ASIC_ID_TABLE, "r");
- 	if (!fp) {
- 		fprintf(stderr, "%s: %s\n", AMDGPU_ASIC_ID_TABLE,
- 			strerror(errno));
- 		return;
- 	}
- 
++	}
++	else {
++		amdgpuids_path_msg = AMDGPU_ASIC_ID_TABLE;
 +	}
 +
- 	/* 1st valid line is file version */
- 	while ((n = getline(&line, &len, fp)) != -1) {
- 		/* trim trailing newline */
++	// both hard-coded location and search have failed
+ 	if (!fp) {
+-		fprintf(stderr, "%s: %s\n", AMDGPU_ASIC_ID_TABLE,
+-			strerror(errno));
++		fprintf(stderr, "amdgpu.ids: No such file or directory\n");
+ 		return;
+ 	}
+
+@@ -132,7 +188,7 @@ void amdgpu_parse_asic_ids(struct amdgpu_device *dev)
+ 			continue;
+ 		}
+
+-		drmMsg("%s version: %s\n", AMDGPU_ASIC_ID_TABLE, line);
++		drmMsg("%s version: %s\n", amdgpuids_path_msg, line);
+ 		break;
+ 	}
+
+@@ -150,7 +206,7 @@ void amdgpu_parse_asic_ids(struct amdgpu_device *dev)
+
+ 	if (r == -EINVAL) {
+ 		fprintf(stderr, "Invalid format: %s: line %d: %s\n",
+-			AMDGPU_ASIC_ID_TABLE, line_num, line);
++			amdgpuids_path_msg, line_num, line);
+ 	} else if (r && r != -EAGAIN) {
+ 		fprintf(stderr, "%s: Cannot parse ASIC IDs: %s\n",
+ 			__func__, strerror(-r));
 EOF
 
 ###########################

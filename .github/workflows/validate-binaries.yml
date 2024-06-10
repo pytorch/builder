@@ -1,0 +1,171 @@
+name: Validate binaries
+
+# A reusable workflow that triggers a set of jobs that perform a smoke test / validation of pytorch binaries.
+# Optionally restricts validation to the specified OS and channel.
+# For the details about parameter values, see:
+#   pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
+# For an example of the `workflow_call` usage see:
+#   https://github.com/pytorch/builder/pull/1144
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: "Operating system to generate for (linux, windows, macos, macos-arm64)"
+        required: true
+        type: string
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: string
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
+      include-test-ops:
+        description: 'Include Test Ops tests (only Linux)'
+        default: false
+        required: false
+        type: boolean
+      use-version-set:
+        description: 'Use version for each domain'
+        default: false
+        required: false
+        type: boolean
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      os:
+        description: "Operating system to generate for (linux, windows, macos, macos-arm64)"
+        required: true
+        type: choice
+        default: all
+        options:
+          - windows
+          - linux
+          - linux-aarch64
+          - macos
+          - all
+      channel:
+        description: "Channel to use (nightly, test, release, all)"
+        required: true
+        type: choice
+        default: all
+        options:
+          - release
+          - nightly
+          - test
+          - all
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+      torchonly:
+        description: 'Validate torchonly'
+        default: false
+        required: false
+        type: boolean
+      version:
+        description: 'Version to validate'
+        default: ""
+        required: false
+        type: string
+      use-version-set:
+        description: 'Use version for each domain'
+        default: false
+        required: false
+        type: boolean
+      include-test-ops:
+        description: 'Include Test Ops tests (only Linux)'
+        default: false
+        required: false
+        type: boolean
+      use-only-dl-pytorch-org:
+        description: 'Use only download.pytorch.org when generating wheel install command'
+        default: false
+        required: false
+        type: boolean
+      use-force-reinstall:
+        description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+
+
+jobs:
+  generate-release-matrix:
+    uses: pytorch/test-infra/.github/workflows/generate_release_matrix.yml@main
+    with:
+      version: ${{ inputs.version }}
+
+  win:
+    if:  inputs.os == 'windows' || inputs.os == 'all'
+    needs: generate-release-matrix
+    uses: ./.github/workflows/validate-windows-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
+      release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
+
+  linux:
+    if:  inputs.os == 'linux' || inputs.os == 'all'
+    needs: generate-release-matrix
+    uses: ./.github/workflows/validate-linux-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
+      release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      include-test-ops: ${{ inputs.include-test-ops }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
+
+  linux-aarch64:
+    if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
+    needs: generate-release-matrix
+    uses: ./.github/workflows/validate-aarch64-linux-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
+      release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}
+
+  mac-arm64:
+    if:  inputs.os == 'macos' || inputs.os == 'all'
+    needs: generate-release-matrix
+    uses: ./.github/workflows/validate-macos-arm64-binaries.yml
+    with:
+      channel: ${{ inputs.channel }}
+      ref: ${{ inputs.ref || github.ref }}
+      torchonly: ${{ inputs.torchonly }}
+      version: ${{ inputs.version }}
+      use-version-set: ${{ inputs.use-version-set }}
+      release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
+      use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use-force-reinstall: ${{ inputs.use-force-reinstall }}

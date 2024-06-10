@@ -33,19 +33,23 @@ pushd "${output_tmp_dir}"
 # Dry run by default
 DRY_RUN=${DRY_RUN:-enabled}
 # On dry run just echo the commands that are meant to be run
-TWINE_UPLOAD="echo twine upload"
 DRY_RUN_FLAG="--dryrun"
 if [[ $DRY_RUN = "disabled" ]]; then
-    TWINE_UPLOAD="twine upload"
     DRY_RUN_FLAG=""
 fi
 
 for pkg in ${pkgs_to_promote}; do
     pkg_basename="$(basename "${pkg}")"
-    # Don't attempt to change if manylinux2014
-    if [[ "${pkg}" != *manylinux2014* ]]; then
+
+    if [[ "${pkg}" != *aarch64* && "${pkg}" != *torchdata* ]]; then
         # sub out linux for manylinux1
         pkg_basename="$(basename "${pkg//linux/manylinux1}")"
+    elif [[ "${pkg}" == *manylinux_2_17_aarch64* ]]; then
+        # strip manylinux_2_17 from core filename
+        pkg_basename="$(basename "${pkg//manylinux_2_17_aarch64./}")"
+    elif [[ "${pkg}" == *linux_aarch64* ]]; then
+        # domains change linux_aarch64 to manylinux2014_aarch64
+        pkg_basename="$(basename "${pkg//linux_aarch64/manylinux2014_aarch64}")"
     fi
     orig_pkg="${tmp_dir}/${pkg_basename}"
     (

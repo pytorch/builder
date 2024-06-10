@@ -8,7 +8,6 @@ import json
 import enum
 import os
 
-
 class IssueState(enum.Enum):
     OPEN = "open"
     CLOSED = "closed"
@@ -25,6 +24,7 @@ class GitCommit:
     author: str
     author_date: datetime
     commit_date: Optional[datetime]
+    pr_url: str
 
     def __init__(self,
                  commit_hash: str,
@@ -32,6 +32,7 @@ class GitCommit:
                  author_date: datetime,
                  title: str,
                  body: str,
+                 pr_url : str,
                  commit_date: Optional[datetime] = None) -> None:
         self.commit_hash = commit_hash
         self.author = author
@@ -39,9 +40,20 @@ class GitCommit:
         self.commit_date = commit_date
         self.title = title
         self.body = body
+        self.pr_url = pr_url
 
     def __contains__(self, item: Any) -> bool:
         return item in self.body or item in self.title
+
+    def is_issue_mentioned(self, issue_url: str) -> bool:
+        if issue_url in self:
+            return True
+        if "/pull/" in issue_url:
+            return False
+        issue_hash = f"#{issue_url.split('issues/')[1]}"
+        if "fixes" in self.title.lower() and issue_hash in self.title:
+            return True
+        return any("fixes" in line.lower() and issue_hash in line for line in self.body.split("\n"))
 
 
 def get_revert_revision(commit: GitCommit) -> Optional[str]:
@@ -137,12 +149,20 @@ def parse_fuller_format(lines: Union[str, List[str]]) -> GitCommit:
     assert lines[3].startswith("Commit: ")
     assert lines[4].startswith("CommitDate: ")
     assert len(lines[5]) == 0
+
+    prUrl = ""
+    for line in lines:
+        if "Pull Request resolved:" in line:
+            prUrl = line.split("Pull Request resolved:")[1].strip()
+            break
+
     return GitCommit(commit_hash=lines[0].split()[1].strip(),
                      author=lines[1].split(":", 1)[1].strip(),
                      author_date=datetime.fromtimestamp(int(lines[2].split(":", 1)[1].strip())),
                      commit_date=datetime.fromtimestamp(int(lines[4].split(":", 1)[1].strip())),
                      title=lines[6].strip(),
                      body="\n".join(lines[7:]),
+                     pr_url=prUrl,
                      )
 
 
@@ -161,9 +181,12 @@ class GitRepo:
         self.repo_dir = path
         self.remote = remote
 
+    def _run_git_cmd(self, *args) -> str:
+        return _check_output(['git', '-C', self.repo_dir] + list(args))
+
     def _run_git_log(self, revision_range) -> List[GitCommit]:
-        log = _check_output(['git', '-C', self.repo_dir, 'log',
-                             '--format=fuller', '--date=unix', revision_range, '--', '.']).split("\n")
+        log = self._run_git_cmd('log', '--format=fuller',
+                             '--date=unix', revision_range, '--', '.').split("\n")
         rc: List[GitCommit] = []
         cur_msg: List[str] = []
         for line in log:
@@ -178,6 +201,18 @@ class GitRepo:
 
     def get_commit_list(self, from_ref, to_ref) -> List[GitCommit]:
         return self._run_git_log(f"{self.remote}/{from_ref}..{self.remote}/{to_ref}")
+
+    def get_ghstack_orig_branches(self) -> List[str]:
+        return [x.strip() for x in self._run_git_cmd("branch", "--remotes", "--list", self.remote + "/gh/*/orig").strip().split("\n")]
+
+    def show_ref(self, ref) -> str:
+        return self._run_git_cmd("show-ref", ref).split(" ")[0]
+
+    def merge_base(self, ref1, ref2) -> str:
+        return self._run_git_cmd("merge-base", ref1, ref2).strip()
+
+    def rev_list(self, ref):
+        return self._run_git_cmd("rev-list", f"{self.remote}/main..{ref}").strip().split()
 
 
 def build_commit_dict(commits: List[GitCommit]) -> Dict[str, GitCommit]:
@@ -203,7 +238,6 @@ def fetch_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[s
             print(f"Rate limit exceeded: {err.headers['X-RateLimit-Used']}/{err.headers['X-RateLimit-Limit']}")
         raise
 
-
 def fetch_multipage_json(url: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
     if params is None:
         params = {}
@@ -221,7 +255,6 @@ def gh_get_milestones(org='pytorch', project='pytorch', state: IssueState = Issu
     url = f'https://api.github.com/repos/{org}/{project}/milestones'
     return fetch_multipage_json(url, {"state": state})
 
-
 def gh_get_milestone_issues(org: str, project: str, milestone_idx: int, state: IssueState = IssueState.OPEN):
     url = f'https://api.github.com/repos/{org}/{project}/issues'
     return fetch_multipage_json(url, {"milestone": milestone_idx, "state": state})
@@ -238,6 +271,10 @@ def gh_get_ref_statuses(org: str, project: str, ref: str) -> Dict[str, Any]:
             rc["statuses"] += nrc["statuses"]
     return rc
 
+def get_issue_comments(org: str, project: str, issue_number : int):
+    url = f'https://api.github.com/repos/{org}/{project}/issues/{issue_number}/comments'
+
+    return fetch_multipage_json(url)
 
 def extract_statuses_map(json: Dict[str, Any]):
     return {s["context"]: s["state"] for s in json["statuses"]}
@@ -338,24 +375,62 @@ def print_contributor_stats(commits, delta: Optional[timedelta] = None) -> None:
 def commits_missing_in_branch(repo: GitRepo, branch: str, orig_branch: str, milestone_idx: int) -> None:
     def get_commits_dict(x, y):
         return build_commit_dict(repo.get_commit_list(x, y))
-    master_commits = get_commits_dict(orig_branch, 'master')
+    main_commits = get_commits_dict(orig_branch, 'main')
     release_commits = get_commits_dict(orig_branch, branch)
-    print(f"len(master_commits)={len(master_commits)}")
+    print(f"len(main_commits)={len(main_commits)}")
     print(f"len(release_commits)={len(release_commits)}")
     print("URL;Title;Status")
     for issue in gh_get_milestone_issues('pytorch', 'pytorch', milestone_idx, IssueState.ALL):
-        html_url, state = issue["html_url"], issue["state"]
+        issue_url, state = issue["html_url"], issue["state"]
         # Skip closed states if they were landed before merge date
         if state == "closed":
-            mentioned_after_cut = any(html_url in commit_message for commit_message in master_commits.values())
+            mentioned_after_cut = any(commit.is_issue_mentioned(issue_url) for commit in main_commits.values())
             # If issue is not mentioned after cut, that it must be present in release branch
             if not mentioned_after_cut:
                 continue
-            mentioned_in_release = any(html_url in commit_message for commit_message in release_commits.values())
+            mentioned_in_release = any(commit.is_issue_mentioned(issue_url) for commit in release_commits.values())
             # if Issue is mentioned is release branch, than it was picked already
             if mentioned_in_release:
                 continue
-        print(f'{html_url};{issue["title"]};{state}')
+        print(f'{issue_url};{issue["title"]};{state}')
+
+def commits_missing_in_release(repo: GitRepo, branch: str, orig_branch: str, minor_release: str, milestone_idx: int, cut_off_date : datetime, issue_num :  int) -> None:
+    def get_commits_dict(x, y):
+        return build_commit_dict(repo.get_commit_list(x, y))
+    main_commits = get_commits_dict(minor_release, 'main')
+    prev_release_commits = get_commits_dict(orig_branch, branch)
+    current_issue_comments = get_issue_comments('pytorch', 'pytorch',issue_num) # issue comments for the release tracker as cherry picks
+    print(f"len(main_commits)={len(main_commits)}")
+    print(f"len(prev_release_commits)={len(prev_release_commits)}")
+    print(f"len(current_issue_comments)={len(current_issue_comments)}")
+    print(f"issue_num: {issue_num}, len(issue_comments)={len(current_issue_comments)}")
+    print("URL;Title;Status")
+
+    # Iterate over the previous release branch to find potentially missing cherry picks in the current issue. 
+    for commit in prev_release_commits.values():
+        not_cherry_picked_in_current_issue = any(commit.pr_url not in issue_comment['body'] for issue_comment in current_issue_comments)
+        for main_commit in main_commits.values():
+            if main_commit.pr_url == commit.pr_url :
+                mentioned_after_cut_off_date = cut_off_date < main_commit.commit_date
+                if not_cherry_picked_in_current_issue and mentioned_after_cut_off_date:
+                    # Commits that are release only, which exist in previous release branch and not in main.
+                    print(f'{commit.pr_url};{commit.title};{commit.commit_date}')
+                break
+
+def analyze_stacks(repo: GitRepo) -> None:
+    from tqdm.contrib.concurrent import thread_map
+    branches = repo.get_ghstack_orig_branches()
+    stacks_by_author: Dict[str, List[int]] = {}
+    for branch,rv_commits in thread_map(lambda x: (x, repo.rev_list(x)), branches, max_workers=10):
+        author = branch.split("/")[2]
+        if author not in stacks_by_author:
+            stacks_by_author[author]=[]
+        stacks_by_author[author].append(len(rv_commits))
+    for author, slen in sorted(stacks_by_author.items(), key=lambda x:len(x[1]), reverse=True):
+        if len(slen) == 1:
+            print(f"{author} has 1 stack of depth {slen[0]}")
+            continue
+        print(f"{author} has {len(slen)} stacks max depth is {max(slen)} avg depth is {sum(slen)/len(slen):.2f} mean is {slen[len(slen)//2]}")
 
 
 def parse_arguments():
@@ -367,6 +442,7 @@ def parse_arguments():
                         default=os.path.expanduser("~/git/pytorch/pytorch"))
     parser.add_argument("--milestone-id", type=str)
     parser.add_argument("--branch", type=str)
+    parser.add_argument("--minor-release", type=str)
     parser.add_argument("--remote",
                         type=str,
                         help="Remote to base off of",
@@ -375,6 +451,10 @@ def parse_arguments():
     parser.add_argument("--print-reverts", action="store_true")
     parser.add_argument("--contributor-stats", action="store_true")
     parser.add_argument("--missing-in-branch", action="store_true")
+    parser.add_argument("--missing-in-release", action="store_true")
+    parser.add_argument("--analyze-stacks", action="store_true")
+    parser.add_argument('--date', type=lambda d: datetime.strptime(d, '%Y-%m-%d'))
+    parser.add_argument("--issue-num", type=int)
     return parser.parse_args()
 
 
@@ -392,29 +472,44 @@ def main():
 
     repo = GitRepo(args.repo_path, remote)
 
-    if args.missing_in_branch:
-        # Use milestone idx or search it along milestone titles
-        try:
-            milestone_idx = int(args.milestone_id)
-        except ValueError:
-            milestone_idx = -1
-            milestones = gh_get_milestones()
-            for milestone in milestones:
-                if milestone.get('title', '') == args.milestone_id:
-                    milestone_idx = int(milestone.get('number', '-2'))
-            if milestone_idx < 0:
-                print(f'Could not find milestone {args.milestone_id}')
-                return
+    if args.analyze_stacks:
+        analyze_stacks(repo)
+        return
+    
+    # Use milestone idx or search it along milestone titles
+    try:
+        milestone_idx = int(args.milestone_id)
+    except ValueError:
+        milestone_idx = -1
+        milestones = gh_get_milestones()
+        for milestone in milestones:
+            if milestone.get('title', '') == args.milestone_id:
+                milestone_idx = int(milestone.get('number', '-2'))
+        if milestone_idx < 0:
+            print(f'Could not find milestone {args.milestone_id}')
+            return
 
+    if args.missing_in_branch:
         commits_missing_in_branch(repo,
-                                  args.branch,
+                                  args.branch, 
                                   f'orig/{args.branch}',
                                   milestone_idx)
+        return
+    
+    if args.missing_in_release:
+        commits_missing_in_release(repo,
+                                  args.branch,
+                                  f'orig/{args.branch}',
+                                  args.minor_release,
+                                  milestone_idx,
+                                  args.date,
+                                  args.issue_num
+                                  )
         return
 
     print(f"Parsing git history with remote {remote}...", end='', flush=True)
     start_time = time.time()
-    x = repo._run_git_log(f"{remote}/master")
+    x = repo._run_git_log(f"{remote}/main")
     print(f"done in {time.time()-start_time:.1f} sec")
     if args.analyze_reverts:
         analyze_reverts(x)

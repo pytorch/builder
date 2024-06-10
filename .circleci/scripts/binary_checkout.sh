@@ -41,8 +41,8 @@ echo "export BUILDER_ROOT=${BUILDER_ROOT}" >> ${BASH_ENV}
 retry git clone --depth 1 https://github.com/pytorch/pytorch.git "$PYTORCH_ROOT"
 # Removed checking out pytorch/pytorch using CIRCLE_PR_NUMBER and CIRCLE_SHA1 as
 # those environment variables are tied to the host repo where the build is being
-# triggered. 
-retry git submodule update --init --recursive --jobs 0
+# triggered.
+retry git submodule update --init --recursive
 pushd "$PYTORCH_ROOT"
 echo "Using Pytorch from "
 git --no-pager log --max-count 1

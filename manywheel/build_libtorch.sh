@@ -24,6 +24,10 @@ retry () {
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"AlmaLinux"* ]]; then
+    retry yum install -q -y zip openssl
+elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
+    retry dnf install -q -y zip openssl
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     # TODO: Remove this once nvidia package repos are back online
     # Comment out nvidia repositories to prevent them from getting apt-get updated, see https://github.com/pytorch/pytorch/issues/74968
@@ -65,13 +69,11 @@ fi
 # ever pass one python version, so we assume that DESIRED_PYTHON is not a list
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
-    if [[ "$DESIRED_PYTHON" == '2.7mu' ]]; then
-      DESIRED_PYTHON='cp27-cp27mu'
-    elif [[ "$DESIRED_PYTHON" == '3.8m' ]]; then
-      DESIRED_PYTHON='cp38-cp38'
+    if [[ "$DESIRED_PYTHON" == '3.7' ]]; then
+      DESIRED_PYTHON='cp37-cp37m'
     else
       python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}m"
+      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
     fi
 fi
 pydir="/opt/python/$DESIRED_PYTHON"
@@ -105,12 +107,8 @@ fi
 
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
-    export USE_LLVM="/opt/llvm"
-    export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 else
     export _GLIBCXX_USE_CXX11_ABI=0
-    export USE_LLVM="/opt/llvm_no_cxx11_abi"
-    export LLVM_DIR="$USE_LLVM/lib/cmake/llvm"
 fi
 
 if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
@@ -228,6 +226,11 @@ fname_with_sha256() {
     fi
 }
 
+fname_without_so_number() {
+    LINKNAME=$(echo $1 | sed -e 's/\.so.*/.so/g')
+    echo "$LINKNAME"
+}
+
 make_wheel_record() {
     FPATH=$1
     if echo $FPATH | grep RECORD >/dev/null 2>&1; then
@@ -278,7 +281,11 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
                 cp $filepath $destpath
             fi
 
-            patchedpath=$(fname_with_sha256 $destpath)
+            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+                patchedpath=$(fname_without_so_number $destpath)
+            else
+                patchedpath=$(fname_with_sha256 $destpath)
+            fi
             patchedname=$(basename $patchedpath)
             if [[ "$destpath" != "$patchedpath" ]]; then
                 mv $destpath $patchedpath
@@ -292,9 +299,9 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
             find $PREFIX -name '*.so*' | while read sofile; do
                 origname=${DEPS_SONAME[i]}
                 patchedname=${patched[i]}
-                if [[ "$origname" != "$patchedname" ]]; then
+                if [[ "$origname" != "$patchedname" ]] || [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
                     set +e
-                    $PATCHELF_BIN --print-needed $sofile | grep $origname 2>&1 >/dev/null
+                    origname=$($PATCHELF_BIN --print-needed $sofile | grep "$origname.*")
                     ERRCODE=$?
                     set -e
                     if [ "$ERRCODE" -eq "0" ]; then
@@ -340,7 +347,7 @@ for pkg in /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
     fi
 
     # zip up the wheel back
-    zip -rq $(basename $pkg) $PREIX*
+    zip -rq $(basename $pkg) $PREFIX*
 
     # replace original wheel
     rm -f $pkg
