@@ -33,5 +33,7 @@ promote_staging_binaries() {
 promote_staging_binaries torch "${PYTORCH_VERSION}"
 promote_staging_binaries torchvision "${TORCHVISION_VERSION}"
 promote_staging_binaries torchaudio "${TORCHAUDIO_VERSION}"
-promote_staging_binaries torchtext "${TORCHTEXT_VERSION}"
-promote_staging_binaries torchdata "${TORCHDATA_VERSION}"
+
+promote_staging_binaries executorch "${EXECUTORCH_VERSION}"
+#promote_staging_binaries torchtext "${TORCHTEXT_VERSION}"
+#promote_staging_binaries torchdata "${TORCHDATA_VERSION}"
