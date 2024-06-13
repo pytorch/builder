@@ -7,7 +7,6 @@ git clone https://github.com/OpenMathLib/OpenBLAS.git -b v0.3.25 --depth 1 --sha
 
 
 OPENBLAS_BUILD_FLAGS="
-NOFORTRAN=1
 NUM_THREADS=128
 USE_OPENMP=1
 NO_SHARED=0
@@ -15,6 +14,11 @@ DYNAMIC_ARCH=1
 TARGET=ARMV8
 CFLAGS=-O3
 "
+if [ "$DESIRED_CUDA" = "cu124" ]; then
+    OPENBLAS_BUILD_FLAGS+="
+NOFORTRAN=1
+"
+fi
 
 OPENBLAS_CHECKOUT_DIR="OpenBLAS"
 
