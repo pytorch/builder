@@ -14,7 +14,8 @@ DYNAMIC_ARCH=1
 TARGET=ARMV8
 CFLAGS=-O3
 "
-if [ "$DESIRED_CUDA" = "cu124" ]; then
+
+if [ "$GPU_ARCH_TYPE" = "cuda-aarch64" ]; then
     OPENBLAS_BUILD_FLAGS+="
 NOFORTRAN=1
 "
