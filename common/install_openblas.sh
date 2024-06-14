@@ -15,7 +15,7 @@ TARGET=ARMV8
 CFLAGS=-O3
 "
 
-if [ "$GPU_ARCH_TYPE" = "cuda-aarch64" ]; then
+if [ -n "${BASE_CUDA_VERSION}" ]; then
     OPENBLAS_BUILD_FLAGS+="
 NOFORTRAN=1
 "
