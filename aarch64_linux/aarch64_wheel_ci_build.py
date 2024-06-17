@@ -14,44 +14,6 @@ def list_dir(path: str) -> List[str]:
     """
     return check_output(["ls", "-1", path]).decode().split("\n")
 
-
-def build_OpenBLAS() -> None:
-    '''
-    Building OpenBLAS, because the package in many linux is old
-    '''
-    print('Building OpenBLAS')
-    openblas_build_flags = [
-        "NUM_THREADS=128",
-        "USE_OPENMP=1",
-        "NO_SHARED=0",
-        "DYNAMIC_ARCH=1",
-        "TARGET=ARMV8",
-        "CFLAGS=-O3",
-    ]
-    openblas_checkout_dir = "OpenBLAS"
-
-    check_call(
-        [
-            "git",
-            "clone",
-            "https://github.com/OpenMathLib/OpenBLAS.git",
-            "-b",
-            "v0.3.25",
-            "--depth",
-            "1",
-            "--shallow-submodules",
-        ]
-    )
-
-    check_call(["make", "-j8"]
-                + openblas_build_flags,
-                cwd=openblas_checkout_dir)
-    check_call(["make", "-j8"]
-                + openblas_build_flags
-                + ["install"],
-                cwd=openblas_checkout_dir)
-
-
 def build_ArmComputeLibrary() -> None:
     """
     Using ArmComputeLibrary for aarch64 PyTorch
@@ -103,7 +65,7 @@ def update_wheel(wheel_path) -> None:
     os.system(f"unzip {wheel_path} -d {folder}/tmp")
     libs_to_copy = [
         "/usr/local/cuda/extras/CUPTI/lib64/libcupti.so.12",
-        "/usr/local/cuda/lib64/libcudnn.so.8",
+        "/usr/local/cuda/lib64/libcudnn.so.9",
         "/usr/local/cuda/lib64/libcublas.so.12",
         "/usr/local/cuda/lib64/libcublasLt.so.12",
         "/usr/local/cuda/lib64/libcudart.so.12",
@@ -116,12 +78,13 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libnvJitLink.so.12",
         "/usr/local/cuda/lib64/libnvrtc.so.12",
         "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.4",
-        "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8",
-        "/usr/local/cuda/lib64/libcudnn_adv_train.so.8",
-        "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8",
-        "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8",
-        "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8",
-        "/usr/local/cuda/lib64/libcudnn_ops_train.so.8",
+        "/usr/local/cuda/lib64/libcudnn_adv.so.9",
+        "/usr/local/cuda/lib64/libcudnn_cnn.so.9",
+        "/usr/local/cuda/lib64/libcudnn_graph.so.9",
+        "/usr/local/cuda/lib64/libcudnn_ops.so.9",
+        "/usr/local/cuda/lib64/libcudnn_engines_runtime_compiled.so.9",
+        "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9",
+        "/usr/local/cuda/lib64/libcudnn_heuristic.so.9",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
         "/opt/OpenBLAS/lib/libopenblas.so.0",
         "/acl/build/libarm_compute.so",
@@ -133,6 +96,9 @@ def update_wheel(wheel_path) -> None:
         shutil.copy2(lib_path, f"{folder}/tmp/torch/lib/{lib_name}")
     os.system(
         f"cd {folder}/tmp/torch/lib/; patchelf --set-rpath '$ORIGIN' {folder}/tmp/torch/lib/libtorch_cuda.so"
+    )
+    os.system(
+        f"cd {folder}/tmp/torch/lib/; patchelf --set-rpath '$ORIGIN' {folder}/tmp/torch/lib/libcudnn_graph.so.9"
     )
     os.mkdir(f"{folder}/cuda_wheel")
     os.system(f"cd {folder}/tmp/; zip -r {folder}/cuda_wheel/{wheelname} *")
@@ -227,7 +193,6 @@ if __name__ == "__main__":
     elif branch.startswith(("v1.", "v2.")):
         build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={branch[1:branch.find('-')]} PYTORCH_BUILD_NUMBER=1 "
 
-    build_OpenBLAS()
     if enable_mkldnn:
         build_ArmComputeLibrary()
         print("build pytorch with mkldnn+acl backend")

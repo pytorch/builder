@@ -1,5 +1,22 @@
-name: Validate Docker Images (with Matrix Generation)
+name: Validate Nightly Docker Images
 on:
+  workflow_call:
+    inputs:
+      channel:
+        description: 'PyTorch channel to use (nightly, test, release, all)'
+        required: true
+        type: string
+        default: 'nightly'
+      generate_dockerhub_images:
+        description: 'Generate Docker Hub images (strip ghcr.io/ prefix for release)'
+        default: false
+        required: false
+        type: boolean
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       channel:
@@ -15,8 +32,13 @@ on:
         description: 'Generate Docker Hub images (strip ghcr.io/ prefix for release)'
         default: false
         required: false
-        type: boolean     
-    
+        type: boolean
+      ref:
+        description: 'Reference to checkout, defaults to empty'
+        default: ""
+        required: false
+        type: string
+
 jobs:
   generate-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_docker_release_matrix.yml@main
@@ -31,7 +53,7 @@ jobs:
       fail-fast: false
     uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
     with:
-      runner: linux.g5.4xlarge.nvidia.gpu
+      runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
@@ -40,7 +62,16 @@ jobs:
       timeout: 180
       script: |
         set -ex
-        export MATRIX_GPU_ARCH_TYPE="cuda"
+        
         export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
+        export MATRIX_IMAGE_TYPE="${{ matrix.image_type }}"
         export TARGET_OS="linux"
-        python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check enabled
+        TORCH_COMPILE_CHECK="--torch-compile-check enabled"
+        if [[ ${MATRIX_IMAGE_TYPE} == "runtime" ]]; then
+          TORCH_COMPILE_CHECK="--torch-compile-check disabled"
+        fi
+        export MATRIX_GPU_ARCH_TYPE="cuda"
+        if [[ ${MATRIX_GPU_ARCH_VERSION} == "cpu" ]]; then 
+          export MATRIX_GPU_ARCH_TYPE="cpu"
+        fi
+        python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check disabled ${TORCH_COMPILE_CHECK}
