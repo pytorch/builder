@@ -51,18 +51,20 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
-    uses: pytorch/test-infra/.github/workflows/linux_job.yml@main
+    uses: pytorch/test-infra/.github/workflows/linux_job.yml@pass_job_name
     with:
       runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
+      test-infra-ref: pass_job_name
       job-name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      run-name: "docker"
       binary-matrix: ${{ toJSON(matrix) }}
       docker-image: ${{matrix.docker}}
       timeout: 180
       script: |
         set -ex
-        
+
         export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
         export MATRIX_IMAGE_TYPE="${{ matrix.image_type }}"
         export TARGET_OS="linux"
@@ -71,7 +73,7 @@ jobs:
           TORCH_COMPILE_CHECK="--torch-compile-check disabled"
         fi
         export MATRIX_GPU_ARCH_TYPE="cuda"
-        if [[ ${MATRIX_GPU_ARCH_VERSION} == "cpu" ]]; then 
+        if [[ ${MATRIX_GPU_ARCH_VERSION} == "cpu" ]]; then
           export MATRIX_GPU_ARCH_TYPE="cpu"
         fi
         python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check disabled ${TORCH_COMPILE_CHECK}
