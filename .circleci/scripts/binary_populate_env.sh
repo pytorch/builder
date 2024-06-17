@@ -50,7 +50,7 @@ if [[ -z "$DOCKER_IMAGE" ]]; then
   elif [[ "$DESIRED_CUDA" == cpu ]]; then
     export DOCKER_IMAGE="pytorch/manylinux-cpu"
   else
-    export DOCKER_IMAGE="pytorch/manylinux-cuda${DESIRED_CUDA:2}"
+    export DOCKER_IMAGE="pytorch/manylinux-builer:${DESIRED_CUDA:2}"
   fi
 fi
 
