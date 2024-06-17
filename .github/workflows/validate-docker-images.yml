@@ -1,5 +1,8 @@
 name: Validate Nightly Docker Images
 on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-docker-images.yml
   workflow_call:
     inputs:
       channel:
