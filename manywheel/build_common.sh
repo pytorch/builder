@@ -179,7 +179,6 @@ if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
 else
     time CMAKE_ARGS=${CMAKE_ARGS[@]} \
         EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
-        BUILD_LIBTORCH_WHL=1 BUILD_PYTHON_ONLY=0 \
         BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
         USE_NCCL=${USE_NCCL} USE_RCCL=${USE_RCCL} USE_KINETO=${USE_KINETO} \
         python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
