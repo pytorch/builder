@@ -15,7 +15,7 @@ gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
-target_os = os.getenv("TARGET_OS")
+target_os = os.getenv("TARGET_OS", sys.platform)
 BASE_DIR =  Path(__file__).parent.parent.parent
 
 is_cuda_system = gpu_arch_type == "cuda"
@@ -165,7 +165,7 @@ def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check:
      # torch.compile is available on macos-arm64 and Linux for python 3.8-3.12
     if torch_compile_check == "enabled" and sys.version_info < (3, 13, 0) and (
         (target_os == "linux" and torch.cuda.is_available()) or
-        target_os == "macos-arm64"):
+        target_os in ["macos-arm64", "darwin"]):
         smoke_test_compile()
 
     if torch.cuda.is_available():
