@@ -1,5 +1,8 @@
 name: Validate Nightly Docker Images
 on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-docker-images.yml
   workflow_call:
     inputs:
       channel:
@@ -57,8 +60,6 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
-      binary-matrix: ${{ toJSON(matrix) }}
-      docker-image: ${{matrix.docker}}
       timeout: 180
       script: |
         set -ex
