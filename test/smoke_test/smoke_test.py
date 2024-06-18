@@ -163,10 +163,9 @@ def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check:
             print(f"{module['name']} CUDA: {version}")
 
      # torch.compile is available on macos-arm64 and Linux for python 3.8-3.12
-    if torch_compile_check == "enabled" and sys.version_info < (3, 13, 0) and (
-        (target_os == "linux" and torch.cuda.is_available()) or
-        target_os in ["macos-arm64", "darwin"]):
-        smoke_test_compile()
+    if (torch_compile_check == "enabled" and sys.version_info < (3, 13, 0)
+        and target_os in ["linux", "macos-arm64", "darwin"]):
+        smoke_test_compile("cuda" if torch.cuda.is_available() else "cpu")
 
     if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
@@ -241,27 +240,26 @@ def test_linalg(device="cpu") -> None:
             torch.linalg.svd(A)
 
 
-def smoke_test_compile() -> None:
+def smoke_test_compile(device: str = "cpu") -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
-    dv = "cuda" if target_os == "linux" else "cpu"
 
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
 
     for dtype in supported_dtypes:
-        print(f"Testing smoke_test_compile for {dtype}")
-        x = torch.rand(3, 3, device=dv).type(dtype)
+        print(f"Testing smoke_test_compile for {device} and {dtype}")
+        x = torch.rand(3, 3, device=device).type(dtype)
         x_eager = foo(x)
         x_pt2 = torch.compile(foo)(x)
-        print(torch.allclose(x_eager, x_pt2))
+        torch.testing.assert_close(x_eager, x_pt2)
 
     # Reset torch dynamo since we are changing mode
     torch._dynamo.reset()
     dtype = torch.float32
     torch.set_float32_matmul_precision('high')
     print(f"Testing smoke_test_compile with mode 'max-autotune' for {dtype}")
-    x = torch.rand(64, 1, 28, 28, device=dv).type(torch.float32)
-    model = Net().to(device=dv)
+    x = torch.rand(64, 1, 28, 28, device=device).type(torch.float32)
+    model = Net().to(device=device)
     x_pt2 = torch.compile(model, mode="max-autotune")(x)
 
 
