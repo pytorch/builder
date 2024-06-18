@@ -1,5 +1,8 @@
 name: Validate Nightly Docker Images
 on:
+  pull_request:
+    paths:
+      - .github/workflows/validate-docker-images.yml
   workflow_call:
     inputs:
       channel:
@@ -48,6 +51,7 @@ jobs:
     secrets: inherit
   run-gpu-tests:
     needs: generate-matrix
+    name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
@@ -62,7 +66,7 @@ jobs:
       timeout: 180
       script: |
         set -ex
-        
+
         export MATRIX_GPU_ARCH_VERSION="${{ matrix.cuda }}"
         export MATRIX_IMAGE_TYPE="${{ matrix.image_type }}"
         export TARGET_OS="linux"
@@ -71,7 +75,7 @@ jobs:
           TORCH_COMPILE_CHECK="--torch-compile-check disabled"
         fi
         export MATRIX_GPU_ARCH_TYPE="cuda"
-        if [[ ${MATRIX_GPU_ARCH_VERSION} == "cpu" ]]; then 
+        if [[ ${MATRIX_GPU_ARCH_VERSION} == "cpu" ]]; then
           export MATRIX_GPU_ARCH_TYPE="cpu"
         fi
         python test/smoke_test/smoke_test.py --package torchonly --runtime-error-check disabled ${TORCH_COMPILE_CHECK}
