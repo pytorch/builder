@@ -60,6 +60,7 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: cuda${{ matrix.cuda }}-cudnn${{ matrix.cudnn_version }}-${{ matrix.image_type }}
+      docker-image: ${{matrix.docker}}
       timeout: 180
       script: |
         set -ex
