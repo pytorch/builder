@@ -116,13 +116,13 @@ pip --version
 python --version
 
 python setup.py clean
-retry pip install -qr requirements.txt
+retry pip install -vr requirements.txt
 case ${DESIRED_PYTHON} in
   cp38*)
     retry pip install -q numpy==1.15
     ;;
   cp31*)
-    retry pip install -q --pre numpy==2.0.0rc1
+    retry pip install -v --pre numpy==2.0.0rc1
     ;;
   # Should catch 3.9+
   *)
