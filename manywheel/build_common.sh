@@ -312,7 +312,7 @@ rm -rf /tmp_dir
 mkdir /tmp_dir
 pushd /tmp_dir
 
-for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
+for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/torch_no_python*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
 
     # if the glob didn't match anything
     if [[ ! -e $pkg ]]; then
