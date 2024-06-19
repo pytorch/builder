@@ -112,6 +112,9 @@ if [[ -z "$PYTORCH_ROOT" ]]; then
     exit 1
 fi
 pushd "$PYTORCH_ROOT"
+pip --version
+python --version
+
 python setup.py clean
 retry pip install -qr requirements.txt
 case ${DESIRED_PYTHON} in
