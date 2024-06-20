@@ -162,9 +162,9 @@ def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check:
                 version = imported_module._extension._check_cuda_version()
             print(f"{module['name']} CUDA: {version}")
 
-     # torch.compile is available on macos-arm64 and Linux for python 3.8-3.12
+     # torch.compile is available on macos-arm64 and Linux for python 3.8-3.13
     if (torch_compile_check == "enabled" and sys.version_info < (3, 13, 0)
-        and target_os in ["linux", "macos-arm64", "darwin"]):
+        and target_os in ["linux", "linux-aarch64", "macos-arm64", "darwin"]):
         smoke_test_compile("cuda" if torch.cuda.is_available() else "cpu")
 
     if torch.cuda.is_available():
