@@ -160,11 +160,29 @@ else
 fi
 
 echo "Calling setup.py bdist at $(date)"
-time CMAKE_ARGS=${CMAKE_ARGS[@]} \
-    EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+
+if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+    echo "Calling setup.py bdist_wheel for split build (BUILD_LIBTORCH_WHL)"
+    time EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+    BUILD_LIBTORCH_WHL=1 BUILD_PYTHON_ONLY=0 \
     BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
     USE_NCCL=${USE_NCCL} USE_RCCL=${USE_RCCL} USE_KINETO=${USE_KINETO} \
     python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
+    echo "Finished setup.py bdist_wheel for split build (BUILD_LIBTORCH_WHL)"
+    echo "Calling setup.py bdist_wheel for split build (BUILD_PYTHON_ONLY)"
+    time EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+    BUILD_LIBTORCH_WHL=0 BUILD_PYTHON_ONLY=1 \
+    BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
+    USE_NCCL=${USE_NCCL} USE_RCCL=${USE_RCCL} USE_KINETO=${USE_KINETO} \
+    python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR --cmake
+    echo "Finished setup.py bdist_wheel for split build (BUILD_PYTHON_ONLY)"
+else
+    time CMAKE_ARGS=${CMAKE_ARGS[@]} \
+        EXTRA_CAFFE2_CMAKE_FLAGS=${EXTRA_CAFFE2_CMAKE_FLAGS[@]} \
+        BUILD_LIBTORCH_CPU_WITH_DEBUG=$BUILD_DEBUG_INFO \
+        USE_NCCL=${USE_NCCL} USE_RCCL=${USE_RCCL} USE_KINETO=${USE_KINETO} \
+        python setup.py bdist_wheel -d /tmp/$WHEELHOUSE_DIR
+fi
 echo "Finished setup.py bdist at $(date)"
 
 # Build libtorch packages
@@ -282,6 +300,8 @@ echo 'Built this wheel:'
 ls /tmp/$WHEELHOUSE_DIR
 mkdir -p "/$WHEELHOUSE_DIR"
 mv /tmp/$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/
+mv /tmp/$WHEELHOUSE_DIR/torch_no_python*.whl /$WHEELHOUSE_DIR/ || true
+
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p /$LIBTORCH_HOUSE_DIR
     mv /tmp/$LIBTORCH_HOUSE_DIR/*.zip /$LIBTORCH_HOUSE_DIR
@@ -292,7 +312,7 @@ rm -rf /tmp_dir
 mkdir /tmp_dir
 pushd /tmp_dir
 
-for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
+for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/torch_no_python*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
 
     # if the glob didn't match anything
     if [[ ! -e $pkg ]]; then
