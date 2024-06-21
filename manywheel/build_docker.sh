@@ -93,6 +93,13 @@ case ${GPU_ARCH_TYPE} in
         fi
         DOCKER_GPU_BUILD_ARG="--build-arg ROCM_VERSION=${GPU_ARCH_VERSION} --build-arg PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH} --build-arg DEVTOOLSET_VERSION=9"
         ;;
+    xpu)
+        TARGET=xpu_final
+        DOCKER_TAG=xpu
+        GPU_IMAGE=amd64/almalinux:8
+        DOCKER_GPU_BUILD_ARG=" --build-arg DEVTOOLSET_VERSION=11"
+        MANY_LINUX_VERSION="2_28"
+        ;;
     *)
         echo "ERROR: Unrecognized GPU_ARCH_TYPE: ${GPU_ARCH_TYPE}"
         exit 1

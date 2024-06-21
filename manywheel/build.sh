@@ -18,6 +18,9 @@ case "${GPU_ARCH_TYPE:-BLANK}" in
     cpu | cpu-cxx11-abi | cpu-s390x)
         bash "${SCRIPTPATH}/build_cpu.sh"
         ;;
+    xpu)
+        bash "${SCRIPTPATH}/build_xpu.sh"
+        ;;
     *)
         echo "Un-recognized GPU_ARCH_TYPE '${GPU_ARCH_TYPE}', exiting..."
         exit 1

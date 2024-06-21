@@ -22,3 +22,5 @@ for rocm_version in 6.0 6.1; do
     GPU_ARCH_TYPE=rocm GPU_ARCH_VERSION="${rocm_version}" "${TOPDIR}/manywheel/build_docker.sh"
     MANYLINUX_VERSION=2014 GPU_ARCH_TYPE=rocm GPU_ARCH_VERSION="${rocm_version}" "${TOPDIR}/manywheel/build_docker.sh"
 done
+
+GPU_ARCH_TYPE=xpu "${TOPDIR}/manywheel/build_docker.sh"
