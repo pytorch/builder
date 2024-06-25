@@ -58,7 +58,7 @@ autoconf --version
 build_openssl $OPENSSL_ROOT $OPENSSL_HASH
 /build_scripts/install_cpython.sh
 
-PY39_BIN=/opt/python/cp39-cp39m/bin
+PY39_BIN=/opt/python/cp39-cp39/bin
 
 # Our openssl doesn't know how to find the system CA trust store
 #   (https://github.com/pypa/manylinux/issues/53)
