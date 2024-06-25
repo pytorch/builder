@@ -435,7 +435,7 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/torch_no_python*.w
     ls -l
 
     echo "removing extraneous .so and .a files"
-    # todo @PaliC: Remove these .so and .a files before hand
+    # todo @PaliC: Remove these .so and .a files before hand in the split build
     rm *.so *.a || true
 
     # zip up the wheel back
