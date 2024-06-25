@@ -44,9 +44,11 @@ fi
 # pip 'normalizes' the name first by changing all - to _
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
+    TORCH_NO_PYTHON_PACKAGE_NAME='torch_no_python'
 fi
 TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
-echo "Expecting the built wheels to all be called '$TORCH_PACKAGE_NAME'"
+TORCH_NO_PYTHON_PACKAGE_NAME="$(echo $TORCH_NO_PYTHON_PACKAGE_NAME | tr '-' '_')"
+echo "Expecting the built wheels to all be called '$TORCH_PACKAGE_NAME' or '$TORCH_NO_PYTHON_PACKAGE_NAME'"
 
 # Version: setup.py uses $PYTORCH_BUILD_VERSION.post$PYTORCH_BUILD_NUMBER if
 # PYTORCH_BUILD_NUMBER > 1
@@ -441,7 +443,9 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   pushd $PYTORCH_ROOT/test
 
   # Install the wheel for this Python version
+  pip uninstall -y "$TORCH_NO_PYTHON_PACKAGE_NAME" || true
   pip uninstall -y "$TORCH_PACKAGE_NAME"
+  pip install "$TORCH_NO_PYTHON_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v || true
   pip install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
   # Print info on the libraries installed in this wheel
