@@ -98,6 +98,12 @@ on:
         default: false
         required: false
         type: boolean
+      use_split_build:
+        description: |
+          [Experimental] Use split build 
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   generate-linux-matrix:
@@ -107,6 +113,7 @@ jobs:
       os: linux
       channel: ${{ inputs.channel }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      use_split_build: ${{ inputs.use_split_build }}
 
   linux:
     needs: generate-linux-matrix
