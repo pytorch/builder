@@ -15,11 +15,8 @@ case "${GPU_ARCH_TYPE:-BLANK}" in
     rocm)
         bash "${SCRIPTPATH}/build_rocm.sh"
         ;;
-    cpu | cpu-cxx11-abi | cpu-s390x)
+    cpu | cpu-cxx11-abi | cpu-s390x | xpu)
         bash "${SCRIPTPATH}/build_cpu.sh"
-        ;;
-    xpu)
-        bash "${SCRIPTPATH}/build_xpu.sh"
         ;;
     *)
         echo "Un-recognized GPU_ARCH_TYPE '${GPU_ARCH_TYPE}', exiting..."
