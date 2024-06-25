@@ -69,12 +69,8 @@ fi
 # ever pass one python version, so we assume that DESIRED_PYTHON is not a list
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
-    if [[ "$DESIRED_PYTHON" == '3.7' ]]; then
-      DESIRED_PYTHON='cp37-cp37m'
-    else
-      python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
-      DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
-    fi
+    python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
+    DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
 fi
 pydir="/opt/python/$DESIRED_PYTHON"
 export PATH="$pydir/bin:$PATH"
@@ -97,9 +93,7 @@ fi
 pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
-if [[ "$DESIRED_PYTHON"  == "cp37-cp37m" ]]; then
-    retry pip install -q numpy==1.15
-elif [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
+if [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
     retry pip install -q numpy==1.15
 else
     retry pip install -q numpy==1.11
