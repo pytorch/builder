@@ -23,13 +23,12 @@ requirements:
     - mkl-include # [x86_64]
     - mkl=2020.2 # [py <= 311 and x86_64 and not win]
     - mkl=2023.1 # [py >= 312 and x86_64]
-    - mkl-devel=2022.1.0 # [x86_64 and win and py<=311]
-    - mkl-devel=2023.1 # [x86_64 and win and py>=312]
+    - mkl-devel=2023.1 # [x86_64 and win]
     {% endif %}
     - typing_extensions
     - ninja
     - libuv # [win]
-    - numpy=1.19 # [py == 38]
+    - numpy=1.22.3 # [py == 38]
     - numpy=2.0.0rc1 # [py >= 39]
     - openssl=1.1.1l # [py >= 38 and py <= 310 and linux]
     - openssl=1.1.1s # [py == 311 and linux]
@@ -41,8 +40,7 @@ requirements:
     - python
     {% if cross_compile_arm64 == 0 %}
     - mkl >=2018 # [x86_64 and not win]
-    - mkl=2022.1.0 # [x86_64 and win and py <= 311]
-    - mkl=2023.1 # [x86_64 and win and py >= 312]
+    - mkl=2023.1 # [x86_64 and win]
     {% endif %}
     - libuv # [win]
     - intel-openmp # [win]
