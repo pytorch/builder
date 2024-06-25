@@ -44,8 +44,12 @@ fi
 # pip 'normalizes' the name first by changing all - to _
 if [[ -z "$TORCH_PACKAGE_NAME" ]]; then
     TORCH_PACKAGE_NAME='torch'
+fi
+
+if [[ -z "$TORCH_NO_PYTHON_PACKAGE_NAME" ]]; then
     TORCH_NO_PYTHON_PACKAGE_NAME='torch_no_python'
 fi
+
 TORCH_PACKAGE_NAME="$(echo $TORCH_PACKAGE_NAME | tr '-' '_')"
 TORCH_NO_PYTHON_PACKAGE_NAME="$(echo $TORCH_NO_PYTHON_PACKAGE_NAME | tr '-' '_')"
 echo "Expecting the built wheels to all be called '$TORCH_PACKAGE_NAME' or '$TORCH_NO_PYTHON_PACKAGE_NAME'"
