@@ -318,7 +318,7 @@ rm -rf /tmp_dir
 mkdir /tmp_dir
 pushd /tmp_dir
 
-for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/torch_no_python*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
+for pkg in /$WHEELHOUSE_DIR/torch_no_python*.whl /$WHEELHOUSE_DIR/torch*linux*.whl /$LIBTORCH_HOUSE_DIR/libtorch*.zip; do
 
     # if the glob didn't match anything
     if [[ ! -e $pkg ]]; then
@@ -434,13 +434,15 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/torch_no_python*.w
         popd
     fi
 
-    # @sahanp todo: Remove this line
-    echo "current files in directory"
-    ls -l
+    if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+        # @sahanp todo: Remove this line
+        echo "current files in directory"
+        ls -l
 
-    echo "removing extraneous .so and .a files"
-    # todo @PaliC: Remove these .so and .a files before hand in the split build
-    rm *.so *.a || true
+        echo "removing extraneous .so and .a files"
+        # todo @PaliC: Remove these .so and .a files before hand in the split build
+        rm *.so *.a || true
+    fi
 
     # zip up the wheel back
     zip -rq $(basename $pkg) $PREIX*
