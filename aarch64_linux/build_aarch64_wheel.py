@@ -53,7 +53,7 @@ def ec2_instances_by_id(instance_id):
     return rc[0] if len(rc) > 0 else None
 
 
-def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
+def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge', ebs_size: int = 50):
     inst = ec2.create_instances(ImageId=ami,
                                 InstanceType=instance_type,
                                 SecurityGroups=['ssh-allworld'],
@@ -65,7 +65,7 @@ def start_instance(key_name, ami=ubuntu18_04_ami, instance_type='t4g.2xlarge'):
                                         'DeviceName': '/dev/sda1',
                                         'Ebs': {
                                             'DeleteOnTermination': True,
-                                            'VolumeSize': 50,
+                                            'VolumeSize': ebs_size,
                                             'VolumeType': 'standard'
                                         }
                                     }
@@ -714,6 +714,7 @@ def parse_arguments():
     parser.add_argument("--keep-running", action="store_true")
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
+    parser.add_argument("--ebs-size", type=int, default=50)
     parser.add_argument("--branch", type=str, default="master")
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
@@ -746,7 +747,7 @@ if __name__ == '__main__':
             check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
 
     # Starting the instance
-    inst = start_instance(key_name, ami=ami, instance_type=args.instance_type)
+    inst = start_instance(key_name, ami=ami, instance_type=args.instance_type, ebs_size=args.ebs_size)
     instance_name = f'{args.key_name}-{args.os}'
     if args.python_version is not None:
         instance_name += f'-py{args.python_version}'

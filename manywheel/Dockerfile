@@ -117,7 +117,7 @@ ENV SSL_CERT_FILE=/opt/_internal/certs.pem
 COPY --from=openssl            /opt/openssl                          /opt/openssl
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
-COPY --from=python             /opt/python/cp37-cp37m/bin/auditwheel /usr/local/bin/auditwheel
+COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel /usr/local/bin/auditwheel
 COPY --from=intel              /opt/intel                            /opt/intel
 COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
 COPY --from=jni                /usr/local/include/jni.h              /usr/local/include/jni.h
@@ -173,3 +173,9 @@ ADD ./common/install_rocm_magma.sh install_rocm_magma.sh
 RUN bash ./install_rocm_magma.sh && rm install_rocm_magma.sh
 ADD ./common/install_miopen.sh install_miopen.sh
 RUN bash ./install_miopen.sh ${ROCM_VERSION} && rm install_miopen.sh
+
+# Install AOTriton
+COPY ./common/aotriton_version.txt aotriton_version.txt
+COPY ./common/install_aotriton.sh install_aotriton.sh
+RUN bash ./install_aotriton.sh /opt/rocm && rm install_aotriton.sh aotriton_version.txt
+ENV AOTRITON_INSTALLED_PREFIX /opt/rocm/aotriton

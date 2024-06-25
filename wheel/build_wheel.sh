@@ -194,7 +194,16 @@ export BUILD_TEST=OFF
 pushd "$pytorch_rootdir"
 echo "Calling setup.py bdist_wheel at $(date)"
 
-python setup.py bdist_wheel -d "$whl_tmp_dir"
+if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+    echo "Calling setup.py bdist_wheel for split build (BUILD_LIBTORCH_WHL)"
+    BUILD_LIBTORCH_WHL=1 BUILD_PYTHON_ONLY=0 python setup.py bdist_wheel -d "$whl_tmp_dir"
+    echo "Finished setup.py bdist_wheel for split build (BUILD_LIBTORCH_WHL)"
+    echo "Calling setup.py bdist_wheel for split build (BUILD_PYTHON_ONLY)"
+    BUILD_PYTHON_ONLY=1 BUILD_LIBTORCH_WHL=0 python setup.py bdist_wheel -d "$whl_tmp_dir" --cmake
+    echo "Finished setup.py bdist_wheel for split build (BUILD_PYTHON_ONLY)"
+else
+    python setup.py bdist_wheel -d "$whl_tmp_dir"
+fi
 
 echo "Finished setup.py bdist_wheel at $(date)"
 
@@ -240,11 +249,6 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
     fi
 else
     pushd "$pytorch_rootdir"
-    mkdir -p build
-    pushd build
-    # TODO: Remove this flag once https://github.com/pytorch/pytorch/issues/55952 is closed
-    CFLAGS='-Wno-deprecated-declarations' python ../tools/build_libtorch.py
-    popd
 
     mkdir -p libtorch/{lib,bin,include,share}
     cp -r "$(pwd)/build/lib" "$(pwd)/libtorch/"
@@ -264,6 +268,8 @@ else
       else
           cp -r "$(pwd)/any_wheel/torch/lib/libiomp5.dylib" "$(pwd)/libtorch/lib/"
       fi
+    else
+      cp -r "$(pwd)/any_wheel/torch/lib/libomp.dylib" "$(pwd)/libtorch/lib/"
     fi
     rm -rf "$(pwd)/any_wheel"
 

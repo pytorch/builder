@@ -1,5 +1,5 @@
 # Base docker image for cross-compilling FFmpeg (LGPL) for Windows
-FROM pytorch/manylinux-cuda101
+FROM pytorch/manylinux-builder:cuda101
 COPY . /ffmpeg-build-src
 WORKDIR /ffmpeg-build-src
 

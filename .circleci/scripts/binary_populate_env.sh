@@ -48,9 +48,9 @@ if [[ -z "$DOCKER_IMAGE" ]]; then
   if [[ "$PACKAGE_TYPE" == conda ]]; then
     export DOCKER_IMAGE="pytorch/conda-cuda"
   elif [[ "$DESIRED_CUDA" == cpu ]]; then
-    export DOCKER_IMAGE="pytorch/manylinux-cpu"
+    export DOCKER_IMAGE="pytorch/manylinux-builder:cpu"
   else
-    export DOCKER_IMAGE="pytorch/manylinux-cuda${DESIRED_CUDA:2}"
+    export DOCKER_IMAGE="pytorch/manylinux-builer:${DESIRED_CUDA:2}"
   fi
 fi
 
@@ -121,6 +121,7 @@ export DESIRED_PYTHON="$DESIRED_PYTHON"
 export DESIRED_CUDA="$DESIRED_CUDA"
 export LIBTORCH_VARIANT="${LIBTORCH_VARIANT:-}"
 export BUILD_PYTHONLESS="${BUILD_PYTHONLESS:-}"
+export USE_SPLIT_BUILD="${USE_SPLIT_BUILD:-}"
 export DESIRED_DEVTOOLSET="$DESIRED_DEVTOOLSET"
 if [[ "${BUILD_FOR_SYSTEM:-}" == "windows" ]]; then
   export LIBTORCH_CONFIG="${LIBTORCH_CONFIG:-}"

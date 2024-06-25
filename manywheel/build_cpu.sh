@@ -31,6 +31,8 @@ if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+elif [[ "$OS_NAME" == *"AlmaLinux"* ]]; then
+    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     if [[ "$(uname -m)" == "s390x" ]]; then
         LIBGOMP_PATH="/usr/lib/s390x-linux-gnu/libgomp.so.1"

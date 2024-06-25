@@ -60,7 +60,11 @@ cuda_version_nodot=$(echo $CUDA_VERSION | tr -d '.')
 TORCH_CUDA_ARCH_LIST="5.0;6.0;7.0;7.5;8.0;8.6"
 case ${CUDA_VERSION} in
     12.4)
-        TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};9.0"
+        if [[ "$GPU_ARCH_TYPE" = "cuda-aarch64" ]]; then
+            TORCH_CUDA_ARCH_LIST="9.0"
+        else
+            TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};9.0"
+        fi
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
     12.1)
@@ -113,6 +117,8 @@ mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
 OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release)
 if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
+elif [[ "$OS_NAME" == *"AlmaLinux"* ]]; then
+    LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Red Hat Enterprise Linux"* ]]; then
     LIBGOMP_PATH="/usr/lib64/libgomp.so.1"
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
@@ -143,34 +149,36 @@ if [[ $CUDA_VERSION == "12.1" || $CUDA_VERSION == "12.4" ]]; then
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         echo "Bundling with cudnn and cublas."
         DEPS_LIST+=(
-            "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
-            "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
-            "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
-            "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
-            "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
-            "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
-            "/usr/local/cuda/lib64/libcudnn.so.8"
+            "/usr/local/cuda/lib64/libcudnn_adv.so.9"
+            "/usr/local/cuda/lib64/libcudnn_cnn.so.9"
+            "/usr/local/cuda/lib64/libcudnn_graph.so.9"
+            "/usr/local/cuda/lib64/libcudnn_ops.so.9"
+            "/usr/local/cuda/lib64/libcudnn_engines_runtime_compiled.so.9"
+            "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9"
+            "/usr/local/cuda/lib64/libcudnn_heuristic.so.9"
+            "/usr/local/cuda/lib64/libcudnn.so.9"
             "/usr/local/cuda/lib64/libcublas.so.12"
             "/usr/local/cuda/lib64/libcublasLt.so.12"
             "/usr/local/cuda/lib64/libcudart.so.12"
             "/usr/local/cuda/lib64/libnvToolsExt.so.1"
             "/usr/local/cuda/lib64/libnvrtc.so.12"
-            "/usr/local/cuda/lib64/libnvrtc-builtins.so.12.1"
+            "/usr/local/cuda/lib64/libnvrtc-builtins.so"
         )
         DEPS_SONAME+=(
-            "libcudnn_adv_infer.so.8"
-            "libcudnn_adv_train.so.8"
-            "libcudnn_cnn_infer.so.8"
-            "libcudnn_cnn_train.so.8"
-            "libcudnn_ops_infer.so.8"
-            "libcudnn_ops_train.so.8"
-            "libcudnn.so.8"
+            "libcudnn_adv.so.9"
+            "libcudnn_cnn.so.9"
+            "libcudnn_graph.so.9"
+            "libcudnn_ops.so.9"
+            "libcudnn_engines_runtime_compiled.so.9"
+            "libcudnn_engines_precompiled.so.9"
+            "libcudnn_heuristic.so.9"
+            "libcudnn.so.9"
             "libcublas.so.12"
             "libcublasLt.so.12"
             "libcudart.so.12"
             "libnvToolsExt.so.1"
             "libnvrtc.so.12"
-            "libnvrtc-builtins.so.12.1"
+            "libnvrtc-builtins.so"
         )
     else
         echo "Using nvidia libs from pypi."
@@ -209,13 +217,14 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
     if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
         echo "Bundling with cudnn and cublas."
         DEPS_LIST+=(
-            "/usr/local/cuda/lib64/libcudnn_adv_infer.so.8"
-            "/usr/local/cuda/lib64/libcudnn_adv_train.so.8"
-            "/usr/local/cuda/lib64/libcudnn_cnn_infer.so.8"
-            "/usr/local/cuda/lib64/libcudnn_cnn_train.so.8"
-            "/usr/local/cuda/lib64/libcudnn_ops_infer.so.8"
-            "/usr/local/cuda/lib64/libcudnn_ops_train.so.8"
-            "/usr/local/cuda/lib64/libcudnn.so.8"
+            "/usr/local/cuda/lib64/libcudnn_adv.so.9"
+            "/usr/local/cuda/lib64/libcudnn_cnn.so.9"
+            "/usr/local/cuda/lib64/libcudnn_graph.so.9"
+            "/usr/local/cuda/lib64/libcudnn_ops.so.9"
+            "/usr/local/cuda/lib64/libcudnn_engines_runtime_compiled.so.9"
+            "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9"
+            "/usr/local/cuda/lib64/libcudnn_heuristic.so.9"
+            "/usr/local/cuda/lib64/libcudnn.so.9"
             "/usr/local/cuda/lib64/libcublas.so.11"
             "/usr/local/cuda/lib64/libcublasLt.so.11"
             "/usr/local/cuda/lib64/libcudart.so.11.0"
@@ -224,13 +233,14 @@ elif [[ $CUDA_VERSION == "11.8" ]]; then
             "/usr/local/cuda/lib64/libnvrtc-builtins.so.11.8"
         )
         DEPS_SONAME+=(
-            "libcudnn_adv_infer.so.8"
-            "libcudnn_adv_train.so.8"
-            "libcudnn_cnn_infer.so.8"
-            "libcudnn_cnn_train.so.8"
-            "libcudnn_ops_infer.so.8"
-            "libcudnn_ops_train.so.8"
-            "libcudnn.so.8"
+            "libcudnn_adv.so.9"
+            "libcudnn_cnn.so.9"
+            "libcudnn_graph.so.9"
+            "libcudnn_ops.so.9"
+            "libcudnn_engines_runtime_compiled.so.9"
+            "libcudnn_engines_precompiled.so.9"
+            "libcudnn_heuristic.so.9"
+            "libcudnn.so.9"
             "libcublas.so.11"
             "libcublasLt.so.11"
             "libcudart.so.11.0"

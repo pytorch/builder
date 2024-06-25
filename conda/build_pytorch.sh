@@ -287,9 +287,9 @@ else
         TRITON_VERSION=$(cat $pytorch_rootdir/.ci/docker/triton_version.txt)
         if [[ -n "$OVERRIDE_PACKAGE_VERSION" && "$OVERRIDE_PACKAGE_VERSION" =~ .*dev.* ]]; then
             TRITON_SHORTHASH=$(cut -c1-10 $pytorch_rootdir/.github/ci_commit_pins/triton.txt)
-            export CONDA_TRITON_CONSTRAINT="    - torchtriton==${TRITON_VERSION}+${TRITON_SHORTHASH} # [py < 312]"
+            export CONDA_TRITON_CONSTRAINT="    - torchtriton==${TRITON_VERSION}+${TRITON_SHORTHASH} # [py < 313]"
         else
-            export CONDA_TRITON_CONSTRAINT="    - torchtriton==${TRITON_VERSION} # [py < 312]"
+            export CONDA_TRITON_CONSTRAINT="    - torchtriton==${TRITON_VERSION} # [py < 313]"
         fi
     fi
 
@@ -413,7 +413,13 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
         else
           local_channel="$(pwd)/$output_folder"
         fi
-        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c pytorch-nightly -c nvidia
+
+        CONDA_CHANNEL="pytorch-test"
+        if [[ -n "$OVERRIDE_PACKAGE_VERSION" && "$OVERRIDE_PACKAGE_VERSION" =~ .*dev.* ]]; then
+            CONDA_CHANNEL="pytorch-nightly"
+        fi
+
+        conda install -y -c "file://$local_channel" pytorch==$PYTORCH_BUILD_VERSION -c pytorch -c numba/label/dev -c $CONDA_CHANNEL -c nvidia
 
         echo "$(date) :: Running tests"
         pushd "$pytorch_rootdir"

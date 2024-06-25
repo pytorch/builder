@@ -15,7 +15,7 @@ gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 gpu_arch_type = os.getenv("MATRIX_GPU_ARCH_TYPE")
 channel = os.getenv("MATRIX_CHANNEL")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
-target_os = os.getenv("TARGET_OS")
+target_os = os.getenv("TARGET_OS", sys.platform)
 BASE_DIR =  Path(__file__).parent.parent.parent
 
 is_cuda_system = gpu_arch_type == "cuda"
@@ -146,7 +146,7 @@ def test_cuda_runtime_errors_captured() -> None:
         raise RuntimeError("Expected CUDA RuntimeError but have not received!")
 
 
-def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
+def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check: str) -> None:
     if not torch.cuda.is_available() and is_cuda_system:
         raise RuntimeError(f"Expected CUDA {gpu_arch_ver}. However CUDA is not loaded.")
 
@@ -162,11 +162,10 @@ def smoke_test_cuda(package: str, runtime_error_check: str) -> None:
                 version = imported_module._extension._check_cuda_version()
             print(f"{module['name']} CUDA: {version}")
 
-     # torch.compile is available on macos-arm64 and Linux for python 3.8-3.11
-    if sys.version_info < (3, 12, 0) and (
-        (target_os == "linux" and torch.cuda.is_available()) or
-        target_os == "macos-arm64"):
-        smoke_test_compile()
+     # torch.compile is available on macos-arm64 and Linux for python 3.8-3.13
+    if (torch_compile_check == "enabled" and sys.version_info < (3, 13, 0)
+        and target_os in ["linux", "linux-aarch64", "macos-arm64", "darwin"]):
+        smoke_test_compile("cuda" if torch.cuda.is_available() else "cpu")
 
     if torch.cuda.is_available():
         if torch.version.cuda != gpu_arch_ver:
@@ -241,27 +240,26 @@ def test_linalg(device="cpu") -> None:
             torch.linalg.svd(A)
 
 
-def smoke_test_compile() -> None:
+def smoke_test_compile(device: str = "cpu") -> None:
     supported_dtypes = [torch.float16, torch.float32, torch.float64]
-    dv = "cuda" if target_os == "linux" else "cpu"
 
     def foo(x: torch.Tensor) -> torch.Tensor:
         return torch.sin(x) + torch.cos(x)
 
     for dtype in supported_dtypes:
-        print(f"Testing smoke_test_compile for {dtype}")
-        x = torch.rand(3, 3, device=dv).type(dtype)
+        print(f"Testing smoke_test_compile for {device} and {dtype}")
+        x = torch.rand(3, 3, device=device).type(dtype)
         x_eager = foo(x)
         x_pt2 = torch.compile(foo)(x)
-        print(torch.allclose(x_eager, x_pt2))
+        torch.testing.assert_close(x_eager, x_pt2)
 
     # Reset torch dynamo since we are changing mode
     torch._dynamo.reset()
     dtype = torch.float32
     torch.set_float32_matmul_precision('high')
     print(f"Testing smoke_test_compile with mode 'max-autotune' for {dtype}")
-    x = torch.rand(64, 1, 28, 28, device=dv).type(torch.float32)
-    model = Net().to(device=dv)
+    x = torch.rand(64, 1, 28, 28, device=device).type(torch.float32)
+    model = Net().to(device=device)
     x_pt2 = torch.compile(model, mode="max-autotune")(x)
 
 
@@ -310,6 +308,13 @@ def main() -> None:
         choices=["enabled", "disabled"],
         default="enabled",
     )
+    parser.add_argument(
+        "--torch-compile-check",
+        help="Check torch compile",
+        type=str,
+        choices=["enabled", "disabled"],
+        default="enabled",
+    )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
 
@@ -323,7 +328,7 @@ def main() -> None:
     if options.package == "all":
         smoke_test_modules()
 
-    smoke_test_cuda(options.package, options.runtime_error_check)
+    smoke_test_cuda(options.package, options.runtime_error_check, options.torch_compile_check)
 
 
 if __name__ == "__main__":
