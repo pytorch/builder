@@ -113,8 +113,7 @@ on:
         type: boolean
       use_split_build:
         description: |
-          [Experimental] Build a libtorch only wheel and build pytorch such that
-          are built from the libtorch wheel.
+          [Experimental] Use Split Build
         required: false
         type: boolean
         default: false
