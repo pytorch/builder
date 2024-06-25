@@ -428,6 +428,14 @@ for pkg in /$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/torch_no_python*li
         popd
     fi
 
+    # @sahanp todo: Remove this line
+    echo "current files in directory"
+    ls -l
+
+    echo "removing extraneous .so and .a files"
+    # todo @PaliC: Remove these .so and .a files before hand
+    rm *.so *.a || true
+
     # zip up the wheel back
     zip -rq $(basename $pkg) $PREIX*
 
