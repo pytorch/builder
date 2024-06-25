@@ -306,7 +306,10 @@ echo 'Built this wheel:'
 ls /tmp/$WHEELHOUSE_DIR
 mkdir -p "/$WHEELHOUSE_DIR"
 mv /tmp/$WHEELHOUSE_DIR/torch*linux*.whl /$WHEELHOUSE_DIR/
-mv /tmp/$WHEELHOUSE_DIR/torch_no_python*.whl /$WHEELHOUSE_DIR/ || true
+
+if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+    mv /tmp/$WHEELHOUSE_DIR/torch_no_python*.whl /$WHEELHOUSE_DIR/ || true
+fi
 
 if [[ -n "$BUILD_PYTHONLESS" ]]; then
     mkdir -p /$LIBTORCH_HOUSE_DIR
@@ -477,9 +480,16 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   pushd $PYTORCH_ROOT/test
 
   # Install the wheel for this Python version
-  pip uninstall -y "$TORCH_NO_PYTHON_PACKAGE_NAME" || true
+  if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+    pip uninstall -y "$TORCH_NO_PYTHON_PACKAGE_NAME" || true
+  fi
+
   pip uninstall -y "$TORCH_PACKAGE_NAME"
-  pip install "$TORCH_NO_PYTHON_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v || true
+  
+  if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
+    pip install "$TORCH_NO_PYTHON_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
+  fi
+  
   pip install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
   # Print info on the libraries installed in this wheel
