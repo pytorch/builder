@@ -47,6 +47,12 @@ on:
         default: false
         required: false
         type: boolean
+      use_split_build:
+        description: |
+          [Experimental] Use split build 
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       channel:
