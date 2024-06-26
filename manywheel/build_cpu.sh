@@ -2,6 +2,8 @@
 
 set -ex
 
+GPU_ARCH_TYPE=${GPU_ARCH_TYPE:-cpu}
+
 export TH_BINARY_BUILD=1
 export USE_CUDA=0
 
@@ -15,13 +17,19 @@ if [[ -z "$EXTRA_CAFFE2_CMAKE_FLAGS" ]]; then
     EXTRA_CAFFE2_CMAKE_FLAGS=()
 fi
 
-WHEELHOUSE_DIR="wheelhousecpu"
-LIBTORCH_HOUSE_DIR="libtorch_housecpu"
+DIR_SUFFIX=cpu
+if [[ "$GPU_ARCH_TYPE" == "xpu" ]]; then
+    DIR_SUFFIX=xpu
+    source /opt/intel/oneapi/pytorch-gpu-dev-0.5/oneapi-vars.sh
+fi
+
+WHEELHOUSE_DIR="wheelhouse$DIR_SUFFIX"
+LIBTORCH_HOUSE_DIR="libtorch_house$DIR_SUFFIX"
 if [[ -z "$PYTORCH_FINAL_PACKAGE_DIR" ]]; then
     if [[ -z "$BUILD_PYTHONLESS" ]]; then
-        PYTORCH_FINAL_PACKAGE_DIR="/remote/wheelhousecpu"
+        PYTORCH_FINAL_PACKAGE_DIR="/remote/wheelhouse$DIR_SUFFIX"
     else
-        PYTORCH_FINAL_PACKAGE_DIR="/remote/libtorch_housecpu"
+        PYTORCH_FINAL_PACKAGE_DIR="/remote/libtorch_house$DIR_SUFFIX"
     fi
 fi
 mkdir -p "$PYTORCH_FINAL_PACKAGE_DIR" || true
