@@ -201,6 +201,9 @@ function prune_124 {
   if [[ -n "$OVERRIDE_GENCODE" ]]; then
       export GENCODE=$OVERRIDE_GENCODE
   fi
+  if [[ -n "$OVERRIDE_GENCODE_CUDNN" ]]; then
+      export GENCODE_CUDNN=$OVERRIDE_GENCODE_CUDNN
+  fi
 
   # all CUDA libs except CuDNN and CuBLAS
   ls $CUDA_LIB_DIR/ | grep "\.a" | grep -v "culibos" | grep -v "cudart" | grep -v "cudnn" | grep -v "cublas" | grep -v "metis"  \
