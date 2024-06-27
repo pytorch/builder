@@ -1,4 +1,4 @@
-FROM quay.io/pypa/manylinux2014_aarch64 as base
+FROM quay.io/pypa/manylinux2014_aarch64:2024.06.09-5 as base
 
 
 # Graviton needs GCC 10 for the build
