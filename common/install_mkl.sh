@@ -4,12 +4,10 @@ set -ex
 
 # MKL
 MKL_VERSION=2022.2.1
-
-mkdir -p /opt/intel/
+MKL_BUILD=16993
+mkdir -p /opt/intel/lib
 pushd /tmp
-
-pip download -d . mkl-static==${MKL_VERSION}
-unzip mkl_static-${MKL_VERSION}-py2.py3-none-manylinux1_x86_64.whl
-unzip mkl_include-${MKL_VERSION}-py2.py3-none-manylinux1_x86_64.whl
-mv mkl_static-${MKL_VERSION}.data/data/lib /opt/intel/
-mv mkl_include-${MKL_VERSION}.data/data/include/ /opt/intel/
+curl -fsSL https://anaconda.org/intel/mkl-static/${MKL_VERSION}/download/linux-64/mkl-static-${MKL_VERSION}-intel_${MKL_BUILD}.tar.bz2 | tar xjv
+mv lib/* /opt/intel/lib/
+curl -fsSL https://anaconda.org/intel/mkl-include/${MKL_VERSION}/download/linux-64/mkl-include-${MKL_VERSION}-intel_${MKL_BUILD}.tar.bz2 | tar xjv
+mv include /opt/intel/
