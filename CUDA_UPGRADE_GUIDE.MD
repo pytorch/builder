@@ -9,9 +9,9 @@ Here is the supported matrix for CUDA and CUDNN (versions can be looked up in ht
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 11.8 | 8.7.0.84 | Legacy CUDA Release |
-| 12.1 | 8.9.2.26  | Stable CUDA Release |
-| 12.4 | 8.9.7.29  | Latest CUDA Nightly |
+| 11.8 | 9.1.0.70 | Legacy CUDA Release |
+| 12.1 | 9.1.0.70  | Stable CUDA Release |
+| 12.4 | 9.1.0.70  | Latest CUDA Nightly |
 
 
 ### B. Check the package availability
@@ -25,15 +25,15 @@ wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/
 The string 550.54.14 represents the recommended (user mode) driver that would be needed in later stages to update runner driver. 
 
 For CUDNN, check the archive page https://developer.nvidia.com/cudnn-archive to see if the desired cudnn version is available. 
-Then choose the cudnn version that goes with the CUDA version above. For cuda 12.4.0, the corresponding cudnn (e.g. 8.9.7) would be 
-"Download cuDNN v8.9.7 (December 5th, 2023), for CUDA 12.x". Note, you may need to use your email to download cuDNN. Simply put your email
-address and accept the terms and pick the architecture to download, e.g. x86_64, sbsa (arm server), and/or PPC. Tar files are recommended. 
+Then choose the cudnn version that goes with the CUDA version above. For cuda 12.4.0, the corresponding cudnn (e.g. 9.1.0) would be 
+"cuDNN 9.1.0 (April 2024)". Note, you may need to use your email to download cuDNN. Simply put your email
+address and accept the terms and pick the architecture to download, e.g. x86_64, arm64-sbsa (arm server), aarch64-jetson, and/or PPC. Tar files are recommended. 
 
 2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
 
 3) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
-   Following example is for cuda 12.4: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/12.4.0/ubuntu2204/devel?ref_type=heads
-   (Make sure to use version without CUDNN, it should be installed separately by install script)
+   Following example is for cuda 12.4.1: nvidia/cuda:12.4.1-devel-ubuntu22.04 
+   (Make sure to use the tag without CUDNN, as in pytorch CI, CUDNN would be installed separately by install script)
 
 4) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
 Note: drivers are forward-compatible most if not all the time, i.e. the driver version recommended for CUDA 12.4.1 (Linux, 550.54.15) works fine with CUDA 12.4.0.
@@ -41,54 +41,54 @@ Note: drivers are forward-compatible most if not all the time, i.e. the driver v
 ## 1. Maintain Progress and Updates
 Make an issue to track the progress, for example [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in CUDA upgrades.
 
-The following PRs were needed on the pytorch/buider side to add CUDA 12.4 support: 
-1) Add magma build for CUDA12.4 (https://github.com/pytorch/builder/pull/1722). The success criteria of this PR is that https://anaconda.org/pytorch/magma-cuda124 should be available. When this PR gets merged, the new magma-cuda124 package would be uploaded to pytorch anaconda channel automatically. If anaconda token expired, be sure to ping Meta so that the upload is successful. 
-2) Update pytorch-cuda for cuda12.4 conda build (https://github.com/pytorch/builder/pull/1792). Note, merging this PR is not enough. Similar to magma build, the success criteria of this step is that https://anaconda.org/pytorch/pytorch-cuda should have pytorch-cuda12.4. Different from magma build that was automatically uploaded, this step requires manual uploading step from Meta. Pause and contact Meta to upload the pytorch-cuda12.4 anaconda package immediately after this PR was merged.
-3) Enable CUDA 12.4 builds (https://github.com/pytorch/builder/pull/1785), this PR depends on the https://github.com/pytorch/builder/pull/1792. 
-4) Build libtorch and manywheel for 12.4 (https://github.com/pytorch/builder/pull/1723/), this PR needs to push to docker registry (https://hub.docker.com/r/pytorch/manylinux-cuda124), pause and ping Meta to help create the docker tag. This PR also depends on the success of magma build and anaconda upload. The success signal is that https://hub.docker.com/r/pytorch/manylinux-cuda124/tags becomes available after the PR is merged. 
-5) Occasionally, you may need to fix failures like https://github.com/pytorch/builder/pull/1786/files and https://github.com/pytorch/builder/pull/1808/files
-6) The above focused on Linux related enablement. For Windows related changes, follow https://github.com/pytorch/builder/pull/1725/files. Note, after this PR gets merged. Pause and ping Meta so that they can help with preparing updated Windows AMI.
-7) The above are all pytorch/builder changes. On the pytorch/pytorch side, a few PRs are required: 
-7.1) Add cu124 docker images https://github.com/pytorch/pytorch/pull/125944
-7.2) Add CUDA 12.4 workflows https://github.com/pytorch/pytorch/pull/121684 After this PR gets merged, https://hud.pytorch.org/hud/pytorch/pytorch/nightly/1?per_page=50 should have cuda 12.4 related binaries generated. Note: here you may need to pause and ping Meta to, e.g. create cu124/ aws S3 index for binary tests. (https://download.pytorch.org/whl/nightly/cu124). The runners need to update the default driver version to support the upgraded cuda, i.e., using pytorch/test-infra PR: https://github.com/pytorch/test-infra/pull/5130.
-7.3) Enable CUDA 12.4 CI https://github.com/pytorch/pytorch/pull/121956, create CUDA 12.4 related issues in https://github.com/pytorch/pytorch/issues/126692 in case they are ignored and follow up to address them.
+The following PRs were needed on the pytorch/buider side to add CUDA 12.4.0 support: 
+1) Add CUDA 12.4 workflow for docker image build (https://github.com/pytorch/builder/pull/1720)
+2) Add magma build for CUDA12.4 (https://github.com/pytorch/builder/pull/1722). The success criteria of this PR is that https://anaconda.org/pytorch/magma-cuda124 should be available. When this PR gets merged, the new magma-cuda124 package would be uploaded to pytorch anaconda channel automatically. If anaconda token expired, be sure to ping Meta so that the upload is successful. 
+3) Update pytorch-cuda for cuda12.4 conda build (https://github.com/pytorch/builder/pull/1792). Note, merging this PR is not enough. Similar to magma build, the success criteria of this step is that https://anaconda.org/pytorch/pytorch-cuda should have pytorch-cuda12.4. Different from magma build that was automatically uploaded, this step requires manual uploading step from Meta. Pause and contact Meta to upload the pytorch-cuda12.4 anaconda package immediately after this PR was merged.
+4) Enable CUDA 12.4 builds (https://github.com/pytorch/builder/pull/1785), this PR depends on the https://github.com/pytorch/builder/pull/1792. 
+5) Build libtorch and manywheel for 12.4 (https://github.com/pytorch/builder/pull/1723/), this PR needs to push to docker registry (https://hub.docker.com/r/pytorch/manylinux-cuda124), pause and ping Meta to help create the docker tag. This PR also depends on the success of magma build and anaconda upload. The success signal is that https://hub.docker.com/r/pytorch/manylinux-cuda124/tags becomes available after the PR is merged. 
+6) Occasionally, you may need to fix failures like https://github.com/pytorch/builder/pull/1786/files and https://github.com/pytorch/builder/pull/1808/files
+7) The above focused on Linux related enablement. For Windows related changes, follow https://github.com/pytorch/builder/pull/1725/files. Note, after this PR gets merged. Pause and ping Meta so that they can help with preparing updated Windows AMI.
+8) The above are all pytorch/builder changes. On the pytorch/pytorch side, a few PRs are required: 
+8.1) Add cu124 docker images https://github.com/pytorch/pytorch/pull/125944
+8.2) Add CUDA 12.4 workflows https://github.com/pytorch/pytorch/pull/121684 After this PR gets merged, https://hud.pytorch.org/hud/pytorch/pytorch/nightly/1?per_page=50 should have cuda 12.4 related binaries generated. Note: here you may need to pause and ping Meta to, e.g. create cu124/ aws S3 index for binary tests. (https://download.pytorch.org/whl/nightly/cu124). The runners need to update the default driver version to support the upgraded cuda, i.e., using pytorch/test-infra PR: https://github.com/pytorch/test-infra/pull/5130.
+8.3) Enable CUDA 12.4 CI https://github.com/pytorch/pytorch/pull/121956, create CUDA 12.4 related issues in https://github.com/pytorch/pytorch/issues/126692 in case they are ignored and follow up to address them.
 
 Below are legacy enabling steps for CONDA Build as a reference.
 ## 2. Modify scripts to install the new CUDA for Conda Docker Linux containers.
 There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about conda.
  
-1. Follow this [PR 992](https://github.com/pytorch/builder/pull/992) for all steps in this section
+1. Follow this [PR 992](https://github.com/pytorch/builder/pull/992) for all steps in this section; for CUDA 12.4 update, the corresponding PR is: https://github.com/pytorch/builder/pull/1785ihttps://github.com/pytorch/builder/pull/1785
 2. Find the CUDA install link [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&=Debian&target_version=10&target_type=runfile_local) or from the CUDA archive page mentioned in pre-requisites section above.
 3. Get the cudnn link from NVIDIA on the PyTorch Slack or from the CUDNN link discussed in the pre-requisites section above. 
-4. Modify [`install_cuda.sh`](common/install_cuda.sh)
+4. Modify [`install_cuda.sh`](common/install_cuda.sh) (Also see PR: https://github.com/pytorch/builder/pull/1720)
 5. Run the `install_116` chunk of code on your devbox to make sure it works.
 6. Check [this link](https://arnon.dk/matching-sm-architectures-arch-and-gencode-for-various-nvidia-cards/) to see if you need to add/remove any architectures to the nvprune list.
-7. Go into your cuda-11.6 folder and make sure what you're pruning actually exists. Update versions as needed, especially the visual tools like `nsight-systems`.
+7. Go into your cuda-11.6 folder and make sure what you're pruning actually exists. Update versions as needed, especially the visual tools like `nsight-systems`. [Note: for cuda 12.4, we did not need to perform these nvprune related code changes)
 8. Add setup for our Docker `conda` scripts/Dockerfiles
 9. To test that your code works, from the root builder repo, run something similar to `export CUDA_VERSION=11.3 && ./conda/build_docker.sh` for the `conda` images.
-10. Validate conda-builder docker hub [cuda11.6](https://hub.docker.com/r/pytorch/conda-builder/tags?page=1&name=cuda11.6) to see that images have been built and correctly tagged. These images are used in the next step to build Magma for linux.
+10. Validate conda-builder docker hub [cuda11.6](https://hub.docker.com/r/pytorch/conda-builder/tags?page=1&name=cuda11.6) to see that images have been built and correctly tagged. These images are used in the next step to build Magma for linux. For cuda 12.4.0, the conda-builder docker hub is found via https://hub.docker.com/r/pytorch/conda-builder/tags?page=1&name=cuda12.4.
 
 ## 3. Update Magma for Linux
 Build Magma for Linux. Our Linux CUDA jobs use conda, so we need to build magma-cuda116 and push it to anaconda:
-1. Follow this [PR 1368](https://github.com/pytorch/builder/pull/1368) for all steps in this section
+1. Follow this [PR 1722](https://github.com/pytorch/builder/pull/1722) for all steps in this section
 2. Currently, this is mainly copy-paste in [`magma/Makefile`](magma/Makefile) if there are no major code API changes/deprecations to the CUDA version. Previously, we've needed to add patches to MAGMA, so this may be something to check with NVIDIA about.
-3. To push the package, please update build-magma-linux workflow [PR 897](https://github.com/pytorch/builder/pull/897).
-4. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115).
+3. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior (i.e. make sure [PR 1720] (https://github.com/pytorch/builder/pull/1720) has already been merged). Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda124).
 
 ## 4. Modify scripts to install the new CUDA for Libtorch and Manywheel Docker Linux containers. Modify builder supporting scripts
 There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about libtorch and manywheel containers.
 
 Add setup for our Docker `libtorch` and `manywheel`:
-1. Follow this PR [PR 1003](https://github.com/pytorch/builder/pull/1003) for all steps in this section
+1. Follow this PR [PR 1723](https://github.com/pytorch/builder/pull/1723) for all steps in this section
 2. For `libtorch`, the code changes are usually copy-paste. For `manywheel`, you should manually verify the versions of the shared libraries with the CUDA you downloaded before.
-3. This is Manual Step: Create a ticket for PyTorch Dev Infra team to Create a new repo to host manylinux-cuda images in docker hub, for example, https://hub.docker.com/r/pytorch/manylinux-builder:cuda115. This repo should have public visibility and read & write access for bots. This step can be removed once the following [issue](https://github.com/pytorch/builder/issues/901) is addressed.
+3. This is Manual Step: Contact Meta to create a new repo to host manylinux-cuda images in docker hub, for example, https://hub.docker.com/r/pytorch/manylinux-builder:cuda124. This repo should have public visibility and read & write access for bots. This step can be removed once the following [issue](https://github.com/pytorch/builder/issues/901) is addressed.
 4. Push the images to Docker Hub. This step should be automated with the help with GitHub Actions in the `pytorch/builder` repo. Make sure to update the `cuda_version` to the version you're adding in respective YAMLs, such as `.github/workflows/build-manywheel-images.yml`, `.github/workflows/build-conda-images.yml`, `.github/workflows/build-libtorch-images.yml`.
 5. Verify that each of the workflows that push the images succeed by selecting and verifying them in the [Actions page](https://github.com/pytorch/builder/actions/workflows/build-libtorch-images.yml) of pytorch/builder. Furthermore, check [https://hub.docker.com/r/pytorch/manylinux-builder/tags](https://hub.docker.com/r/pytorch/manylinux-builder/tags), [https://hub.docker.com/r/pytorch/libtorch-cxx11-builder/tags](https://hub.docker.com/r/pytorch/libtorch-cxx11-builder/tags) to verify that the right tags exist for manylinux and libtorch types of images.
-6. Finally before enabling nightly binaries and CI builds we should make sure we post following PRs in [PR 1015](https://github.com/pytorch/builder/pull/1015) [PR 1017](https://github.com/pytorch/builder/pull/1017) and [this commit](https://github.com/pytorch/builder/commit/7d5e98f1336c7cb84c772604c5e0d1acb59f2d72) to enable the new CUDA build in wheels and conda.
+6. Finally before enabling nightly binaries and CI builds we should make sure we post following PRs in [PR 1785](https://github.com/pytorch/builder/pull/1785) to enable the new CUDA build in wheels and conda.
 
 ## 5. Modify code to install the new CUDA for Windows and update MAGMA for Windows
 
-1. Follow this [PR 999](https://github.com/pytorch/builder/pull/999) for all steps in this section
+1. Follow this [PR 1725](https://github.com/pytorch/builder/pull/1725) for all steps in this section
 2. To get the CUDA install link, just like with Linux, go [here](https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local) and upload that `.exe` file to our S3 bucket [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects).
 3. Review "Table 3. Possible Subpackage Names" of CUDA installation guide for windows [link](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) to make sure the Subpackage Names have not changed. These are specified in [cuda_install.bat file](https://github.com/pytorch/builder/pull/999/files#diff-92a9c40963159c9d8f88fa2987057a65a2370737bd4ecc233498ebdfa02021e6)
 4. To get the cuDNN install link, you could ask NVIDIA, but you could also just sign up for an NVIDIA account and access the needed `.zip` file at this [link](https://developer.nvidia.com/rdp/cudnn-download). First click on `cuDNN Library for Windows (x86)` and then upload that zip file to our S3 bucket.
@@ -109,8 +109,8 @@ Please note, since this step currently requires access to corporate AWS, this st
 Adding the new version to nightlies allows PyTorch binaries compiled with the new CUDA version to be available to users through `conda` or `pip` or just raw `libtorch`.
 1. If the new CUDA version requires a new driver (see #1 sub-bullet), the CI and binaries would also need the new driver. Find the driver download [here](https://www.nvidia.com/en-us/drivers/unix/) and update the link like [so](https://github.com/pytorch/pytorch/commit/fcf8b712348f21634044a5d76a69a59727756357).
     1. Please check the Driver Version table in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
-2. Follow this [PR 81095](https://github.com/pytorch/pytorch/pull/81095) for steps 2-4 in this section.
-3. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
+2. Follow this [PR 121684](https://github.com/pytorch/pytorch/pull/121684) for steps 2-4 in this section.
+3. Once [PR 121684](https://github.com/pytorch/pytorch/pull/121684) is created make sure to attach ciflow/binaries, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
 4. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
     - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict
@@ -120,18 +120,18 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
 
 ## 8. Add the new CUDA version to OSS CI.
 Testing the new version in CI is crucial for finding regressions and should be done ASAP along with the next step (I am simply putting this one first as it is usually easier).
-1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.7**: [PR 93406](https://github.com/pytorch/pytorch/pull/93406).
+1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.7**: [PR 121956](https://github.com/pytorch/pytorch/pull/121956).
 2. IMPORTANT NOTE: the CI is not always automatically triggered when you edit the workflow files! Ensure that the new CI job for the new CUDA version is showing up in the PR signal box.
 If it is not there, make sure you add the correct ciflow label (ciflow/periodic, for example) to trigger the test. Just because the CI is green on your pull request does NOT mean
 the test has been run and is green.
-3. It is likely that there will be tests that no longer pass with the new CUDA version or GPU driver. Disable them for the time being, notify people who can help, and make issues to track them (like [so](https://github.com/pytorch/pytorch/issues/57482)).
+3. It is likely that there will be tests that no longer pass with the new CUDA version or GPU driver. Disable them for the time being, notify people who can help, and make issues to track them (like [so](https://github.com/pytorch/pytorch/issues/126692)).
 4. After merging the CI PR, Please open temporary issues for new builds and tests marking them unstable, example [issue](https://github.com/pytorch/pytorch/issues/127104). These issues should be closed after few days of opening, when newly added CI jobs are constantly green.
 
 ## 9. Update Linux Nvidia driver used during runner provisioning
 If linux driver update is required. The driver should be updated during the runner provisioning otherwise nightly workflows will fail with multiple Nova workflows.
 1. Post and merge [PR 5243](https://github.com/pytorch/test-infra/pull/5243)
 2. Run workflow [lambda-release-tag-runners workflow](https://github.com/pytorch/test-infra/actions/workflows/lambda-release-tag-runners.yml) this worklow will create new release [here](https://github.com/pytorch/test-infra/releases)
-3. Post and merge [PR 394](https://github.com/pytorch-labs/pytorch-gha-infra/pull/394)
+3. Post and merge [PR 394](https://github.com/pytorch-labs/pytorch-gha-infra/pull/394) [Meta only]
 4. Deploy this change by running following workflow [runners-on-dispatch-release](https://github.com/pytorch-labs/pytorch-gha-infra/actions/workflows/runners-on-dispatch-release.yml)
 
 ## 10. Add the new version to torchvision and torchaudio CI.
