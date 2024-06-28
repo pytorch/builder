@@ -1,9 +1,27 @@
 #!/bin/bash
-
 set -ex
 
 # MKL
 MKL_VERSION=2022.2.1
+
+# Install Python packages depending on the base OS
+ID=$(grep -oP '(?<=^ID=).+' /etc/os-release | tr -d '"')
+case "$ID" in
+  ubuntu)
+    # TODO (1)
+    UBUNTU_VERSION=$(grep -oP '(?<=^VERSION_ID=).+' /etc/os-release | tr -d '"')
+    apt-get update
+    apt-get install -y unzip
+    ;;
+  centos)
+    yum update -y
+    yum install -y unzip
+    ;;
+  *)
+    echo "Unable to determine OS..."
+    exit 1
+    ;;
+esac
 
 mkdir -p /opt/intel/
 pushd /tmp
