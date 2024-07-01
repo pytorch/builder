@@ -184,6 +184,12 @@ do
     OS_SO_FILES[${#OS_SO_FILES[@]}]=$file_name # Append lib to array
 done
 
+# PyTorch-version specific
+# AOTriton dependency only for PyTorch >= 2.4
+if (( $(echo "${PYTORCH_VERSION} 2.4" | awk '{print ($1 >= $2)}') )); then
+    ROCM_SO_FILES+=("libaotriton_v2.so")
+fi
+
 # rocBLAS library files
 if [[ $ROCM_INT -ge 50200 ]]; then
     ROCBLAS_LIB_SRC=$ROCM_HOME/lib/rocblas/library
