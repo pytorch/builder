@@ -190,8 +190,7 @@ def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check:
 
         if runtime_error_check == "enabled":
             test_cuda_runtime_errors_captured()
-
-       
+   
 
 def smoke_test_conv2d() -> None:
     import torch.nn as nn
