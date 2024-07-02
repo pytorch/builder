@@ -13,7 +13,3 @@ python3 -m wheel unpack mkl_static-${MKL_VERSION}-py2.py3-none-manylinux1_x86_64
 python3 -m wheel unpack mkl_include-${MKL_VERSION}-py2.py3-none-manylinux1_x86_64.whl
 mv mkl_static-${MKL_VERSION}/mkl_static-${MKL_VERSION}.data/data/lib /opt/intel/
 mv mkl_include-${MKL_VERSION}/mkl_include-${MKL_VERSION}.data/data/include /opt/intel/
-
-ls -las /opt/intel/
-ls -las /opt/intel/lib
-ls -las /opt/intel/include
