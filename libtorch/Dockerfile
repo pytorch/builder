@@ -31,7 +31,17 @@ RUN apt-get update -y && \
     rm install_cpython.sh && \
     apt-get clean
 
+FROM base as conda
+ADD ./common/install_conda.sh install_conda.sh
+RUN bash ./install_conda.sh && rm install_conda.sh
+
 FROM base as cpu
+# Install Anaconda
+COPY --from=conda /opt/conda /opt/conda
+# Install python
+COPY --from=python /opt/python    /opt/python
+COPY --from=python /opt/_internal /opt/_internal
+ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
@@ -40,10 +50,6 @@ FROM cpu as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
 ADD ./common/install_magma.sh install_magma.sh
 ENV CUDA_HOME /usr/local/cuda
-
-FROM base as conda
-ADD ./common/install_conda.sh install_conda.sh
-RUN bash ./install_conda.sh && rm install_conda.sh
 
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
@@ -64,7 +70,7 @@ FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
 ENV MKLROOT /opt/intel
-# Adding ROCM_PATH env var so that LoadHip.cmake (even with logic updated for ROCm6.0) 
+# Adding ROCM_PATH env var so that LoadHip.cmake (even with logic updated for ROCm6.0)
 # find HIP works for ROCm5.7. Not needed for ROCm6.0 and above.
 # Remove below when ROCm5.7 is not in support matrix anymore.
 ENV ROCM_PATH /opt/rocm
