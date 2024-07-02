@@ -21,7 +21,7 @@ ADD ./common/install_openssl.sh install_openssl.sh
 RUN bash ./install_openssl.sh && rm install_openssl.sh
 
 # Install python
-FROM base as python
+FROM base as cpu
 ADD common/install_cpython.sh install_cpython.sh
 RUN apt-get update -y && \
     apt-get install build-essential gdb lcov libbz2-dev libffi-dev \
@@ -30,9 +30,6 @@ RUN apt-get update -y && \
     bash ./install_cpython.sh && \
     rm install_cpython.sh && \
     apt-get clean
-
-FROM python as cpu
-# Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
 
