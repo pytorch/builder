@@ -7,6 +7,7 @@ TOPDIR=$(git rev-parse --show-toplevel)
 
 CUDA_VERSION=${CUDA_VERSION:-11.7}
 
+# add a empty line
 case ${CUDA_VERSION} in
   cpu)
     BASE_TARGET=base
