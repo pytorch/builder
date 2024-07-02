@@ -33,9 +33,8 @@ RUN apt-get update -y && \
 
 FROM base as cpu
 # Install python
-COPY --from=python /opt/python    /opt/python
-COPY --from=python /opt/_internal /opt/_internal
-ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH
+ADD common/install_cpython.sh install_cpython.sh
+RUN bash ./install_cpython.sh && rm install_cpython.sh
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
