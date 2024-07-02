@@ -34,7 +34,13 @@ RUN apt-get update -y && \
 FROM base as cpu
 # Install python
 ADD common/install_cpython.sh install_cpython.sh
-RUN bash ./install_cpython.sh && rm install_cpython.sh
+RUN apt-get update -y && \
+    apt-get install build-essential gdb lcov libbz2-dev libffi-dev \
+        libgdbm-dev liblzma-dev libncurses5-dev libreadline6-dev \
+        libsqlite3-dev libssl-dev lzma lzma-dev tk-dev uuid-dev zlib1g-dev -y && \
+    bash ./install_cpython.sh && \
+    rm install_cpython.sh && \
+    apt-get clean
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
