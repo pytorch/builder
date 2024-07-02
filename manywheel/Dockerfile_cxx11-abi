@@ -35,6 +35,7 @@ FROM base as intel
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
 COPY --from=conda              /opt/conda                            /opt/conda
+ENV PATH=/opt/conda/bin:$PATH
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
 
