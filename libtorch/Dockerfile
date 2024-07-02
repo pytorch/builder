@@ -31,16 +31,17 @@ RUN apt-get update -y && \
     rm install_cpython.sh && \
     apt-get clean
 
+FROM base as conda
+ADD ./common/install_conda.sh install_conda.sh
+RUN bash ./install_conda.sh && rm install_conda.sh
+
 FROM base as cpu
+# Install Anaconda
+COPY --from=conda /opt/conda /opt/conda
 # Install python
-ADD common/install_cpython.sh install_cpython.sh
-RUN apt-get update -y && \
-    apt-get install build-essential gdb lcov libbz2-dev libffi-dev \
-        libgdbm-dev liblzma-dev libncurses5-dev libreadline6-dev \
-        libsqlite3-dev libssl-dev lzma lzma-dev tk-dev uuid-dev zlib1g-dev -y && \
-    bash ./install_cpython.sh && \
-    rm install_cpython.sh && \
-    apt-get clean
+COPY --from=python /opt/python    /opt/python
+COPY --from=python /opt/_internal /opt/_internal
+ENV PATH=/opt/conda/bin:/usr/local/cuda/bin:$PATH
 # Install MKL
 ADD ./common/install_mkl.sh install_mkl.sh
 RUN bash ./install_mkl.sh && rm install_mkl.sh
@@ -49,10 +50,6 @@ FROM cpu as cuda
 ADD ./common/install_cuda.sh install_cuda.sh
 ADD ./common/install_magma.sh install_magma.sh
 ENV CUDA_HOME /usr/local/cuda
-
-FROM base as conda
-ADD ./common/install_conda.sh install_conda.sh
-RUN bash ./install_conda.sh && rm install_conda.sh
 
 FROM cuda as cuda11.8
 RUN bash ./install_cuda.sh 11.8
