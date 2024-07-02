@@ -25,15 +25,19 @@ RUN yum install -y openssl-devel zlib-devel bzip2-devel ncurses-devel sqlite-dev
 ADD common/install_cpython.sh install_cpython.sh
 RUN bash ./install_cpython.sh && rm install_cpython.sh
 
-FROM base as intel
-# Install MKL
-ADD ./common/install_mkl.sh install_mkl.sh
-RUN bash ./install_mkl.sh && rm install_mkl.sh
-
 FROM base as conda
 ADD ./common/install_conda.sh install_conda.sh
 RUN bash ./install_conda.sh && rm install_conda.sh
 RUN /opt/conda/bin/conda install -y cmake
+
+FROM base as intel
+# Install MKL
+COPY --from=python             /opt/python                           /opt/python
+COPY --from=python             /opt/_internal                        /opt/_internal
+COPY --from=conda              /opt/conda                            /opt/conda
+ENV PATH=/opt/conda/bin:$PATH
+ADD ./common/install_mkl.sh install_mkl.sh
+RUN bash ./install_mkl.sh && rm install_mkl.sh
 
 FROM base as patchelf
 ADD ./common/install_patchelf.sh install_patchelf.sh
