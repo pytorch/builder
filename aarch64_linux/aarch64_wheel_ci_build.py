@@ -87,6 +87,7 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libcudnn_heuristic.so.9",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
         "/opt/OpenBLAS/lib/libopenblas.so.0",
+        "/usr/lib64/libgfortran.so.5",
         "/acl/build/libarm_compute.so",
         "/acl/build/libarm_compute_graph.so",
     ]
