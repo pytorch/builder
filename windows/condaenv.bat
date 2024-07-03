@@ -15,12 +15,10 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
     if "%%v" == "3.11" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.23.4 pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.12" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.26.0 pyyaml boto3 cmake ninja typing_extensions python=%%v
     if "%%v" == "3.13" call conda create -n py!PYTHON_VERSION_STR! -y -q -c=conda-forge numpy=1.26.0 pyyaml boto3 cmake ninja typing_extensions python=%%v
+    call conda run -n py!PYTHON_VERSION_STR! pip install mkl-include
+    call conda run -n py!PYTHON_VERSION_STR! pip install mkl-static
 )
 endlocal
-
-:: Install mkl-static and mkl-include
-conda run -n py!PYTHON_VERSION_STR! pip install mkl-include
-conda run -n py!PYTHON_VERSION_STR! pip install mkl-static
 
 :: Install libuv
 conda install -y -q -c conda-forge libuv=1.39
