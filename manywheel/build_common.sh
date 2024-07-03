@@ -437,19 +437,6 @@ for pkg in /$WHEELHOUSE_DIR/torch_no_python*.whl /$WHEELHOUSE_DIR/torch*linux*.w
         popd
     fi
 
-    if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
-        # @sahanp todo: Remove this line
-        echo "current files in directory"
-        ls -l
-
-        echo "removing extraneous .so and .a files"
-        # todo @PaliC: Remove these .so and .a files before hand in the split build
-        rm *.so *.a || true
-
-        echo "Packaging the following files"
-        ls -alR
-    fi
-
     # zip up the wheel back
     zip -rq $(basename $pkg) $PREIX*
 
