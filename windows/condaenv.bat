@@ -19,8 +19,8 @@ FOR %%v IN (%DESIRED_PYTHON%) DO (
 endlocal
 
 :: Install mkl-static and mkl-include
-python -m pip install mkl-include
-python -m pip install mkl-static
+conda run -n py!PYTHON_VERSION_STR! pip install mkl-include
+conda run -n py!PYTHON_VERSION_STR! pip install mkl-static
 
 :: Install libuv
 conda install -y -q -c conda-forge libuv=1.39
