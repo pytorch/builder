@@ -85,7 +85,8 @@ RUN yum install -y \
         wget \
         which \
         xz \
-        gcc-toolset-${DEVTOOLSET_VERSION}-toolchain
+        gcc-toolset-${DEVTOOLSET_VERSION}-toolchain \
+        glibc-langpack-en
 
 RUN yum install -y \
     https://repo.ius.io/ius-release-el7.rpm \
