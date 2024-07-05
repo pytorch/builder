@@ -21,9 +21,9 @@ requirements:
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
     - mkl-include # [x86_64]
-    - mkl=2020.2 # [py <= 311 and x86_64 and not win]
-    - mkl=2023.1 # [py >= 312 and x86_64]
-    - mkl-devel=2023.1 # [x86_64 and win]
+    - mkl-static=2020.2 # [py <= 311 and x86_64 and not win]
+    - mkl-static=2023.1 # [py >= 312 and x86_64]
+    - mkl-static=2023.1 # [x86_64 and win]
     {% endif %}
     - typing_extensions
     - ninja
@@ -39,8 +39,8 @@ requirements:
   run:
     - python
     {% if cross_compile_arm64 == 0 %}
-    - mkl >=2018 # [x86_64 and not win]
-    - mkl=2023.1 # [x86_64 and win]
+    - mkl-static >=2018 # [x86_64 and not win]
+    - mkl-static=2023.1 # [x86_64 and win]
     {% endif %}
     - libuv # [win]
     - intel-openmp # [win]
@@ -54,7 +54,7 @@ requirements:
     - jinja2
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
-    - blas * mkl # [x86_64]
+    - blas * mkl-static # [x86_64]
     {% endif %}
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
