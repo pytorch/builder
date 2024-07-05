@@ -323,6 +323,7 @@ def main() -> None:
     )
     options = parser.parse_args()
     print(f"torch: {torch.__version__}")
+    print(torch.__config__.parallel_info())
 
     check_version(options.package)
     smoke_test_conv2d()
