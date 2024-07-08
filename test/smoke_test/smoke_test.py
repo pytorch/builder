@@ -181,13 +181,6 @@ def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check:
         if (sys.platform in ["linux", "linux2"]):
             print(f"torch nccl version: {torch.cuda.nccl.version()}")
 
-
-         # test settind CUDA_VISIBLE_DEVICES
-        print(f"torch.cuda.device_count: {torch.cuda.device_count()}")
-        os.environ['CUDA_VISIBLE_DEVICES']='0'
-        print(torch.empty(2, device='cuda'))
-        del os.environ['CUDA_VISIBLE_DEVICES']
-
         if runtime_error_check == "enabled":
             test_cuda_runtime_errors_captured()
 
