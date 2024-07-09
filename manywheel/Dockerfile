@@ -3,6 +3,7 @@ ARG ROCM_VERSION=3.7
 ARG BASE_CUDA_VERSION=11.8
 
 ARG GPU_IMAGE=centos:7
+ARG MKLROOT=/opt/intel
 FROM centos:7 as base
 
 ENV LC_ALL en_US.UTF-8
@@ -131,7 +132,7 @@ COPY --from=openssl            /opt/openssl                          /opt/openss
 COPY --from=python             /opt/python                           /opt/python
 COPY --from=python             /opt/_internal                        /opt/_internal
 COPY --from=python             /opt/python/cp39-cp39/bin/auditwheel /usr/local/bin/auditwheel
-COPY --from=intel              /opt/intel                            /opt/intel
+COPY --from=intel              ${MKLROOT}                            ${MKLROOT} 
 COPY --from=patchelf           /usr/local/bin/patchelf               /usr/local/bin/patchelf
 COPY --from=jni                /usr/local/include/jni.h              /usr/local/include/jni.h
 COPY --from=libpng             /usr/local/bin/png*                   /usr/local/bin/
