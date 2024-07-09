@@ -2,7 +2,7 @@
 set -ex
 
 # MKL
-MKL_VERSION=2022.2.1
+MKL_VERSION=2024.2.0
 
 mkdir -p /opt/intel/
 pushd /tmp

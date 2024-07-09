@@ -69,6 +69,11 @@ else
         export PATH=${OLD_PATH}
     fi
 
+    # Use case CUDA_VISIBLE_DEVICES: https://github.com/pytorch/pytorch/issues/128819
+    if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda' ]]; then
+        python3 -c "import torch;import os;print(torch.cuda.device_count(), torch.__version__);os.environ['CUDA_VISIBLE_DEVICES']='0';print(torch.empty(2, device='cuda'))"
+    fi
+
     # this is optional step
     if [[ ${TARGET_OS} != linux*  ]]; then
         conda deactivate
