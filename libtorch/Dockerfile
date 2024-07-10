@@ -1,5 +1,6 @@
 ARG BASE_TARGET=base
 ARG GPU_IMAGE=ubuntu:20.04
+ARG MKLROOT /opt/intel
 FROM ${GPU_IMAGE} as base
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -69,7 +70,6 @@ RUN ln -sf /usr/local/cuda-12.4 /usr/local/cuda
 FROM cpu as rocm
 ARG PYTORCH_ROCM_ARCH
 ENV PYTORCH_ROCM_ARCH ${PYTORCH_ROCM_ARCH}
-ENV MKLROOT /opt/intel
 # Adding ROCM_PATH env var so that LoadHip.cmake (even with logic updated for ROCm6.0)
 # find HIP works for ROCm5.7. Not needed for ROCm6.0 and above.
 # Remove below when ROCm5.7 is not in support matrix anymore.
