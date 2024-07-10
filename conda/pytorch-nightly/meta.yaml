@@ -21,9 +21,9 @@ requirements:
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
     - mkl-include # [x86_64]
-    - mkl-static=2020.2 # [py <= 311 and x86_64 and not win]
-    - mkl-static=2023.1 # [py >= 312 and x86_64]
-    - mkl-static=2023.1 # [x86_64 and win]
+    - mkl-static=2024.2.0 # [py <= 311 and x86_64 and not win]
+    - mkl-static=2024.2.0 # [py >= 312 and x86_64]
+    - mkl-static=2024.2.0 # [x86_64 and win]
     {% endif %}
     - typing_extensions
     - ninja
