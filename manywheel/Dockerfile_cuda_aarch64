@@ -75,9 +75,10 @@ ADD ./common/install_magma.sh install_magma.sh
 RUN bash ./install_magma.sh ${BASE_CUDA_VERSION} && rm install_magma.sh
 
 FROM base as openblas
+ARG BASE_CUDA_VERSION
 # Install openblas
 ADD ./common/install_openblas.sh install_openblas.sh
-RUN bash ./install_openblas.sh && rm install_openblas.sh
+RUN bash ./install_openblas.sh ${BASE_CUDA_VERSION} && rm install_openblas.sh
 
 FROM final as cuda_final
 ARG BASE_CUDA_VERSION
