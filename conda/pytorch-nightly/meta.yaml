@@ -19,12 +19,6 @@ requirements:
     - python
     - setuptools
     - pyyaml
-    {% if cross_compile_arm64 == 0 %}
-    - mkl-include # [x86_64]
-    - mkl-static=2024.2.0 # [py <= 311 and x86_64 and not win]
-    - mkl-static=2024.2.0 # [py >= 312 and x86_64]
-    - mkl-static=2024.2.0 # [x86_64 and win]
-    {% endif %}
     - typing_extensions
     - ninja
     - libuv # [win]
@@ -38,10 +32,6 @@ requirements:
 
   run:
     - python
-    {% if cross_compile_arm64 == 0 %}
-    - mkl-static >=2018 # [x86_64 and not win]
-    - mkl-static=2023.1 # [x86_64 and win]
-    {% endif %}
     - libuv # [win]
     - intel-openmp # [win]
     # llvm-openmp 16 leads to wrong processor affinity for fork child, see #99625.
@@ -53,9 +43,6 @@ requirements:
     - networkx
     - jinja2
     - pyyaml
-    {% if cross_compile_arm64 == 0 %}
-    - blas * mkl-static # [x86_64]
-    {% endif %}
     - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
 {{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
 {{ environ.get('CONDA_TRITON_CONSTRAINT', '') }}
