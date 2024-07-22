@@ -30,7 +30,7 @@ env:
 
 jobs:
   build-docker-cuda:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         cuda_version: ["12.4", "12.1", "11.8"]
@@ -49,7 +49,7 @@ jobs:
         run: |
           libtorch/build_docker.sh
   build-docker-rocm:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         rocm_version: ["6.0", "6.1"]

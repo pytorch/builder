@@ -40,7 +40,7 @@ env:
 
 jobs:
   build-docker-cuda:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         cuda_version: ["12.4", "12.1", "11.8"]
@@ -62,7 +62,7 @@ jobs:
           manywheel/build_docker.sh
   # NOTE: manylinux_2_28 are still experimental, see https://github.com/pytorch/pytorch/issues/123649
   build-docker-cuda-manylinux_2_28:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         cuda_version: ["12.4", "12.1", "11.8"]
@@ -102,7 +102,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-rocm:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         rocm_version: ["6.0", "6.1"]
@@ -194,7 +194,7 @@ jobs:
         run: |
           manywheel/build_docker.sh
   build-docker-xpu:
-    runs-on: linux.12xlarge.ephemeral
+    runs-on: ubuntu-latest
     env:
       GPU_ARCH_TYPE: xpu
     steps:
