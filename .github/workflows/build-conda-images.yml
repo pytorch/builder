@@ -28,7 +28,7 @@ env:
 
 jobs:
   build-docker:
-    runs-on: ubuntu-latest
+    runs-on: linux.9xlarge.ephemeral
     strategy:
       matrix:
         cuda_version: ["11.8", "12.1", "12.4", "cpu"]
