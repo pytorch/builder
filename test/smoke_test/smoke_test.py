@@ -178,7 +178,7 @@ def smoke_test_cuda(package: str, runtime_error_check: str, torch_compile_check:
         print(f"cuDNN enabled? {torch.backends.cudnn.enabled}")
 
         torch.cuda.init()
-        print(f"CUDA initialized successfully")
+        print("CUDA initialized successfully")
         print(f"Number of CUDA devices: {torch.cuda.device_count()}")
         for i in range(torch.cuda.device_count()):
             print(f"Device {i}: {torch.cuda.get_device_name(i)}")
