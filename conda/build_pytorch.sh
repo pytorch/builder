@@ -220,7 +220,7 @@ elif [[ "$OSTYPE" == "msys" ]]; then
     pushd $tmp_conda
     export PATH="$(pwd):$(pwd)/Library/usr/bin:$(pwd)/Library/bin:$(pwd)/Scripts:$(pwd)/bin:$PATH"
     popd
-    retry conda install -yq conda-build=24.5.1
+    retry conda install -yq conda-build=3.26.1
 fi
 
 cd "$SOURCE_DIR"
@@ -357,7 +357,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
       # Don't run tests on windows (they were ignored mostly anyways)
       NO_TEST="--no-test"
       # Fow windows need to keep older conda version
-      conda install -y conda-package-handling conda==23.7.0
+      conda install -y conda-package-handling conda==22.9.0
     else
       conda install -y conda-package-handling conda==23.5.2
     fi
