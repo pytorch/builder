@@ -357,7 +357,7 @@ for py_ver in "${DESIRED_PYTHON[@]}"; do
       # Don't run tests on windows (they were ignored mostly anyways)
       NO_TEST="--no-test"
       # Fow windows need to keep older conda version
-      conda install -y conda-package-handling conda==22.9.0
+      conda install -y conda-package-handling conda==23.7.0
     else
       conda install -y conda-package-handling conda==23.5.2
     fi
