@@ -63,7 +63,7 @@ case ${CUDA_VERSION} in
         if [[ "$GPU_ARCH_TYPE" = "cuda-aarch64" ]]; then
             TORCH_CUDA_ARCH_LIST="9.0"
         else
-            TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};9.0"
+            TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST};9.0+PTX"
         fi
         EXTRA_CAFFE2_CMAKE_FLAGS+=("-DATEN_NO_TEST=ON")
         ;;
