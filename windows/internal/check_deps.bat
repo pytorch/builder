@@ -65,7 +65,7 @@ if  %PYVER% LSS 35 (
     echo Warning: PyTorch for Python 2 under Windows is experimental.
     echo Python x64 3.5 or up is recommended to compile PyTorch on Windows
     echo Maybe you can create a virual environment if you have conda installed:
-    echo ^> conda create -n test python=3.6 pyyaml numpy
+    echo ^> conda create -n test python=3.6 pyyaml mkl numpy
     echo ^> activate test
 )
 
