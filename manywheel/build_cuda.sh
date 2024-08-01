@@ -85,20 +85,6 @@ case ${CUDA_VERSION} in
         ;;
 esac
 
-if [[ -n "$OVERRIDE_TORCH_CUDA_ARCH_LIST" ]]; then
-    TORCH_CUDA_ARCH_LIST="$OVERRIDE_TORCH_CUDA_ARCH_LIST"
-
-    # Prune CUDA again with new arch list. Unfortunately, we need to re-install CUDA to prune it again
-    override_gencode=""
-    for arch in ${TORCH_CUDA_ARCH_LIST//;/ } ; do
-      arch_code=$(echo "$arch" | tr -d .)
-      override_gencode="${override_gencode}-gencode arch=compute_$arch_code,code=sm_$arch_code "
-    done
-
-    export OVERRIDE_GENCODE=$override_gencode
-    bash "$(dirname "$SCRIPTPATH")"/common/install_cuda.sh "${CUDA_VERSION}"
-fi
-
 export TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}
 echo "${TORCH_CUDA_ARCH_LIST}"
 
