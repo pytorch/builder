@@ -86,7 +86,10 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9",
         "/usr/local/cuda/lib64/libcudnn_heuristic.so.9",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
-        "/opt/OpenBLAS/lib/libopenblas.so.0",
+        "/usr/local/lib/libnvpl_lapack_lp64_gomp.so.0",
+        "/usr/local/lib/libnvpl_blas_lp64_gomp.so.0",
+        "/usr/local/lib/libnvpl_lapack_core.so.0",
+        "/usr/local/lib/libnvpl_blas_core.so.0",
         "/usr/lib64/libgfortran.so.5",
         "/acl/build/libarm_compute.so",
         "/acl/build/libarm_compute_graph.so",
@@ -201,9 +204,16 @@ if __name__ == "__main__":
             "LD_LIBRARY_PATH=/pytorch/build/lib:/acl/build:$LD_LIBRARY_PATH "
             "ACL_INCLUDE_DIR=/acl/build "
             "ACL_LIBRARY=/acl/build "
-            "BLAS=OpenBLAS "
-            "OpenBLAS_HOME=/OpenBLAS "
         )
+        if enable_cuda:
+            build_vars += (            
+                "BLAS=NVPL "
+            )
+        else:
+            build_vars += (            
+                "BLAS=OpenBLAS "
+                "OpenBLAS_HOME=/OpenBLAS "
+            )
     else:
         print("build pytorch without mkldnn backend")
 
