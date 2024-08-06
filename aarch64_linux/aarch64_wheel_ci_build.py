@@ -86,14 +86,21 @@ def update_wheel(wheel_path) -> None:
         "/usr/local/cuda/lib64/libcudnn_engines_precompiled.so.9",
         "/usr/local/cuda/lib64/libcudnn_heuristic.so.9",
         "/opt/conda/envs/aarch64_env/lib/libgomp.so.1",
-        "/usr/local/lib/libnvpl_lapack_lp64_gomp.so.0",
-        "/usr/local/lib/libnvpl_blas_lp64_gomp.so.0",
-        "/usr/local/lib/libnvpl_lapack_core.so.0",
-        "/usr/local/lib/libnvpl_blas_core.so.0",
         "/usr/lib64/libgfortran.so.5",
         "/acl/build/libarm_compute.so",
         "/acl/build/libarm_compute_graph.so",
     ]
+    if enable_cuda:
+        libs_to_copy += [
+            "/usr/local/lib/libnvpl_lapack_lp64_gomp.so.0",
+            "/usr/local/lib/libnvpl_blas_lp64_gomp.so.0",
+            "/usr/local/lib/libnvpl_lapack_core.so.0",
+            "/usr/local/lib/libnvpl_blas_core.so.0",
+        ]
+    else:
+        libs_to_copy += [
+            "/opt/OpenBLAS/lib/libopenblas.so.0",
+        ]
     # Copy libraries to unzipped_folder/a/lib
     for lib_path in libs_to_copy:
         lib_name = os.path.basename(lib_path)
