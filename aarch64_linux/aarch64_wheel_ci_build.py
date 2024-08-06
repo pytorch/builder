@@ -206,14 +206,9 @@ if __name__ == "__main__":
             "ACL_LIBRARY=/acl/build "
         )
         if enable_cuda:
-            build_vars += (            
-                "BLAS=NVPL "
-            )
+            build_vars += "BLAS=NVPL "
         else:
-            build_vars += (            
-                "BLAS=OpenBLAS "
-                "OpenBLAS_HOME=/OpenBLAS "
-            )
+            build_vars += "BLAS=OpenBLAS " "OpenBLAS_HOME=/OpenBLAS "
     else:
         print("build pytorch without mkldnn backend")
 
