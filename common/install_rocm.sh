@@ -10,9 +10,6 @@ ver() {
     printf "%3d%03d%03d%03d" $(echo "$1" | tr '.' ' ');
 }
 
-# Map ROCm version to AMDGPU version
-declare -A AMDGPU_VERSIONS=( ["5.0"]="21.50" ["5.1.1"]="22.10.1" ["5.2"]="22.20" )
-
 install_ubuntu() {
     apt-get update
     if [[ $UBUNTU_VERSION == 18.04 ]]; then
@@ -30,26 +27,12 @@ install_ubuntu() {
     apt-get install -y libc++1
     apt-get install -y libc++abi1
 
-    if [[ $(ver $ROCM_VERSION) -ge $(ver 4.5) ]]; then
-        # Add amdgpu repository
-        UBUNTU_VERSION_NAME=`cat /etc/os-release | grep UBUNTU_CODENAME | awk -F= '{print $2}'`
-        local amdgpu_baseurl
-        if [[ $(ver $ROCM_VERSION) -ge $(ver 5.3) ]]; then
-          amdgpu_baseurl="https://repo.radeon.com/amdgpu/${ROCM_VERSION}/ubuntu"
-        else
-          amdgpu_baseurl="https://repo.radeon.com/amdgpu/${AMDGPU_VERSIONS[$ROCM_VERSION]}/ubuntu"
-        fi
-        echo "deb [arch=amd64] ${amdgpu_baseurl} ${UBUNTU_VERSION_NAME} main" > /etc/apt/sources.list.d/amdgpu.list
-    fi
-
-    ROCM_REPO="ubuntu"
-    if [[ $(ver $ROCM_VERSION) -lt $(ver 4.2) ]]; then
-        ROCM_REPO="xenial"
-    fi
-
-    if [[ $(ver $ROCM_VERSION) -ge $(ver 5.3) ]]; then
-        ROCM_REPO="${UBUNTU_VERSION_NAME}"
-    fi
+    # Add amdgpu repository
+    UBUNTU_VERSION_NAME=`cat /etc/os-release | grep UBUNTU_CODENAME | awk -F= '{print $2}'`
+    local amdgpu_baseurl
+    amdgpu_baseurl="https://repo.radeon.com/amdgpu/${ROCM_VERSION}/ubuntu"
+    echo "deb [arch=amd64] ${amdgpu_baseurl} ${UBUNTU_VERSION_NAME} main" > /etc/apt/sources.list.d/amdgpu.list
+    ROCM_REPO="${UBUNTU_VERSION_NAME}"
 
     # Add rocm repository
     wget -qO - http://repo.radeon.com/rocm/rocm.gpg.key | apt-key add -
@@ -59,11 +42,7 @@ install_ubuntu() {
 
     DEBIAN_FRONTEND=noninteractive apt-get install -y --allow-unauthenticated \
                    rocm-dev \
-                   rocm-utils \
-                   rocm-libs \
-                   rccl \
-                   rocprofiler-dev \
-                   roctracer-dev
+                   rocm-libs
 
     # TODO (2)
     ## precompiled miopen kernels added in ROCm 3.5; search for all unversioned packages
@@ -90,26 +69,17 @@ install_centos() {
   yum install -y epel-release
   yum install -y dkms kernel-headers-`uname -r` kernel-devel-`uname -r`
 
-  if [[ $(ver $ROCM_VERSION) -ge $(ver 4.5) ]]; then
-      # Add amdgpu repository
-      local amdgpu_baseurl
-      if [[ $(ver $ROCM_VERSION) -ge $(ver 5.3) ]]; then
-        amdgpu_baseurl="https://repo.radeon.com/amdgpu/${ROCM_VERSION}/rhel/7.9/main/x86_64"
-      else
-        amdgpu_baseurl="https://repo.radeon.com/amdgpu/${AMDGPU_VERSIONS[$ROCM_VERSION]}/rhel/7.9/main/x86_64"
-      fi
-      echo "[AMDGPU]" > /etc/yum.repos.d/amdgpu.repo
-      echo "name=AMDGPU" >> /etc/yum.repos.d/amdgpu.repo
-      echo "baseurl=${amdgpu_baseurl}" >> /etc/yum.repos.d/amdgpu.repo
-      echo "enabled=1" >> /etc/yum.repos.d/amdgpu.repo
-      echo "gpgcheck=1" >> /etc/yum.repos.d/amdgpu.repo
-      echo "gpgkey=http://repo.radeon.com/rocm/rocm.gpg.key" >> /etc/yum.repos.d/amdgpu.repo
-  fi
+  # Add amdgpu repository
+  local amdgpu_baseurl
+  amdgpu_baseurl="https://repo.radeon.com/amdgpu/${ROCM_VERSION}/rhel/7.9/main/x86_64"
+  echo "[AMDGPU]" > /etc/yum.repos.d/amdgpu.repo
+  echo "name=AMDGPU" >> /etc/yum.repos.d/amdgpu.repo
+  echo "baseurl=${amdgpu_baseurl}" >> /etc/yum.repos.d/amdgpu.repo
+  echo "enabled=1" >> /etc/yum.repos.d/amdgpu.repo
+  echo "gpgcheck=1" >> /etc/yum.repos.d/amdgpu.repo
+  echo "gpgkey=http://repo.radeon.com/rocm/rocm.gpg.key" >> /etc/yum.repos.d/amdgpu.repo
 
-  local rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}"
-  if [[ $(ver $ROCM_VERSION) -ge $(ver 5.1) ]]; then
-      local rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}/main"
-  fi
+  local rocm_baseurl="http://repo.radeon.com/rocm/yum/${ROCM_VERSION}/main"
   echo "[ROCm]" > /etc/yum.repos.d/rocm.repo
   echo "name=ROCm" >> /etc/yum.repos.d/rocm.repo
   echo "baseurl=${rocm_baseurl}" >> /etc/yum.repos.d/rocm.repo
@@ -121,11 +91,7 @@ install_centos() {
 
   yum install -y \
                    rocm-dev \
-                   rocm-utils \
-                   rocm-libs \
-                   rccl \
-                   rocprofiler-dev \
-                   roctracer-dev
+                   rocm-libs
 
   # Cleanup
   yum clean all
