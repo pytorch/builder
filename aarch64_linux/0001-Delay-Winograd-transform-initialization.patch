@@ -1,0 +1,97 @@
+From fbbbf76202f59dfa5016f329e6942d2eb72e347a Mon Sep 17 00:00:00 2001
+From: Nikita Shulga <nshulga@meta.com>
+Date: Wed, 7 Aug 2024 17:35:05 +0100
+Subject: [PATCH] Delay Winograd transform initialization
+
+Move static global variables to `implementation_list` thus delaying it's consutrction in a thread-safe manner, according to C++11 statement declaration spec:
+> Dynamic initialization of a block variable with static storage duration or thread storage duration is performed the first time control passes through its declaration; such a variable is considered initialized upon the completion of its initialization. If the initialization exits by throwing an exception, the initialization is not complete, so it will be tried again the next time control enters the declaration. If control enters the declaration concurrently while the variable is being initialized, the concurrent execution shall wait for completion of the initialization.
+
+This fixes SIGILL when one tries to use `libarm_compute.so` compiled with multi-isa support on Cortex-A72 and to the best of my knowledge fixes https://github.com/pytorch/pytorch/issues/132032
+
+Signed-off-by: Nikita Shulga <nshulga@meta.com>
+Change-Id: I6c08907222e1575b79e2133529fa7e5fd0138932
+---
+ .../convolution/winograd/input_transforms_fp16.cpp    |  9 ++++-----
+ .../convolution/winograd/output_transforms_fp16.cpp   | 11 +++++------
+ .../convolution/winograd/weight_transforms_fp16.cpp   |  8 ++++----
+ 3 files changed, 13 insertions(+), 15 deletions(-)
+
+diff --git a/src/core/NEON/kernels/convolution/winograd/input_transforms_fp16.cpp b/src/core/NEON/kernels/convolution/winograd/input_transforms_fp16.cpp
+index 35d61fa94d..c7b16203f7 100644
+--- a/src/core/NEON/kernels/convolution/winograd/input_transforms_fp16.cpp
++++ b/src/core/NEON/kernels/convolution/winograd/input_transforms_fp16.cpp
+@@ -38,14 +38,13 @@ void a64_fp16_6x6(unsigned int, const __fp16 *, size_t, size_t, __fp16 *, size_t
+ 
+ #define IMPL(HEIGHT, WIDTH, FUNC, DRIVER) new Transform ## DRIVER <__fp16, __fp16>(#FUNC, HEIGHT, WIDTH, FUNC)
+ 
+-static const TransformImplementation<__fp16> transforms_fp16[] = {
+-  { IMPL(6, 6, a64_fp16_6x6, Unpadded) },
+-  { nullptr },
+-};
+-
+ template <>
+ const TransformImplementation<__fp16> *implementation_list(void)
+ {
++  static const TransformImplementation<__fp16> transforms_fp16[] = {
++    { IMPL(6, 6, a64_fp16_6x6, Unpadded) },
++    { nullptr },
++  };
+   return transforms_fp16;
+ }
+ 
+diff --git a/src/core/NEON/kernels/convolution/winograd/output_transforms_fp16.cpp b/src/core/NEON/kernels/convolution/winograd/output_transforms_fp16.cpp
+index c39b1dc083..29690a51a0 100644
+--- a/src/core/NEON/kernels/convolution/winograd/output_transforms_fp16.cpp
++++ b/src/core/NEON/kernels/convolution/winograd/output_transforms_fp16.cpp
+@@ -37,14 +37,13 @@ void a64_fp16_4x4_3x3(unsigned int, const __fp16 *, size_t, const __fp16 *, __fp
+   new Transform ## DRIVER <__fp16, __fp16>(#FUNC, OUT_HEIGHT, OUT_WIDTH, KERN_HEIGHT, KERN_WIDTH, FUNC)
+ 
+ 
+-static const TransformImplementation<__fp16> transforms_fp16[] = {
+-  { IMPL(4, 4, 3, 3, a64_fp16_4x4_3x3, Unpadded) },
+-  { nullptr }
+-};
+-
+ template <>
+ const TransformImplementation<__fp16> *implementation_list(void)
+ {
++  static const TransformImplementation<__fp16> transforms_fp16[] = {
++    { IMPL(4, 4, 3, 3, a64_fp16_4x4_3x3, Unpadded) },
++    { nullptr }
++  };
+   return transforms_fp16;
+ }
+ 
+@@ -52,4 +51,4 @@ const TransformImplementation<__fp16> *implementation_list(void)
+ }  // namespace winograd
+ }  // namespace arm_conv
+ 
+-#endif // defined(__aarch64__) && defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
+\ No newline at end of file
++#endif // defined(__aarch64__) && defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
+diff --git a/src/core/NEON/kernels/convolution/winograd/weight_transforms_fp16.cpp b/src/core/NEON/kernels/convolution/winograd/weight_transforms_fp16.cpp
+index 6c8bbe07cf..d4cedc1c8f 100644
+--- a/src/core/NEON/kernels/convolution/winograd/weight_transforms_fp16.cpp
++++ b/src/core/NEON/kernels/convolution/winograd/weight_transforms_fp16.cpp
+@@ -36,14 +36,14 @@ void *a64_fp16_4x4_3x3(unsigned int, const __fp16 *, size_t, size_t, __fp16 *, s
+ #define IMPL(KERN_ROWS, KERN_COLS, TRANS_ROWS, TRANS_COLS, KERN) \
+   new Transform<__fp16>(#KERN, KERN_ROWS, KERN_COLS, TRANS_ROWS, TRANS_COLS, KERN)
+ 
+-static const TransformImplementation<__fp16> transforms_fp16[] = {
+-  { IMPL(3, 3, 6, 6, a64_fp16_4x4_3x3) },
+-  { nullptr }
+-};
+ 
+ template <>
+ const TransformImplementation<__fp16> *implementation_list(void)
+ {
++  static const TransformImplementation<__fp16> transforms_fp16[] = {
++    { IMPL(3, 3, 6, 6, a64_fp16_4x4_3x3) },
++    { nullptr }
++  };
+   return transforms_fp16;
+ }
+ 
+-- 
+2.31.1
+

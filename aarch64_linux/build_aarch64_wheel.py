@@ -230,6 +230,11 @@ def build_ArmComputeLibrary(host: RemoteHost, git_clone_flags: str = "") -> None
     acl_build_flags=" ".join(["debug=0", "neon=1", "opencl=0", "os=linux", "openmp=1", "cppthreads=0",
                               "arch=armv8a", "multi_isa=1", "fixed_format_kernels=1", "build=native"])
     host.run_cmd(f"git clone https://github.com/ARM-software/ComputeLibrary.git -b v24.04 {git_clone_flags}")
+    # Patch SIGILL crash
+    host.upload_file(os.path.join(os.path.dirname(__file__), "0001-Delay-Winograd-transform-initialization.patch"),
+                     "fix-acl-crash.patch")
+    host.run_cmd("cd ComputeLibrary && patch -p1 < $HOME/fix-acl-crash.patch")
+
     host.run_cmd(f"cd ComputeLibrary && scons Werror=1 -j8 {acl_build_flags}")
 
 
