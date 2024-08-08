@@ -261,10 +261,6 @@ def checkout_repo(host: RemoteHost, *,
         host.run_cmd(f"git clone {url} -b {tag} {git_clone_flags}")
         return mapping[prefix][0]
 
-    # Map master to main
-    if branch == "master" and url.rsplit("/")[-1] in ['vision', 'text', 'audio', 'data']:
-        branch = "main"
-
     host.run_cmd(f"git clone {url} -b {branch} {git_clone_flags}")
     return None
 
@@ -334,7 +330,7 @@ def build_torchvision(host: RemoteHost, *,
 
 
 def build_torchdata(host: RemoteHost, *,
-                    branch: str = "master",
+                    branch: str = "main",
                     use_conda: bool = True,
                     git_clone_flags: str = "") -> str:
     print('Checking out TorchData repo')
@@ -370,7 +366,7 @@ def build_torchdata(host: RemoteHost, *,
 
 
 def build_torchtext(host: RemoteHost, *,
-                    branch: str = "master",
+                    branch: str = "main",
                     use_conda: bool = True,
                     git_clone_flags: str = "") -> str:
     print('Checking out TorchText repo')
@@ -414,7 +410,7 @@ def build_torchtext(host: RemoteHost, *,
 
 
 def build_torchaudio(host: RemoteHost, *,
-                     branch: str = "master",
+                     branch: str = "main",
                      use_conda: bool = True,
                      git_clone_flags: str = "") -> str:
     print('Checking out TorchAudio repo')
@@ -491,7 +487,7 @@ def configure_system(host: RemoteHost, *,
 
 
 def build_domains(host: RemoteHost, *,
-                  branch: str = "master",
+                  branch: str = "main",
                   use_conda: bool = True,
                   git_clone_flags: str = "") -> Tuple[str, str, str, str]:
     vision_wheel_name = build_torchvision(host, branch=branch, use_conda=use_conda, git_clone_flags=git_clone_flags)
@@ -502,7 +498,7 @@ def build_domains(host: RemoteHost, *,
 
 
 def start_build(host: RemoteHost, *,
-                branch: str = "master",
+                branch: str = "main",
                 compiler: str = "gcc-8",
                 use_conda: bool = True,
                 python_version: str = "3.8",
@@ -660,7 +656,7 @@ if __name__ == '__main__':
 """
 
 
-def run_tests(host: RemoteHost, whl: str, branch='master') -> None:
+def run_tests(host: RemoteHost, whl: str, branch='main') -> None:
     print('Configuring the system')
     update_apt_repo(host)
     host.run_cmd("sudo apt-get install -y python3-pip git")
@@ -715,7 +711,7 @@ def parse_arguments():
     parser.add_argument("--terminate-instances", action="store_true")
     parser.add_argument("--instance-type", type=str, default="t4g.2xlarge")
     parser.add_argument("--ebs-size", type=int, default=50)
-    parser.add_argument("--branch", type=str, default="master")
+    parser.add_argument("--branch", type=str, default="main")
     parser.add_argument("--use-docker", action="store_true")
     parser.add_argument("--compiler", type=str, choices=['gcc-7', 'gcc-8', 'gcc-9', 'clang'], default="gcc-8")
     parser.add_argument("--use-torch-from-pypi", action="store_true")
