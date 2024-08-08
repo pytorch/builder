@@ -258,6 +258,14 @@ def smoke_test_compile(device: str = "cpu") -> None:
         x_pt2 = torch.compile(foo)(x)
         torch.testing.assert_close(x_eager, x_pt2)
 
+    # Check that SIMD were detected for the architecture
+    if device == "cpu":
+        from torch._inductor.cpu_vec_isa import invalid_vec_isa, pick_vec_isa
+        isa = pick_vec_isa()
+        if isa == invalid_vec_isa:
+            raise RuntimeError("Can't detect vectorized ISA for CPU")
+        print(f"Picked CPU ISA {type(isa).__name__} bit width {isa.bit_width()}")
+
     # Reset torch dynamo since we are changing mode
     torch._dynamo.reset()
     dtype = torch.float32
