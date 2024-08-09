@@ -21,6 +21,8 @@ DIR_SUFFIX=cpu
 if [[ "$GPU_ARCH_TYPE" == "xpu" ]]; then
     DIR_SUFFIX=xpu
     source /opt/intel/oneapi/pytorch-gpu-dev-0.5/oneapi-vars.sh
+    # XPU kineto feature dependencies are not fully ready, disable kineto build as temp WA
+    export USE_KINETO=0
 fi
 
 WHEELHOUSE_DIR="wheelhouse$DIR_SUFFIX"
