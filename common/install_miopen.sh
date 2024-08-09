@@ -34,15 +34,9 @@ retry () {
 
 # Build custom MIOpen to use comgr for offline compilation.
 
-## Need a sanitized ROCM_VERSION without patchlevel; patchlevel version 0 must be added to paths.
-ROCM_DOTS=$(echo ${ROCM_VERSION} | tr -d -c '.' | wc -c)
-if [[ ${ROCM_DOTS} == 1 ]]; then
-    ROCM_VERSION_NOPATCH="${ROCM_VERSION}"
-    ROCM_INSTALL_PATH="/opt/rocm-${ROCM_VERSION}.0"
-else
-    ROCM_VERSION_NOPATCH="${ROCM_VERSION%.*}"
-    ROCM_INSTALL_PATH="/opt/rocm-${ROCM_VERSION}"
-fi
+# Create /opt/rocm link if it doesn't exist
+ln -sf /opt/rocm-${ROCM_VERSION}* /opt/rocm
+ROCM_INSTALL_PATH="/opt/rocm"
 
 # MIOPEN_USE_HIP_KERNELS is a Workaround for COMgr issues
 MIOPEN_CMAKE_COMMON_FLAGS="
@@ -51,8 +45,9 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 "
 # Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
 if [[ $ROCM_INT -ge 60300 ]] && [[ $ROCM_INT -lt 60400 ]]; then
-    echo "ROCm 6.3 MIOpen does not need any patches, do not build from source"
-    exit 0
+    # TEMPORARY FOR ROCM6.3 MAINLINE: use std:filesystem patch
+    #echo "ROCm 6.3 MIOpen does not need any patches, do not build from source"
+    MIOPEN_BRANCH=amd-master
 elif [[ $ROCM_INT -ge 60200 ]] && [[ $ROCM_INT -lt 60300 ]]; then
     echo "ROCm 6.2 MIOpen does not need any patches, do not build from source"
     exit 0
@@ -76,6 +71,10 @@ yum remove -y miopen-hip* --noautoremove
 
 git clone https://github.com/ROCm/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
+# Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
+if [[ $ROCM_INT -ge 60300 ]] && [[ $ROCM_INT -lt 60400 ]]; then
+    curl -q https://github.com/ROCm/MIOpen/commit/f6c993171cb0a96ebcc220f84cb1b5b234bbae0f.diff | git apply
+fi
 # remove .git to save disk space since CI runner was running out
 rm -rf .git
 ## MIOpen minimum requirements; don't rebuild CK as it's already installed with ROCm
