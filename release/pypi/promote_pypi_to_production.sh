@@ -37,3 +37,6 @@ promote_staging_binaries torchaudio "${TORCHAUDIO_VERSION}"
 promote_staging_binaries executorch "${EXECUTORCH_VERSION}"
 #promote_staging_binaries torchtext "${TORCHTEXT_VERSION}"
 #promote_staging_binaries torchdata "${TORCHDATA_VERSION}"
+
+#promote_staging_binaries torchao "${TORCHAO_VERSION}"
+#promote_staging_binaries torchtune "${TORCHTUNE_VERSION}"
