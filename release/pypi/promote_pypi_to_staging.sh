@@ -41,13 +41,16 @@ PLATFORM="linux_aarch64"         VERSION_SUFFIX=""                        upload
 PLATFORM="win_amd64"             VERSION_SUFFIX="${CPU_VERSION_SUFFIX}"   upload_pypi_to_staging torchaudio "${TORCHAUDIO_VERSION}"
 PLATFORM="${MACOS_ARM64}"        VERSION_SUFFIX=""                        upload_pypi_to_staging torchaudio "${TORCHAUDIO_VERSION}"
 
-PLATFORM="linux_x86" VERSION_SUFFIX="${WIN_VERSION_SUFFIX}" upload_pypi_to_staging executorch "${EXECUTORCH_VERSION}"
-PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging executorch "${EXECUTORCH_VERSION}"
+#PLATFORM="manylinux2014_x86_64" VERSION_SUFFIX="${LINUX_VERSION_SUFFIX}" upload_pypi_to_staging torchao "${TORCHAO_VERSION}"
+#PLATFORM="" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging torchtune "${TORCHTUNE_VERSION}"
+
+#PLATFORM="linux_x86" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging executorch "${EXECUTORCH_VERSION}"
+#PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging executorch "${EXECUTORCH_VERSION}"
 
 #PLATFORM="linux_x86" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 #PLATFORM="win_amd64" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 #PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging torchtext "${TORCHTEXT_VERSION}"
 
-#PLATFORM="linux_x86_64" VERSION_SUFFIX="${WIN_VERSION_SUFFIX}" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
+#PLATFORM="linux_x86_64" VERSION_SUFFIX="${CPU_VERSION_SUFFIX}" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
 #PLATFORM="win_amd64" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
 #PLATFORM="${MACOS_ARM64}" VERSION_SUFFIX="" upload_pypi_to_staging torchdata "${TORCHDATA_VERSION}"
