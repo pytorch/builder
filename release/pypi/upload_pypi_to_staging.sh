@@ -41,7 +41,7 @@ fi
 for pkg in ${pkgs_to_promote}; do
     pkg_basename="$(basename "${pkg}")"
 
-    if [[ "${pkg}" != *aarch64* && "${pkg}" != *torchdata* ]]; then
+    if [[ "${pkg}" != *aarch64* && "${pkg}" != *torchdata* && "${pkg}" != *torchao* ]]; then
         # sub out linux for manylinux1
         pkg_basename="$(basename "${pkg//linux/manylinux1}")"
     elif [[ "${pkg}" == *manylinux_2_17_aarch64* ]]; then
@@ -51,6 +51,7 @@ for pkg in ${pkgs_to_promote}; do
         # domains change linux_aarch64 to manylinux2014_aarch64
         pkg_basename="$(basename "${pkg//linux_aarch64/manylinux2014_aarch64}")"
     fi
+
     orig_pkg="${tmp_dir}/${pkg_basename}"
     (
         set -x
