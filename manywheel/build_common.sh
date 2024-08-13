@@ -165,6 +165,11 @@ else
     USE_KINETO=1
 fi
 
+if [[ "$GPU_ARCH_TYPE" == "xpu" ]]; then
+    # XPU kineto feature dependencies are not fully ready, disable kineto build as temp WA
+    USE_KINETO=0
+fi
+
 echo "Calling setup.py bdist at $(date)"
 
 if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
