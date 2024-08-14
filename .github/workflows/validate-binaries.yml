@@ -47,12 +47,11 @@ on:
         default: false
         required: false
         type: boolean
-      use_split_build:
-        description: |
-          [Experimental] Use Split Build
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
         required: false
         type: boolean
-        default: false
   workflow_dispatch:
     inputs:
       os:
@@ -91,11 +90,6 @@ on:
         default: ""
         required: false
         type: string
-      use-version-set:
-        description: 'Use version for each domain'
-        default: false
-        required: false
-        type: boolean
       include-test-ops:
         description: 'Include Test Ops tests (only Linux)'
         default: false
@@ -106,18 +100,11 @@ on:
         default: false
         required: false
         type: boolean
-      use-force-reinstall:
-        description: 'Use force-reinstall for pip binaries'
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
         default: false
         required: false
         type: boolean
-      use_split_build:
-        description: |
-          [Experimental] Use Split Build
-        required: false
-        type: boolean
-        default: false
-
 
 jobs:
   generate-release-matrix:
@@ -138,6 +125,7 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -153,7 +141,7 @@ jobs:
       include-test-ops: ${{ inputs.include-test-ops }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
-      use_split_build: ${{ inputs.use_split_build }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
@@ -168,6 +156,7 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -182,3 +171,4 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
