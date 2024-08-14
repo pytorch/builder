@@ -53,6 +53,11 @@ on:
         required: false
         type: boolean
         default: false
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       os:
@@ -117,6 +122,11 @@ on:
         required: false
         type: boolean
         default: false
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
+        required: false
+        type: boolean
 
 
 jobs:
@@ -138,6 +148,7 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -154,6 +165,7 @@ jobs:
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
       use_split_build: ${{ inputs.use_split_build }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
@@ -168,6 +180,7 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -182,3 +195,4 @@ jobs:
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use-extra-index-url: ${{ inputs.use-extra-index-url }}
