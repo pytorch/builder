@@ -96,11 +96,6 @@ on:
         default: ""
         required: false
         type: string
-      use-version-set:
-        description: 'Use version for each domain'
-        default: false
-        required: false
-        type: boolean
       include-test-ops:
         description: 'Include Test Ops tests (only Linux)'
         default: false
