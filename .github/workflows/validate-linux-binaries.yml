@@ -49,10 +49,15 @@ on:
         type: boolean
       use_split_build:
         description: |
-          [Experimental] Use split build 
+          [Experimental] Use split build
         required: false
         type: boolean
         default: false
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -106,10 +111,15 @@ on:
         type: boolean
       use_split_build:
         description: |
-          [Experimental] Use split build 
+          [Experimental] Use split build
         required: false
         type: boolean
         default: false
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-linux-matrix:
@@ -141,6 +151,7 @@ jobs:
         export TORCH_ONLY=${{ inputs.torchonly }}
         export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
         export USE_ONLY_DL_PYTORCH_ORG=${{ inputs.use-only-dl-pytorch-org }}
+        export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
         export RELEASE_VERSION=${{ inputs.version }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
         if [[ ${USE_VERSION_SET} == 'true' ]]; then
