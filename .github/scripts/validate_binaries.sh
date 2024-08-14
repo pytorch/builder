@@ -47,7 +47,7 @@ else
         export PATH="${CONDA_PREFIX}/bin:${PATH}"
     fi
 
-    # Make sure we remove previous installation if it exists, this issue seems to affect only
+    # Make sure we remove previous installation if it exists
     if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
         pip3 uninstall -y torch torchaudio torchvision
     fi
@@ -64,11 +64,19 @@ else
         source ./.github/scripts/validate_test_ops.sh
     fi
 
+    # Regular smoke test
     if [[ ${TARGET_OS} == 'windows' ]]; then
         python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     else
         python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     fi
+
+    # For pip install also test with numpy 2.0.0
+    if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
+        pip3 install numpy==2.0.0 --force-reinstall
+        python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
+    fi
+
 
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
         export PATH=${OLD_PATH}
