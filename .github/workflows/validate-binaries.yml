@@ -47,6 +47,12 @@ on:
         default: false
         required: false
         type: boolean
+      use_split_build:
+        description: |
+          [Experimental] Use Split Build
+        required: false
+        type: boolean
+        default: false
       use-extra-index-url:
         description: 'Use extra-index url for pip tests'
         default: false
@@ -110,6 +116,12 @@ on:
         default: false
         required: false
         type: boolean
+      use_split_build:
+        description: |
+          [Experimental] Use Split Build
+        required: false
+        type: boolean
+        default: false
       use-extra-index-url:
         description: 'Use extra-index url for pip tests'
         default: false
@@ -152,6 +164,7 @@ jobs:
       include-test-ops: ${{ inputs.include-test-ops }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
+      use_split_build: ${{ inputs.use_split_build }}
       use-extra-index-url: ${{ inputs.use-extra-index-url }}
 
   linux-aarch64:
