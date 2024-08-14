@@ -42,6 +42,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
+        required: false
+        type: boolean
   workflow_dispatch:
     inputs:
       channel:
@@ -88,6 +93,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-extra-index-url:
+        description: 'Use extra-index url for pip tests'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   generate-macos-arm64-matrix:
@@ -118,6 +128,7 @@ jobs:
         export TORCH_ONLY=${{ inputs.torchonly }}
         export RELEASE_VERSION=${{ inputs.version }}
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
+        export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
         if [[ ${USE_VERSION_SET} == 'true' ]]; then
           export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}

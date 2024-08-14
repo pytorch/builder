@@ -15,8 +15,13 @@ else
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
     TEST_SUFFIX=""
 
+    # force-reinstall: latest version of packages are reinstalled
     if [[ ${USE_FORCE_REINSTALL} == 'true' ]]; then
         INSTALLATION=${INSTALLATION/"pip3 install"/"pip3 install --force-reinstall"}
+    fi
+    # extra-index-url: extra dependencies are downloaded from pypi
+    if [[ ${USE_EXTRA_INDEX_URL} == 'true' ]]; then
+        INSTALLATION=${INSTALLATION/"--index-url"/"--extra-index-url"}
     fi
 
     if [[ ${TORCH_ONLY} == 'true' ]]; then
