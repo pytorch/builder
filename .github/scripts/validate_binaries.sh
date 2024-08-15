@@ -72,7 +72,7 @@ else
     # Regular smoke test
     ${PYTHON_RUN}  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     # For pip install also test with numpy 2.0.0 for python 3.8 or above
-    if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' && {MATRIX_PYTHON_VERSION} != "3.8" ]]; then
+    if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' && ${MATRIX_PYTHON_VERSION} != "3.8" ]]; then
         pip3 install numpy==2.0.0 --force-reinstall
         ${PYTHON_RUN}  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     fi
