@@ -1,13 +1,11 @@
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 import gzip
-import multiprocessing
 import os
 import re
 import urllib
 
 from tqdm import tqdm
-import botocore
 import boto3
 
 S3 = boto3.resource('s3')
@@ -76,7 +74,7 @@ class CacheEntry:
         return self.bytes_sent // self.size
 
 def parse_logs(log_directory: str) -> dict:
-    bytes_cache = dict()
+    bytes_cache = {}
     for (dirpath, _, filenames) in os.walk(log_directory):
         for filename in tqdm(filenames):
             with gzip.open(os.path.join(dirpath, filename), 'r') as gf:
