@@ -3,6 +3,11 @@ if [[ ${MATRIX_PACKAGE_TYPE} == "libtorch" ]]; then
     unzip libtorch.zip
 else
 
+    export PYTHON_RUN="python3"
+    if [[ ${TARGET_OS} == 'windows' ]]; then
+        export PYTHON_RUN="python"
+    fi
+
     if [[ ${TARGET_OS} == 'macos-arm64' ]]; then
         conda update -y -n base -c defaults conda
     elif [[ ${TARGET_OS} != 'linux-aarch64' ]]; then
@@ -65,16 +70,11 @@ else
     fi
 
     # Regular smoke test
-    if [[ ${TARGET_OS} == 'windows' ]]; then
-        python  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
-    else
-        python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
-    fi
-
+    ${PYTHON_RUN}  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     # For pip install also test with numpy 2.0.0
     if [[ ${MATRIX_PACKAGE_TYPE} == 'wheel' ]]; then
         pip3 install numpy==2.0.0 --force-reinstall
-        python3  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
+        ${PYTHON_RUN}  ./test/smoke_test/smoke_test.py ${TEST_SUFFIX}
     fi
 
 
