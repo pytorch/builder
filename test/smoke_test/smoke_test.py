@@ -260,9 +260,9 @@ def smoke_test_compile(device: str = "cpu") -> None:
 
     # Check that SIMD were detected for the architecture
     if device == "cpu":
-        from torch._inductor.codecache import pick_vec_isa, invalid_vec_isa
+        from torch._inductor.codecache import pick_vec_isa
         isa = pick_vec_isa()
-        if isa == invalid_vec_isa:
+        if not isa:
             raise RuntimeError("Can't detect vectorized ISA for CPU")
         print(f"Picked CPU ISA {type(isa).__name__} bit width {isa.bit_width()}")
 
