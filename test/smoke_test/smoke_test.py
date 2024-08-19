@@ -12,9 +12,9 @@ import torch.nn.functional as F
 from pathlib import Path
 
 if "MATRIX_GPU_ARCH_VERSION" in os.environ:
-    gpu_arch_ver = os.environ["MATRIX_GPU_ARCH_VERSION"]
+    gpu_arch_ver = os.getenv("MATRIX_GPU_ARCH_VERSION")
 else:
-    gpu_arch_ver = os.environ.get("GPU_ARCH_VERSION", None)  # Use fallback if available
+    gpu_arch_ver = os.getenv("GPU_ARCH_VERSION")  # Use fallback if available
 channel = os.getenv("MATRIX_CHANNEL")
 package_type = os.getenv("MATRIX_PACKAGE_TYPE")
 target_os = os.getenv("TARGET_OS", sys.platform)
