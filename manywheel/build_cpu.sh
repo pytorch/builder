@@ -20,7 +20,10 @@ fi
 DIR_SUFFIX=cpu
 if [[ "$GPU_ARCH_TYPE" == "xpu" ]]; then
     DIR_SUFFIX=xpu
+    # Refer https://www.intel.com/content/www/us/en/developer/articles/tool/pytorch-prerequisites-for-intel-gpu/2-5.html
     source /opt/intel/oneapi/pytorch-gpu-dev-0.5/oneapi-vars.sh
+    source /opt/intel/oneapi/pti/latest/env/vars.sh
+    export TORCH_XPU_ARCH_LIST=pvc,xe-lpg,ats-m150
 fi
 
 WHEELHOUSE_DIR="wheelhouse$DIR_SUFFIX"
