@@ -125,6 +125,7 @@ jobs:
       channel: ${{ inputs.channel }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use_split_build: ${{ inputs.use_split_build }}
+      with-xpu: enable
 
   linux:
     needs: generate-linux-matrix
