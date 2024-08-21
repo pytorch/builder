@@ -132,26 +132,26 @@ if [[ "$OS_NAME" == *"CentOS Linux"* || "$OS_NAME" == *"AlmaLinux"* ]]; then
     fi
     LIBDRM_PATH="/opt/amdgpu/lib64/libdrm.so.2"
     LIBDRM_AMDGPU_PATH="/opt/amdgpu/lib64/libdrm_amdgpu.so.1"
-    if [[ $ROCM_INT -ge 60100 ]]; then
+    if [[ $ROCM_INT -ge 60100 && $ROCM_INT -lt 60300 ]]; then
         # Below libs are direct dependencies of libhipsolver
         LIBSUITESPARSE_CONFIG_PATH="/lib64/libsuitesparseconfig.so.4"
-    if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
-        LIBCHOLMOD_PATH="/lib64/libcholmod.so.2"
-        # Below libs are direct dependencies of libsatlas
-        LIBGFORTRAN_PATH="/lib64/libgfortran.so.3"
-    else
-        LIBCHOLMOD_PATH="/lib64/libcholmod.so.3"
-        # Below libs are direct dependencies of libsatlas
-        LIBGFORTRAN_PATH="/lib64/libgfortran.so.5"
-    fi
-        # Below libs are direct dependencies of libcholmod
-        LIBAMD_PATH="/lib64/libamd.so.2"
-        LIBCAMD_PATH="/lib64/libcamd.so.2"
-        LIBCCOLAMD_PATH="/lib64/libccolamd.so.2"
-        LIBCOLAMD_PATH="/lib64/libcolamd.so.2"
-        LIBSATLAS_PATH="/lib64/atlas/libsatlas.so.3"
-        # Below libs are direct dependencies of libsatlas
-        LIBQUADMATH_PATH="/lib64/libquadmath.so.0"
+        if [[ "$OS_NAME" == *"CentOS Linux"* ]]; then
+            LIBCHOLMOD_PATH="/lib64/libcholmod.so.2"
+            # Below libs are direct dependencies of libsatlas
+            LIBGFORTRAN_PATH="/lib64/libgfortran.so.3"
+        else
+            LIBCHOLMOD_PATH="/lib64/libcholmod.so.3"
+            # Below libs are direct dependencies of libsatlas
+            LIBGFORTRAN_PATH="/lib64/libgfortran.so.5"
+        fi
+            # Below libs are direct dependencies of libcholmod
+            LIBAMD_PATH="/lib64/libamd.so.2"
+            LIBCAMD_PATH="/lib64/libcamd.so.2"
+            LIBCCOLAMD_PATH="/lib64/libccolamd.so.2"
+            LIBCOLAMD_PATH="/lib64/libcolamd.so.2"
+            LIBSATLAS_PATH="/lib64/atlas/libsatlas.so.3"
+            # Below libs are direct dependencies of libsatlas
+            LIBQUADMATH_PATH="/lib64/libquadmath.so.0"
     fi
     MAYBE_LIB64=lib64
 elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
@@ -165,7 +165,7 @@ elif [[ "$OS_NAME" == *"Ubuntu"* ]]; then
     fi
     LIBDRM_PATH="/usr/lib/x86_64-linux-gnu/libdrm.so.2"
     LIBDRM_AMDGPU_PATH="/usr/lib/x86_64-linux-gnu/libdrm_amdgpu.so.1"
-    if [[ $ROCM_INT -ge 60100 ]]; then
+    if [[ $ROCM_INT -ge 60100 && $ROCM_INT -lt 60300 ]]; then
         # Below libs are direct dependencies of libhipsolver
         LIBCHOLMOD_PATH="/lib/x86_64-linux-gnu/libcholmod.so.3"
         # Below libs are direct dependencies of libcholmod
