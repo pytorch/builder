@@ -31,6 +31,7 @@ MODULES = [
         "smoke_test": "./vision/test/smoke_test.py",
         "extension": "extension",
         "repo_name": "vision",
+        "branch": "release/0.19",
     },
     {
         "name": "torchaudio",
@@ -38,6 +39,7 @@ MODULES = [
         "smoke_test": "./audio/test/smoke_test/smoke_test.py --no-ffmpeg",
         "extension": "_extension",
         "repo_name": "audio",
+        "branch": "main",
     },
 ]
 
@@ -287,7 +289,7 @@ def smoke_test_modules():
                 print(f"Path does not exist: {cwd}/{module['repo_name']}")
                 try:
                     subprocess.check_output(
-                        f"git clone --depth 1 {module['repo']}",
+                        f"git clone --depth 1 {module['repo']} --branch {module['branch']}",
                         stderr=subprocess.STDOUT,
                         shell=True,
                     )
