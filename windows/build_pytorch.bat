@@ -25,11 +25,9 @@ set PYTORCH_BUILD_NUMBER=%~3
 
 :env_end
 
-if not "%CUDA_VERSION%" == "cpu" (
-    set CUDA_PREFIX=cuda%CUDA_VERSION%
-) else (
-    set CUDA_PREFIX=cpu
-)
+set CUDA_PREFIX=cuda%CUDA_VERSION%
+if "%CUDA_VERSION%" == "cpu" set CUDA_PREFIX=cpu
+if "%CUDA_VERSION%" == "xpu" set CUDA_PREFIX=xpu
 
 if "%DESIRED_PYTHON%" == "" set DESIRED_PYTHON=3.5;3.6;3.7
 set DESIRED_PYTHON_PREFIX=%DESIRED_PYTHON:.=%
@@ -72,7 +70,7 @@ if "%DEBUG%" == "1" (
     set BUILD_TYPE=release
 )
 
-if not "%CUDA_VERSION%" == "cpu" (
+if not "%CUDA_VERSION%" == "cpu" if not "%CUDA_VERSION%" == "xpu" (
     rmdir /s /q magma_%CUDA_PREFIX%_%BUILD_TYPE%
     del magma_%CUDA_PREFIX%_%BUILD_TYPE%.7z
     curl -k https://s3.amazonaws.com/ossci-windows/magma_%MAGMA_VERSION%_%CUDA_PREFIX%_%BUILD_TYPE%.7z -o magma_%CUDA_PREFIX%_%BUILD_TYPE%.7z
@@ -120,7 +118,7 @@ for %%v in (%DESIRED_PYTHON_PREFIX%) do (
     pip install ninja
     @setlocal
     :: Set Flags
-    if not "%CUDA_VERSION%"=="cpu" (
+    if not "%CUDA_VERSION%"=="cpu" if not "%CUDA_VERSION%" == "xpu" (
         set MAGMA_HOME=%cd%\magma_%CUDA_PREFIX%_%BUILD_TYPE%
     )
     call %CUDA_PREFIX%.bat

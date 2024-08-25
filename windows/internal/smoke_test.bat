@@ -2,8 +2,15 @@ set SRC_DIR=%~dp0
 
 pushd %SRC_DIR%\..
 
-if not "%CUDA_VERSION%" == "cpu" call internal\driver_update.bat
+if not "%CUDA_VERSION%" == "cpu" if not "%CUDA_VERSION%" == "xpu" call internal\driver_update.bat
 if errorlevel 1 exit /b 1
+
+if "%CUDA_VERSION%" == "xpu" (
+    call internal\xpu_install.bat
+    if errorlevel 1 exit /b 1
+    call "%ProgramFiles(x86)%\Intel\oneAPI\setvars.bat"
+    if errorlevel 1 exit /b 1
+)
 
 set "ORIG_PATH=%PATH%"
 
