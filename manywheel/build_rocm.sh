@@ -94,25 +94,16 @@ ROCM_SO_FILES=(
     "librocsparse.so"
     "libroctracer64.so"
     "libroctx64.so"
+    "libhipblaslt.so"
+    "libhiprtc.so"
 )
-
-if [[ $ROCM_INT -ge 50600 ]]; then
-    ROCM_SO_FILES+=("libhipblaslt.so")
-fi
-
-if [[ $ROCM_INT -lt 50500 ]]; then
-    ROCM_SO_FILES+=("librocfft-device-0.so")
-    ROCM_SO_FILES+=("librocfft-device-1.so")
-    ROCM_SO_FILES+=("librocfft-device-2.so")
-    ROCM_SO_FILES+=("librocfft-device-3.so")
-fi
-
-if [[ $ROCM_INT -ge 50400 ]]; then
-    ROCM_SO_FILES+=("libhiprtc.so")
-fi
 
 if [[ $ROCM_INT -ge 60100 ]]; then
     ROCM_SO_FILES+=("librocprofiler-register.so")
+fi
+
+if [[ $ROCM_INT -ge 60200 ]]; then
+    ROCM_SO_FILES+=("librocm-core.so")
 fi
 
 OS_NAME=`awk -F= '/^NAME/{print $2}' /etc/os-release`
@@ -191,13 +182,8 @@ if (( $(echo "${PYTORCH_VERSION} 2.4" | awk '{print ($1 >= $2)}') )); then
 fi
 
 # rocBLAS library files
-if [[ $ROCM_INT -ge 50200 ]]; then
-    ROCBLAS_LIB_SRC=$ROCM_HOME/lib/rocblas/library
-    ROCBLAS_LIB_DST=lib/rocblas/library
-else
-    ROCBLAS_LIB_SRC=$ROCM_HOME/rocblas/lib/library
-    ROCBLAS_LIB_DST=lib/library
-fi
+ROCBLAS_LIB_SRC=$ROCM_HOME/lib/rocblas/library
+ROCBLAS_LIB_DST=lib/rocblas/library
 ARCH=$(echo $PYTORCH_ROCM_ARCH | sed 's/;/|/g') # Replace ; seperated arch list to bar for grep
 ARCH_SPECIFIC_FILES=$(ls $ROCBLAS_LIB_SRC | grep -E $ARCH)
 OTHER_FILES=$(ls $ROCBLAS_LIB_SRC | grep -v gfx)
@@ -252,30 +238,19 @@ DEPS_AUX_DSTLIST=(
     "share/libdrm/amdgpu.ids"
 )
 
-if [[ $ROCM_INT -ge 50500 ]]; then
-    # MIOpen library files
-    MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
-    MIOPEN_SHARE_DST=share/miopen/db
-    MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
+# MIOpen library files
+MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
+MIOPEN_SHARE_DST=share/miopen/db
+MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
+DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
+DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
 
-    DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
-    DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
-fi
-
-if [[ $ROCM_INT -ge 50600 ]]; then
-    # RCCL library files
-    if [[ $ROCM_INT -ge 50700 ]]; then
-        RCCL_SHARE_SRC=$ROCM_HOME/share/rccl/msccl-algorithms
-        RCCL_SHARE_DST=share/rccl/msccl-algorithms
-    else
-        RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
-        RCCL_SHARE_DST=lib/msccl-algorithms
-    fi
-    RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
-
-    DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
-    DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
-fi
+# RCCL library files
+RCCL_SHARE_SRC=$ROCM_HOME/share/rccl/msccl-algorithms
+RCCL_SHARE_DST=share/rccl/msccl-algorithms
+RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
+DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
 
 echo "PYTORCH_ROCM_ARCH: ${PYTORCH_ROCM_ARCH}"
 
