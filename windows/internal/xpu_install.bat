@@ -1,4 +1,3 @@
-
 @echo on
 REM Description: Install Intel Support Packages on Windows
 REM BKM reference: https://www.intel.com/content/www/us/en/developer/articles/tool/pytorch-prerequisites-for-intel-gpu/2-5.html
@@ -55,7 +54,7 @@ goto xpu_bundle_install
 for /f "tokens=1,2" %%a in (xpu_bundle_installed_ver.log) do (
     if "%%a"=="%XPU_BUNDLE_PRODUCT_NAME%" (
         echo %%a Installed Version: %%b
-	    set XPU_BUNDLE_INSTALLED=1
+        set XPU_BUNDLE_INSTALLED=1
         if not "%XPU_BUNDLE_VERSION%"=="%%b" (
             start /wait "Installer Title" "%XPU_BUNDLE_PARENT_DIR%\Installer\installer.exe" --action=remove --eula=accept --silent --product-id %XPU_BUNDLE_PRODUCT_NAME% --product-ver %%b --log-dir uninstall_bundle
             set XPU_BUNDLE_UNINSTALL=1
@@ -63,7 +62,7 @@ for /f "tokens=1,2" %%a in (xpu_bundle_installed_ver.log) do (
     )
     if "%%a"=="%XPU_PTI_PRODUCT_NAME%" (
         echo %%a Installed Version: %%b
-	    set XPU_PTI_INSTALLED=1
+        set XPU_PTI_INSTALLED=1
         if not "%XPU_PTI_VERSION%"=="%%b" (
             start /wait "Installer Title" "%XPU_BUNDLE_PARENT_DIR%\Installer\installer.exe" --action=remove --eula=accept --silent --product-id %XPU_PTI_PRODUCT_NAME% --product-ver %%b --log-dir uninstall_bundle
             set XPU_PTI_UNINSTALL=1

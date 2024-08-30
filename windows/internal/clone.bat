@@ -1,19 +1,24 @@
 @echo off
 
 :: The conda and wheels jobs are separated on Windows, so we don't need to clone again.
-if exist "%NIGHTLIES_PYTORCH_ROOT%" (
-    :: Attempt to fix infinite copy of ittapi recursive symlinks on non-ephemeral runners
-    if exist pytorch (
-      rmdir /s /q pytorch
-    )
-    :: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
-    :: Without symlink handling, robocopy could get into an infinite loop with ittapi. With /sl,
-    :: symlink is ignored so functorch/docs/source/notebooks won't work. The correct option is
-    :: /xj to exclude junction point (what the heck does that even mean Microsoft?)
-    robocopy "%NIGHTLIES_PYTORCH_ROOT%" pytorch\ /e /np /nfl /xjd
-    cd pytorch
+if not exist "%NIGHTLIES_PYTORCH_ROOT%" goto clone_pytorch
+:: XPU windows build can't work with long src path, use NIGHTLIES_PYTORCH_ROOT directly. 
+:: Refer https://github.com/pytorch/pytorch/issues/134956
+if "%CUDA_VERSION%" == "xpu" (
+  cd "%NIGHTLIES_PYTORCH_ROOT%"
+  goto submodule
 )
-if exist "%NIGHTLIES_PYTORCH_ROOT%" goto submodule
+:: Attempt to fix infinite copy of ittapi recursive symlinks on non-ephemeral runners
+if exist pytorch rmdir /s /q pytorch
+:: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/robocopy
+:: Without symlink handling, robocopy could get into an infinite loop with ittapi. With /sl,
+:: symlink is ignored so functorch/docs/source/notebooks won't work. The correct option is
+:: /xj to exclude junction point (what the heck does that even mean Microsoft?)
+robocopy "%NIGHTLIES_PYTORCH_ROOT%" pytorch\ /e /np /nfl /xjd
+cd pytorch
+goto submodule
+
+:clone_pytorch
 
 git clone https://github.com/%PYTORCH_REPO%/%MODULE_NAME%
 
