@@ -42,7 +42,7 @@ jobs:
     needs: build-windows-magma
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
       - name: Push MAGMA to S3
         run: |
           # Setting the following variable avoids errors in GHA https://github.com/aws/aws-cli/issues/5623
