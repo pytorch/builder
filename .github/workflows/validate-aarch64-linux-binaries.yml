@@ -118,6 +118,7 @@ jobs:
       job-name: ${{ matrix.build_name }}
       docker-image: ${{ matrix.container_image }}
       binary-matrix: ${{ toJSON(matrix) }}
+      gpu-arch: ${{ matrix.gpu_arch_version }}
       no-sudo: true
       script: |
         set -ex
@@ -137,7 +138,7 @@ jobs:
           export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
         fi
 
-        if [[ ${{ matrix.gpu_arch_version }} == "cuda-aarch64" ]]; then
+        if [[ ${{ inputs.gpu-arch }} == 'cuda-aarch64' ]]; then
           export TORCH_ONLY=true
         fi
 
