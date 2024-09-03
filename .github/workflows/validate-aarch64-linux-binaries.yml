@@ -118,7 +118,6 @@ jobs:
       job-name: ${{ matrix.build_name }}
       docker-image: ${{ matrix.container_image }}
       binary-matrix: ${{ toJSON(matrix) }}
-      gpu-arch: ${{ matrix.gpu_arch_version }}
       no-sudo: true
       script: |
         set -ex
@@ -133,13 +132,14 @@ jobs:
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
+        export GPU_ARCH_VERSION=${{ matrix.gpu_arch_version }}
         if [[ ${USE_VERSION_SET} == 'true' ]]; then
           export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}
           export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
         fi
 
-        if [[ ${{ inputs.gpu-arch }} == 'cuda-aarch64' ]]; then
-          export TORCH_ONLY=true
+        if [[ ${GPU_ARCH_VERSION} == 'cuda-aarch64' ]]; then
+          export TORCH_ONLY="true"
         fi
 
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
