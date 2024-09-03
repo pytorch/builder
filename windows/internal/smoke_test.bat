@@ -54,10 +54,10 @@ if errorlevel 1 exit /b 1
 set "PATH=%CD%\Python%PYTHON_VERSION%\Scripts;%CD%\Python;%PATH%"
 
 
-if "%DESIRED_PYTHON%" == "3.12" pip install -q --pre numpy==2.0.0rc1 protobuf
-if "%DESIRED_PYTHON%" == "3.11" pip install -q --pre numpy==2.0.0rc1 protobuf
-if "%DESIRED_PYTHON%" == "3.10" pip install -q --pre numpy==2.0.0rc1 protobuf
-if "%DESIRED_PYTHON%" == "3.9" pip install -q --pre numpy==2.0.0rc1 protobuf
+if "%DESIRED_PYTHON%" == "3.12" pip install -q --pre numpy==2.0.2 protobuf
+if "%DESIRED_PYTHON%" == "3.11" pip install -q --pre numpy==2.0.2 protobuf
+if "%DESIRED_PYTHON%" == "3.10" pip install -q --pre numpy==2.0.2 protobuf
+if "%DESIRED_PYTHON%" == "3.9" pip install -q --pre numpy==2.0.2 protobuf
 if "%DESIRED_PYTHON%" == "3.8" pip install -q numpy protobuf
 
 if errorlevel 1 exit /b 1

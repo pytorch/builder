@@ -125,11 +125,11 @@ case ${DESIRED_PYTHON} in
     retry pip install -q numpy==1.15
     ;;
   cp31*)
-    retry pip install -q --pre numpy==2.0.0rc1
+    retry pip install -q --pre numpy==2.0.2
     ;;
   # Should catch 3.9+
   *)
-    retry pip install -q --pre numpy==2.0.0rc1
+    retry pip install -q --pre numpy==2.0.2
     ;;
 esac
 
@@ -475,11 +475,11 @@ if [[ -z "$BUILD_PYTHONLESS" ]]; then
   fi
 
   pip uninstall -y "$TORCH_PACKAGE_NAME"
-  
+
   if [[ "$USE_SPLIT_BUILD" == "true" ]]; then
     pip install "$TORCH_NO_PYTHON_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
   fi
-  
+
   pip install "$TORCH_PACKAGE_NAME" --no-index -f /$WHEELHOUSE_DIR --no-dependencies -v
 
   # Print info on the libraries installed in this wheel
