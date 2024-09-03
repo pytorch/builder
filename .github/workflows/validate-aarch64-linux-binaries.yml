@@ -137,6 +137,10 @@ jobs:
           export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
         fi
 
+        if [[ ${{ matrix.gpu_arch_version }} == "cuda-aarch64" ]]; then
+          export TORCH_ONLY=true
+        fi
+
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
         eval "$(conda shell.bash hook)"
 
