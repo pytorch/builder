@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 import concurrent.futures
 import distutils.sysconfig
 import itertools
@@ -7,6 +6,7 @@ import functools
 import os
 import re
 from pathlib import Path
+from typing import Any, List, Tuple
 
 # We also check that there are [not] cxx11 symbols in libtorch
 #
@@ -35,15 +35,15 @@ LIBTORCH_CXX11_PATTERNS = [re.compile(f"{x}.*{y}") for (x,y) in itertools.produc
 
 LIBTORCH_PRE_CXX11_PATTERNS = [re.compile(f"{x}.*{y}") for (x,y) in itertools.product(LIBTORCH_NAMESPACE_LIST, PRE_CXX11_SYMBOLS)]
 
-@functools.lru_cache
-def get_symbols(lib :str ) -> list[tuple[str, str, str]]:
+@functools.lru_cache(100)
+def get_symbols(lib :str ) -> List[Tuple[str, str, str]]:
   from subprocess import check_output
   lines = check_output(f'nm "{lib}"|c++filt', shell=True)
   return [x.split(' ', 2) for x in lines.decode('latin1').split('\n')[:-1]]
 
 
-def grep_symbols(lib: str, patterns: list[re.Match]) -> list[str]:
-    def _grep_symbols(symbols: list[tuple[str, str, str]], patterns: list[re.Match]) -> list[str]:
+def grep_symbols(lib: str, patterns: List[Any]) -> List[str]:
+    def _grep_symbols(symbols: List[Tuple[str, str, str]], patterns: List[Any]) -> List[str]:
         rc = []
         for s_addr, s_type, s_name in symbols:
             for pattern in patterns:
