@@ -60,6 +60,8 @@ def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) 
     print(f"lib: {lib}")
     num_cxx11_symbols = count_symbols(lib, LIBTORCH_CXX11_PATTERNS)
     num_pre_cxx11_symbols = count_symbols(lib, LIBTORCH_PRE_CXX11_PATTERNS)
+    print(f"num_cxx11_symbols: {num_cxx11_symbols}")
+    print(f"num_pre_cxx11_symbols: {num_pre_cxx11_symbols}")
     if pre_cxx11_abi:
         if  num_cxx11_symbols > 0:
             raise RuntimeError("Found cxx11 symbols, but there shouldn't be any")
