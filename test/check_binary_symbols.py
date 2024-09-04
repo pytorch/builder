@@ -79,7 +79,7 @@ def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) 
 
 def main() -> None:
     if os.getenv("PACKAGE_TYPE") == "libtorch":
-       install_root = Path(os.get_cwd())
+       install_root = Path(os.getcwd())
     else:
        install_root = Path(distutils.sysconfig.get_python_lib()) / "torch"
     libtorch_cpu_path = install_root / "lib" / "libtorch_cpu.so"
