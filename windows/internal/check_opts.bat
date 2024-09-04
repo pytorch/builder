@@ -9,6 +9,8 @@ IF NOT ERRORLEVEL 1 (
     set CMAKE_GENERATOR=Ninja
 )
 
+IF "%USE_SCCACHE%" == "0" goto sccache_end
+
 where /q clcache.exe
 
 IF NOT ERRORLEVEL 1 (

@@ -1,8 +1,5 @@
 if "%VC_YEAR%" == "2019" powershell windows/internal/vs2019_install.ps1
-if "%VC_YEAR%" == "2022" (
-  echo "Upgrading MSVC to 2022 is not supported in the CI for reliability reason. Please contact PyTorch Dev Infra for more information"
-  set VC_YEAR=2019
-)
+if "%VC_YEAR%" == "2022" powershell windows/internal/vs2022_install.ps1
 
 set VC_VERSION_LOWER=17
 set VC_VERSION_UPPER=18

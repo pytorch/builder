@@ -4,6 +4,10 @@ if "%CUDA_VERSION%" == "cpu" (
     echo Skipping for CPU builds
     exit /b 0
 )
+if "%CUDA_VERSION%" == "xpu" (
+    echo Skipping for XPU builds
+    exit /b 0
+)
 
 set SRC_DIR=%~dp0\..
 
