@@ -55,7 +55,7 @@ def grep_symbols(lib: str, patterns: list[re.Match]) -> list[str]:
     chunk_size = (len(all_symbols) + num_workers - 1 ) // num_workers
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
         tasks = [executor.submit(_grep_symbols, all_symbols[i * chunk_size : (i + 1) * chunk_size], patterns) for i in range(num_workers)]
-        return sum(x.result() for x in tasks, [])
+        return sum((x.result() for x in tasks), [])
 
 def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) -> None:
     print(f"lib: {lib}")
