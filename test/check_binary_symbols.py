@@ -41,35 +41,38 @@ def get_symbols(lib :str ) -> list[tuple[str, str, str]]:
   return [x.split(' ', 2) for x in lines.decode('latin1').split('\n')[:-1]]
 
 
-def count_symbols(lib: str, patterns: list[re.Match]) -> int:
-    def _count_symbols(symbols: list[tuple[str, str, str]], patterns: list[str]) -> int:
-        rc = 0
+def grep_symbols(lib: str, patterns: list[re.Match]) -> list[str]:
+    def _grep_symbols(symbols: list[tuple[str, str, str]], patterns: list[re.Match]) -> list[str]:
+        rc = []
         for s_addr, s_type, s_name in symbols:
             for pattern in patterns:
                 if pattern.match(s_name):
-                    rc += 1
+                    rc.append(s_name)
+                    continue
         return rc
     all_symbols = get_symbols(lib)
     num_workers= 32
     chunk_size = (len(all_symbols) + num_workers - 1 ) // num_workers
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
-        tasks = [executor.submit(_count_symbols, all_symbols[i * chunk_size : (i + 1) * chunk_size], patterns) for i in range(num_workers)]
-        return sum(x.result() for x in tasks)
+        tasks = [executor.submit(_grep_symbols, all_symbols[i * chunk_size : (i + 1) * chunk_size], patterns) for i in range(num_workers)]
+        return sum(x.result() for x in tasks, [])
 
 def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) -> None:
     print(f"lib: {lib}")
-    num_cxx11_symbols = count_symbols(lib, LIBTORCH_CXX11_PATTERNS)
-    num_pre_cxx11_symbols = count_symbols(lib, LIBTORCH_PRE_CXX11_PATTERNS)
+    cxx11_symbols = grep_symbols(lib, LIBTORCH_CXX11_PATTERNS)
+    pre_cxx11_symbols = grep_symbols(lib, LIBTORCH_PRE_CXX11_PATTERNS)
+    num_cxx11_symbols = len(cxx11_symbols)
+    num_pre_cxx11_symbols = len(pre_cxx11_symbols)
     print(f"num_cxx11_symbols: {num_cxx11_symbols}")
     print(f"num_pre_cxx11_symbols: {num_pre_cxx11_symbols}")
     if pre_cxx11_abi:
         if  num_cxx11_symbols > 0:
-            raise RuntimeError("Found cxx11 symbols, but there shouldn't be any")
+            raise RuntimeError("Found cxx11 symbols, but there shouldn't be any, see: {cxx11_symbols[:100]}")
         if num_pre_cxx11_symbols < 1000:
             raise RuntimeError("Didn't find enough pre-cxx11 symbols.")
     else:
         if num_pre_cxx11_symbols > 0:
-            raise RuntimeError("Found pre-cxx11 symbols, but there shouldn't be any")
+            raise RuntimeError("Found pre-cxx11 symbols, but there shouldn't be any, see: {pre_cxx11_symbols[:100]}")
         if num_cxx11_symbols < 100:
             raise RuntimeError("Didn't find enought cxx11 symbols")
 
