@@ -123,81 +123,8 @@ if [[ "$(uname)" != 'Darwin' ]]; then
 
   # We also check that there are [not] cxx11 symbols in libtorch
   #
-  # To check whether it is using cxx11 ABI, check non-existence of symbol:
-  PRE_CXX11_SYMBOLS=(
-    "std::basic_string<"
-    "std::list"
-  )
-  # To check whether it is using pre-cxx11 ABI, check non-existence of symbol:
-  CXX11_SYMBOLS=(
-    "std::__cxx11::basic_string"
-    "std::__cxx11::list"
-  )
-  # NOTE: Checking the above symbols in all namespaces doesn't work, because
-  # devtoolset7 always produces some cxx11 symbols even if we build with old ABI,
-  # and CuDNN always has pre-cxx11 symbols even if we build with new ABI using gcc 5.4.
-  # Instead, we *only* check the above symbols in the following namespaces:
-  LIBTORCH_NAMESPACE_LIST=(
-    "c10::"
-    "at::"
-    "caffe2::"
-    "torch::"
-  )
   echo "Checking that symbols in libtorch.so have the right gcc abi"
-  grep_symbols () {
-    symbols=("$@")
-    for namespace in "${LIBTORCH_NAMESPACE_LIST[@]}"
-    do
-      for symbol in "${symbols[@]}"
-      do
-        nm "$lib" | c++filt | grep " $namespace".*$symbol
-      done
-    done
-  }
-  check_lib_symbols_for_abi_correctness () {
-    lib=$1
-    echo "lib: " $lib
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
-      num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
-      echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
-      if [[ "$num_pre_cxx11_symbols" -gt 0 ]]; then
-        echo "Found pre-cxx11 symbols but there shouldn't be. Dumping symbols"
-        grep_symbols "${PRE_CXX11_SYMBOLS[@]}"
-        exit 1
-      fi
-      num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
-      echo "num_cxx11_symbols: " $num_cxx11_symbols
-      if [[ "$num_cxx11_symbols" -lt 1000 ]]; then
-        echo "Didn't find enough cxx11 symbols. Aborting."
-        exit 1
-      fi
-    else
-      num_cxx11_symbols=$(grep_symbols "${CXX11_SYMBOLS[@]}" | wc -l) || true
-      echo "num_cxx11_symbols: " $num_cxx11_symbols
-      if [[ "$num_cxx11_symbols" -gt 0 ]]; then
-        echo "Found cxx11 symbols but there shouldn't be. Dumping symbols"
-        grep_symbols "${CXX11_SYMBOLS[@]}"
-        exit 1
-      fi
-      num_pre_cxx11_symbols=$(grep_symbols "${PRE_CXX11_SYMBOLS[@]}" | wc -l) || true
-      echo "num_pre_cxx11_symbols: " $num_pre_cxx11_symbols
-      if [[ "$num_pre_cxx11_symbols" -lt 1000 ]]; then
-        echo "Didn't find enough pre-cxx11 symbols. Aborting."
-        exit 1
-      fi
-    fi
-  }
-  # After https://github.com/pytorch/pytorch/pull/29731 most of the real
-  # libtorch code will live in libtorch_cpu, not libtorch, so cxx11
-  # symbol counting won't work on libtorch (since there's nothing in
-  # it.)  Fortunately, libtorch_cpu.so doesn't exist prior to this PR,
-  # so just test if the file exists and use it if it does.
-  if [ -f "${install_root}/lib/libtorch_cpu.so" ]; then
-    libtorch="${install_root}/lib/libtorch_cpu.so"
-  else
-    libtorch="${install_root}/lib/libtorch.so"
-  fi
-  check_lib_symbols_for_abi_correctness $libtorch
+  python test/check_binary_symbols.py
 
   echo "cxx11 symbols seem to be in order"
 fi # if on Darwin
