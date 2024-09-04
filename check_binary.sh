@@ -124,7 +124,7 @@ if [[ "$(uname)" != 'Darwin' ]]; then
   # We also check that there are [not] cxx11 symbols in libtorch
   #
   echo "Checking that symbols in libtorch.so have the right gcc abi"
-  python "$(dirname ${BASH_SOURCE[0]})/test/check_binary_symbols.py"
+  python3 "$(dirname ${BASH_SOURCE[0]})/test/check_binary_symbols.py"
 
   echo "cxx11 symbols seem to be in order"
 fi # if on Darwin
