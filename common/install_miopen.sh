@@ -70,10 +70,6 @@ yum remove -y miopen-hip* --noautoremove
 
 git clone https://github.com/ROCm/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
-# Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
-if [[ $ROCM_INT -ge 60300 ]] && [[ $ROCM_INT -lt 60400 ]]; then
-    curl -q https://github.com/ROCm/MIOpen/commit/f6c993171cb0a96ebcc220f84cb1b5b234bbae0f.diff | git apply
-fi
 # remove .git to save disk space since CI runner was running out
 rm -rf .git
 ## MIOpen minimum requirements; don't rebuild CK as it's already installed with ROCm
