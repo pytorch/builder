@@ -161,6 +161,12 @@ case $desired_python in
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="=2.0.2"
         ;;
+    3.8)
+        echo "Using 3.8 deps"
+        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
+        PYYAML_PINNED_VERSION=">=5.3"
+        NUMPY_PINNED_VERSION="=1.19"
+        ;;
     *)
         echo "Using default deps"
         NUMPY_PINNED_VERSION="=1.11.3"
