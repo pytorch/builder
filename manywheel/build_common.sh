@@ -130,7 +130,7 @@ case ${DESIRED_PYTHON} in
   cp31*)
     # CIRCLE_TAG contains the PyTorch version such as "1.13.0"
     if [[ $(ver ${CIRCLE_TAG}) -ge $(ver 2.4) ]]; then
-      retry pip install -q --pre numpy==2.0.0rc1
+      retry pip install -q --pre numpy==2.0.2
     else
       retry pip install -q "numpy<2.0.0"
     fi
@@ -138,7 +138,7 @@ case ${DESIRED_PYTHON} in
   # Should catch 3.9+
   *)
     if [[ $(ver ${CIRCLE_TAG}) -ge $(ver 2.4) ]]; then
-      retry pip install -q --pre numpy==2.0.0rc1
+      retry pip install -q --pre numpy==2.0.2
     else
       retry pip install -q "numpy<2.0.0"
     fi
