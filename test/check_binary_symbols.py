@@ -75,7 +75,7 @@ def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) 
         # Check for no recursive iterators, regression test for https://github.com/pytorch/pytorch/issues/133437
         rec_iter_symbols = grep_symbols(lib, [re.compile("std::filesystem::recursive_directory_iterator.*")])
         if len(rec_iter_symbols) > 0:
-            raise RuntimeError("Found use of recursive_directory_iterator in pre-CXX11 binaries, see; {rec_iter_symbols}")
+            raise RuntimeError(f"Found use of recursive_directory_iterator in pre-CXX11 binaries, see; {rec_iter_symbols}")
     else:
         if num_pre_cxx11_symbols > 0:
             raise RuntimeError(f"Found pre-cxx11 symbols, but there shouldn't be any, see: {pre_cxx11_symbols[:100]}")
