@@ -66,6 +66,7 @@ def grep_symbols(lib: str, patterns: List[Any]) -> List[str]:
         tasks = [executor.submit(_grep_symbols, _get_symbols_chunk(i), patterns) for i in range(num_workers)]
         return functools.reduce(list.__add__, (x.result() for x in tasks), [])
 
+
 def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) -> None:
     print(f"lib: {lib}")
     cxx11_symbols = grep_symbols(lib, LIBTORCH_CXX11_PATTERNS)
@@ -79,11 +80,16 @@ def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) 
             raise RuntimeError(f"Found cxx11 symbols, but there shouldn't be any, see: {cxx11_symbols[:100]}")
         if num_pre_cxx11_symbols < 1000:
             raise RuntimeError("Didn't find enough pre-cxx11 symbols.")
+        # Check for no recursive iterators, regression test for https://github.com/pytorch/pytorch/issues/133437
+        rec_iter_symbols = grep_symbols(lib, [re.compile("std::filesystem::recursive_directory_iterator.*")])
+        if len(rec_iter_symbols) > 0:
+            raise RuntimeError(f"recursive_directory_iterator in used pre-CXX11 binaries, see; {rec_iter_symbols}")
     else:
         if num_pre_cxx11_symbols > 0:
             raise RuntimeError(f"Found pre-cxx11 symbols, but there shouldn't be any, see: {pre_cxx11_symbols[:100]}")
         if num_cxx11_symbols < 100:
             raise RuntimeError("Didn't find enought cxx11 symbols")
+
 
 def main() -> None:
     if "install_root" in os.environ:
