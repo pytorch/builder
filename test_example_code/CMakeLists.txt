@@ -10,7 +10,7 @@ target_include_directories(simple-torch-test PRIVATE  ${TORCH_INCLUDE_DIRS})
 target_link_libraries(simple-torch-test "${TORCH_LIBRARIES}")
 set_property(TARGET simple-torch-test PROPERTY CXX_STANDARD 17)
 
-find_package(CUDAToolkit 11.8)
+find_package(CUDAToolkit 12.1)
 
 target_link_libraries(simple-torch-test CUDA::cudart CUDA::cufft CUDA::cusparse CUDA::cublas CUDA::cusolver)
 find_library(CUDNN_LIBRARY NAMES cudnn)
