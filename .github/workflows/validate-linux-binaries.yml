@@ -161,6 +161,8 @@ jobs:
         # Due to xpu doesn't use pytorch/conda-builder image, need to install conda firstly
         if [[ ${{ matrix.gpu_arch_type }} == 'xpu' ]]; then
           source ./common/install_conda.sh
+          source /opt/intel/oneapi/pytorch-gpu-dev-0.5/oneapi-vars.sh
+          source /opt/intel/oneapi/pti/latest/env/vars.sh
         fi
         eval "$(conda shell.bash hook)"
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
