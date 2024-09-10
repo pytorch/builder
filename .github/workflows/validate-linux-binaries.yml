@@ -139,6 +139,7 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
+      docker-image: ${{ matrix.gpu_arch_type == 'xpu' && matrix.container_image || 'pytorch/conda-builder' }}
       binary-matrix: ${{ toJSON(matrix) }}
       timeout: 180
       script: |
