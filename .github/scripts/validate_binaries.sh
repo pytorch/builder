@@ -17,6 +17,12 @@ else
     # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
+    
+    # Remove when https://github.com/pytorch/builder/issues/1985 is fixed
+    if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda' && ${TARGET_OS} == 'linux-aarch64' ]]; then 
+        pip3 install numpy --force-reinstall
+    fi
+
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
     TEST_SUFFIX=""
 
