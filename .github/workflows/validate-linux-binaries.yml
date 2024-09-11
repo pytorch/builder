@@ -139,6 +139,7 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
+      docker-image: ${{ matrix.gpu_arch_type == 'xpu' && matrix.container_image || 'pytorch/conda-builder' }}
       binary-matrix: ${{ toJSON(matrix) }}
       timeout: 180
       script: |
@@ -157,6 +158,10 @@ jobs:
 
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export TARGET_OS="linux"
+        # Due to xpu doesn't use pytorch/conda-builder image, need to install conda firstly
+        if [[ ${{ matrix.gpu_arch_type }} == 'xpu' ]]; then
+          source ./common/install_conda.sh
+        fi
         eval "$(conda shell.bash hook)"
         printf '%s\n' ${{ toJson(inputs.release-matrix) }} > release_matrix.json
 
