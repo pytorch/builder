@@ -15,7 +15,7 @@ else
         conda install -y conda=23.11.0
     fi
     # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
-    conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} fmpeg
+    conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} ffmpeg
     conda activate ${ENV_NAME}
     pip3 install numpy==2.1.1 --force-reinstall
     INSTALLATION=${MATRIX_INSTALLATION/"conda install"/"conda install -y"}
