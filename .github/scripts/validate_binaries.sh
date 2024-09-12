@@ -19,7 +19,7 @@ else
     conda activate ${ENV_NAME}
     
     # Remove when https://github.com/pytorch/builder/issues/1985 is fixed
-    if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda' && ${TARGET_OS} == 'linux-aarch64' ]]; then 
+    if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda-aarch64' ]]; then 
         pip3 install numpy --force-reinstall
     fi
 
