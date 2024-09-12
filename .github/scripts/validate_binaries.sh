@@ -67,7 +67,7 @@ else
     if [[ ${TARGET_OS} == 'linux' ]]; then
         export CONDA_LIBRARY_PATH="$(dirname $(which python))/../lib"
         export LD_LIBRARY_PATH=$CONDA_LIBRARY_PATH:$LD_LIBRARY_PATH
-        ${PWD}/check_binary.sh
+        source ${PWD}/check_binary.sh
     fi
 
      # We are only interested in CUDA tests and Python 3.8-3.11. Not all requirement libraries are available for 3.12 yet.
