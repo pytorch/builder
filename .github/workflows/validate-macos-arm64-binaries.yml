@@ -115,7 +115,6 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
-      package-type: ${{ matrix.package_type }}
       binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
@@ -127,7 +126,7 @@ jobs:
         export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
 
-        if [[ ${{ inputs.package-type }} == "conda" ]]; then
+        if [[ ${{ matrix.package_type }} == "conda" ]]; then
           export IS_M1_CONDA_BUILD_JOB=1
         fi
 
