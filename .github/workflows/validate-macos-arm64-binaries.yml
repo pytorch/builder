@@ -115,6 +115,7 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ inputs.ref || github.ref }}
       job-name: ${{ matrix.build_name }}
+      package-type: ${{ matrix.package_type }}
       binary-matrix: ${{ toJSON(matrix) }}
       script: |
         set -ex
@@ -125,6 +126,11 @@ jobs:
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
+
+        if [[ ${{ inputs.package-type }} == "conda" ]]; then
+          export IS_M1_CONDA_BUILD_JOB=1
+        fi
+
         if [[ ${USE_VERSION_SET} == 'true' ]]; then
           export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}
           export AUDIO_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchaudio }}
