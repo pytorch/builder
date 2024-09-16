@@ -353,7 +353,7 @@ for pkg in /$WHEELHOUSE_DIR/torch_no_python*.whl /$WHEELHOUSE_DIR/torch*linux*.w
             fi
 
             # ROCm workaround for roctracer dlopens
-            if [[ "$DESIRED_CUDA" == *"rocm"* ]]; then
+            if [[ "$DESIRED_CUDA" == *"rocm"* || "$DESIRED_CUDA" == *"xpu"* ]]; then
                 patchedpath=$(fname_without_so_number $destpath)
             else
                 patchedpath=$(fname_with_sha256 $destpath)
