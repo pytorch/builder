@@ -122,14 +122,14 @@ python setup.py clean
 retry pip install -qr requirements.txt
 case ${DESIRED_PYTHON} in
   cp38*)
-    retry pip install -q numpy==1.15
+    retry pip install numpy==1.15
     ;;
   cp31*)
-    retry pip install -q --pre numpy==2.0.2
+    retry pip install --pre numpy==2.0.2
     ;;
   # Should catch 3.9+
   *)
-    retry pip install -q --pre numpy==2.0.2
+    retry pip install --pre numpy==2.0.2
     ;;
 esac
 
