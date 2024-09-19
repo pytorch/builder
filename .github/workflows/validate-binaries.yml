@@ -75,7 +75,7 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: choice
-        default: all
+        default: test
         options:
           - release
           - nightly
