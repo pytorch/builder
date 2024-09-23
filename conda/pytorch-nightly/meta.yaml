@@ -17,7 +17,7 @@ requirements:
 
   host:
     - python
-    - setuptools
+    - setuptools=72.1.0
     - pyyaml
     {% if cross_compile_arm64 == 0 %}
     - mkl-include # [x86_64]
