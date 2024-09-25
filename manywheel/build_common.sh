@@ -85,19 +85,20 @@ fi
 # ever pass one python version, so we assume that DESIRED_PYTHON is not a list
 # in this case
 if [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" == "3.13t" ]]; then
-    python_nodot="313"
     DESIRED_PYTHON="cp313-cp313t"
+    python_nodot="313t"
 elif [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     python_nodot="$(echo $DESIRED_PYTHON | tr -d m.u)"
     DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
 fi
 
-if [[ ${python_nodot} -ge 310 ]]; then
+if  [[ ${python_nodot} -eq 313 ]]; then
+   py_majmin="3.13t"
+elif [[ ${python_nodot} -ge 310 ]]; then
     py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:2}"
 else
     py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:1}"
 fi
-
 
 pydir="/opt/python/$DESIRED_PYTHON"
 export PATH="$pydir/bin:$PATH"
