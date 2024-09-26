@@ -92,7 +92,7 @@ elif [[ -n "$DESIRED_PYTHON" && "$DESIRED_PYTHON" != cp* ]]; then
     DESIRED_PYTHON="cp${python_nodot}-cp${python_nodot}"
 fi
 
-if  [[ ${python_nodot} -eq 313 ]]; then
+if  [[ "${python_nodot}" == "313t" ]]; then
    py_majmin="3.13t"
 elif [[ ${python_nodot} -ge 310 ]]; then
     py_majmin="${DESIRED_PYTHON:2:1}.${DESIRED_PYTHON:3:2}"
