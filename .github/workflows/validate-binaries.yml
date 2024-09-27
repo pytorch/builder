@@ -17,11 +17,6 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
@@ -44,6 +39,11 @@ on:
         type: boolean
       use-force-reinstall:
         description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
         default: false
         required: false
         type: boolean
@@ -81,11 +81,6 @@ on:
           - nightly
           - test
           - all
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
@@ -108,6 +103,11 @@ on:
         type: boolean
       use-force-reinstall:
         description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
         default: false
         required: false
         type: boolean
@@ -136,13 +136,13 @@ jobs:
     uses: ./.github/workflows/validate-windows-binaries.yml
     with:
       channel: ${{ inputs.channel }}
-      ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
       use-extra-index-url: ${{ inputs.use-extra-index-url }}
+      use-meta-cdn: ${{ inputs.use-meta-cdn }}
 
   linux:
     if:  inputs.os == 'linux' || inputs.os == 'all'
@@ -150,7 +150,6 @@ jobs:
     uses: ./.github/workflows/validate-linux-binaries.yml
     with:
       channel: ${{ inputs.channel }}
-      ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
@@ -159,6 +158,7 @@ jobs:
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
       use_split_build: ${{ inputs.use_split_build }}
       use-extra-index-url: ${{ inputs.use-extra-index-url }}
+      use-meta-cdn: ${{ inputs.use-meta-cdn }}
 
   linux-aarch64:
     if:  inputs.os == 'linux-aarch64' || inputs.os == 'all'
@@ -166,13 +166,13 @@ jobs:
     uses: ./.github/workflows/validate-aarch64-linux-binaries.yml
     with:
       channel: ${{ inputs.channel }}
-      ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
       use-extra-index-url: ${{ inputs.use-extra-index-url }}
+      use-meta-cdn: ${{ inputs.use-meta-cdn }}
 
   mac-arm64:
     if:  inputs.os == 'macos' || inputs.os == 'all'
@@ -180,10 +180,10 @@ jobs:
     uses: ./.github/workflows/validate-macos-arm64-binaries.yml
     with:
       channel: ${{ inputs.channel }}
-      ref: ${{ inputs.ref || github.ref }}
       torchonly: ${{ inputs.torchonly }}
       version: ${{ inputs.version }}
       release-matrix: ${{ needs.generate-release-matrix.outputs.matrix }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
       use-force-reinstall: ${{ inputs.use-force-reinstall }}
       use-extra-index-url: ${{ inputs.use-extra-index-url }}
+      use-meta-cdn: ${{ inputs.use-meta-cdn }}

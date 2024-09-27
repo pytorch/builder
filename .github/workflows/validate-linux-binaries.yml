@@ -7,11 +7,6 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
@@ -47,6 +42,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
+        default: false
+        required: false
+        type: boolean
       use_split_build:
         description: |
           [Experimental] Use split build
@@ -69,11 +69,6 @@ on:
           - nightly
           - test
           - all
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
@@ -101,6 +96,11 @@ on:
         type: boolean
       use-force-reinstall:
         description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
         default: false
         required: false
         type: boolean
@@ -137,7 +137,7 @@ jobs:
     with:
       runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
-      ref: ${{ inputs.ref || github.ref }}
+      ref: ${{ github.ref }}
       job-name: ${{ matrix.build_name }}
       docker-image: ${{ matrix.gpu_arch_type == 'xpu' && matrix.container_image || 'pytorch/conda-builder' }}
       binary-matrix: ${{ toJSON(matrix) }}
@@ -149,6 +149,7 @@ jobs:
         export INCLUDE_TEST_OPS=${{ inputs.include-test-ops }}
         export USE_ONLY_DL_PYTORCH_ORG=${{ inputs.use-only-dl-pytorch-org }}
         export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
+        export USE_META_CDN=${{ inputs.use-meta-cdn }}
         export RELEASE_VERSION=${{ inputs.version }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
         if [[ ${USE_VERSION_SET} == 'true' ]]; then

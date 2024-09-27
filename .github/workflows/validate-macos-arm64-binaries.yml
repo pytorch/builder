@@ -7,11 +7,6 @@ on:
         description: "Channel to use (nightly, test, release, all)"
         required: true
         type: string
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
@@ -42,6 +37,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
+        default: false
+        required: false
+        type: boolean
       use-extra-index-url:
         description: 'Use extra-index url for pip tests'
         default: false
@@ -58,11 +58,6 @@ on:
           - nightly
           - test
           - all
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
@@ -85,6 +80,11 @@ on:
         type: boolean
       use-force-reinstall:
         description: 'Use force-reinstall for pip binaries'
+        default: false
+        required: false
+        type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
         default: false
         required: false
         type: boolean
@@ -113,7 +113,7 @@ jobs:
     with:
       runner: ${{ matrix.validation_runner }}
       repository: "pytorch/builder"
-      ref: ${{ inputs.ref || github.ref }}
+      ref: ${{ github.ref }}
       job-name: ${{ matrix.build_name }}
       binary-matrix: ${{ toJSON(matrix) }}
       script: |
@@ -124,6 +124,7 @@ jobs:
         export RELEASE_VERSION=${{ inputs.version }}
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
+        export USE_META_CDN=${{ inputs.use-meta-cdn }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
 
         if [[ ${{ matrix.package_type }} == "conda" ]]; then
