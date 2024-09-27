@@ -24,3 +24,4 @@ jobs:
       channel: nightly
       os: all
       use_split_build: true
+      use-meta-cdn: true
