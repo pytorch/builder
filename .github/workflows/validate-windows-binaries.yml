@@ -42,6 +42,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
+        default: false
+        required: false
+        type: boolean
       use-extra-index-url:
         description: 'Use extra-index url for pip tests'
         default: false
@@ -88,6 +93,11 @@ on:
         default: false
         required: false
         type: boolean
+      use-meta-cdn:
+        description: 'Use meta cdn for installing pip binaries'
+        default: false
+        required: false
+        type: boolean
       use-extra-index-url:
         description: 'Use extra-index url for pip tests'
         default: false
@@ -113,7 +123,7 @@ jobs:
     with:
       runner: ${{ matrix.package_type == 'libtorch' && 'windows.4xlarge' || matrix.validation_runner }}
       repository: "pytorch/builder"
-      ref: ${{ inputs.ref || github.ref }}
+      ref: ${{ github.ref }}
       job-name: ${{ matrix.build_name }}
       binary-matrix: ${{ toJSON(matrix) }}
       timeout: 60
@@ -125,6 +135,7 @@ jobs:
         export RELEASE_VERSION=${{ inputs.version }}
         export USE_FORCE_REINSTALL=${{ inputs.use-force-reinstall }}
         export USE_EXTRA_INDEX_URL=${{ inputs.use-extra-index-url }}
+        export USE_META_CDN=${{ inputs.use-meta-cdn }}
         export USE_VERSION_SET=${{ inputs.use-version-set }}
         if [[ ${USE_VERSION_SET} == 'true' ]]; then
           export VISION_RELEASE_VERSION=${{ fromJson(inputs.release-matrix).torchvision }}

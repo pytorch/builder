@@ -17,9 +17,9 @@ else
     # Please note ffmpeg is required for torchaudio, see https://github.com/pytorch/pytorch/issues/96159
     conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy ffmpeg
     conda activate ${ENV_NAME}
-    
+
     # Remove when https://github.com/pytorch/builder/issues/1985 is fixed
-    if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda-aarch64' ]]; then 
+    if [[ ${MATRIX_GPU_ARCH_TYPE} == 'cuda-aarch64' ]]; then
         pip3 install numpy --force-reinstall
     fi
 
@@ -34,6 +34,12 @@ else
     if [[ ${USE_EXTRA_INDEX_URL} == 'true' ]]; then
         INSTALLATION=${INSTALLATION/"--index-url"/"--extra-index-url"}
     fi
+
+    # use-meta-cdn: use meta cdn for pypi download
+    if [[ ${USE_META_CDN} == 'true' ]]; then
+        INSTALLATION=${INSTALLATION/"download.pytorch.org"/"d3kup0pazkvub8.cloudfront.net"}
+    fi
+
 
     if [[ ${TORCH_ONLY} == 'true' ]]; then
         INSTALLATION=${INSTALLATION/"torchvision torchaudio"/""}
