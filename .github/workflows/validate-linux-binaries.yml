@@ -69,11 +69,6 @@ on:
           - nightly
           - test
           - all
-      ref:
-        description: 'Reference to checkout, defaults to empty'
-        default: ""
-        required: false
-        type: string
       torchonly:
         description: 'Validate torchonly'
         default: false
