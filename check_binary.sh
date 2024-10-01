@@ -42,9 +42,7 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
   export install_root="$PWD"
 else
   # Strip everything but major.minor from DESIRED_PYTHON version
-  if [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+)t ]];  then
-    py_dot="${BASH_REMATCH[0]}"
-  elif [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+) ]];  then
+  if [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+) || $DESIRED_PYTHON =~ ([0-9].[0-9]+)t ]];  then
     py_dot="${BASH_REMATCH[0]}"
   else
     echo "Unexpected ${DESIRED_PYTHON} format"
