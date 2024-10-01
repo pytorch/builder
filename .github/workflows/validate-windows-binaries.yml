@@ -102,6 +102,7 @@ jobs:
       os: windows
       channel: ${{ inputs.channel }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
+      with-xpu: enable
 
   win:
     needs: generate-windows-matrix
@@ -136,5 +137,7 @@ jobs:
         source /c/Jenkins/Miniconda3/etc/profile.d/conda.sh
         if [[ ${MATRIX_GPU_ARCH_TYPE} == "cuda" ]]; then
           ./windows/internal/driver_update.bat
+        elif [[ ${MATRIX_GPU_ARCH_TYPE} == "xpu" ]]; then
+          ./windows/internal/xpu_install.bat
         fi
         source ./.github/scripts/validate_binaries.sh
