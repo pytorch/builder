@@ -7,7 +7,7 @@ else
     if [[ ${TARGET_OS} == 'windows' ]]; then
         export PYTHON_RUN="python"
         # Currently xpu env need a helper script to activate
-        if [[ ${DESIRED_CUDA} == "xpu" ]]; then
+        if [[ ${MATRIX_GPU_ARCH_TYPE} == "xpu" ]]; then
             export PYTHON_RUN="${PWD}/.github/scripts/xpu_env_helper.bat python"
         fi
     fi
