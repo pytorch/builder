@@ -78,10 +78,14 @@ def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) 
             raise RuntimeError("Didn't find enought cxx11 symbols")
 
 def main() -> None:
-    if os.getenv("PACKAGE_TYPE") == "libtorch":
-       install_root = Path(os.getcwd())
+    if "install_root" in os.environ:
+      install_root = os.getenv("install_root")
     else:
-       install_root = Path(distutils.sysconfig.get_python_lib()) / "torch"
+      if os.getenv("PACKAGE_TYPE") == "libtorch":
+         install_root = Path(os.getcwd())
+      else:
+         install_root = Path(distutils.sysconfig.get_python_lib()) / "torch"
+        
     libtorch_cpu_path = install_root / "lib" / "libtorch_cpu.so"
     pre_cxx11_abi = "cxx11-abi" not in os.getenv("DESIRED_DEVTOOLSET", "")
     check_lib_symbols_for_abi_correctness(libtorch_cpu_path, pre_cxx11_abi)
