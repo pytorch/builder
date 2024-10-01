@@ -93,11 +93,7 @@ fi
 pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -qr requirements.txt
-if [[ "$DESIRED_PYTHON"  == "cp38-cp38" ]]; then
-    retry pip install -q numpy==1.15
-else
-    retry pip install -q numpy==1.11
-fi
+retry pip install -q numpy==2.0.1
 
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
     export _GLIBCXX_USE_CXX11_ABI=1
