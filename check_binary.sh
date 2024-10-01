@@ -43,7 +43,7 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
 else
   # Strip everything but major.minor from DESIRED_PYTHON version
   if [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+)t ]];  then
-    py_dot="${BASH_REMATCH[0]}"t
+    py_dot="${BASH_REMATCH[0]}"
   elif [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+) ]];  then
     py_dot="${BASH_REMATCH[0]}"
   else
