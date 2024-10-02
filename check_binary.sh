@@ -41,8 +41,12 @@ if [[ "$PACKAGE_TYPE" == libtorch ]]; then
   # NOTE: Only $PWD works on both CentOS and Ubuntu
   export install_root="$PWD"
 else
-  # Strip everything but major.minor from DESIRED_PYTHON version
-  if [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+) || $DESIRED_PYTHON =~ ([0-9].[0-9]+)t ]];  then
+
+  if [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+)t ]]; then
+    # For python that is maj.mint keep original version
+    py_dot="$DESIRED_PYTHON"
+  elif [[ $DESIRED_PYTHON =~ ([0-9].[0-9]+) ]];  then
+    # Strip everything but major.minor from DESIRED_PYTHON version
     py_dot="${BASH_REMATCH[0]}"
   else
     echo "Unexpected ${DESIRED_PYTHON} format"
