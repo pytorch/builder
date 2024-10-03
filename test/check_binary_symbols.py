@@ -31,9 +31,14 @@ LIBTORCH_NAMESPACE_LIST=(
   "torch::",
 )
 
-LIBTORCH_CXX11_PATTERNS = [re.compile(f"{x}.*{y}") for (x,y) in itertools.product(LIBTORCH_NAMESPACE_LIST, CXX11_SYMBOLS)]
 
-LIBTORCH_PRE_CXX11_PATTERNS = [re.compile(f"{x}.*{y}") for (x,y) in itertools.product(LIBTORCH_NAMESPACE_LIST, PRE_CXX11_SYMBOLS)]
+def _apply_libtorch_symbols(symbols):
+    return [re.compile(f"{x}.*{y}") for (x,y) in itertools.product(LIBTORCH_NAMESPACE_LIST, symbols)]
+
+
+LIBTORCH_CXX11_PATTERNS = _apply_libtorch_symbols(CXX11_SYMBOLS)
+
+LIBTORCH_PRE_CXX11_PATTERNS = _apply_libtorch_symbols(PRE_CXX11_SYMBOLS)
 
 @functools.lru_cache(100)
 def get_symbols(lib :str ) -> List[Tuple[str, str, str]]:
@@ -45,7 +50,7 @@ def get_symbols(lib :str ) -> List[Tuple[str, str, str]]:
 def grep_symbols(lib: str, patterns: List[Any]) -> List[str]:
     def _grep_symbols(symbols: List[Tuple[str, str, str]], patterns: List[Any]) -> List[str]:
         rc = []
-        for s_addr, s_type, s_name in symbols:
+        for _s_addr, _s_type, s_name in symbols:
             for pattern in patterns:
                 if pattern.match(s_name):
                     rc.append(s_name)
@@ -54,9 +59,12 @@ def grep_symbols(lib: str, patterns: List[Any]) -> List[str]:
     all_symbols = get_symbols(lib)
     num_workers= 32
     chunk_size = (len(all_symbols) + num_workers - 1 ) // num_workers
+    def _get_symbols_chunk(i):
+        return all_symbols[i * chunk_size : (i + 1) * chunk_size]
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
-        tasks = [executor.submit(_grep_symbols, all_symbols[i * chunk_size : (i + 1) * chunk_size], patterns) for i in range(num_workers)]
-        return sum((x.result() for x in tasks), [])
+        tasks = [executor.submit(_grep_symbols, _get_symbols_chunk(i), patterns) for i in range(num_workers)]
+        return functools.reduce(list.__add__, (x.result() for x in tasks), [])
 
 def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) -> None:
     print(f"lib: {lib}")
@@ -79,13 +87,13 @@ def check_lib_symbols_for_abi_correctness(lib: str, pre_cxx11_abi: bool = True) 
 
 def main() -> None:
     if "install_root" in os.environ:
-      install_root = Path(os.getenv("install_root"))
+      install_root = Path(os.getenv("install_root"))  # noqa: SIM112
     else:
       if os.getenv("PACKAGE_TYPE") == "libtorch":
          install_root = Path(os.getcwd())
       else:
          install_root = Path(distutils.sysconfig.get_python_lib()) / "torch"
-        
+
     libtorch_cpu_path = install_root / "lib" / "libtorch_cpu.so"
     pre_cxx11_abi = "cxx11-abi" not in os.getenv("DESIRED_DEVTOOLSET", "")
     check_lib_symbols_for_abi_correctness(libtorch_cpu_path, pre_cxx11_abi)
