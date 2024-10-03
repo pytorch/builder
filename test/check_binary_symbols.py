@@ -85,7 +85,7 @@ def main() -> None:
          install_root = Path(os.getcwd())
       else:
          install_root = Path(distutils.sysconfig.get_python_lib()) / "torch"
-        
+
     libtorch_cpu_path = install_root / "lib" / "libtorch_cpu.so"
     pre_cxx11_abi = "cxx11-abi" not in os.getenv("DESIRED_DEVTOOLSET", "")
     check_lib_symbols_for_abi_correctness(libtorch_cpu_path, pre_cxx11_abi)
