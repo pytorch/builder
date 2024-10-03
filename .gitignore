@@ -86,3 +86,4 @@ node_modules
 # Analytics cache folder
 cache/
 .vscode/
+/.vs
