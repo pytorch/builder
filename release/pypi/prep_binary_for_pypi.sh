@@ -55,7 +55,14 @@ for whl_file in "$@"; do
         find "${dist_info_folder}" -type f -exec sed -i "s!${version_with_suffix}!${version_no_suffix}!" {} \;
         # Moves distinfo from one with a version suffix to one without
         # Example: torch-1.8.0+cpu.dist-info => torch-1.8.0.dist-info
-        mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}"
+        if [[ -n "${VERSION_SUFFIX}" ]]; then
+            mv "${dist_info_folder}" "${dirname_dist_info_folder}/${basename_dist_info_folder/${version_with_suffix}/${version_no_suffix}}"
+        fi
+        if [[ "${PLATFORM}" == "manylinux2014_aarch64" && ${PACKAGE_NAME} == "torch" ]]; then
+            echo "Injecting triton"
+            sed -i 's,nvidia-nvtx-cu12.*$,&\nRequires-Dist: triton==3.1.0 ; platform_system == "Linux" and platform_machine == "x86_64" and python_version < "3.13"\r,g' "${dist_info_folder}/METADATA"
+        fi
+
         cd "${whl_dir}"
 
         (
