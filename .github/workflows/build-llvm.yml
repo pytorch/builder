@@ -138,35 +138,6 @@ jobs:
         cd $CURR_PWD
         tar czf "${{ env.llvm_install_dir }}.tar.gz" "${{ env.llvm_install_dir }}"
 
-    - name: Configure, Build, and Install LLVM (macOS arm64)
-      if: matrix.config.arch == 'arm64' && matrix.config.target-os == 'macos'
-      run: >
-        python3 -m pip install -r llvm-project/mlir/python/requirements.txt
-
-        cmake -GNinja -Bllvm-project/build
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-        -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-        -DCMAKE_INSTALL_PREFIX="${{ env.llvm_install_dir }}"
-        -DCMAKE_LINKER=lld
-        -DCMAKE_OSX_ARCHITECTURES=arm64
-        -DLLVM_BUILD_UTILS=ON
-        -DLLVM_BUILD_TOOLS=ON
-        -DLLVM_ENABLE_ASSERTIONS=ON
-        -DMLIR_ENABLE_BINDINGS_PYTHON=ON
-        -DLLVM_ENABLE_PROJECTS=mlir
-        -DLLVM_ENABLE_ZSTD=OFF
-        -DLLVM_INSTALL_UTILS=ON
-        -DLLVM_TARGETS_TO_BUILD="AArch64;NVPTX;AMDGPU"
-        -DLLVM_USE_HOST_TOOLS=ON
-        -DLLVM_ENABLE_TERMINFO=OFF
-        -DLLVM_ABI_BREAKING_CHECKS=FORCE_OFF
-        llvm-project/llvm
-
-        ninja -C llvm-project/build install
-
-        tar czf "${{ env.llvm_install_dir }}.tar.gz" "${{ env.llvm_install_dir }}"
-
     - name: Configure, Build, Test, and Install LLVM (AlmaLinux)
       if: matrix.config.target-os == 'almalinux'
       run: |
