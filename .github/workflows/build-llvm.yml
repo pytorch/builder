@@ -3,6 +3,10 @@ name: LLVM Build
 on:
   workflow_call:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - llvm-build/*
+      - .github/workflows/build-llvm.yml
 
 env:
   SCCACHE_DIR: ${{ github.workspace }}/sccache
