@@ -58,7 +58,7 @@ for pkg in ${pkgs_to_promote}; do
         curl -fSL -o "${orig_pkg}" "https://download.pytorch.org${pkg}"
     )
 
-    if [[ -n "${VERSION_SUFFIX}" ]]; then
+    if [[ -n "${VERSION_SUFFIX}" ]] || [[ "${PLATFORM}" == "manylinux2014_aarch64" && "${PACKAGE_NAME}" == "torch" ]]; then
         OUTPUT_DIR="${output_tmp_dir}" bash "${DIR}/prep_binary_for_pypi.sh" "${orig_pkg}"
     else
         mv "${orig_pkg}" "${output_tmp_dir}/"
