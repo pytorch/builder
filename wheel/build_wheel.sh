@@ -179,7 +179,7 @@ conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_p
 source activate "$tmp_env_name"
 
 if [[ $desired_python != "3.8" ]]; then
-    pip install -q --pre numpy=${NUMPY_PINNED_VERSION}
+    pip install -q numpy=${NUMPY_PINNED_VERSION}
 else
     retry conda install ${EXTRA_CONDA_INSTALL_FLAGS}  -yq "numpy${NUMPY_PINNED_VERSION}"
 fi
