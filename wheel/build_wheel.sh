@@ -135,7 +135,7 @@ case $desired_python in
         echo "Using 3.13 deps"
         SETUPTOOLS_PINNED_VERSION=">=68.0.0"
         PYYAML_PINNED_VERSION=">=6.0.1"
-        NUMPY_PINNED_VERSION="=2.0.2"
+        NUMPY_PINNED_VERSION="=2.1.0"
         ;;
     3.12)
         echo "Using 3.12 deps"
