@@ -161,12 +161,6 @@ case $desired_python in
         PYYAML_PINNED_VERSION=">=5.3"
         NUMPY_PINNED_VERSION="=2.0.2"
         ;;
-    3.8)
-        echo "Using 3.8 deps"
-        SETUPTOOLS_PINNED_VERSION=">=46.0.0"
-        PYYAML_PINNED_VERSION=">=5.3"
-        NUMPY_PINNED_VERSION="=1.19"
-        ;;
     *)
         echo "Using default deps"
         NUMPY_PINNED_VERSION="=1.11.3"
@@ -178,11 +172,7 @@ tmp_env_name="wheel_py$python_nodot"
 conda create ${EXTRA_CONDA_INSTALL_FLAGS} -yn "$tmp_env_name" python="$desired_python"
 source activate "$tmp_env_name"
 
-if [[ $desired_python != "3.8" ]]; then
-    pip install -q numpy=${NUMPY_PINNED_VERSION}
-else
-    retry conda install ${EXTRA_CONDA_INSTALL_FLAGS}  -yq "numpy${NUMPY_PINNED_VERSION}"
-fi
+pip install -q numpy=${NUMPY_PINNED_VERSION}
 retry conda install ${EXTRA_CONDA_INSTALL_FLAGS} -yq  llvm-openmp=14.0.6 cmake ninja "setuptools${SETUPTOOLS_PINNED_VERSION}" "pyyaml${PYYAML_PINNED_VERSION}" typing_extensions requests
 retry pip install -qr "${pytorch_rootdir}/requirements.txt" || true
 
