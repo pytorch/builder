@@ -71,7 +71,7 @@ jobs:
         docker rmi -f $(docker images -q)
 
         docker build --tag llvm-build --build-arg llvm_dir=llvm-project \
-          -f  ./.github/workflows/llvm-build/almalinux.Dockerfile .
+          -f  llvm-build/.github/workflows/llvm-build/almalinux.Dockerfile .
 
         # Create temporary container to copy cache and installed artifacts.
         CONTAINER_ID=$(docker create llvm-build)
