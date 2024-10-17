@@ -17,9 +17,12 @@ VERSION_SUFFIX=${VERSION_SUFFIX:-}
 # i.e. PLATFORM=linux_x86_64
 # For domains like torchaudio / torchtext this is to be left blank
 PLATFORM=${PLATFORM:-}
+# Refers to the specific architecture we'd like to promote
+# i.e. cpu, cu121, cu124
+ARCH==${ARCH:-cpu}
 
 pkgs_to_promote=$(\
-    curl -fsSL "https://download.pytorch.org/whl/test/${PACKAGE_NAME}/index.html" \
+    curl -fsSL "https://download.pytorch.org/whl/test/${ARCH}/${PACKAGE_NAME}/index.html" \
         | grep "${PACKAGE_NAME}-${PACKAGE_VERSION}${VERSION_SUFFIX}-" \
         | grep "${PLATFORM}" \
         | cut -d '"' -f2
