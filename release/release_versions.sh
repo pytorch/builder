@@ -10,11 +10,4 @@ TENSORRT_VERSION=${TENSORRT_VERSION:-2.4.0}
 EXECUTORCH_VERSION=${EXECUTORCH_VERSION:-0.3.0}
 TORCHAO_VERSION=${TORCHAO_VERSION:-0.4.0}
 TORCHTUNE_VERSION=${TORCHTUNE_VERSION:-0.2.1}
-
-
-# NB: FBGEMMGPU uses the practice of keeping rc version in the filename, i.e.
-# fbgemm_gpu-0.6.0rc1+cpu-cp311-cp311. On the other hand, its final RC will
-# be without rc suffix, fbgemm_gpu-0.6.0+cpu-cp311-cp311, and that's the one
-# ready to be promoted. So, keeping a + here in the version name allows the
-# promote script to find the correct binaries
-FBGEMMGPU_VERSION=${FBGEMMGPU_VERSION:-0.8.0+}
+FBGEMMGPU_VERSION=${FBGEMMGPU_VERSION:-1.0.0}
