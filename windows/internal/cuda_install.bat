@@ -40,7 +40,7 @@ if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
     set "ARGS=cuda_profiler_api_11.8 thrust_11.8 nvcc_11.8 cuobjdump_11.8 nvprune_11.8 nvprof_11.8 cupti_11.8 cublas_11.8 cublas_dev_11.8 cudart_11.8 cufft_11.8 cufft_dev_11.8 curand_11.8 curand_dev_11.8 cusolver_11.8 cusolver_dev_11.8 cusparse_11.8 cusparse_dev_11.8 npp_11.8 npp_dev_11.8 nvrtc_11.8 nvrtc_dev_11.8 nvml_dev_11.8 nvtx_11.8"
 )
 
-set CUDNN_FOLDER=cudnn-windows-x86_64-9.1.0.70_cuda11-archive
+set CUDNN_FOLDER=cudnn-windows-x86_64-9.5.0.50_cuda11-archive
 set CUDNN_LIB_FOLDER="lib"
 set "CUDNN_INSTALL_ZIP=%CUDNN_FOLDER%.zip"
 if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
@@ -67,7 +67,7 @@ if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
     set "ARGS=cuda_profiler_api_12.1 thrust_12.1 nvcc_12.1 cuobjdump_12.1 nvprune_12.1 nvprof_12.1 cupti_12.1 cublas_12.1 cublas_dev_12.1 cudart_12.1 cufft_12.1 cufft_dev_12.1 curand_12.1 curand_dev_12.1 cusolver_12.1 cusolver_dev_12.1 cusparse_12.1 cusparse_dev_12.1 npp_12.1 npp_dev_12.1 nvrtc_12.1 nvrtc_dev_12.1 nvml_dev_12.1 nvjitlink_12.1 nvtx_12.1"
 )
 
-set CUDNN_FOLDER=cudnn-windows-x86_64-9.1.0.70_cuda12-archive
+set CUDNN_FOLDER=cudnn-windows-x86_64-9.5.0.50_cuda12-archive
 set CUDNN_LIB_FOLDER="lib"
 set "CUDNN_INSTALL_ZIP=%CUDNN_FOLDER%.zip"
 if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
@@ -94,7 +94,7 @@ if not exist "%SRC_DIR%\temp_build\%CUDA_INSTALL_EXE%" (
     set "ARGS=cuda_profiler_api_12.4 thrust_12.4 nvcc_12.4 cuobjdump_12.4 nvprune_12.4 nvprof_12.4 cupti_12.4 cublas_12.4 cublas_dev_12.4 cudart_12.4 cufft_12.4 cufft_dev_12.4 curand_12.4 curand_dev_12.4 cusolver_12.4 cusolver_dev_12.4 cusparse_12.4 cusparse_dev_12.4 npp_12.4 npp_dev_12.4 nvrtc_12.4 nvrtc_dev_12.4 nvml_dev_12.4 nvjitlink_12.4 nvtx_12.4"
 )
 
-set CUDNN_FOLDER=cudnn-windows-x86_64-9.1.0.70_cuda12-archive
+set CUDNN_FOLDER=cudnn-windows-x86_64-9.5.0.50_cuda12-archive
 set CUDNN_LIB_FOLDER="lib"
 set "CUDNN_INSTALL_ZIP=%CUDNN_FOLDER%.zip"
 if not exist "%SRC_DIR%\temp_build\%CUDNN_INSTALL_ZIP%" (
