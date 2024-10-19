@@ -232,6 +232,13 @@ OTHER_FILES=$(ls $HIPBLASLT_LIB_SRC | grep -v gfx)
 HIPBLASLT_LIB_FILES=($ARCH_SPECIFIC_FILES $OTHER_FILES)
 
 # ROCm library files
+# Overwrite ROCM_SO_FILES to contain only libmagma.so if BUILD_LIGHTWEIGHT is enabled
+if [[ "$BUILD_LIGHTWEIGHT" == "1" ]]; then
+    ROCM_SO_FILES=(
+        "libmagma.so"
+        "libaotriton_v2.so"
+    )
+fi
 ROCM_SO_PATHS=()
 for lib in "${ROCM_SO_FILES[@]}"
 do
@@ -253,49 +260,55 @@ done
 
 DEPS_LIST=(
     ${ROCM_SO_PATHS[*]}
-    ${OS_SO_PATHS[*]}
 )
-
+if [[ "$BUILD_LIGHTWEIGHT" != "1" ]]; then
+    DEPS_LIST+=(${OS_SO_PATHS[*]})
+fi
 DEPS_SONAME=(
     ${ROCM_SO_FILES[*]}
-    ${OS_SO_FILES[*]}
 )
-
-DEPS_AUX_SRCLIST=(
-    "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}"
-    "${HIPBLASLT_LIB_FILES[@]/#/$HIPBLASLT_LIB_SRC/}"
-    "/opt/amdgpu/share/libdrm/amdgpu.ids"
-)
-
-DEPS_AUX_DSTLIST=(
-    "${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}"
-    "${HIPBLASLT_LIB_FILES[@]/#/$HIPBLASLT_LIB_DST/}"
-    "share/libdrm/amdgpu.ids"
-)
-
-if [[ $ROCM_INT -ge 50500 ]]; then
-    # MIOpen library files
-    MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
-    MIOPEN_SHARE_DST=share/miopen/db
-    MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
-
-    DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
-    DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
+if [[ "$BUILD_LIGHTWEIGHT" != "1" ]]; then
+    DEPS_SONAME+=(${OS_SO_FILES[*]})
 fi
 
-if [[ $ROCM_INT -ge 50600 ]]; then
-    # RCCL library files
-    if [[ $ROCM_INT -ge 50700 ]]; then
-        RCCL_SHARE_SRC=$ROCM_HOME/share/rccl/msccl-algorithms
-        RCCL_SHARE_DST=share/rccl/msccl-algorithms
-    else
-        RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
-        RCCL_SHARE_DST=lib/msccl-algorithms
-    fi
-    RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+DEPS_AUX_SRCLIST=()
+if [[ "$BUILD_LIGHTWEIGHT" != "1" ]]; then
+    DEPS_AUX_SRCLIST+=("${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_SRC/}")
+    DEPS_AUX_SRCLIST+=("${HIPBLASLT_LIB_FILES[@]/#/$HIPBLASLT_LIB_SRC/}")
+    DEPS_AUX_SRCLIST+=("/opt/amdgpu/share/libdrm/amdgpu.ids")
+fi
 
-    DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
-    DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
+DEPS_AUX_DSTLIST=()
+if [[ "$BUILD_LIGHTWEIGHT" != "1" ]]; then
+    DEPS_AUX_DSTLIST+=("${ROCBLAS_LIB_FILES[@]/#/$ROCBLAS_LIB_DST/}")
+    DEPS_AUX_DSTLIST+=("${HIPBLASLT_LIB_FILES[@]/#/$HIPBLASLT_LIB_DST/}")
+    DEPS_AUX_DSTLIST+=("share/libdrm/amdgpu.ids")
+fi
+if [[ "$BUILD_LIGHTWEIGHT" != "1" ]]; then
+    if [[ $ROCM_INT -ge 50500 ]]; then
+        # MIOpen library files
+        MIOPEN_SHARE_SRC=$ROCM_HOME/share/miopen/db
+        MIOPEN_SHARE_DST=share/miopen/db
+        MIOPEN_SHARE_FILES=($(ls $MIOPEN_SHARE_SRC | grep -E $ARCH))
+
+        DEPS_AUX_SRCLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_SRC/})
+        DEPS_AUX_DSTLIST+=(${MIOPEN_SHARE_FILES[@]/#/$MIOPEN_SHARE_DST/})
+    fi
+
+    if [[ $ROCM_INT -ge 50600 ]]; then
+        # RCCL library files
+        if [[ $ROCM_INT -ge 50700 ]]; then
+            RCCL_SHARE_SRC=$ROCM_HOME/share/rccl/msccl-algorithms
+            RCCL_SHARE_DST=share/rccl/msccl-algorithms
+        else
+            RCCL_SHARE_SRC=$ROCM_HOME/lib/msccl-algorithms
+            RCCL_SHARE_DST=lib/msccl-algorithms
+        fi
+        RCCL_SHARE_FILES=($(ls $RCCL_SHARE_SRC))
+
+        DEPS_AUX_SRCLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_SRC/})
+        DEPS_AUX_DSTLIST+=(${RCCL_SHARE_FILES[@]/#/$RCCL_SHARE_DST/})
+    fi
 fi
 
 # Add triton install dependency
