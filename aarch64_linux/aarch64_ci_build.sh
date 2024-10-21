@@ -4,7 +4,12 @@ set -eux -o pipefail
 GPU_ARCH_VERSION=${GPU_ARCH_VERSION:-}
 
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-source $SCRIPTPATH/aarch64_ci_setup.sh
+if [ -d /opt/conda ]; then
+  source /opt/conda/etc/profile.d/conda.sh
+  conda activate aarch64_env
+else
+  source $SCRIPTPATH/aarch64_ci_setup.sh
+fi
 
 tagged_version() {
   GIT_DESCRIBE="git --git-dir /pytorch/.git describe --tags --match v[0-9]*.[0-9]*.[0-9]*"
