@@ -183,6 +183,9 @@ if __name__ == "__main__":
     build_vars = "MAX_JOBS=5 CMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=0x10000 "
     os.system("cd /pytorch; python setup.py clean")
 
+    pytorch_extra_install_req = os.getenv("PYTORCH_EXTRA_INSTALL_REQUIREMENTS")
+    print(f"Found PYTORCH_EXTRA_INSTALL_REQUIREMENTS: {pytorch_extra_install_req}")
+    
     override_package_version = os.getenv("OVERRIDE_PACKAGE_VERSION")
     if override_package_version is not None:
         version = override_package_version
