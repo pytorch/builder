@@ -14,6 +14,7 @@ DOCKER_RUN = set -eou pipefail; docker run --rm -i \
 	magma/build_magma.sh
 
 .PHONY: all
+all: magma-cuda126
 all: magma-cuda124
 all: magma-cuda121
 all: magma-cuda118
@@ -22,6 +23,12 @@ all: magma-cuda118
 clean:
 	$(RM) -r magma-*
 	$(RM) -r output
+
+.PHONY: magma-cuda126
+magma-cuda124: DESIRED_CUDA := 12.6
+magma-cuda124: PACKAGE_NAME := magma-cuda126
+magma-cuda124:
+	$(DOCKER_RUN)
 
 .PHONY: magma-cuda124
 magma-cuda124: DESIRED_CUDA := 12.4
