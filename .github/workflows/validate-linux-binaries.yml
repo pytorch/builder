@@ -139,7 +139,8 @@ jobs:
       repository: "pytorch/builder"
       ref: ${{ github.ref }}
       job-name: ${{ matrix.build_name }}
-      docker-image: ${{ matrix.gpu_arch_type == 'xpu' && matrix.container_image || 'pytorch/conda-builder' }}
+      #docker-image: ${{ matrix.gpu_arch_type == 'xpu' && matrix.container_image || 'pytorch/conda-builder' }}
+      docker-image: "amazonlinux:2023"
       binary-matrix: ${{ toJSON(matrix) }}
       timeout: 180
       script: |
@@ -175,5 +176,5 @@ jobs:
           source ./.github/scripts/validate_poetry.sh
         fi
 
-        # Standart case: Validate binaries
+        # Standard case: Validate binaries
         source ./.github/scripts/validate_binaries.sh
