@@ -39,7 +39,7 @@ jobs:
         run: |
           make magma-cuda${{ matrix.cuda_version }}
       - name: Save as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: magma/output/linux-64/magma-cuda*.bz2
       - name: Install conda
