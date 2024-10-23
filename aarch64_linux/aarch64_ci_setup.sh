@@ -25,12 +25,13 @@ conda config --set ssl_verify False
 conda create -y -c conda-forge -n "${CONDA_ENV_NAME}" python=${DESIRED_PYTHON}
 conda activate "${CONDA_ENV_NAME}"
 
-if [[ "$DESIRED_PYTHON"  == "3.8" ]]; then
-    pip install -q numpy==1.24.4
+if [[ "$DESIRED_PYTHON"  == "3.13" ]]; then
+    pip install -q --pre numpy==2.1.2
+    conda install -y -c conda-forge pyyaml==6.0.2 patchelf==0.17.2 pygit2==1.15.1 ninja==1.11.1 scons==4.7.0
 else
     pip install -q --pre numpy==2.0.2
+    conda install -y -c conda-forge pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 ninja==1.11.1 scons==4.5.2
 fi
-conda install -y -c conda-forge pyyaml==6.0.1 patchelf==0.17.2 pygit2==1.13.2 ninja==1.11.1 scons==4.5.2
 
 python --version
 conda --version
