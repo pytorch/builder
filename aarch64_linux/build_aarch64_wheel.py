@@ -686,7 +686,9 @@ def get_instance_name(instance) -> Optional[str]:
 def list_instances(instance_type: str) -> None:
     print(f"All instances of type {instance_type}")
     for instance in ec2_instances_of_type(instance_type):
-        print(f"{instance.id} {get_instance_name(instance)} {instance.public_dns_name} {instance.state['Name']}")
+        ifaces = instance.network_interfaces
+        az = ifaces[0].subnet.availability_zone if len(ifaces)>0 else None
+        print(f"{instance.id} {get_instance_name(instance)} {instance.public_dns_name} {instance.state['Name']} {az}")
 
 
 def terminate_instances(instance_type: str) -> None:
