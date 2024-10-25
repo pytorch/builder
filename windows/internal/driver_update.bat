@@ -1,8 +1,9 @@
-set "DRIVER_DOWNLOAD_LINK=https://ossci-windows.s3.amazonaws.com/528.89-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe"
-curl --retry 3 -kL %DRIVER_DOWNLOAD_LINK% --output 528.89-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe
+set WIN_DRIVER_VN=560.94
+set "DRIVER_DOWNLOAD_LINK=https://ossci-windows.s3.amazonaws.com/%WIN_DRIVER_VN%-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe"
+curl --retry 3 -kL %DRIVER_DOWNLOAD_LINK% --output %WIN_DRIVER_VN%-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe
 if errorlevel 1 exit /b 1
 
-start /wait 528.89-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe -s -noreboot
+start /wait %WIN_DRIVER_VN%-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe -s -noreboot
 if errorlevel 1 exit /b 1
 
-del 528.89-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe || ver > NUL
+del %WIN_DRIVER_VN%-data-center-tesla-desktop-winserver-2016-2019-2022-dch-international.exe || ver > NUL
