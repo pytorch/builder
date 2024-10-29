@@ -60,7 +60,7 @@ if [[ -n "$build_with_cuda" ]]; then
         TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;3.7+PTX;9.0"
         #for cuda 11.8 include all dynamic loading libraries
         DEPS_LIST=(/usr/local/cuda/lib64/libcudnn*.so.9 /usr/local/cuda-11.8/extras/CUPTI/lib64/libcupti.so.11.8 /usr/local/cuda/lib64/libcusparseLt.so.0)
-    elif [[ $CUDA_VERSION == 12.1* || $CUDA_VERSION == 12.4* ]]; then
+    elif [[ $CUDA_VERSION == 12.1* || $CUDA_VERSION == 12.4* || $CUDA_VERSION == 12.6*]]; then
         # cuda 12 does not support sm_3x
         TORCH_CUDA_ARCH_LIST="$TORCH_CUDA_ARCH_LIST;9.0"
         # for cuda 12.1 (12.4) we use cudnn 9.1 and include all dynamic loading libraries
