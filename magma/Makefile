@@ -1,10 +1,11 @@
 SHELL=/usr/bin/env bash
 
+DOCKER_CMD ?= docker
 DESIRED_CUDA ?= 11.8
 PACKAGE_NAME ?= magma-cuda118
 CUDA_ARCH_LIST ?= -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90
 
-DOCKER_RUN = set -eou pipefail; docker run --rm -i \
+DOCKER_RUN = set -eou pipefail; ${DOCKER_CMD} run --rm -i \
 	-v $(shell git rev-parse --show-toplevel):/builder \
 	-w /builder \
 	-e DESIRED_CUDA=${DESIRED_CUDA} \
