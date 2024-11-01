@@ -271,7 +271,7 @@ else
     if [[ "$desired_cuda" == "12.6" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=12.6,<12.7 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda126 # [not osx and not win]"
-    if [[ "$desired_cuda" == "12.4" ]]; then
+    elif [[ "$desired_cuda" == "12.4" ]]; then
         export CONDA_CUDATOOLKIT_CONSTRAINT="    - pytorch-cuda >=12.4,<12.5 # [not osx]"
         export MAGMA_PACKAGE="    - magma-cuda124 # [not osx and not win]"
     elif [[ "$desired_cuda" == "12.1" ]]; then
