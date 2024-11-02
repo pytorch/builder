@@ -73,6 +73,7 @@ yum remove -y miopen-hip* --noautoremove
 
 git clone https://github.com/ROCm/MIOpen -b ${MIOPEN_BRANCH}
 pushd MIOpen
+git log -n1
 # remove .git to save disk space since CI runner was running out
 rm -rf .git
 ## MIOpen minimum requirements; don't rebuild CK as it's already installed with ROCm
