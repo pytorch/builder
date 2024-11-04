@@ -32,7 +32,7 @@ jobs:
       - name: Build MAGMA and push to S3
         run: windows/internal/build_magma.bat
       - name: Save as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           path: magma_*_cuda*_*.7z
   push-windows-magma:
