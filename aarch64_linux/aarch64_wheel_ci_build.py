@@ -3,9 +3,10 @@
 
 import os
 import shutil
-from subprocess import check_output, check_call
-from pygit2 import Repository
+from subprocess import check_call, check_output
 from typing import List
+
+from pygit2 import Repository
 
 
 def list_dir(path: str) -> List[str]:
@@ -13,6 +14,7 @@ def list_dir(path: str) -> List[str]:
     Helper for getting paths for Python
     """
     return check_output(["ls", "-1", path]).decode().split("\n")
+
 
 def build_ArmComputeLibrary() -> None:
     """
@@ -195,9 +197,7 @@ if __name__ == "__main__":
         )
         if enable_cuda:
             desired_cuda = os.getenv("DESIRED_CUDA")
-            build_vars += (
-                f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date}+{desired_cuda} PYTORCH_BUILD_NUMBER=1 "
-            )
+            build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date}+{desired_cuda} PYTORCH_BUILD_NUMBER=1 "
         else:
             build_vars += f"BUILD_TEST=0 PYTORCH_BUILD_VERSION={version}.dev{build_date} PYTORCH_BUILD_NUMBER=1 "
     elif branch.startswith(("v1.", "v2.")):
