@@ -122,8 +122,19 @@ jobs:
       script: |
         set -ex
         export DESIRED_PYTHON=${{ matrix.python_version }}
-        source ./aarch64_linux/aarch64_ci_setup.sh
         echo "/opt/conda/bin" >> $GITHUB_PATH
+        ###############################################################################
+        # Install conda
+        # disable SSL_verify due to getting "Could not find a suitable TLS CA certificate bundle, invalid path"
+        # when using Python version, less than the conda latest
+        ###############################################################################
+        echo 'Installing conda-forge'
+        curl -L -o /mambaforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
+        chmod +x /mambaforge.sh
+        /mambaforge.sh -b -p /opt/conda
+        rm /mambaforge.sh
+        source /opt/conda/etc/profile.d/conda.sh
+        conda config --set ssl_verify False
 
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="linux-aarch64"
