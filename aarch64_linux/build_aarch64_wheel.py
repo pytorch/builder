@@ -737,11 +737,11 @@ if __name__ == '__main__':
         sys.exit(0)
 
     if len(key_name) == 0:
-        raise Exception("""
+        raise RuntimeError("""
             Cannot start build without key_name, please specify
             --key-name argument or AWS_KEY_NAME environment variable.""")
     if len(keyfile_path) == 0 or not os.path.exists(keyfile_path):
-        raise Exception(f"""
+        raise RuntimeError(f"""
             Cannot find keyfile with name: [{key_name}] in path: [{keyfile_path}], please
             check `~/.ssh/` folder or manually set SSH_KEY_PATH environment variable.""")
 
