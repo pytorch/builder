@@ -35,5 +35,5 @@ if [ "$DESIRED_CUDA" = "cpu" ]; then
 else
     echo "BASE_CUDA_VERSION is set to: $DESIRED_CUDA"
     #USE_PRIORITIZED_TEXT_FOR_LD for enable linker script optimization https://github.com/pytorch/pytorch/pull/121975/files
-    USE_PRIORITIZED_TEXT_FOR_LD=1 python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn --enable-cuda 
+    USE_PRIORITIZED_TEXT_FOR_LD=1 python /builder/aarch64_linux/aarch64_wheel_ci_build.py --enable-mkldnn --enable-cuda
 fi
