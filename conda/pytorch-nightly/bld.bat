@@ -25,10 +25,7 @@ if "%desired_cuda%" == "11.8" (
     set TORCH_CUDA_ARCH_LIST=%TORCH_CUDA_ARCH_LIST%;3.7+PTX
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
-if "%desired_cuda%" == "12.1" (
-    set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
-)
-if "%desired_cuda%" == "12.4" (
+if "%desired_cuda:~0,3%" == "12." (
     set TORCH_NVCC_FLAGS=-Xfatbin -compress-all --threads 2
 )
 

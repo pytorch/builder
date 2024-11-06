@@ -91,6 +91,9 @@ if "%CUDA_VERSION%" == "121" (
 if "%CUDA_VERSION%" == "124" (
     set "CONDA_EXTRA_ARGS=pytorch-cuda=12.4 -c nvidia -c pytorch-nightly"
 )
+if "%CUDA_VERSION%" == "126" (
+    set "CONDA_EXTRA_ARGS=pytorch-cuda=12.6 -c nvidia -c pytorch-nightly"
+)
 
 rmdir /s /q conda
 del miniconda.exe
