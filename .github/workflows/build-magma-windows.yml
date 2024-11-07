@@ -36,6 +36,7 @@ jobs:
         with:
           path: magma_*_cuda*_*.7z
           overwrite: true
+          name: artifact_${{ matrix.cuda_version }}_${{ matrix.config }}
   push-windows-magma:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     environment: magma
