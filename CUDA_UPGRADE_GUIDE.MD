@@ -49,11 +49,11 @@ There are three types of Docker containers we maintain in order to build Linux b
 10. Validate conda-builder docker hub [cuda11.6](https://hub.docker.com/r/pytorch/conda-builder/tags?page=1&name=cuda11.6) to see that images have been built and correctly tagged. These images are used in the next step to build Magma for linux.
 
 ## 3. Update Magma for Linux
-Build Magma for Linux. Our Linux CUDA jobs use conda, so we need to build magma-cuda116 and push it to anaconda:
-1. Follow this [PR 1368](https://github.com/pytorch/builder/pull/1368) for all steps in this section
+Build Magma for Linux. Our Linux CUDA jobs use conda, so we need to build magma-cuda<version> and push it to the ossci-linux s3 bucket:
+1. The code to build Magma is in the [`pytorch/pytorch` repo](https://github.com/pytorch/pytorch/tree/main/.ci/magma)
 2. Currently, this is mainly copy-paste in [`magma/Makefile`](magma/Makefile) if there are no major code API changes/deprecations to the CUDA version. Previously, we've needed to add patches to MAGMA, so this may be something to check with NVIDIA about.
-3. To push the package, please update build-magma-linux workflow [PR 897](https://github.com/pytorch/builder/pull/897).
-4. NOTE: This step relies on the conda-builder image (changes to `.github/workflows/build-conda-images.yml`), so make sure you have pushed the new conda-builder prior. Validate this step by logging into anaconda.org and seeing your package deployed for example [here](https://anaconda.org/pytorch/magma-cuda115)
+3. To push the package, please update [build-magma-linux workflow](https://github.com/pytorch/pytorch/blob/main/.github/workflows/build-magma-linux.yml)
+4. NOTE: This step relies on the `pytorch/manylinux-builder:cuda${DESIRED_CUDA}-main` image (changes to [`.github/workflows/build-manywheel-images.yml`](https://github.com/pytorch/pytorch/blob/7d4f5f7508d3166af58fdcca8ff01a5b426af067/.github/workflows/build-manywheel-images.yml#L52)), so make sure you have pushed the new manywheel-builder prior.
 
 ## 4. Modify scripts to install the new CUDA for Libtorch and Manywheel Docker Linux containers. Modify builder supporting scripts
 There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about libtorch and manywheel containers.
@@ -75,7 +75,7 @@ Add setup for our Docker `libtorch` and `manywheel`:
 5. NOTE: When you upload files to S3, make sure to make these objects publicly readable so that our CI can access them!
 6. Most times, you have to upgrade the driver install for newer versions, which would look like [updating the `windows/internal/driver_update.bat` file](https://github.com/pytorch/builder/commit/9b997037e16eb3bc635e28d101c3297d7e4ead29)
     1. Please check the CUDA Toolkit and Minimum Required Driver Version for CUDA minor version compatibility table  in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
-7. Compile MAGMA with the new CUDA version. Update `.github/workflows/build-magma-windows.yml` to include new version.
+7. Compile MAGMA with the new CUDA version. Update [`.github/workflows/build-magma-windows.yml`](https://github.com/pytorch/pytorch/blob/7d4f5f7508d3166af58fdcca8ff01a5b426af067/.github/workflows/build-magma-windows.yml#L25) to include new version.
 8. Validate Magma builds by going to S3 [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects). And querying for ```magma_```
 
 ## 6. Generate new Windows AMI, test and deploy to canary and prod.
