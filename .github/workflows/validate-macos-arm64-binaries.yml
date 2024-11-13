@@ -98,7 +98,7 @@ jobs:
   generate-macos-arm64-matrix:
     uses: pytorch/test-infra/.github/workflows/generate_binary_build_matrix.yml@main
     with:
-      package-type: all
+      package-type: wheel,libtorch #  We stopped producing conda nightlies
       os: macos-arm64
       channel: ${{ inputs.channel }}
       use-only-dl-pytorch-org: ${{ inputs.use-only-dl-pytorch-org }}
