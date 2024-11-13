@@ -200,17 +200,6 @@ do
     OS_SO_FILES[${#OS_SO_FILES[@]}]=$file_name # Append lib to array
 done
 
-# PyTorch-version specific
-# AOTriton dependency only for PyTorch >= 2.3
-# Install AOTriton
-if [ -e ${PYTORCH_ROOT}/.ci/docker/aotriton_version.txt ]; then
-    cp -a ${PYTORCH_ROOT}/.ci/docker/aotriton_version.txt aotriton_version.txt
-    SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-    bash ${SOURCE_DIR}/../common/install_aotriton.sh ${ROCM_HOME} && rm aotriton_version.txt
-    export AOTRITON_INSTALLED_PREFIX=${ROCM_HOME}/aotriton
-    ROCM_SO_FILES+=("libaotriton_v2.so")
-fi
-
 # rocBLAS library files
 if [[ $ROCM_INT -ge 50200 ]]; then
     ROCBLAS_LIB_SRC=$ROCM_HOME/lib/rocblas/library
@@ -236,7 +225,6 @@ HIPBLASLT_LIB_FILES=($ARCH_SPECIFIC_FILES $OTHER_FILES)
 if [[ "$BUILD_LIGHTWEIGHT" == "1" ]]; then
     ROCM_SO_FILES=(
         "libmagma.so"
-        "libaotriton_v2.so"
     )
 fi
 ROCM_SO_PATHS=()
@@ -311,20 +299,31 @@ if [[ "$BUILD_LIGHTWEIGHT" != "1" ]]; then
     fi
 fi
 
+ver() {
+    printf "%3d%03d%03d%03d" $(echo "$1" | tr '.' ' ');
+}
+
 # Add triton install dependency
-# No triton dependency for now on 3.12 since we don't have binaries for it
-# and torch.compile doesn't work.
+# No triton dependency till pytorch 2.3 on 3.12
+# since torch.compile doesn't work.
 PYTORCH_VERSION=$(cat $PYTORCH_ROOT/version.txt | grep -oP "[0-9]+\.[0-9]+\.[0-9]+")
 # Assuming PYTORCH_VERSION=x.y.z, if x >= 2
 if [ ${PYTORCH_VERSION%%\.*} -ge 2 ]; then
-    if [[ $(uname) == "Linux" && "$DESIRED_PYTHON" != "3.12" ]]; then
-        TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.ci/docker/ci_commit_pins/triton-rocm.txt)
+    if [[ $(uname) == "Linux" ]] && [[ "$DESIRED_PYTHON" != "3.12" || $(ver $PYTORCH_VERSION) -ge $(ver 2.4) ]]; then
+	# Triton commit got unified in PyTorch 2.5
+	if [[ $(ver $PYTORCH_VERSION) -ge $(ver 2.5) ]]; then
+            TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.ci/docker/ci_commit_pins/triton.txt)
+	else
+            TRITON_SHORTHASH=$(cut -c1-10 $PYTORCH_ROOT/.ci/docker/ci_commit_pins/triton-rocm.txt)
+	fi
         TRITON_VERSION=$(cat $PYTORCH_ROOT/.ci/docker/triton_version.txt)
+	# Only linux Python < 3.13 are supported wheels for triton
+	TRITON_CONSTRAINT="platform_system == 'Linux' and platform_machine == 'x86_64' and python_version < '3.13'"
 
         if [[ -z "$PYTORCH_EXTRA_INSTALL_REQUIREMENTS" ]]; then
-            export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton-rocm==${TRITON_VERSION}+${ROCM_VERSION_WITH_PATCH}.${TRITON_SHORTHASH}"
+            export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="pytorch-triton-rocm==${TRITON_VERSION}+${ROCM_VERSION_WITH_PATCH}.${TRITON_SHORTHASH}; ${TRITON_CONSTRAINT}"
         else
-            export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton-rocm==${TRITON_VERSION}+${ROCM_VERSION_WITH_PATCH}.${TRITON_SHORTHASH}"
+            export PYTORCH_EXTRA_INSTALL_REQUIREMENTS="${PYTORCH_EXTRA_INSTALL_REQUIREMENTS} | pytorch-triton-rocm==${TRITON_VERSION}+${ROCM_VERSION_WITH_PATCH}.${TRITON_SHORTHASH}; ${TRITON_CONSTRAINT}"
         fi
     fi
 fi
