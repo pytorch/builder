@@ -34,7 +34,7 @@ set CMAKE_MODULE_LINKER_FLAGS=/FORCE:MULTIPLE
 set CMAKE_EXE_LINKER_FLAGS=/FORCE:MULTIPLE
 
 if exist "%NIGHTLIES_PYTORCH_ROOT%" cd %NIGHTLIES_PYTORCH_ROOT%\..
-call %~dp0\internal\copy_cpu.bat
+call %~dp0\internal\copy_xpu.bat
 IF ERRORLEVEL 1 goto :eof
 
 call %~dp0\internal\setup.bat
