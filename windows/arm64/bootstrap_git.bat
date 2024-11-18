@@ -42,4 +42,6 @@ if %errorlevel% neq 0 (
     echo "Failed to add Git to PATH. (exitcode = %errorlevel%)"
 )
 
+echo %GITHUB_PATH%
+
 echo Dependency Git installation finished. 
