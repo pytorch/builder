@@ -31,17 +31,7 @@ if %errorlevel% neq 0 (
 :: Enable long paths
 call "%DEPENDENCIES_DIR%\git\cmd\git.exe" config --system core.longpaths true
 
-if %errorlevel% neq 0 (
-    echo "Failed to enable long paths. (exitcode = %errorlevel%)"
-)
-
 :: Add to PATH
 echo %DEPENDENCIES_DIR%\git\cmd\;%DEPENDENCIES_DIR%\git\bin\>> %GITHUB_PATH%
 
-if %errorlevel% neq 0 (
-    echo "Failed to add Git to PATH. (exitcode = %errorlevel%)"
-)
-
-echo %GITHUB_PATH%
-
-echo Dependency Git installation finished. 
+echo Dependency Git installation finished.
