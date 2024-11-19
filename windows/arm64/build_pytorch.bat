@@ -34,7 +34,8 @@ sccache --start-server
 sccache --zero-stats
 sccache --show-stats
 
-python setup.py bdist_wheel
+:: Call PyTorch build script
+python setup.py bdist_wheel -d "%PYTORCH_FINAL_PACKAGE_DIR%"
 
 :: show sccache stats
 sccache --show-stats

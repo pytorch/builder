@@ -51,14 +51,23 @@ move /Y torch\test\*.* libtorch\test\
 move /Y libtorch\bin\*.dll libtorch\lib\
 
 :: Set version
-if defined PYTORCH_BUILD_VERSION (
-    echo %PYTORCH_BUILD_VERSION% > libtorch\build-version
-    git rev-parse HEAD > libtorch\build-hash
+echo %PYTORCH_BUILD_VERSION% > libtorch\build-version
+git rev-parse HEAD > libtorch\build-hash
+
+:: Set LIBTORCH_PREFIX
+IF "%DEBUG%" == "" (
+    set LIBTORCH_PREFIX=libtorch-win-shared-with-deps
+) ELSE (
+    set LIBTORCH_PREFIX=libtorch-win-shared-with-deps-debug
 )
- 
-:: Create output under dist
-mkdir dist
-tar -cvaf dist/libtorch-win.zip -C libtorch *
- 
+
+:: Create output
+tar -cvaf %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip -C libtorch *
+
+:: Copy output to target directory
+if not exist ..\output mkdir ..\output
+copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" "%PYTORCH_FINAL_PACKAGE_DIR%\"
+copy /Y "%LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip" "%PYTORCH_FINAL_PACKAGE_DIR%\%LIBTORCH_PREFIX%-latest.zip"
+
 :: Cleanup raw data to save space
 rmdir /s /q libtorch
