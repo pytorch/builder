@@ -35,7 +35,6 @@ sccache --zero-stats
 sccache --show-stats
 
 python setup.py bdist_wheel
-dir dist
 
 :: show sccache stats
 sccache --show-stats

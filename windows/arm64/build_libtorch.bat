@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 :: Set the CMAKE_BUILD_TYPE
 set "CMAKE_BUILD_TYPE=%BUILD_TYPE%"
@@ -36,8 +36,7 @@ mkdir libtorch\test
 
 :: Call LibTorch build script
 python ./tools/build_libtorch.py
-dir dist
- 
+
 :: Check if there is an error
 IF ERRORLEVEL 1 exit /b 1
 IF NOT ERRORLEVEL 0 exit /b 1
