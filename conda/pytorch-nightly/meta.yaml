@@ -1,0 +1,110 @@
+{% set build_variant = environ.get('PYTORCH_BUILD_VARIANT', 'cuda') %}
+{% set cross_compile_arm64 = environ.get('CROSS_COMPILE_ARM64', 0) %}
+
+package:
+  name: pytorch
+  version: "{{ environ.get('PYTORCH_BUILD_VERSION') }}"
+
+source:
+  path: "{{ environ.get('PYTORCH_GITHUB_ROOT_DIR') }}"
+
+requirements:
+  build:
+    - cmake
+    - {{ compiler('c') }} # [win]
+    - pkg-config # [unix]
+    - libuv # [unix]
+
+  host:
+    - python
+    - setuptools=72.1.0
+    - pyyaml
+    {% if cross_compile_arm64 == 0 %}
+    - mkl-include # [x86_64]
+    - mkl=2020.2 # [py <= 311 and x86_64 and not win]
+    - mkl=2023.1 # [py >= 312 and x86_64]
+    - mkl-devel=2023.1 # [x86_64 and win]
+    {% endif %}
+    - typing_extensions
+    - ninja
+    - libuv # [win]
+    - numpy=1.22.3 # [py == 38]
+    - numpy=2.0.1 # [py >= 39]
+    - openssl=1.1.1l # [py >= 38 and py <= 310 and linux]
+    - openssl=1.1.1s # [py == 311 and linux]
+    - openssl=3.0.12 # [py >= 312 and linux]
+{{ environ.get('PYTORCH_LLVM_PACKAGE', '    - llvmdev=9') }}
+{{ environ.get('MAGMA_PACKAGE', '') }}
+
+  run:
+    - python
+    {% if cross_compile_arm64 == 0 %}
+    - mkl >=2018 # [x86_64 and not win]
+    - mkl=2023.1 # [x86_64 and win]
+    {% endif %}
+    - libuv # [win]
+    - intel-openmp # [win]
+    # llvm-openmp 16 leads to wrong processor affinity for fork child, see #99625.
+    # Before a decent fix, force llvm-openmp version <16.
+    - llvm-openmp <16 # [linux or  arm64]
+    - typing_extensions
+    - sympy
+    - filelock
+    - networkx
+    - jinja2
+    - pyyaml
+    {% if cross_compile_arm64 == 0 %}
+    - blas * mkl # [x86_64]
+    {% endif %}
+    - pytorch-mutex 1.0 {{ build_variant }}  # [not osx ]
+{{ environ.get('CONDA_CUDATOOLKIT_CONSTRAINT', '') }}
+{{ environ.get('CONDA_TRITON_CONSTRAINT', '') }}
+
+  {% if build_variant == 'cpu' %}
+  run_constrained:
+    - cpuonly
+  {% elif not osx %}
+  run_constrained:
+     - cpuonly <0
+  {% endif %}
+
+build:
+  number: {{ environ.get('PYTORCH_BUILD_NUMBER', '1') }}
+  detect_binary_files_with_prefix: False
+  string: "{{ environ.get('PYTORCH_BUILD_STRING') }}"
+  script_env:
+    - BUILD_SPLIT_CUDA
+    - CUDA_VERSION
+    - CUDNN_VERSION
+    - CONDA_CUDATOOLKIT_CONSTRAINT
+    - CONDA_TRITON_CONSTRAINT
+    - USE_CUDA
+    - CMAKE_ARGS
+    - EXTRA_CAFFE2_CMAKE_FLAGS
+    - DEVELOPER_DIR
+    - DEBUG
+    - USE_FBGEMM
+    - USE_GLOO_WITH_OPENSSL # [unix]
+    - USE_SCCACHE # [win]
+    - USE_DISTRIBUTED # [unix]
+    - CMAKE_OSX_ARCHITECTURES # [unix]
+    - USE_MKLDNN # [unix]
+    - USE_NNPACK # [unix]
+    - USE_QNNPACK # [unix]
+    - BUILD_TEST # [unix]
+    - USE_PYTORCH_METAL_EXPORT # [osx]
+    - USE_COREML_DELEGATE # [osx]
+    - _GLIBCXX_USE_CXX11_ABI # [unix]
+    - MAX_JOBS # [unix]
+    - OVERRIDE_TORCH_CUDA_ARCH_LIST
+
+test:
+ imports:
+    - torch
+
+about:
+  home: http://pytorch.org/
+  license: BSD 3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: PyTorch is an optimized tensor library for deep learning using GPUs and CPUs.

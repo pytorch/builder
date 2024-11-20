@@ -1,0 +1,12 @@
+package:
+  name: cpuonly
+  version: 2.0
+
+build:
+  track_features:
+      - cpuonly
+  noarch: generic
+
+requirements:
+  run:
+    - pytorch-mutex 1.0 cpu
