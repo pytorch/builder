@@ -1,0 +1,85 @@
+# Package to manage cuda version in PyTorch.
+#
+# Windows anaconda packages are packaged differently,
+# All dlls are kept within *-dev packages hence we need
+# include the dev packages for Windows see:
+# https://github.com/pytorch/vision/issues/7185#issuecomment-1420002413
+#
+# Please note: Build number should be advanced with
+# every deployment. After the deployment to production
+# use following links to validate the correctness of
+# deployment:
+# https://conda.anaconda.org/pytorch/noarch/
+# https://conda.anaconda.org/pytorch/noarch/repodata.json
+{% set build = 7 %}
+{% set cuda_constraints=">=11.7,<11.8" %}
+{% set libcufft_constraints=">=10.7.2.50,<10.9.0.58" %}
+{% set libcublas_constraints=">=11.10.1.25,<11.11.3.6" %}
+{% set libcusolver_constraints=">=11.3.5.50,<11.4.1.48" %}
+{% set libcusparse_constraints=">=11.7.3.50,<11.7.5.86" %}
+{% set libnpp_constraints=">=11.7.3.21,<11.8.0.86" %}
+{% set libnvjpeg_constraints=">=11.7.2.34,<11.9.0.86" %}
+{% if version == '11.8' %}
+{% set cuda_constraints=">=11.8,<12.0" %}
+{% set libcufft_constraints=">=10.9.0.58,<11.0.0.21" %}
+{% set libcublas_constraints=">=11.11.3.6,<12.0.1.189" %}
+{% set libcusolver_constraints=">=11.4.1.48,<11.4.2.57" %}
+{% set libcusparse_constraints=">=11.7.5.86,<12.0.0.76" %}
+{% set libnpp_constraints=">=11.8.0.86,<12.0.0.30" %}
+{% set libnvjpeg_constraints=">=11.9.0.86,<12.0.0.28" %}
+{% elif version == '12.1' %}
+{% set cuda_constraints=">=12.1,<12.2" %}
+{% set libcufft_constraints=">=11.0.2.4,<11.0.2.54" %}
+{% set libcublas_constraints=">=12.1.0.26,<12.1.3.1" %}
+{% set libcusolver_constraints=">=11.4.4.55,<11.4.5.107" %}
+{% set libcusparse_constraints=">=12.0.2.55,<12.1.0.106" %}
+{% set libnpp_constraints=">=12.0.2.50,<12.1.0.40" %}
+{% set libnvjpeg_constraints=">=12.1.0.39,<12.2.0.2" %}
+{% set libnvjitlink_constraints=">=12.1.105,<12.2.0" %}
+{% elif version == '12.4' %}
+{% set cuda_constraints=">=12.4,<12.5" %}
+{% set libcufft_constraints=">=11.2.1.3,<11.2.3.18" %}
+{% set libcublas_constraints=">=12.4.5.8,<12.5.2.13" %}
+{% set libcusolver_constraints=">=11.6.1.9,<11.6.2.40" %}
+{% set libcusparse_constraints=">=12.3.1.170,<12.4.1.18" %}
+{% set libnpp_constraints=">=12.2.5.30,<12.3.0.116" %}
+{% set libnvjpeg_constraints=">=12.3.1.117,<12.3.2.38" %}
+{% set libnvjitlink_constraints=">=12.4.127,<12.5.40" %}
+{% endif %}
+
+package:
+  name: pytorch-cuda
+  version: {{ version }}
+build:
+  number: {{ build }}
+requirements:
+  run:
+    - cuda-libraries {{ cuda_constraints }}
+    - cuda-nvtx {{ cuda_constraints }}
+    - libnvjpeg {{ libnvjpeg_constraints }}
+    - cuda-cudart {{ cuda_constraints }}
+    - cuda-cupti {{ cuda_constraints }}
+    - cuda-nvrtc {{ cuda_constraints }}
+    - cuda-runtime {{ cuda_constraints }}
+    - libcufft {{ libcufft_constraints }}
+    - libcublas {{ libcublas_constraints }}
+    - libcusolver {{ libcusolver_constraints }}
+    - libcusparse {{ libcusparse_constraints }}
+{% if version >= '12.1' %}
+    - libnvjitlink {{ libnvjitlink_constraints }}
+{% endif %}
+    - libnpp {{ libnpp_constraints }}
+    - cuda-libraries-dev {{ cuda_constraints }} # [win64]
+    - libnvjpeg-dev {{ libnvjpeg_constraints }} # [win64]
+    - cuda-cudart-dev {{ cuda_constraints }} # [win64]
+    - cuda-nvrtc-dev {{ cuda_constraints }} # [win64]
+    - libcufft-dev {{ libcufft_constraints }} # [win64]
+    - libcublas-dev {{ libcublas_constraints }} # [win64]
+    - libcusolver-dev {{ libcusolver_constraints }} # [win64]
+    - libcusparse-dev {{ libcusparse_constraints }} # [win64]
+    - libnpp-dev {{ libnpp_constraints }} # [win64]
+test:
+  commands:
+    - echo "pytorch-cuda metapackage is created."
+about:
+  summary: Metapackage to select the PyTorch variant. Use conda's pinning mechanism in your environment to control which variant you want.
