@@ -106,7 +106,7 @@ call "%VS15VCVARSALL%" x64
 set install_root=%CD%
 set INCLUDE=%INCLUDE%;%install_root%\include;%install_root%\include\torch\csrc\api\include
 set LIB=%LIB%;%install_root%\lib\x64
-set PATH=%PATH%;%install_root%\lib
+set PATH=%PATH%;%install_root%\lib;%CONDA_HOME%\envs\testenv\Library\lib
 
 
 cd %BUILDER_ROOT%\test_example_code\
