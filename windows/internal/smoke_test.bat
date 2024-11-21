@@ -111,11 +111,21 @@ call %CONDA_HOME%\condabin\activate.bat testenv
 if errorlevel 1 exit /b 1
 set "NO_ARCH_PATH=%PYTORCH_FINAL_PACKAGE_DIR:/=\%\noarch"
 mkdir %NO_ARCH_PATH%
-for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *') do xcopy "%%i" %NO_ARCH_PATH% /Y
-if ERRORLEVEL 1 exit /b 1
+for /F "delims=" %%i in ('where /R "%PYTORCH_FINAL_PACKAGE_DIR:/=\%" *') do (
+    echo Processing file: %%i
+    :: Extract the version number from the file name
+    for /f "tokens=2 delims=-" %%a in ("%%~nxi") do (
+        set "PYTORCH_VERSION=%%a"
+        echo Version set to: %%a
+    )
+    xcopy "%%i" %NO_ARCH_PATH% /Y
+)
+if errorlevel 1 exit /b 1
+
 call conda index %PYTORCH_FINAL_PACKAGE_DIR%
 if errorlevel 1 exit /b 1
-call conda install -yq -c "file:///%PYTORCH_FINAL_PACKAGE_DIR%" pytorch==%PYTORCH_BUILD_VERSION% -c pytorch -c numba/label/dev -c nvidia
+
+call conda install -yq -c "file:///%PYTORCH_FINAL_PACKAGE_DIR%" pytorch==%PYTORCH_VERSION% -c pytorch -c numba/label/dev -c nvidia
 if ERRORLEVEL 1 exit /b 1
 call conda install -yq numpy
 if ERRORLEVEL 1 exit /b 1
