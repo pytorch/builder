@@ -80,7 +80,7 @@ fi
 echo "Checking that the gcc ABI is what we expect"
 if [[ "$(uname)" != 'Darwin' ]]; then
   function is_expected() {
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* || "$DESIRED_CUDA" == *"rocm"* ]]; then
       if [[ "$1" -gt 0 || "$1" == "ON " ]]; then
         echo 1
       fi
