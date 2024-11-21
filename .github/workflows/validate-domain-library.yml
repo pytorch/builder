@@ -39,6 +39,11 @@ on:
         required: false
         type: string
         default: disable
+      install_torch:
+        description: "Create new conda environment and preinstall torch"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   generate-linux-matrix:
@@ -83,6 +88,26 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
+        fi
         eval $SMOKE_TEST
   validate-windows:
     if:  (inputs.os == 'windows' || inputs.os == 'all')
@@ -103,6 +128,26 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
         export TARGET_OS="windows"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
+        fi
         eval $SMOKE_TEST
   validate-macos:
     if:  (inputs.os == 'macos' || inputs.os == 'all')
@@ -123,6 +168,26 @@ jobs:
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos"
         export SMOKE_TEST="${{ inputs.smoke_test }}"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
+        fi
         eval $SMOKE_TEST
   validate-macos-arm64:
     if:  (inputs.os == 'macos-arm64' || inputs.os == 'all')
@@ -142,4 +207,24 @@ jobs:
         set -ex
         export ENV_NAME="conda-env-${{ github.run_id }}"
         export TARGET_OS="macos-arm64"
+        if [[ ${{inputs.install_torch}} == 'true' ]]; then
+          conda create -y -n ${ENV_NAME} python=${MATRIX_PYTHON_VERSION} numpy
+          conda activate ${ENV_NAME}
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchvision}"
+          export MATRIX_INSTALLATION="${MATRIX_INSTALLATION/torchaudio}"
+          eval $MATRIX_INSTALLATION
+          export PYTORCH_PIP_PREFIX=""
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" ]]; then
+            export PYTORCH_PIP_PREFIX="--pre"
+          fi
+
+          if [[ ${MATRIX_CHANNEL} = "nightly" || ${MATRIX_CHANNEL} = "test" ]]; then
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_CHANNEL}/${MATRIX_DESIRED_CUDA}"
+            export PYTORCH_CONDA_CHANNEL="pytorch-${MATRIX_CHANNEL}"
+          else
+            export PYTORCH_CONDA_CHANNEL="pytorch"
+            export PYTORCH_PIP_DOWNLOAD_URL="https://download.pytorch.org/whl/${MATRIX_DESIRED_CUDA}"
+          fi
+        fi
         eval $SMOKE_TEST
