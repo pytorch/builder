@@ -56,9 +56,9 @@ git rev-parse HEAD > libtorch\build-hash
 
 :: Set LIBTORCH_PREFIX
 IF "%DEBUG%" == "" (
-    set LIBTORCH_PREFIX=libtorch-win-shared-with-deps
+    set LIBTORCH_PREFIX=libtorch-win-arm64-shared-with-deps
 ) ELSE (
-    set LIBTORCH_PREFIX=libtorch-win-shared-with-deps-debug
+    set LIBTORCH_PREFIX=libtorch-win-arm64-shared-with-deps-debug
 )
 
 :: Create output
