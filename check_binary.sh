@@ -59,8 +59,8 @@ fi
 # Setup XPU ENV
 ###############################################################################
 if [[ "$DESIRED_CUDA" == 'xpu' ]]; then
-  # Refer https://www.intel.com/content/www/us/en/developer/articles/tool/pytorch-prerequisites-for-intel-gpu/2-5.html
-  source /opt/intel/oneapi/pytorch-gpu-dev-0.5/oneapi-vars.sh
+  # Refer https://www.intel.com/content/www/us/en/developer/articles/tool/pytorch-prerequisites-for-intel-gpus.html
+  source /opt/intel/oneapi/compiler/latest/env/vars.sh
   source /opt/intel/oneapi/pti/latest/env/vars.sh
 fi
 
@@ -80,7 +80,7 @@ fi
 echo "Checking that the gcc ABI is what we expect"
 if [[ "$(uname)" != 'Darwin' ]]; then
   function is_expected() {
-    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* ]]; then
+    if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* || "$DESIRED_CUDA" == *"rocm"* ]]; then
       if [[ "$1" -gt 0 || "$1" == "ON " ]]; then
         echo 1
       fi
