@@ -52,14 +52,6 @@ pushd tmp\libtorch
 set VC_VERSION_LOWER=14
 set VC_VERSION_UPPER=36
 
-for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -legacy -products * -version [%VC_VERSION_LOWER%^,%VC_VERSION_UPPER%^) -property installationPath`) do (
-    if exist "%%i" if exist "%%i\VC\Auxiliary\Build\vcvarsall.bat" (
-        set "VS15INSTALLDIR=%%i"
-        set "VS15VCVARSALL=%%i\VC\Auxiliary\Build\vcvarsall.bat"
-        goto vswhere
-    )
-)
-
 call "%DEPENDENCIES_DIR%\VSBuildTools\VC\Auxiliary\Build\vcvarsall.bat" arm64 -vcvars_ver=%MSVC_VERSION%
 
 set install_root=%CD%
