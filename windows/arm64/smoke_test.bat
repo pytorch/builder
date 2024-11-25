@@ -1,7 +1,3 @@
-set SRC_DIR=%~dp0
-
-pushd %SRC_DIR%\..
-
 set "ORIG_PATH=%PATH%"
 
 if "%PACKAGE_TYPE%" == "wheel" goto wheel
