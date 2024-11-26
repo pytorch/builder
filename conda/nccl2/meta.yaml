@@ -1,7 +1,0 @@
-package:
-  name: nccl2
-  version: 1.0
-
-build:
-  track_features:
-      - nccl2
