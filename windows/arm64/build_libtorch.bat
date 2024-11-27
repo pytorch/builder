@@ -61,12 +61,6 @@ IF "%DEBUG%" == "" (
     set LIBTORCH_PREFIX=libtorch-win-arm64-shared-with-deps-debug
 )
 
-echo "dir"
-dir
-
-echo "dir libtorch"
-dir libtorch
-
 :: Create output
 tar -cvaf %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip -C libtorch .
 
