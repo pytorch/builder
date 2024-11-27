@@ -68,7 +68,7 @@ echo "dir libtorch"
 dir libtorch
 
 :: Create output
-tar -cvaf %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip -C libtorch *
+tar -cvaf %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip -C libtorch .
 
 :: Copy output to target directory
 if not exist ..\output mkdir ..\output
