@@ -62,7 +62,7 @@ IF "%DEBUG%" == "" (
 )
 
 :: Create output
-tar -cvaf %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip -C libtorch .
+C:\Windows\System32\tar.exe -cvaf %LIBTORCH_PREFIX%-%PYTORCH_BUILD_VERSION%.zip -C libtorch *
 
 :: Copy output to target directory
 if not exist ..\output mkdir ..\output
