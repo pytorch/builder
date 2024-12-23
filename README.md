@@ -1,5 +1,7 @@
 # pytorch builder
 
+**WARNING**: Builder repository is migrated to pytorch/pytorch and pytorch/test-infra repositories. Please note: If you intend to add or modify PyTorch build or test scripts please do it directly in pytorch/pytorch repository. Consult following issue for details: https://github.com/pytorch/builder/issues/2054 
+
 Scripts to build pytorch binaries and do end-to-end integration tests.
 
 Folders:
