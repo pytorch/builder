@@ -97,6 +97,7 @@ Adding the new version to nightlies allows PyTorch binaries compiled with the ne
     - After your changes are promoted to viable/strict. Run nighly build job.
     - Make sure your changes made to nightly branch https://github.com/pytorch/pytorch/tree/nightly
     - Make sure all nightly build succeeded before continuing to Step #6
+5. If Stabel CUDA version changes update latest tag for ghcr.io like so: https://github.com/pytorch/pytorch/pull/145566
 
 ## 8. Add the new CUDA version to OSS CI.
 Testing the new version in CI is crucial for finding regressions and should be done ASAP along with the next step (I am simply putting this one first as it is usually easier).
