@@ -73,6 +73,20 @@ if [[ "$BUILD_LIGHTWEIGHT" == "1" ]]; then
     build_version="${build_version}.lw"
 fi
 
+if [[ -z "$PYTORCH_ROOT" ]]; then
+    echo "Need to set PYTORCH_ROOT env variable"
+    exit 1
+fi
+# Always append the pytorch commit to the build_version by querying Git
+pushd "$PYTORCH_ROOT"
+PYTORCH_COMMIT=$(git rev-parse HEAD)
+popd
+
+# Append the commit as a ".git<shortsha>" suffix
+# This yields versions like: torch-2.5.0+rocm6.2.0.lw.gitabcd1234
+short_commit=$(echo "$PYTORCH_COMMIT" | cut -c1-8)
+build_version="${build_version}.git${short_commit}"
+
 echo "Final build_version: $build_version"
 
 export PYTORCH_BUILD_VERSION=$build_version
@@ -119,10 +133,7 @@ fi
 ########################################################
 # Compile wheels as well as libtorch
 #######################################################
-if [[ -z "$PYTORCH_ROOT" ]]; then
-    echo "Need to set PYTORCH_ROOT env variable"
-    exit 1
-fi
+
 pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -r requirements.txt
