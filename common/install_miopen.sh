@@ -43,25 +43,11 @@ MIOPEN_CMAKE_COMMON_FLAGS="
 -DMIOPEN_USE_COMGR=ON
 -DMIOPEN_BUILD_DRIVER=OFF
 "
-# Pull MIOpen repo and set DMIOPEN_EMBED_DB based on ROCm version
-if [[ $ROCM_INT -ge 60400 ]] && [[ $ROCM_INT -lt 60500 ]]; then
-    echo "ROCm 6.4 MIOpen does not need any patches, do not build from source"
-    exit 0
-elif [[ $ROCM_INT -ge 60300 ]] && [[ $ROCM_INT -lt 60400 ]]; then
-    echo "ROCm 6.3 MIOpen does not need any patches, do not build from source"
-    exit 0
-elif [[ $ROCM_INT -ge 60200 ]] && [[ $ROCM_INT -lt 60300 ]]; then
-    echo "ROCm 6.2 MIOpen does not need any patches, do not build from source"
-    exit 0
-elif [[ $ROCM_INT -ge 60100 ]] && [[ $ROCM_INT -lt 60200 ]]; then
-    echo "ROCm 6.1 MIOpen does not need any patches, do not build from source"
-    exit 0
-elif [[ $ROCM_INT -ge 60000 ]] && [[ $ROCM_INT -lt 60100 ]]; then
-    echo "ROCm 6.0 MIOpen does not need any patches, do not build from source"
-    exit 0
+if [[ $ROCM_INT -ge 60200 ]] && [[ $ROCM_INT -lt 60204 ]]; then
+    MIOPEN_BRANCH="release/rocm-rel-6.2-staging"
 else
-    echo "Unhandled ROCM_VERSION ${ROCM_VERSION}"
-    exit 1
+    echo "ROCm ${ROCM_VERSION} does not need any patches, do not build from source"
+    exit 0
 fi
 
 # Workaround since almalinux manylinux image already has this and cget doesn't like that
