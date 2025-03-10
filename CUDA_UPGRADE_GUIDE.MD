@@ -9,9 +9,9 @@ Here is the supported matrix for CUDA and CUDNN (versions can be looked up in ht
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 11.8 | 8.7.0.84 | Legacy CUDA Release |
-| 12.1 | 8.9.2.26  | Stable CUDA Release |
-| 12.4 | 8.9.7.29  | Latest CUDA Nightly |
+| 11.8 | 9.1.0.70 | Legacy CUDA Release |
+| 12.6 (.3) | 9.5.1.17  | Stable CUDA Release |
+| 12.8 (.1) | 9.7.1.26  | Latest CUDA Nightly |
 
 
 ### B. Check the package availability
@@ -19,16 +19,13 @@ Here is the supported matrix for CUDA and CUDNN (versions can be looked up in ht
 Package availability to validate before starting upgrade process :
 
 1) CUDA and CUDNN is available for Linux and Windows:
-https://developer.download.nvidia.com/compute/cuda/11.5.0/local_installers/cuda_11.5.0_495.29.05_linux.run
-https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installers/11.5/
+https://developer.nvidia.com/cuda-downloads (select arch type for download)
 
-2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
-
-3) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
+2) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
    Following example is for cuda 12.4: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/12.4.0/ubuntu2204/devel?ref_type=heads
    (Make sure to use version without CUDNN, it should be installed separately by install script)
 
-4) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
+3) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
 
 
 ## 1. Maintain Progress and Updates
