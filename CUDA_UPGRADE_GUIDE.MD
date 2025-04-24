@@ -9,33 +9,32 @@ Here is the supported matrix for CUDA and CUDNN (versions can be looked up in ht
 
 | CUDA | CUDNN | additional details |
 | --- | --- | --- |
-| 11.8 | 8.7.0.84 | Legacy CUDA Release |
-| 12.1 | 8.9.2.26  | Stable CUDA Release |
-| 12.4 | 8.9.7.29  | Latest CUDA Nightly |
-
+| 11.8.0 | 9.1.0.70 | Legacy CUDA Release |
+| 12.6.3 | 9.5.1.17 | Stable CUDA Release |
+| 12.8.0 | 9.7.1.26 | Latest CUDA Release |
+|        | 9.8.0.87 | Latest CUDA Nightly |
 
 ### B. Check the package availability
 
 Package availability to validate before starting upgrade process :
 
 1) CUDA and CUDNN is available for Linux and Windows:
-https://developer.download.nvidia.com/compute/cuda/11.5.0/local_installers/cuda_11.5.0_495.29.05_linux.run
-https://developer.download.nvidia.com/compute/redist/cudnn/v8.3.2/local_installers/11.5/
+https://developer.download.nvidia.com/compute/cuda/12.8.0/local_installers/cuda_12.8.0_570.86.10_linux.run (x86)
+https://developer.download.nvidia.com/compute/cuda/12.8.0/local_installers/cuda_12.8.0_570.86.10_linux_sbsa.run (aarch64)
+https://developer.download.nvidia.com/compute/cudnn/redist/cudnn/
 
-2) CUDA is available on conda via nvidia channel : https://anaconda.org/nvidia/cuda/files
-
-3) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
-   Following example is for cuda 12.4: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/12.4.0/ubuntu2204/devel?ref_type=heads
+2) CUDA is available on Docker hub images : https://hub.docker.com/r/nvidia/cuda
+   Following example is for cuda 12.4: https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist/12.4.0/ubuntu2204/devel?ref_type=heads (TODO: Update this for 12.8)
    (Make sure to use version without CUDNN, it should be installed separately by install script)
 
-4) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
+3) Validate new driver availability: https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html. Check following table: Table 3. CUDA Toolkit and Corresponding Driver Versions
 
 
 ## 1. Maintain Progress and Updates
 Make an issue to track the progress, for example [#56721: Support 11.3](https://github.com/pytorch/pytorch/issues/56721). This is especially important as many PyTorch external users are interested in CUDA upgrades.
 
-## 2. Modify scripts to install the new CUDA for Conda Docker Linux containers.
-There are three types of Docker containers we maintain in order to build Linux binaries: `conda`, `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about conda.
+## 2. Modify scripts to install the new CUDA for Manywheel Docker Linux containers.
+There are two types of Docker containers we maintain in order to build Linux binaries: `libtorch`, and `manywheel`. They all require installing CUDA and then updating code references in respective build scripts/Dockerfiles.  This step is about manywheel.
 
 1. Follow this [PR 992](https://github.com/pytorch/builder/pull/992) for all steps in this section
 2. Find the CUDA install link [here](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&=Debian&target_version=10&target_type=runfile_local)
