@@ -58,8 +58,7 @@ There are two types of Docker containers we maintain in order to build Linux bin
 Add setup for our Docker `libtorch`:
 1. Follow this PR [PR 145789](https://github.com/pytorch/pytorch/pull/145789) for all steps in this section. For `libtorch`, the code changes are usually copy-paste. 
 2. Merge the above the PR, and it should automatically push the images to Docker Hub with GitHub Actions. Make sure to update the `cuda_version` to the version you're adding in respective YAMLs, such as `.github/workflows/build-libtorch-images.yml`.
-3. Verify that each of the workflows that push the images succeed by selecting and verifying them in the [Actions page](https://github.com/pytorch/builder/actions/workflows/build-libtorch-images.yml) of pytorch/builder. Furthermore, check [https://hub.docker.com/r/pytorch/libtorch-cxx11-builder/tags](https://hub.docker.com/r/pytorch/libtorch-cxx11-builder/tags) to verify that the right tags exist for libtorch types of images.
-4. Finally before enabling nightly binaries and CI builds we should make sure we post following PRs in [PR 1015](https://github.com/pytorch/builder/pull/1015) [PR 1017](https://github.com/pytorch/builder/pull/1017) and [this commit](https://github.com/pytorch/builder/commit/7d5e98f1336c7cb84c772604c5e0d1acb59f2d72) to enable the new CUDA build in wheels.
+3. Verify that the workflow that pushes the images succeed by selecting and verifying them in the [Actions page](https://github.com/pytorch/pytorch/actions/workflows/build-libtorch-images.yml). Furthermore, check [https://hub.docker.com/r/pytorch/libtorch-cxx11-builder/tags](https://hub.docker.com/r/pytorch/libtorch-cxx11-builder/tags) to verify that the right tags exist for libtorch types of images.
 
 ## 5. Generate new Windows AMI, test and deploy to canary and prod.
 
@@ -70,34 +69,34 @@ Please note, since this step currently requires access to corporate AWS, this st
 
 ## 6. Modify code to install the new CUDA for Windows and update MAGMA for Windows
 
-1. Follow this [PR 999](https://github.com/pytorch/builder/pull/999) for all steps in this section
+1. Follow this [windows Magma and cuda build for cu128](https://github.com/pytorch/pytorch/pull/146653/files) for all steps in this section
 2. To get the CUDA install link, just like with Linux, go [here](https://developer.nvidia.com/cuda-downloads?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exe_local) and upload that `.exe` file to our S3 bucket [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects).
-3. Review "Table 3. Possible Subpackage Names" of CUDA installation guide for windows [link](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) to make sure the Subpackage Names have not changed. These are specified in [cuda_install.bat file](https://github.com/pytorch/builder/pull/999/files#diff-92a9c40963159c9d8f88fa2987057a65a2370737bd4ecc233498ebdfa02021e6)
+3. Review "Table 3. Possible Subpackage Names" of CUDA installation guide for windows [link](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html) to make sure the Subpackage Names have not changed. These are specified in [cuda_install.bat file](https://github.com/pytorch/pytorch/pull/146653/files#diff-0b30eff7a5006465b01be34be60b1b109cf93fb0996de40613a319de309f40db)
 4. To get the cuDNN install link, you could ask NVIDIA, but you could also just sign up for an NVIDIA account and access the needed `.zip` file at this [link](https://developer.nvidia.com/rdp/cudnn-download). First click on `cuDNN Library for Windows (x86)` and then upload that zip file to our S3 bucket.
 5. NOTE: When you upload files to S3, make sure to make these objects publicly readable so that our CI can access them!
-6. Most times, you have to upgrade the driver install for newer versions, which would look like [updating the `windows/internal/driver_update.bat` file](https://github.com/pytorch/builder/commit/9b997037e16eb3bc635e28d101c3297d7e4ead29)
+6. If you have to upgrade the driver install for newer versions, which would look like [updating the `windows/internal/driver_update.bat` file](https://github.com/pytorch/pytorch/blob/main/.ci/pytorch/windows/internal/driver_update.bat)
     1. Please check the CUDA Toolkit and Minimum Required Driver Version for CUDA minor version compatibility table  in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
-7. Compile MAGMA with the new CUDA version. Update [`.github/workflows/build-magma-windows.yml`](https://github.com/pytorch/pytorch/blob/7d4f5f7508d3166af58fdcca8ff01a5b426af067/.github/workflows/build-magma-windows.yml#L25) to include new version.
+7. Compile MAGMA with the new CUDA version. Update [`.github/workflows/build-magma-windows.yml`](https://github.com/pytorch/pytorch/pull/146653/files#diff-613791f266f2f7b81148ca8f447b0cd6c6544f824f5f46a78a2794006c78957b) to include new version.
 8. Validate Magma builds by going to S3 [ossci-windows](https://s3.console.aws.amazon.com/s3/buckets/ossci-windows?region=us-east-1&tab=objects). And querying for ```magma_```
 
 
 ## 7. Add the new CUDA version to the nightly binaries matrix.
-Adding the new version to nightlies allows PyTorch binaries compiled with the new CUDA version to be available to users through `conda` or `pip` or just raw `libtorch`.
+Adding the new version to nightlies allows PyTorch binaries compiled with the new CUDA version to be available to users through `pip` or just raw `libtorch`.
 1. If the new CUDA version requires a new driver (see #1 sub-bullet), the CI and binaries would also need the new driver. Find the driver download [here](https://www.nvidia.com/en-us/drivers/unix/) and update the link like [so](https://github.com/pytorch/pytorch/commit/fcf8b712348f21634044a5d76a69a59727756357).
     1. Please check the Driver Version table in [the release notes](https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html) to see if a driver update is necessary.
-2. Follow this [PR 81095](https://github.com/pytorch/pytorch/pull/81095) for steps 2-4 in this section.
-3. Once [PR 81095](https://github.com/pytorch/pytorch/pull/81095) is created make sure to attach ciflow/binaries, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
+2. Follow this [Add CUDA 12.8 manywheel x86 Builds to Binaries Matrix](https://github.com/pytorch/pytorch/pull/145792/files) for steps 2-4 in this section.
+3. Once [PR 145792](https://github.com/pytorch/pytorch/pull/145792/files) is created make sure to attach ciflow/binaries, ciflow/nightly labels to this PR. And make sure all the new workflow with new CUDA version terminate successfully.
 4. Testing nightly builds is done as follows:
     - Make sure your commit to master passed all the test and there are no failures, otherwise the next step will not work
     - Make sure your changes are promoted to viable/strict branch: https://github.com/pytorch/pytorch/tree/viable/strict . Run viable/strict promotion job to promote from master to viable/strict
     - After your changes are promoted to viable/strict. Run nighly build job.
     - Make sure your changes made to nightly branch https://github.com/pytorch/pytorch/tree/nightly
     - Make sure all nightly build succeeded before continuing to Step #6
-5. If Stabel CUDA version changes update latest tag for ghcr.io like so: https://github.com/pytorch/pytorch/pull/145566
+5. If Stable CUDA version changes, update latest tag for ghcr.io like so: https://github.com/pytorch/pytorch/blob/main/.github/scripts/generate_binary_build_matrix.py#L20 
 
 ## 8. Add the new CUDA version to OSS CI.
 Testing the new version in CI is crucial for finding regressions and should be done ASAP along with the next step (I am simply putting this one first as it is usually easier).
-1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 11.7**: [PR 93406](https://github.com/pytorch/pytorch/pull/93406).
+1. The configuration files will be subject to change, but usually you just have to replace an older CUDA version with the new version you're adding. **Code reference for 12.6**: [PR 140793](https://github.com/pytorch/pytorch/pull/140793/files).
 2. IMPORTANT NOTE: the CI is not always automatically triggered when you edit the workflow files! Ensure that the new CI job for the new CUDA version is showing up in the PR signal box.
 If it is not there, make sure you add the correct ciflow label (ciflow/periodic, for example) to trigger the test. Just because the CI is green on your pull request does NOT mean
 the test has been run and is green.
@@ -117,6 +116,7 @@ propagate the CI changes so that torchvision and torchaudio can be packaged for 
 1. Add a change to a binary build matrix in test-infra repo [here](https://github.com/pytorch/test-infra/blob/main/tools/scripts/generate_binary_build_matrix.py#L29)
 2. A code sample for torchvision: [PR 7533](https://github.com/pytorch/vision/pull/7533)
 3. A code sample for torchaudio: [PR 3284](https://github.com/pytorch/audio/pull/3284)
+You can combine all above three steps in one PR: [PR 6244] (https://github.com/pytorch/test-infra/pull/6244/files)
 4. Almost every change in the above sample is copy-pasted from either itself or other existing parts of code in the
 builder repo. The difficulty again is not changing the config but rather verifying and debugging any failing builds.
 
@@ -125,6 +125,5 @@ This completes CUDA and CUDNN upgrade. Congrats! PyTorch now has support for a n
 ## Upgrade CUDNN version only
 
 If you require to update CUDNN version for already existing CUDA version, please perform the followin modifications.
-1. Builder PR: https://github.com/pytorch/builder/pull/1271. Important note: Builder PR and Pytorch PR need to be validated and landed togeather to avoid breakage of CI and nightly!
-2. Add new cudnn vesion to windows AMI: https://github.com/pytorch/test-infra/pull/1523. Rebuild and retest the AMI. Follow step 6  Generate new Windows AMI, test and deploy to canary and prod.
-3. Create PyTorch PR: https://github.com/pytorch/pytorch/pull/93086 and small wheel update PyTorch PR: https://github.com/pytorch/pytorch/pull/104757
+1. Add new cudnn vesion to windows AMI: https://github.com/pytorch/test-infra/pull/6290. Rebuild and retest the AMI. Follow step 6  Generate new Windows AMI, test and deploy to canary and prod.
+2. Add new cudnn version to linux builds: https://github.com/pytorch/pytorch/pull/148963/files (including installation script and small wheel update)
