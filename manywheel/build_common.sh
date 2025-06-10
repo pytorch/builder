@@ -137,30 +137,6 @@ fi
 pushd "$PYTORCH_ROOT"
 python setup.py clean
 retry pip install -r requirements.txt
-ver() {
-    printf "%3d%03d%03d%03d" $(echo "$1" | tr '.' ' ');
-}
-case ${DESIRED_PYTHON} in
-  cp38*)
-    retry pip install -q numpy==1.15
-    ;;
-  cp31*)
-    # CIRCLE_TAG contains the PyTorch version such as "1.13.0"
-    if [[ $(ver ${CIRCLE_TAG}) -ge $(ver 2.4) ]]; then
-      retry pip install -q --pre numpy==2.0.2
-    else
-      retry pip install -q "numpy<2.0.0"
-    fi
-    ;;
-  # Should catch 3.9+
-  *)
-    if [[ $(ver ${CIRCLE_TAG}) -ge $(ver 2.4) ]]; then
-      retry pip install -q --pre numpy==2.0.2
-    else
-      retry pip install -q "numpy<2.0.0"
-    fi
-    ;;
-esac
 
 # ROCm RHEL8 packages are built with cxx11 abi symbols
 if [[ "$DESIRED_DEVTOOLSET" == *"cxx11-abi"* || "$DESIRED_CUDA" == *"rocm"* ]]; then
