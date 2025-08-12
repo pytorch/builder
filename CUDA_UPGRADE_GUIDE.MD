@@ -107,8 +107,8 @@ the test has been run and is green.
 If linux driver update is required. The driver should be updated during the runner provisioning otherwise nightly workflows will fail with multiple Nova workflows.
 1. Post and merge [PR 5243](https://github.com/pytorch/test-infra/pull/5243)
 2. Run workflow [lambda-release-tag-runners workflow](https://github.com/pytorch/test-infra/actions/workflows/lambda-release-tag-runners.yml) this worklow will create new release [here](https://github.com/pytorch/test-infra/releases)
-3. Post and merge [PR 394](https://github.com/pytorch-labs/pytorch-gha-infra/pull/394)
-4. Deploy this change by running following workflow [runners-on-dispatch-release](https://github.com/pytorch-labs/pytorch-gha-infra/actions/workflows/runners-on-dispatch-release.yml)
+3. Post and merge [PR 394](https://github.com/meta-pytorch/pytorch-gha-infra/pull/394)
+4. Deploy this change by running following workflow [runners-on-dispatch-release](https://github.com/meta-pytorch/pytorch-gha-infra/actions/workflows/runners-on-dispatch-release.yml)
 
 ## 10. Add the new version to torchvision and torchaudio CI.
 Torchvision and torchaudio is usually a dependency for installing PyTorch for most of our users. This is why it is important to also
