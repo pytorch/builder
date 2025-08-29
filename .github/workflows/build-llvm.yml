@@ -1,0 +1,94 @@
+name: LLVM Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - llvm-build/*
+      - .github/workflows/build-llvm.yml
+
+env:
+  SCCACHE_DIR: ${{ github.workspace }}/sccache
+
+
+jobs:
+
+  build:
+    name: Build on ${{ matrix.config.runner }}
+    runs-on: ${{ matrix.config.runs_on }}
+    # container: pytorch/manylinuxaarch64-builder:cpu-aarch64-main
+
+    timeout-minutes: 240  # 4 hours
+
+    strategy:
+      fail-fast: true
+      matrix:
+        config:
+        - {runner: 'AlmaLinux 8', runs_on: 'linux.arm64.2xlarge', target-os: 'almalinux', arch: 'arm64'}
+
+
+    steps:
+
+    - name: Checkout Repo
+      uses: actions/checkout@v4
+      with:
+        path: llvm-build
+
+    - name: Fetch LLVM Commit Hash
+      shell: bash
+      run: |
+        LLVM_COMMIT_HASH="82f5acfbec65e1a645d902f746253eeaf0bd2d70"
+        echo "Found LLVM commit hash: ${LLVM_COMMIT_HASH}"
+        echo "llvm_commit_hash=${LLVM_COMMIT_HASH}" >> ${GITHUB_ENV}
+
+        SHORT_LLVM_COMMIT_HASH="${LLVM_COMMIT_HASH:0:8}"
+        echo "Short LLVM commit hash: ${SHORT_LLVM_COMMIT_HASH}"
+        echo "short_llvm_commit_hash=${SHORT_LLVM_COMMIT_HASH}" >> ${GITHUB_ENV}
+
+        INSTALL_DIR="llvm-${SHORT_LLVM_COMMIT_HASH}-${{ matrix.config.target-os }}-${{ matrix.config.arch }}"
+        echo "LLVM installation directory name: ${INSTALL_DIR}"
+        echo "llvm_install_dir=${INSTALL_DIR}" >> ${GITHUB_ENV}
+
+    - name: Checkout LLVM
+      uses: actions/checkout@v4
+      with:
+        repository: llvm/llvm-project
+        path: llvm-project
+        ref: ${{ env.llvm_commit_hash }}
+
+    - name: Install Prerequisites
+      shell: bash
+      run: |
+        python3 -m pip install cmake ninja sccache
+        mkdir -p ${{ env.SCCACHE_DIR }}
+        rm -rf ${{ env.SCCACHE_DIR }}/*
+
+
+    - name: Configure, Build, Test, and Install LLVM (AlmaLinux)
+      run: |
+        # if this step crashes, it can leave behind a stale docker container
+        docker container prune -f
+        # docker rmi -f $(docker images -q)
+
+        docker build --tag llvm-build --build-arg llvm_dir=llvm-project \
+          -f  llvm-build/.github/workflows/llvm-build/almalinux.Dockerfile .
+
+        # Create temporary container to copy cache and installed artifacts.
+        CONTAINER_ID=$(docker create llvm-build)
+        docker cp "${CONTAINER_ID}:/install" "${{ env.llvm_install_dir }}"
+        tar czf "${{ env.llvm_install_dir }}.tar.gz" "${{ env.llvm_install_dir }}"
+
+        # We remove the existing directory, otherwise docker will
+        # create a subdirectory inside the existing directory.
+        rm -rf "${{ env.SCCACHE_DIR }}"
+        docker cp "${CONTAINER_ID}:/sccache" "${{ env.SCCACHE_DIR }}"
+        sudo chown -R "$(id -u -n):$(id -g -n)" "${{ env.SCCACHE_DIR }}"
+
+        docker rm "${CONTAINER_ID}"
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: llvm-${{ matrix.config.target-os }}-${{ matrix.config.arch }}
+        path: |
+          ${{ github.workspace }}/llvm-*-${{ matrix.config.target-os }}-${{ matrix.config.arch }}.tar.gz
